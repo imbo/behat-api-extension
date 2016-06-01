@@ -9,7 +9,7 @@ before_script:
   - composer install --prefer-source
 
 script:
-  - php -S localhost:8080 -t ./testapp" > /dev/null 2> server.log &
+  - php -S localhost:8080 -t ./testapp > /dev/null 2> server.log &
   - ./vendor/bin/behat --strict
 
 after_failure:

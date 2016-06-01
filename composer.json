@@ -1,0 +1,33 @@
+{
+    "name": "imbo/behat-api-extension",
+    "type": "library",
+    "description": "API extension for Behat",
+    "keywords": ["behat", "testing", "api", "REST", "http"],
+    "homepage": "https://github.com/imbo/behat-api-extension",
+    "license": "MIT",
+    "authors": [{
+        "name": "Christer Edvartsen",
+        "email": "cogo@starzinger.net"
+    }],
+    "support": {
+        "issues": "https://github.com/imbo/behat-api-extension/issues",
+        "irc": "irc://irc.freenode.net/imbo"
+    },
+    "require": {
+        "php": ">=5.6",
+        "behat/behat": "^3.0",
+        "guzzlehttp/guzzle": "^6.0",
+        "beberlei/assert": "^2.1"
+    },
+    "require-dev": {
+        "silex/silex": "^2.0",
+        "symfony/security": "^3.1",
+        "symfony/process": "^3.1",
+        "phpunit/phpunit": "^5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Imbo\\BehatApiExtension\\": "src/"
+        }
+    }
+}

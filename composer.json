@@ -29,5 +29,10 @@
         "psr-4": {
             "Imbo\\BehatApiExtension\\": "src/"
         }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-develop": "1.0.x-dev"
+        }
     }
 }

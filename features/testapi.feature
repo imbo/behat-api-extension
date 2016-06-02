@@ -105,3 +105,94 @@ Feature: Test API
             | data      |
             | Some data |
             |           |
+
+    Scenario Outline: Check for key in JSON response body
+        Given a file named "features/lookForKeyInJsonBody.feature" with:
+            """
+            Feature: Test assert key exists in JSON body
+                In order to check if a key exists in the JSON body
+                As a context developer
+                I need to have a step for this
+
+                Scenario: Look for key in response
+                    When I request "echo?json=1" using HTTP POST with body:
+                        '''
+                        <request>
+                        '''
+                    Then the response body should contain JSON key "<key>"
+            """
+        When I run "behat features/lookForKeyInJsonBody.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """
+
+        Examples:
+            | request                   | key |
+            | {"foo":"bar"}             | foo |
+            | {"foo":"bar","bar":"foo"} | bar |
+
+    Scenario: Check for keys in JSON response body
+        Given a file named "features/lookForKeysInJsonBody.feature" with:
+            """
+            Feature: Test assert multiple keys exist in JSON body
+                In order to check if mulitple keys exist in the JSON body
+                As a context developer
+                I need to have a step for this
+
+                Scenario: Look for keys in response
+                    When I request "echo?json=1" using HTTP POST with body:
+                        '''
+                        {"foo":"bar","bar":"foo","foobar":"baz"}
+                        '''
+                    Then the response body should contain JSON keys:
+                        | key    |
+                        | foo    |
+                        | bar    |
+                        | foobar |
+            """
+        When I run "behat features/lookForKeysInJsonBody.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """
+
+    Scenario Outline: Check for key/value pairs in JSON response body
+        Given a file named "features/keyValuePairs.feature" with:
+            """
+            Feature: Test assert multiple keys exist in JSON body
+                In order to check if key/value pairs exists in the response body
+                As a context developer
+                I need to have a step for this
+
+                Scenario: Look for key/value pairs in the response body
+                    When I request "echo?json=1" using HTTP POST with body:
+                        '''
+                        <request>
+                        '''
+                    Then the response body should contain JSON:
+                        '''
+                        <needle>
+                        '''
+            """
+        When I run "behat features/keyValuePairs.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """
+
+        Examples:
+            | request                                  | needle                    |
+            | {"foo":"bar"}                            | {"foo":"bar"}             |
+            | {"foo":"bar","bar":"foo"}                | {"bar":"foo"}             |
+            | {"foo":"bar","bar":"foo", "baz":[1,2,3]} | {"baz":[1,2,3]}           |
+            | {"foo":"bar","bar":"foo", "baz":[1,2,3]} | {"foo":"bar","bar":"foo"} |

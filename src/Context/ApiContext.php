@@ -126,6 +126,75 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Make sure that the response body contains a JSON key
+     *
+     * @param string $key
+     * @param array $body
+     * @Then /^the response body should contain JSON key "(.*?)"$/
+     */
+    public function assertBodyHasJsonKey($key, array $body = null) {
+        if ($body === null) {
+            $body = json_decode($this->response->getBody(), true);
+
+            if ($body === null) {
+                throw new RuntimeException(
+                    "Can not convert response body to JSON:" . PHP_EOL . (string) $this->response->getBody()
+                );
+            }
+        }
+
+        Assertion::keyExists($body, $key);
+    }
+
+    /**
+     * Make sure that the response body contains multiple JSON keys
+     *
+     * @param TableNode $table
+     * @throws RuntimeException
+     * @Then the response body should contain JSON keys:
+     */
+    public function assertBodyHasJsonKeys(TableNode $table) {
+        $body = json_decode($this->response->getBody(), true);
+
+        if ($body === null) {
+            throw new RuntimeException(
+                "Can not convert response body to JSON:" . PHP_EOL . (string) $this->response->getBody()
+            );
+        }
+
+        foreach ($table as $row) {
+            $this->assertBodyHasJsonKey($row['key'], $body);
+        }
+    }
+
+    /**
+     * Make sure that all the key/value pairs in the $needle exists in the response body
+     *
+     * @param PyStringNode $jsonString
+     * @throws RuntimeException
+     * @Then /^the response body should contain JSON:$/
+     */
+    public function assertResponseBodyContainsJson(PyStringNode $jsonString) {
+        $needle = json_decode($jsonString->getRaw(), true);
+        $body = json_decode($this->response->getBody(), true);
+
+        if ($needle === null) {
+            throw new RuntimeException(
+                "Can not convert needle to JSON:" . PHP_EOL . $jsonString->getRaw()
+            );
+        } else if ($body === null) {
+            throw new RuntimeException(
+                "Can not convert response body to JSON:" . PHP_EOL . (string) $this->response->getBody()
+            );
+        }
+
+        foreach ($needle as $key => $needle) {
+            Assertion::keyExists($body, $key);
+            Assertion::same($needle, $body[$key]);
+        }
+    }
+
+    /**
      * Get the request instance
      *
      * @return null|RequestInterface

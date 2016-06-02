@@ -49,9 +49,9 @@ The extension allows you to use the following steps in your features:
 
 ### `When I request "<url>"`
 ### `When I request "<url>" using HTTP <method>`
-### `When I request "<url>" using HTTP <method> with body:`
+### `When I request "<url>" using HTTP <method> with body: <PyStringNode>`
 
-`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`. The last form should be used with a PyString, like for instance:
+`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`. The last form should be used with a `PyStringNode`, for instance:
 
     When I request "<url>" using HTTP <method> with body:
         """
@@ -61,6 +61,58 @@ The extension allows you to use the following steps in your features:
 ### `Given the "<header>" request header is "<value>"`
 
 Set the `<header>` request header to `<value>`. Can be repeated to make a header appear multiple times.
+
+### `Then the response body should contain JSON key "<key>"`
+
+Make sure a key exists in the JSON object in the response.
+
+### `Then the response body should contain JSON keys: <TableNode>`
+
+Used with a `TableNode`, for instance:
+
+    Then the response body should contain JSON keys:
+        | key    |
+        | foobar |
+        | barfoo |
+
+The first line in the table is special and must be named `key`.
+
+### `Then the response body should contain JSON: <PyStringNode>`
+
+Used to match key/value pairs in the response body. Given the following response body:
+
+```javascript
+{
+    "site": "site url",
+    "source": "source url",
+    "docs": "docs url"
+}
+```
+
+the following steps would pass:
+
+```
+Then the response body should contain JSON:
+    """
+    {"site":"site url"}
+    """
+```
+
+```
+Then the response body should contain JSON:
+    """
+    {"site":"site url","source":"source url"}
+    """
+```
+
+and the following would not:
+
+```
+Then the response body should contain JSON:
+    """
+    {"foo":"bar"}
+    """
+```
 
 ### `Then the response body should be "<content>"`
 

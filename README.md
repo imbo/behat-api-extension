@@ -47,24 +47,30 @@ base_uri | string | http://localhost:8080 | Base URI of the application under te
 
 The extension allows you to use the following steps in your features:
 
-    When I request "<url>"
-    When I request "<url>" using HTTP <method>
+### `When I request "<url>"`
+### `When I request "<url>" using HTTP <method>`
+### `When I request "<url>" using HTTP <method> with body:`
 
-`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`.
+`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`. The last form should be used with a PyString, like for instance:
 
-    Given the "<header>" request header is "<value>"
+    When I request "<url>" using HTTP <method> with body:
+        """
+        {"some":"json"}
+        """
+
+### `Given the "<header>" request header is "<value>"`
 
 Set the `<header>` request header to `<value>`. Can be repeated to make a header appear multiple times.
 
-    Then the response body should be "<content>"
+### `Then the response body should be "<content>"`
 
 Match the whole response body to `<content>`.
 
-    Then the response code should be <code>
+### `Then the response code should be <code>`
 
 Match the response code to `<code>`.
 
-    Given I am authenticating as "<username>" with password "<password>"
+### `Given I am authenticating as "<username>" with password "<password>"`
 
 Use this step when the URL you are requesting required basic auth.
 

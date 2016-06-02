@@ -7,6 +7,7 @@
 
 use Silex\Application,
     Silex\Provider,
+    Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request;
 
@@ -32,6 +33,13 @@ $app->register(new Provider\SecurityServiceProvider(), [
         ],
     ],
 ]);
+
+/**
+ * Echo the request body
+ */
+$app->match('echo', function(Request $request) {
+    return new Response($request->getContent());
+});
 
 /**
  * Return the HTTP method

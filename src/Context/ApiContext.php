@@ -67,12 +67,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $url
      * @param string $method
-     * @When /^I request "(.*?)" using HTTP ([A-Z]+)$/
+     * @param PyStringNode $body
+     * @When /^I request "(.*?)" using HTTP ([A-Z]+)(?: with body:)?$/
      */
-    public function makeAndSendRequest($url, $method) {
+    public function makeAndSendRequest($url, $method, PyStringNode $body = null) {
         $url = $this->prepareUrl($url);
 
-        $this->request = new Request($method, $url, $this->headers);
+        $this->request = new Request($method, $url, $this->headers, (string) $body ?: null);
         $this->sendRequest();
     }
 

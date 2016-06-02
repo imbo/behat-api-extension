@@ -38,7 +38,9 @@ $app->register(new Provider\SecurityServiceProvider(), [
  * Echo the request body
  */
 $app->match('echo', function(Request $request) {
-    return new Response($request->getContent());
+    return $request->query->has('json') ?
+        new JsonResponse(json_decode($request->getContent(), true)) :
+        new Response($request->getContent());
 });
 
 /**

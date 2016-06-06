@@ -9,7 +9,8 @@ use Behat\Behat\Context\SnippetAcceptingContext,
     GuzzleHttp\Psr7\Request,
     Assert\Assertion,
     Psr\Http\Message\RequestInterface,
-    Psr\Http\Message\ResponseInterface;
+    Psr\Http\Message\ResponseInterface,
+    RuntimeException;
 
 /**
  * API feature context that can be used to ease testing of HTTP APIs

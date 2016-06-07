@@ -50,13 +50,16 @@ The extension allows you to use the following steps in your features:
 ### `When I request "<url>"`
 ### `When I request "<url>" using HTTP <method>`
 ### `When I request "<url>" using HTTP <method> with body: <PyStringNode>`
+### `When I request "<url>" using HTTP <method> with JSON body: <PyStringNode>`
 
-`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`. The last form should be used with a `PyStringNode`, for instance:
+`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`. The last two forms should be used with a `PyStringNode`, for instance:
 
     When I request "<url>" using HTTP <method> with body:
         """
         {"some":"json"}
         """
+
+The last form adds a `Content-Type: application/json` request header automatically.
 
 ### `Given the "<header>" request header is "<value>"`
 

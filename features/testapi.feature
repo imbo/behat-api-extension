@@ -196,3 +196,31 @@ Feature: Test API
             | {"foo":"bar","bar":"foo"}                | {"bar":"foo"}             |
             | {"foo":"bar","bar":"foo", "baz":[1,2,3]} | {"baz":[1,2,3]}           |
             | {"foo":"bar","bar":"foo", "baz":[1,2,3]} | {"foo":"bar","bar":"foo"} |
+
+    Scenario Outline: Check for response code groups
+        Given a file named "features/responseCodeGroups.feature" with:
+            """
+            Feature: Test assert response code is in a group
+                In order to check if the response code is in a group
+                As a context developer
+                I need to have a step for this
+
+                Scenario: Match response code to a group
+                    When I request "<path>"
+                    Then the response code should be <code>
+                    And the response code means <group>
+            """
+        When I run "behat features/responseCodeGroups.feature"
+        Then it should pass with:
+            """
+            ...
+
+            1 scenario (1 passed)
+            3 steps (3 passed)
+            """
+
+        Examples:
+            | path          | code | group        |
+            | /             | 200  | success      |
+            | /clientError  | 400  | client error |
+            | /serverError  | 500  | server error |

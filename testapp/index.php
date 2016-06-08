@@ -35,6 +35,13 @@ $app->register(new Provider\SecurityServiceProvider(), [
 ]);
 
 /**
+ * Front page
+ */
+$app->get('/', function(Request $request) {
+    return new JsonResponse();
+});
+
+/**
  * Echo the request body
  */
 $app->match('echo', function(Request $request) {
@@ -59,6 +66,24 @@ $app->match('auth', function(Application $app) {
     return new JsonResponse([
         'user' => $app['security.token_storage']->getToken()->getUser()->getUsername(),
     ]);
+});
+
+/**
+ * Return a client error
+ */
+$app->match('clientError', function(Application $app) {
+    return new JsonResponse([
+        'error' => 'client error',
+    ], 400);
+});
+
+/**
+ * Return a server error
+ */
+$app->match('serverError', function(Application $app) {
+    return new JsonResponse([
+        'error' => 'server error',
+    ], 500);
 });
 
 // Run the application

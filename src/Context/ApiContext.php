@@ -103,6 +103,41 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Checks the HTTP response code
+     *
+     * @param string $group
+     * @Then /^the response code means (informational|success|redirection|(?:client|server) error)$/
+     */
+    public function assertResponseCodeIsInGroup($group) {
+        $code = $this->response->getStatusCode();
+
+        switch ($group) {
+            case 'informational':
+                $min = 100;
+                $max = 199;
+                break;
+            case 'success':
+                $min = 200;
+                $max = 299;
+                break;
+            case 'redirection':
+                $min = 300;
+                $max = 399;
+                break;
+            case 'client error':
+                $min = 400;
+                $max = 499;
+                break;
+            case 'server error':
+                $min = 500;
+                $max = 599;
+                break;
+        }
+
+        Assertion::range($code, $min, $max);
+    }
+
+    /**
      * @Given /^I am authenticating as "(.*?)" with password "(.*?)"$/
      */
     public function setAuth($username, $password) {

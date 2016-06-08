@@ -89,7 +89,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then /^the response body should be "(.*?)"$/
      */
     public function assertResponseBodyMatches($content) {
-        Assertion::same((string) $content, (string) $this->response->getBody());
+        Assertion::same((string) $content, (string) $this->response->getBody(), 'Response body: ' . $this->response->getBody());
     }
 
     /**

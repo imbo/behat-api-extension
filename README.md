@@ -2,6 +2,8 @@
 
 [![Current build Status](https://secure.travis-ci.org/imbo/behat-api-extension.png)](http://travis-ci.org/imbo/behat-api-extension)
 
+**This extension is a work in progress. The steps mentioned below will probably be updated along the way until a stable release has been made, so expect things to change without warning.**
+
 This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
 
 ## Requirements

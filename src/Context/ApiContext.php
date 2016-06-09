@@ -99,7 +99,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then /^the response code should be ([0-9]{3})$/
      */
     public function assertResponseCode($code) {
-        Assertion::same((int) $code, $this->response->getStatusCode());
+        Assertion::same((int) $code, $this->response->getStatusCode(), (string) $this->response->getBody());
     }
 
     /**
@@ -211,26 +211,31 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Make sure that all the key/value pairs in the $needle exists in the response body
      *
      * @param PyStringNode $jsonString
+     * @param array $body Pass in an optional body to use instead of the one found in the response
      * @throws RuntimeException
      * @Then /^the response body should contain JSON:$/
      */
-    public function assertResponseBodyContainsJson(PyStringNode $jsonString) {
+    public function assertResponseBodyContainsJson(PyStringNode $jsonString, array $body = null) {
         $needle = json_decode($jsonString->getRaw(), true);
-        $body = json_decode($this->response->getBody(), true);
+
+        if ($body === null) {
+            // No body has been given, use the one from the response
+            $body = json_decode($this->response->getBody(), true);
+        }
 
         if ($needle === null) {
             throw new RuntimeException(
-                "Can not convert needle to JSON:" . PHP_EOL . $jsonString->getRaw()
+                'Can not convert needle to JSON:' . PHP_EOL . $jsonString->getRaw()
             );
         } else if ($body === null) {
             throw new RuntimeException(
-                "Can not convert response body to JSON:" . PHP_EOL . (string) $this->response->getBody()
+                'Can not convert response body to JSON:' . PHP_EOL . (string) $this->response->getBody()
             );
         }
 
         foreach ($needle as $key => $needle) {
             Assertion::keyExists($body, $key);
-            Assertion::same($needle, $body[$key]);
+            Assertion::same($needle, $body[$key], 'Value: ' . json_encode($body[$key]));
         }
     }
 
@@ -293,5 +298,23 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 throw $e;
             }
         }
+    }
+
+    /**
+     * Get the JSON-decoded response body
+     *
+     * @return mixed
+     * @throws RuntimeException
+     */
+    protected function getResponseBody() {
+        $result = json_decode((string) $this->getResponse()->getBody(), true);
+
+        if ($result === null) {
+            throw new RuntimeException(
+                'Could not convert response body to JSON:' . PHP_EOL . (string) $this->getResponse()->getBody()
+            );
+        }
+
+        return $result;
     }
 }

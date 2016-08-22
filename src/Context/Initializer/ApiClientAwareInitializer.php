@@ -4,7 +4,8 @@ namespace Imbo\BehatApiExtension\Context\Initializer;
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext,
     Behat\Behat\Context\Context,
     Behat\Behat\Context\Initializer\ContextInitializer,
-    GuzzleHttp\ClientInterface;
+    GuzzleHttp\ClientInterface,
+    RuntimeException;
 
 /**
  * API client aware initializer
@@ -23,8 +24,23 @@ class ApiClientAwareInitializer implements ContextInitializer {
      * Class constructor
      *
      * @param ClientInterface $client
+     * @throws RuntimeException
      */
     public function __construct(ClientInterface $client) {
+        $baseUri = $client->getConfig()['base_uri'];
+        $host = $baseUri->getHost();
+        $port = $baseUri->getPort() ?: ($baseUri->getScheme() === 'http' ? 80 : 443);
+
+        set_error_handler(function() { return true; });
+        $resource = fsockopen($host, $port);
+        restore_error_handler();
+
+        if ($resource === false) {
+            throw new RuntimeException(sprintf('Can not connect to %s:%d', $host, $port));
+        }
+
+        fclose($resource);
+
         $this->client = $client;
     }
 

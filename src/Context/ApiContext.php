@@ -208,7 +208,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Make sure that all the key/value pairs in the $needle exists in the response body
+     * Make sure that all the key/value pairs in the $jsonString exists in the response body
      *
      * @param PyStringNode $jsonString
      * @param array $body Pass in an optional body to use instead of the one found in the response
@@ -216,26 +216,25 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then /^the response body should contain JSON:$/
      */
     public function assertResponseBodyContainsJson(PyStringNode $jsonString, array $body = null) {
-        $needle = json_decode($jsonString->getRaw(), true);
+        $data = json_decode($jsonString->getRaw(), true);
 
         if ($body === null) {
-            // No body has been given, use the one from the response
             $body = json_decode($this->response->getBody(), true);
         }
 
-        if ($needle === null) {
+        if ($data === null) {
             throw new RuntimeException(
-                'Can not convert needle to JSON:' . PHP_EOL . $jsonString->getRaw()
+                'Can not decode JSON:' . PHP_EOL . $jsonString->getRaw()
             );
         } else if ($body === null) {
             throw new RuntimeException(
-                'Can not convert response body to JSON:' . PHP_EOL . (string) $this->response->getBody()
+                'Can not decode JSON from response body:' . PHP_EOL . (string) $this->response->getBody()
             );
         }
 
-        foreach ($needle as $key => $needle) {
+        foreach ($data as $key => $value) {
             Assertion::keyExists($body, $key);
-            Assertion::same($needle, $body[$key], 'Value: ' . json_encode($body[$key]));
+            Assertion::same($value, $body[$key]);
         }
     }
 

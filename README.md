@@ -57,7 +57,11 @@ Use this step when the URL you are requesting required basic auth. Must be used 
 
 #### `Given the "<header>" request header is "<value>"`
 
-Set the `<header>` request header to `<value>`. Can be repeated to set multiple headers or to set the same header multiple times. Must be used before any of the `When I request` steps.
+Set the `<header>` request header to `<value>`. Can be repeated to set multiple headers or to set the same header multiple times. Must be used before any of the `When I request` steps listed below.
+
+#### `Given I attach "<path>" to the request as "<name">`
+
+Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a file specified does not exist an `InvalidArgumentException` will be thrown. Must be used before any of the `When I request` steps listed below.
 
 #### `When I request "<url>"`
 #### `When I request "<url>" using HTTP <method>`
@@ -154,7 +158,3 @@ Match the whole response body to `<content>`.
 Copyright (c) 2016, Christer Edvartsen <cogo@starzinger.net>
 
 Licensed under the MIT License
-
-## Community
-
-If you have any questions feel free to join `#imbo` on the Freenode IRC network (`chat.freenode.net`).

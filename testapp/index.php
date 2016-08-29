@@ -51,6 +51,13 @@ $app->match('echo', function(Request $request) {
 });
 
 /**
+ * Return information about uploaded files
+ */
+$app->post('files', function(Request $request) {
+    return new JsonResponse($_FILES);
+});
+
+/**
  * Return the HTTP method
  */
 $app->match('getMethod', function(Request $request) {

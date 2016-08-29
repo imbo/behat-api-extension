@@ -10,7 +10,8 @@ use Behat\Behat\Context\SnippetAcceptingContext,
     Assert\Assertion,
     Psr\Http\Message\RequestInterface,
     Psr\Http\Message\ResponseInterface,
-    RuntimeException;
+    RuntimeException,
+    InvalidArgumentException;
 
 /**
  * API feature context that can be used to ease testing of HTTP APIs
@@ -40,6 +41,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     private $request;
 
     /**
+     * Request options
+     *
+     * @var array
+     */
+    private $requestOptions = [];
+
+    /**
      * Response instance
      *
      * @var ResponseInterface
@@ -56,7 +64,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Request a URL using HTTP GET
      *
-     * @param string $url
+     * @param string $url The URL to request
      * @When /^I request "(.*?)"$/
      */
     public function makeAndSendGetRequest($url) {
@@ -66,9 +74,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Request a URL using a specific method
      *
-     * @param string $url
-     * @param string $method
-     * @param PyStringNode $body
+     * @param string $url The URL to request
+     * @param string $method The HTTP Method to use
+     * @param boolean $bodyIsJson Whether or not the body is JSON-data
+     * @param PyStringNode $body The body to attach to request
      * @When /^I request "(.*?)" using HTTP ([A-Z]+)(?: with (JSON )?body:)?$/
      */
     public function makeAndSendRequest($url, $method, $bodyIsJson = false, PyStringNode $body = null) {
@@ -85,7 +94,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Check that the response matches some text
      *
-     * @param string $content
+     * @param string $content The content to match the response body against
      * @Then /^the response body should be "(.*?)"$/
      */
     public function assertResponseBodyMatches($content) {
@@ -95,7 +104,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Checks the HTTP response code
      *
-     * @param string $code
+     * @param string $code The HTTP response code
      * @Then /^the response code should be ([0-9]{3})$/
      */
     public function assertResponseCode($code) {
@@ -105,7 +114,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Checks the HTTP response code
      *
-     * @param string $group
+     * @param string $group Name of the group
      * @Then /^the response code means (informational|success|redirection|(?:client|server) error)$/
      */
     public function assertResponseCodeIsInGroup($group) {
@@ -138,6 +147,34 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Attach a file to the request
+     *
+     * @param string $path Path to the image to add to the request
+     * @param string $filename Multipart entry name
+     * @Given /^I attach "(.*?)" to the request as "(.*?)"$/
+     */
+    public function addFile($path, $partName) {
+        if (!file_exists($path)) {
+            throw new InvalidArgumentException(sprintf('File does not exist: %s', $path));
+        }
+
+        $part = [
+            'name' => $partName,
+            'contents' => fopen($path, 'r'),
+        ];
+
+        if (!isset($this->requestOptions['multipart'])) {
+            $this->requestOptions['multipart'] = [];
+        }
+
+        $this->requestOptions['multipart'][] = $part;
+    }
+
+    /**
+     * Set authentication information for the next request
+     *
+     * @param string $username The username to authenticate with
+     * @param string $password The password to authenticate with
      * @Given /^I am authenticating as "(.*?)" with password "(.*?)"$/
      */
     public function setAuth($username, $password) {
@@ -149,8 +186,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * If the header already exists it will be converted to an array
      *
-     * @param string $header
-     * @param string $value
+     * @param string $header The header name
+     * @param string $value The header value
      * @Given /^the "(.*?)" request header is "(.*?)"$/
      */
     public function addHeader($header, $value) {
@@ -168,8 +205,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Make sure that the response body contains a JSON key
      *
-     * @param string $key
-     * @param array $body
+     * @param string $key The key to check for
+     * @param array $body The body to check for the key. If not specified the response body will be
+     *                    used
+     * @throws RuntimeException
      * @Then /^the response body should contain JSON key "(.*?)"$/
      */
     public function assertBodyHasJsonKey($key, array $body = null) {
@@ -189,7 +228,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Make sure that the response body contains multiple JSON keys
      *
-     * @param TableNode $table
+     * @param TableNode $table Table of data
      * @throws RuntimeException
      * @Then the response body should contain JSON keys:
      */
@@ -210,7 +249,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Make sure that all the key/value pairs in the $jsonString exists in the response body
      *
-     * @param PyStringNode $jsonString
+     * @param PyStringNode $jsonString String of JSON-data
      * @param array $body Pass in an optional body to use instead of the one found in the response
      * @throws RuntimeException
      * @Then /^the response body should contain JSON:$/
@@ -286,10 +325,16 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
     /**
      * Send the current request and set the response instance
+     *
+     * @throws RequestException
      */
     private function sendRequest() {
+        // Make sure to reset the request options so that it's not carried over to the next request
+        $requestOptions = $this->requestOptions;
+        $this->requestOptions = [];
+
         try {
-            $this->response = $this->client->send($this->request);
+            $this->response = $this->client->send($this->request, $requestOptions);
         } catch (RequestException $e) {
             $this->response = $e->getResponse();
 

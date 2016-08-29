@@ -78,7 +78,7 @@ Feature: Test API
             | bar      | foo      | 200          | {"user":"bar"} |
 
     Scenario Outline: Sending requests with a body
-        Given a file named "features/requestWithBody.feature" with:
+        Given a file named "features/request-with-body.feature" with:
             """
             Feature: Test request with body
                 In order to send request with body
@@ -92,7 +92,7 @@ Feature: Test API
                         '''
                     Then the response body should be "<data>"
             """
-        When I run "behat features/requestWithBody.feature"
+        When I run "behat features/request-with-body.feature"
         Then it should pass with:
             """
             ..
@@ -107,7 +107,7 @@ Feature: Test API
             |           |
 
     Scenario Outline: Check for key in JSON response body
-        Given a file named "features/lookForKeyInJsonBody.feature" with:
+        Given a file named "features/look-for-key-in-json-body.feature" with:
             """
             Feature: Test assert key exists in JSON body
                 In order to check if a key exists in the JSON body
@@ -121,7 +121,7 @@ Feature: Test API
                         '''
                     Then the response body should contain JSON key "<key>"
             """
-        When I run "behat features/lookForKeyInJsonBody.feature"
+        When I run "behat features/look-for-key-in-json-body.feature"
         Then it should pass with:
             """
             ..
@@ -136,7 +136,7 @@ Feature: Test API
             | {"foo":"bar","bar":"foo"} | bar |
 
     Scenario: Check for keys in JSON response body
-        Given a file named "features/lookForKeysInJsonBody.feature" with:
+        Given a file named "features/look-for-keys-in-json-body.feature" with:
             """
             Feature: Test assert multiple keys exist in JSON body
                 In order to check if mulitple keys exist in the JSON body
@@ -154,7 +154,7 @@ Feature: Test API
                         | bar    |
                         | foobar |
             """
-        When I run "behat features/lookForKeysInJsonBody.feature"
+        When I run "behat features/look-for-keys-in-json-body.feature"
         Then it should pass with:
             """
             ..
@@ -164,7 +164,7 @@ Feature: Test API
             """
 
     Scenario Outline: Check for key/value pairs in JSON response body
-        Given a file named "features/keyValuePairs.feature" with:
+        Given a file named "features/key-value-pairs.feature" with:
             """
             Feature: Test assert multiple keys exist in JSON body
                 In order to check if key/value pairs exists in the response body
@@ -181,7 +181,7 @@ Feature: Test API
                         <needle>
                         '''
             """
-        When I run "behat features/keyValuePairs.feature"
+        When I run "behat features/key-value-pairs.feature"
         Then it should pass with:
             """
             ..
@@ -198,7 +198,7 @@ Feature: Test API
             | {"foo":"bar","bar":"foo", "baz":[1,2,3]} | {"foo":"bar","bar":"foo"} |
 
     Scenario Outline: Check for response code groups
-        Given a file named "features/responseCodeGroups.feature" with:
+        Given a file named "features/response-code-groups.feature" with:
             """
             Feature: Test assert response code is in a group
                 In order to check if the response code is in a group
@@ -210,7 +210,7 @@ Feature: Test API
                     Then the response code should be <code>
                     And the response code means <group>
             """
-        When I run "behat features/responseCodeGroups.feature"
+        When I run "behat features/response-code-groups.feature"
         Then it should pass with:
             """
             ...
@@ -224,3 +224,21 @@ Feature: Test API
             | /             | 200  | success      |
             | /clientError  | 400  | client error |
             | /serverError  | 500  | server error |
+
+    Scenario: Attach a file that does not exist to the request
+        Given a file named "features/attach-file-that-does-not-exist-to-request.feature" with:
+            """
+            Feature: Assert file that does not exist to the request
+                In order to attach one or more files to the request
+                As a context developer
+                I need to have a step for this
+
+                Scenario: Attach a file that does not exist
+                    When I attach "foobar" to the request as "file"
+                    And I request "files" using HTTP POST
+            """
+        When I run "behat features/attach-file-that-does-not-exist-to-request.feature"
+        Then it should fail with:
+            """
+            File does not exist: foobar (InvalidArgumentException)
+            """

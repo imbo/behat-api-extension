@@ -206,13 +206,13 @@ The step supports two different comparison modes, `is` and `matches`. `is` will 
 * *Content-Length: 14327*
 * *X-Foo: foo, bar*
 
-| Step                                                                    | :header          | :value                     | Mode               | Matches header |
-| ----------------------------------------------------------------------- | ---------------- | -------------------------- | ------------------ | -------------- |
-| Then the "`Content-Length`" response header is `15000`                  | `Content-Length` | `15000`                    | Comparison         | No             |
-| Then the "`content-length`" response header matches "`/[0-9]+/`"        | `content-length` | `/[0-9]+/`                 | Regular expression | Yes            |
-| Then the "`x-foo`" response header matches "<code>/(FOO|BAR)/i</code>"  | `x-foo`          | <code>/(FOO|BAR)/i</code>  | Regular expression | Yes            |
-| Then the "`X-FOO`" response header matches "<code>/^(foo|bar)$/</code>" | `X-FOO`          | <code>/^(foo|bar)$/</code> | Regular expression | No             |
-| Then the "`X-foo`" response header is "`foo, bar`"                      | `X-foo`          | `foo, bar`                 | Comparison         | Yes            |
+| Step                                                                         | :header          | :value                          | Mode               | Matches header |
+| ---------------------------------------------------------------------------- | ---------------- | ------------------------------- | ------------------ | -------------- |
+| Then the "`Content-Length`" response header is `15000`                       | `Content-Length` | `15000`                         | Comparison         | No             |
+| Then the "`content-length`" response header matches "`/[0-9]+/`"             | `content-length` | `/[0-9]+/`                      | Regular expression | Yes            |
+| Then the "`x-foo`" response header matches "<code>/(FOO&#124;BAR)/i</code>"  | `x-foo`          | <code>/(FOO&#124;BAR)/i</code>  | Regular expression | Yes            |
+| Then the "`X-FOO`" response header matches "<code>/^(foo&#124;bar)$/</code>" | `X-FOO`          | <code>/^(foo&#124;bar)$/</code> | Regular expression | No             |
+| Then the "`X-foo`" response header is "`foo, bar`"                           | `X-foo`          | `foo, bar`                      | Comparison         | Yes            |
 
 For more information regarding regular expressions and the usage of modifiers, [refer to the manual](http://php.net/pcre).
 

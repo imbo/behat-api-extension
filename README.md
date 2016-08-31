@@ -2,7 +2,7 @@
 
 [![Current build Status](https://secure.travis-ci.org/imbo/behat-api-extension.png)](http://travis-ci.org/imbo/behat-api-extension)
 
-**This extension is a work in progress. The steps mentioned below will probably be updated along the way until a stable release has been made, so expect things to change without warning.**
+**This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning. Not all steps in the README have been fully implemented yet either.**
 
 This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
 
@@ -41,117 +41,216 @@ After you have installed it you need to activate the extension in your `behat.ym
 
 The following configuration options are available:
 
-Key | Type | Default value | Description
---- | ---- | ------------- | -----------
-base_uri | string | http://localhost:8080 | Base URI of the application under test
+| Key      | Type   | Default value         | Description                            |
+| -------- | ------ | --------------------- | -------------------------------------- |
+| base_uri | string | http://localhost:8080 | Base URI of the application under test |
 
 ## Usage
 
 The extension allows you to use the following steps in your features:
 
-### Requests
+### Set up the request
 
-#### `Given I am authenticating as "<username>" with password "<password>"`
+The following steps can be used prior to sending a request.
 
-Use this step when the URL you are requesting required basic auth. Must be used before any of the `When I request` steps.
+#### Given I am authenticating as `:username` with password `:password`
 
-#### `Given the "<header>" request header is "<value>"`
+Use this step when the URL you are requesting requires basic auth.
 
-Set the `<header>` request header to `<value>`. Can be repeated to set multiple headers or to set the same header multiple times. Must be used before any of the `When I request` steps listed below.
+**Examples:**
 
-#### `Given I attach "<path>" to the request as "<name">`
+| Step                                                               | :username | :password |
+| ------------------------------------------------------------------ | --------- | --------- |
+| Given I am authenticating as `foo` with password `bar`             | `foo`     | `bar`     |
+| Given I am authenticating as "`foo bar`" with password '`bar foo`' | `foo bar` | `bar foo` |
+| Given I am authenticating as '`"foo"`' with password "`'bar'`"     | `"foo"`   | `'bar'`   |
 
-Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a file specified does not exist an `InvalidArgumentException` will be thrown. Must be used before any of the `When I request` steps listed below.
+#### Given the `:header` request header is `:value`
 
-#### `When I request "<url>"`
-#### `When I request "<url>" using HTTP <method>`
-#### `When I request "<url>" using HTTP <method> with body: <PyStringNode>`
-#### `When I request "<url>" using HTTP <method> with JSON body: <PyStringNode>`
+Set the `:header` request header to `:value`. Can be repeated to set multiple headers or to set the same header multiple times.
 
-`<url>` is a URL relative to the `base_uri` configuration option, and `<method>` is any HTTP method, for instance `POST` or `DELETE`. The first form uses `HTTP GET`. The last two forms should be used with a `PyStringNode`, for instance:
+Trying to force specific headers to have certain values combined with other steps that ends up modifying request headers (for instance attaching files) can lead to undefined behaviour.
 
-    When I request "/some-path" using HTTP POST with body:
+**Examples:**
+
+| Step                                                                                       | :header      | :value            |
+| ------------------------------------------------------------------------------------------ | ------------ | ----------------- |
+| Given the "`User-Agent`" request header is "`test/1.0`"                                    | `User-Agent` | `test/1.0`        |
+| Given the "`X-Foo`" request header is `Bar`<br>Given the "`X-Foo`" request header is `Baz` | `X-Foo`      | `Bar, Baz`        |
+| Given the `Accept` request header is "`application/json`"                                  | `Accept`     | `application/json`|
+
+#### Given I attach `:path` to the request as `:name`
+
+Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a specified file does not exist an `InvalidArgumentException` exception will be thrown. `:path` is relative to the working directory unless it's absolute.
+
+**Examples:**
+
+| Step                                                                  | :path                   | Entry in `$_FILES` on the server (:name) |
+| --------------------------------------------------------------------- | ----------------------- | ---------------------------------------- |
+| Given I attach "`/path/to/file.jpg`" to the request as `file1`        | `/path/to/file.jpg`     | $\_FILES['`file1`']                      |
+| Given I attach "`c:\some\file.jpg`" to the request as `file2`         | `c:\some\file.jpg`      | $\_FILES['`file2`']                      |
+| Given I attach "`features/some.feature`" to the request as `feature`  | `features/some.feature` | $\_FILES['`feature`']                    |
+
+### Send the request
+
+After setting up the request it can be sent to the server in a few different ways. Keep in mind that all configuration regarding the request must be set prior to any of these steps, as they will actually send the request.
+
+#### When I request `:path` (using HTTP `:method`)
+
+`:path` is relative to the `base_uri` configuration option, and `:method` is any HTTP method, for instance `POST` or `DELETE`. If the last part of the step is omitted, `HTTP GET` will be used. If the `:path` starts with a slash, it will be relative to the root of `base_uri`.
+
+**Examples:**
+
+*Assume that the `base_uri` configuration option has been set to `http://example.com/dir` in the following examples.*
+
+| Step                                               | :path               | :method  | Resulting URL                         |
+| -------------------------------------------------- | ------------------- | -------- | ------------------------------------- |
+| When I request "`/?foo=bar&bar=foo`"               | `/?foo=bar&bar=foo` | `GET`    | `http://example.com/?foo=bar&bar=foo` |
+| When I request "`/some/path`" using HTTP `DELETE`  | `/some/path`        | `DELETE` | `http://example.com/some/path`        |
+| When I request `foobar` using HTTP `POST`          | `foobar`            | `POST`   | `http://example.com/dir/foobar`       |
+
+#### When I request `:path` using HTTP `:method` with (`JSON`) body: `<PyStringNode>`
+
+This step can be used to attach a body to the request. The same as above applies for `:path` and `:method`. If the `JSON` part is added to the step the `Content-Type` request header will be set to `application/json` (regardless of whether or not the `Content-Type` header has already been set with the `Given the :header request header is :value` step described above).
+
+**Examples:**
+
+    When I request "some/endpoint" using HTTP POST with body:
         """
-        {"some":"json"}
+        some POST body
         """
 
-The last form adds a `Content-Type: application/json` request header automatically.
+and with the optional `JSON` identifier, that sets the `Content-Type` request header to `application/json`:
 
-Using any of these steps actually issues the request, so authentication details and request headers must be used prior to this.
+    When I request "some/endpoint" using HTTP PUT with JSON body:
+        """
+        {"foo": "bar"}
+        """
 
-### Responses
+The extension will validate the JSON data before sending the request using this step, and if it's not valid an `InvalidArgumentException` exception will be thrown. If you want to send invalid JSON data to the server, you can do the following:
 
-#### `Then the response code should be <code>`
+    Given the "Content-Type" request header is "application/json"
+    When I request "some/endpoint" using HTTP POST with body:
+        """
+        {"some":"invalid":"json"}
+        """
 
-Match the response code to `<code>`.
+### Verify server response
 
-#### `Then the response code means <group>`
+After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.
 
-Match the response code to a group. Allowed groups and their ranges are:
+#### Then the response code should (`not`) be `:code`
 
-| Group | Min | Max |
-| ----- | --- | --- |
-| `informational` | 100 | 199 |
-| `success` | 200 | 299 |
-| `redirection` | 300 | 399 |
-| `client error` | 400 | 499 |
-| `server error` | 500 | 599 |
+Match the response code to `:code`. If the optional `not` is added, the response should **not** match the response code.
 
-#### `Then the response body should contain JSON key "<key>"`
+**Examples:**
 
-Make sure a key exists in the JSON object in the response.
+| Step                                         | :code | Matches `200` | Matches `304` | Matches `404` |
+| -------------------------------------------- | ----- | ------------- | ------------- | ------------- |
+| Then the response code should be `200`       | `200` | Yes           | No            | No            |
+| Then the response code should be `404`       | `404` | No            | No            | Yes           |
+| Then the response code should `not` be `304` | `304` | Yes           | No            | Yes           |
 
-#### `Then the response body should contain JSON keys: <TableNode>`
+#### Then the response is (`not`) `:group`
 
-Used with a `TableNode`, for instance:
+Match the response code to a group. If the optional `not` is added, the response should **not** be in the specified group.
 
-    Then the response body should contain JSON keys:
-        | key    |
-        | foobar |
-        | barfoo |
+Allowed groups and their ranges are:
 
-The first line in the table is special and must be named `key`.
+| Group           | Response code range |
+| --------------- | ------------------- |
+| `informational` | 100 to 199          |
+| `success`       | 200 to 299          |
+| `redirection`   | 300 to 399          |
+| `client error`  | 400 to 499          |
+| `server error`  | 500 to 599          |
 
-#### `Then the response body should contain JSON: <PyStringNode>`
+**Examples:**
 
-Used to match key/value pairs in the response body. Given the following response body:
+| Step                                        | :group          | Response code range that matches |
+| ------------------------------------------- | --------------- | -------------------------------- |
+| Then the response is `informational`        | `informational` | 100 to 199                       |
+| Then the response is "`client error`"       | `client error`  | 400 to 499                       |
+| Then the response is `not` "`client error`" | `client error`  | 100 to 399 and 500 to 599        |
 
-```javascript
-{
-    "site": "site url",
-    "source": "source url",
-    "docs": "docs url"
-}
-```
+#### Then the `:header` response header is (`not`) present
 
-the following steps would pass:
+This step can be used to assert that the `:header` response header is present, or not (if used with the optional `not` keyword). The value of `:header` is case-insensitive.
 
-```
-Then the response body should contain JSON:
-    """
-    {"site":"site url"}
-    """
-```
+**Examples:**
 
-```
-Then the response body should contain JSON:
-    """
-    {"site":"site url","source":"source url"}
-    """
-```
+*Assume that these response headers exist in the following examples:*
 
-and the following would not:
+* *Content-Encoding: gzip*
+* *Content-Type: application/json*
+* *Content-Length: 186*
+* *Date: Wed, 31 Aug 2016 15:06:02 GMT*
 
-```
-Then the response body should contain JSON:
-    """
-    {"foo":"bar"}
-    """
-```
+| Step                                                         | :header          | Test passes? |
+| ------------------------------------------------------------ | ---------------- | ------------ |
+| Then the `Vary` response header is present                   | `Vary`           | No           |
+| Then the `vary` response header is `not` present             | `Vary`           | Yes          |
+| Then the "`Content-Length`" response header is present       | `Content-Length` | Yes          |
+| Then the "`content-length`" response header is `not` present | `content-length` | No           |
 
-#### `Then the response body should be "<content>"`
+#### Then the `:header` response header (`is`|`matches`) `:value`
 
-Match the whole response body to `<content>`.
+This step can be used to verify the value of one or more response headers.
+
+The step supports two different comparison modes, `is` and `matches`. `is` will compare the values using regular string comparison (`==`), and when `matches` is used, the `:value` must be a valid regular expression, complete with delimiters and optional modifiers. The expression will be fed straight into [preg_match](http://php.net/preg_match), so make sure it's valid before using it to verify values.
+
+**Examples:**
+
+*Assume that these response headers exist in the following examples:*
+
+* *Content-Length: 14327*
+* *X-Foo: foo, bar*
+
+| Step                                                                    | :header          | :value                     | Mode               | Matches header |
+| ----------------------------------------------------------------------- | ---------------- | -------------------------- | ------------------ | -------------- |
+| Then the "`Content-Length`" response header is `15000`                  | `Content-Length` | `15000`                    | Comparison         | No             |
+| Then the "`content-length`" response header matches "`/[0-9]+/`"        | `content-length` | `/[0-9]+/`                 | Regular expression | Yes            |
+| Then the "`x-foo`" response header matches "<code>/(FOO|BAR)/i</code>"  | `x-foo`          | <code>/(FOO|BAR)/i</code>  | Regular expression | Yes            |
+| Then the "`X-FOO`" response header matches "<code>/^(foo|bar)$/</code>" | `X-FOO`          | <code>/^(foo|bar)$/</code> | Regular expression | No             |
+| Then the "`X-foo`" response header is "`foo, bar`"                      | `X-foo`          | `foo, bar`                 | Comparison         | Yes            |
+
+For more information regarding regular expressions and the usage of modifiers, [refer to the manual](http://php.net/pcre).
+
+#### Then the response body is an array of length `:length`
+
+This step can be used to verify the exact length of a JSON array in the response body.
+
+**Examples:**
+
+*Assume that for the examples below, the response body is `[1, 2, 3]`.*
+
+| Step                                             | :length | Test passes? |
+| ------------------------------------------------ | ------- | ------------ |
+| Then the response body is an array of length `1` | `1`     | No           |
+| Then the response body is an array of length `3` | `3`     | Yes          |
+
+If the response body does not contain a JSON array, an `InvalidArgumentException` exception will be thrown.
+
+#### Then the response body should be an empty array
+
+This is the same as `Then the response body is an array of length 0`.
+
+#### Then the response body is an array with a length of at (`most`|`least`) `:length`
+
+This step can be used to verify the length of an array, without having to be exact.
+
+**Examples:**
+
+*Assume that for the examples below, the response body is `[1, 2, 3, 4, 5]`.*
+
+| Step                                                               | :length | Test passes? |
+| ------------------------------------------------------------------ | ------- | ------------ |
+| Then the response body is an array with a length of at `most` `4`  | `4`     | No           |
+| Then the response body is an array with a length of at `least` `4` | `4`     | Yes          |
+| Then the response body is an array with a length of at `most` `5`  | `5`     | Yes          |
+| Then the response body is an array with a length of at `least` `5` | `5`     | Yes          |
+| Then the response body is an array with a length of at `most` `6`  | `6`     | Yes          |
+| Then the response body is an array with a length of at `least` `6` | `6`     | No           |
 
 ## Copyright / License
 

@@ -141,9 +141,9 @@ Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:fileP
 
 **Examples:**
 
-| Step                                                                                | :filePath        | :mimeType                     | :path       | :method |
-| ----------------------------------------------------------------------------------- | ---------------- | ----------------------------- | ----------- | ------- |
-| When I send "`/some/file.jpg`" to "`/endpoint`" using HTTP `POST`                   | `/some/file.jpg` | `image/jpeg` (guessed)        | `/endpoint` | `POST`  |
+| Step                                                                                 | :filePath        | :mimeType                     | :path       | :method |
+| ------------------------------------------------------------------------------------ | ---------------- | ----------------------------- | ----------- | ------- |
+| When I send "`/some/file.jpg`" to "`/endpoint`" using HTTP `POST`                    | `/some/file.jpg` | `image/jpeg` (guessed)        | `/endpoint` | `POST`  |
 | When I send "`file.bar`" as "`application/foobar`" to "`/endpoint`" using HTTP `PUT` | `file.bar`       | `application/foobar` (forced) | `/endpoint` | `PUT`   |
 
 ### Verify server response

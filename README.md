@@ -204,7 +204,7 @@ This step can be used to assert that the `:header` response header is present, o
 | Then the "`Content-Length`" response header is present       | `Content-Length` | Yes          |
 | Then the "`content-length`" response header is `not` present | `content-length` | No           |
 
-#### Then the `:header` response header (`is`|`matches`) `:value`
+#### Then the `:header` response header `is`|`matches` `:value`
 
 This step can be used to verify the value of one or more response headers.
 
@@ -262,6 +262,21 @@ This step can be used to verify the length of an array, without having to be exa
 | Then the response body is an array with a length of at `least` `5` | `5`     | Yes          |
 | Then the response body is an array with a length of at `most` `6`  | `6`     | Yes          |
 | Then the response body is an array with a length of at `least` `6` | `6`     | No           |
+
+#### Then the response body `is`|`matches` `:content`
+
+Compare or match the response body to `:content`. When using `is` the response body will be compared (`==`) to `:content` and when `matches` is used the `:content` must be a valid regular expression, including delimiters and optional modifiered that will be fed straight into [preg_match](http://php.net/preg_match). The raw response body will be used in both cases.
+
+**Examples:**
+
+*Assume that for the examples below, the response body is `{"foo": "bar"}`.*
+
+| Step                                                      | Mode               | :content               | Matches response body |
+| --------------------------------------------------------- | ------------------ | ---------------------- | --------------------- |
+| Then the response body `matches` '`/^{"FOO": ?"BAR"}$/i`' | Regular expression | `/^{"FOO": ?"BAR"}$/i` | Yes                   |
+| Then the response body `is` '`/{"foo": "bar"}/`'          | Comparison         | `/{"foo": "bar"}/`     | No                    |
+| Then the response body `is` "`bar`"                       | Comparison         | `bar`                  | No                    |
+| Then the response body `is` '`{"foo": "bar"}`'            | Comparison         | `{"foo": "bar"}`       | Yes                   |
 
 ## Copyright / License
 

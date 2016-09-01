@@ -135,6 +135,17 @@ The extension will validate the JSON data before sending the request using this 
         {"some":"invalid":"json"}
         """
 
+#### When I send `:filePath` (as `:mimeType`) to `:path` using HTTP `:method`
+
+Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:filePath` is relative to the working directory unless it's absolute. `:method` would typically be `PUT` or `POST` for this action, but any valid HTTP method can be used. The optional `:mimeType` can be added to force the `Content-Type` request header. If not specified the extension will try to guess the mime type using available methods.
+
+**Examples:**
+
+| Step                                                                                | :filePath        | :mimeType                     | :path       | :method |
+| ----------------------------------------------------------------------------------- | ---------------- | ----------------------------- | ----------- | ------- |
+| When I send "`/some/file.jpg`" to "`/endpoint`" using HTTP `POST`                   | `/some/file.jpg` | `image/jpeg` (guessed)        | `/endpoint` | `POST`  |
+| When I send "`file.bar`" as "`application/foobar`" to "`/endpoint`" using HTTP `PUT` | `file.bar`       | `application/foobar` (forced) | `/endpoint` | `PUT`   |
+
 ### Verify server response
 
 After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.

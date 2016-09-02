@@ -19,23 +19,27 @@ Behat API extension requires:
 
 Install the extension by adding the following to your `composer.json` file:
 
-    {
-        "require-dev": {
-            "imbo/behat-api-extension": "^1.0@dev"
-        }
+```json
+{
+    "require-dev": {
+        "imbo/behat-api-extension": "^1.0@dev"
     }
+}
+```
 
 and then updating your dependencies by issuing `composer update imbo/behat-api-extension`.
 
 After you have installed it you need to activate the extension in your `behat.yml` file:
 
-    default:
-        suites:
-            default:
-                # ...
+```yml
+default:
+    suites:
+        default:
+            # ...
 
-        extensions:
-            Imbo\BehatApiExtension: ~
+    extensions:
+        Imbo\BehatApiExtension: ~
+```
 
 ## Configuration
 
@@ -115,25 +119,31 @@ This step can be used to attach a body to the request. The same as above applies
 
 **Examples:**
 
-    When I request "some/endpoint" using HTTP POST with body:
-        """
-        some POST body
-        """
+```gherkin
+When I request "some/endpoint" using HTTP POST with body:
+    """
+    some POST body
+    """
+```
 
 and with the optional `JSON` identifier, that sets the `Content-Type` request header to `application/json`:
 
-    When I request "some/endpoint" using HTTP PUT with JSON body:
-        """
-        {"foo": "bar"}
-        """
+```gherkin
+When I request "some/endpoint" using HTTP PUT with JSON body:
+    """
+    {"foo": "bar"}
+    """
+```
 
 The extension will validate the JSON data before sending the request using this step, and if it's not valid an `InvalidArgumentException` exception will be thrown. If you want to send invalid JSON data to the server, you can do the following:
 
-    Given the "Content-Type" request header is "application/json"
-    When I request "some/endpoint" using HTTP POST with body:
-        """
-        {"some":"invalid":"json"}
-        """
+```gherkin
+Given the "Content-Type" request header is "application/json"
+When I request "some/endpoint" using HTTP POST with body:
+    """
+    {"some":"invalid":"json"}
+    """
+```
 
 #### When I send `:filePath` (as `:mimeType`) to `:path` using HTTP `:method`
 
@@ -290,35 +300,42 @@ When used with `contains` the keys / values are simply compared, but when used w
 
 To use regular expressions to match values, simply start the value part with `<re>`, then the regular expression, complete with delimiters and optional mofifiers, then ending the string with `</re>`. Example:
 
-    {
-        "foo": "<re>/(some|expression)/i</re>",
-        "bar": "some regular value",
-        "baz": {
-            "foo": "bar",
-            "bar": "<re>/[0-9]+/</re>"
-        }
+```json
+{
+    "foo": "<re>/(some|expression)/i</re>",
+    "bar": "some regular value",
+    "baz": {
+        "foo": "bar",
+        "bar": "<re>/[0-9]+/</re>"
     }
+}
+```
 
 This can be used to match strings and numbers, but will not work with arrays and objects.
 
 To assert lengths of arrays, three custom functions can be used: `@length(num)`, `@atLeast(num)` and `@atMost(num)`. Consider the following response body:
 
-    {
-        "items1": [1, 2, 3, 4],
-        "items2": [1, 2, 3],
-        "items3": [1, 2]
-    }
+```json
+{
+    "items1": [1, 2, 3, 4],
+    "items2": [1, 2, 3],
+    "items3": [1, 2]
+}
+```
 
 To be able to verify the length of the arrays one can use the following JSON:
 
+```js
     {
         "items1": "@length(3)",  // Fails as the length is 4
         "items2": "@atLeast(3)", // Passes as the length is 3
         "items3": "@atMost(1)"   // Fails as the length if 2
     }
+```
 
 If you need to verify an element at a specific index within an array, use the `key[<index>]` notation as the key. Consider the following response body:
 
+```json
     {
         "items": [
             "foo",
@@ -333,9 +350,11 @@ If you need to verify an element at a specific index within an array, use the `k
             }
         ]
     }
+```
 
 If you need to verify the values, use the following JSON:
 
+```js
     {
         "items[0]": "bar",                      // Passes, regular string comparison
         "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matxhes "bar"
@@ -349,6 +368,7 @@ If you need to verify the values, use the following JSON:
         },
         "items[4]": "bar"                       // Throws an OutOfRangeException exception as the index does not exist
     }
+```
 
 If you use the index checking against something that is not a numeric array, the extension will throw an `InvalidArgumentException` exception.
 

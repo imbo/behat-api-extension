@@ -326,48 +326,48 @@ To assert lengths of arrays, three custom functions can be used: `@length(num)`,
 To be able to verify the length of the arrays one can use the following JSON:
 
 ```js
-    {
-        "items1": "@length(3)",  // Fails as the length is 4
-        "items2": "@atLeast(3)", // Passes as the length is 3
-        "items3": "@atMost(1)"   // Fails as the length if 2
-    }
+{
+    "items1": "@length(3)",  // Fails as the length is 4
+    "items2": "@atLeast(3)", // Passes as the length is 3
+    "items3": "@atMost(1)"   // Fails as the length if 2
+}
 ```
 
 If you need to verify an element at a specific index within an array, use the `key[<index>]` notation as the key. Consider the following response body:
 
 ```json
-    {
-        "items": [
-            "foo",
-            "bar",
-            "baz",
+{
+    "items": [
+        "foo",
+        "bar",
+        "baz",
+        {
+            "some":
             {
-                "some":
-                {
-                    "nested": "object",
-                    "foo": "bar
-                }
+                "nested": "object",
+                "foo": "bar
             }
-        ]
-    }
+        }
+    ]
+}
 ```
 
 If you need to verify the values, use the following JSON:
 
 ```js
+{
+    "items[0]": "bar",                      // Passes, regular string comparison
+    "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matxhes "bar"
+    "items[2]": "bar",                      // Fails as the value is baz
+    "items[3]":
     {
-        "items[0]": "bar",                      // Passes, regular string comparison
-        "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matxhes "bar"
-        "items[2]": "bar",                      // Fails as the value is baz
-        "items[3]":
+        "some":
         {
-            "some":
-            {
-                "foo": "<re>/ba(r|z)/</re>"     // Passes as the expression matches "bar"
-            }
-        },
-        "items[4]": "bar"                       // Throws an OutOfRangeException exception as the index does not exist
-    }
+            "foo": "<re>/ba(r|z)/</re>"     // Passes as the expression matches "bar"
+        }
+    },
+    "items[4]": "bar"                       // Throws an OutOfRangeException exception as the index does not exist
+}
 ```
 
 If you use the index checking against something that is not a numeric array, the extension will throw an `InvalidArgumentException` exception.

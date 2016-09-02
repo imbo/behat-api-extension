@@ -278,6 +278,80 @@ Compare or match the response body to `:content`. When using `is` the response b
 | Then the response body `is` "`bar`"                       | Comparison         | `bar`                  | No                    |
 | Then the response body `is` '`{"foo": "bar"}`'            | Comparison         | `{"foo": "bar"}`       | Yes                   |
 
+#### Then the response body `matches`|`contains`: `<PyStringNode>`
+
+Used to recursively match the response body against a JSON blob (used for comparing objects, not regular arrays). The following occurs when using this step:
+
+1. Decode the response body to a native PHP array. An `InvalidArgumentException` exception will be thrown if the JSON is invalid.
+2. Decode the `<PyStringNode>` to a native PHP array. An `InvalidArgumentException` exception will be thrown if the JSON is invalid.
+3. Loop through the `<PyStringNode>` array, making sure the keys => values are present in the response body array, in a recursive fashion.
+
+When used with `contains` the keys / values are simply compared, but when used with the `matches` mode, the `<PyStringNode>` can contain regular expressions for matching values or some specific functions for asserting lengths of arrays as well as content in specific items in an array.
+
+To use regular expressions to match values, simply start the value part with `<re>`, then the regular expression, complete with delimiters and optional mofifiers, then ending the string with `</re>`. Example:
+
+    {
+        "foo": "<re>/(some|expression)/i</re>",
+        "bar": "some regular value",
+        "baz": {
+            "foo": "bar",
+            "bar": "<re>/[0-9]+/</re>"
+        }
+    }
+
+This can be used to match strings and numbers, but will not work with arrays and objects.
+
+To assert lengths of arrays, three custom functions can be used: `@length(num)`, `@atLeast(num)` and `@atMost(num)`. Consider the following response body:
+
+    {
+        "items1": [1, 2, 3, 4],
+        "items2": [1, 2, 3],
+        "items3": [1, 2]
+    }
+
+To be able to verify the length of the arrays one can use the following JSON:
+
+    {
+        "items1": "@length(3)",  // Fails as the length is 4
+        "items2": "@atLeast(3)", // Passes as the length is 3
+        "items3": "@atMost(1)"   // Fails as the length if 2
+    }
+
+If you need to verify an element at a specific index within an array, use the `key[<index>]` notation as the key. Consider the following response body:
+
+    {
+        "items": [
+            "foo",
+            "bar",
+            "baz",
+            {
+                "some":
+                {
+                    "nested": "object",
+                    "foo": "bar
+                }
+            }
+        ]
+    }
+
+If you need to verify the values, use the following JSON:
+
+    {
+        "items[0]": "bar",                      // Passes, regular string comparison
+        "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matxhes "bar"
+        "items[2]": "bar",                      // Fails as the value is baz
+        "items[3]":
+        {
+            "some":
+            {
+                "foo": "<re>/ba(r|z)/</re>"     // Passes as the expression matches "bar"
+            }
+        },
+        "items[4]": "bar"                       // Throws an OutOfRangeException exception as the index does not exist
+    }
+
+If you use the index checking against something that is not a numeric array, the extension will throw an `InvalidArgumentException` exception.
+
 ## Copyright / License
 
 Copyright (c) 2016, Christer Edvartsen <cogo@starzinger.net>

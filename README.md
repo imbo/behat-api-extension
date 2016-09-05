@@ -1,6 +1,9 @@
 # Behat API Extension
 
 [![Current build Status](https://secure.travis-ci.org/imbo/behat-api-extension.png)](http://travis-ci.org/imbo/behat-api-extension)
+[![Latest Stable Version](https://poser.pugx.org/imbo/behat-api-extension/version)](https://packagist.org/packages/imbo/behat-api-extension)
+[![Latest Unstable Version](https://poser.pugx.org/imbo/behat-api-extension/v/unstable)](https://packagist.org/packages/imbo/behat-api-extension)
+[![License](https://poser.pugx.org/imbo/behat-api-extension/license)](https://packagist.org/packages/imbo/behat-api-extension)
 
 **This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning. Not all steps in the README have been fully implemented yet either.**
 

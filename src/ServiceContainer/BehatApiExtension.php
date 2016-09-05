@@ -50,6 +50,7 @@ class BehatApiExtension implements ExtensionInterface {
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function initialize(ExtensionManager $extensionManager) {
         // Not used
@@ -63,14 +64,16 @@ class BehatApiExtension implements ExtensionInterface {
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('base_uri')
+                    ->info('The base URI of the application you want to test')
+                    ->example('http://localhost:8080')
                     ->defaultValue('http://localhost:8080')
-                    ->end()
                 ->end()
             ->end();
     }
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function load(ContainerBuilder $container, array $config) {
         $definition = new Definition('GuzzleHttp\Client', [$config]);
@@ -86,6 +89,7 @@ class BehatApiExtension implements ExtensionInterface {
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function process(ContainerBuilder $container) {
 

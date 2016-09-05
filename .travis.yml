@@ -16,6 +16,7 @@ before_script:
 
 script:
   - php -S localhost:8080 -t ./testapp > server.log 2>&1 &
+  - ./vendor/bin/phpunit
   - ./vendor/bin/behat --strict
 
 after_failure:

@@ -62,26 +62,28 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Request a URL using HTTP GET
+     * Request a path using GET or another HTTP method
      *
-     * @param string $url The URL to request
-     * @When /^I request "(.*?)"$/
+     * @param string $path The path to request
+     * @param string $method The HTTP method to use
+     * @When I request :path
+     * @When I request :path using HTTP :method
      */
-    public function makeAndSendGetRequest($url) {
-        $this->makeAndSendRequest($url, 'GET');
+    public function requestPath($path, $method = 'GET') {
+        $this->makeAndSendRequest($path, strtoupper($method));
     }
 
     /**
      * Request a URL using a specific method
      *
-     * @param string $url The URL to request
+     * @param string $path The path to request
      * @param string $method The HTTP Method to use
      * @param boolean $bodyIsJson Whether or not the body is JSON-data
      * @param PyStringNode $body The body to attach to request
-     * @When /^I request "(.*?)" using HTTP ([A-Z]+)(?: with (JSON )?body:)?$/
+     * @When I request :path using HTTP :method with body:
      */
-    public function makeAndSendRequest($url, $method, $bodyIsJson = false, PyStringNode $body = null) {
-        $url = $this->prepareUrl($url);
+    public function makeAndSendRequest($path, $method, $bodyIsJson = false, PyStringNode $body = null) {
+        $url = $this->prepareUrl($path);
 
         if ($bodyIsJson !== false) {
             $this->addHeader('Content-Type', 'application/json');
@@ -92,30 +94,63 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Check that the response matches some text
+     * Assert that the response body matches some content
      *
      * @param string $content The content to match the response body against
-     * @Then /^the response body should be "(.*?)"$/
+     * @Then the response body is :content
      */
     public function assertResponseBodyMatches($content) {
-        Assertion::same((string) $content, (string) $this->response->getBody(), 'Response body: ' . $this->response->getBody());
+        $this->requireResponse();
+
+        Assertion::same(
+            (string) $this->response->getBody(),
+            $content
+        );
     }
 
     /**
-     * Checks the HTTP response code
+     * Assert the HTTP response code
      *
      * @param string $code The HTTP response code
-     * @Then /^the response code should be ([0-9]{3})$/
+     * @Then the response code is :code
      */
     public function assertResponseCode($code) {
-        Assertion::same((int) $code, $this->response->getStatusCode(), (string) $this->response->getBody());
+        $this->requireResponse();
+
+        $expected = (int) $code;
+        $actual = $this->response->getStatusCode();
+
+        Assertion::same(
+            $actual,
+            $expected,
+            sprintf('Expected response code %d, got %d', $expected, $actual)
+        );
+    }
+
+    /**
+     * Assert the HTTP response code is not a specific code
+     *
+     * @param string $code The HTTP response code
+     * @Then the response code is not :code
+     */
+    public function assertResponseCodeIsNot($code) {
+        $this->requireResponse();
+
+        $expected = (int) $code;
+        $actual = $this->response->getStatusCode();
+
+        Assertion::notSame(
+            $actual,
+            $expected,
+            sprintf('Did not expect response code %d', $actual)
+        );
     }
 
     /**
      * Checks the HTTP response code
      *
      * @param string $group Name of the group
-     * @Then /^the response code means (informational|success|redirection|(?:client|server) error)$/
+     * Then /^the response code means (informational|success|redirection|(?:client|server) error)$/
      */
     public function assertResponseCodeIsInGroup($group) {
         $code = $this->response->getStatusCode();
@@ -151,7 +186,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $path Path to the image to add to the request
      * @param string $filename Multipart entry name
-     * @Given /^I attach "(.*?)" to the request as "(.*?)"$/
+     * Given /^I attach "(.*?)" to the request as "(.*?)"$/
      */
     public function addFile($path, $partName) {
         if (!file_exists($path)) {
@@ -171,13 +206,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Set authentication information for the next request
+     * Set basic authentication information for the next request
      *
      * @param string $username The username to authenticate with
      * @param string $password The password to authenticate with
-     * @Given /^I am authenticating as "(.*?)" with password "(.*?)"$/
+     * @Given I am authenticating as :username with password :password
      */
-    public function setAuth($username, $password) {
+    public function setBasicAuth($username, $password) {
         $this->addHeader('Authorization', 'Basic ' . base64_encode($username . ':' . $password));
     }
 
@@ -188,7 +223,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The header name
      * @param string $value The header value
-     * @Given /^the "(.*?)" request header is "(.*?)"$/
+     * @Given the :header request header is :value
      */
     public function addHeader($header, $value) {
         if (isset($this->headers[$header])) {
@@ -199,81 +234,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $this->headers[$header][] = $value;
         } else {
             $this->headers[$header] = $value;
-        }
-    }
-
-    /**
-     * Make sure that the response body contains a JSON key
-     *
-     * @param string $key The key to check for
-     * @param array $body The body to check for the key. If not specified the response body will be
-     *                    used
-     * @throws RuntimeException
-     * @Then /^the response body should contain JSON key "(.*?)"$/
-     */
-    public function assertBodyHasJsonKey($key, array $body = null) {
-        if ($body === null) {
-            $body = json_decode($this->response->getBody(), true);
-
-            if ($body === null) {
-                throw new RuntimeException(
-                    "Can not convert response body to JSON:" . PHP_EOL . (string) $this->response->getBody()
-                );
-            }
-        }
-
-        Assertion::keyExists($body, $key);
-    }
-
-    /**
-     * Make sure that the response body contains multiple JSON keys
-     *
-     * @param TableNode $table Table of data
-     * @throws RuntimeException
-     * @Then the response body should contain JSON keys:
-     */
-    public function assertBodyHasJsonKeys(TableNode $table) {
-        $body = json_decode($this->response->getBody(), true);
-
-        if ($body === null) {
-            throw new RuntimeException(
-                "Can not convert response body to JSON:" . PHP_EOL . (string) $this->response->getBody()
-            );
-        }
-
-        foreach ($table as $row) {
-            $this->assertBodyHasJsonKey($row['key'], $body);
-        }
-    }
-
-    /**
-     * Make sure that all the key/value pairs in the $jsonString exists in the response body
-     *
-     * @param PyStringNode $jsonString String of JSON-data
-     * @param array $body Pass in an optional body to use instead of the one found in the response
-     * @throws RuntimeException
-     * @Then /^the response body should contain JSON:$/
-     */
-    public function assertResponseBodyContainsJson(PyStringNode $jsonString, array $body = null) {
-        $data = json_decode($jsonString->getRaw(), true);
-
-        if ($body === null) {
-            $body = json_decode($this->response->getBody(), true);
-        }
-
-        if ($data === null) {
-            throw new RuntimeException(
-                'Can not decode JSON:' . PHP_EOL . $jsonString->getRaw()
-            );
-        } else if ($body === null) {
-            throw new RuntimeException(
-                'Can not decode JSON from response body:' . PHP_EOL . (string) $this->response->getBody()
-            );
-        }
-
-        foreach ($data as $key => $value) {
-            Assertion::keyExists($body, $key);
-            Assertion::same($value, $body[$key]);
         }
     }
 
@@ -329,12 +289,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws RequestException
      */
     private function sendRequest() {
-        // Make sure to reset the request options so that it's not carried over to the next request
-        $requestOptions = $this->requestOptions;
-        $this->requestOptions = [];
-
         try {
-            $this->response = $this->client->send($this->request, $requestOptions);
+            $this->response = $this->client->send($this->request, $this->requestOptions);
         } catch (RequestException $e) {
             $this->response = $e->getResponse();
 
@@ -360,5 +316,16 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         }
 
         return $result;
+    }
+
+    /**
+     * Require a response object
+     *
+     * @throws RuntimeException
+     */
+    private function requireResponse() {
+        if (!$this->response) {
+            throw new RuntimeException('The request has not been made yet, so no response object exists.');
+        }
     }
 }

@@ -17,8 +17,8 @@ $app = new Application();
 
 $app->register(new Provider\SecurityServiceProvider(), [
     'security.firewalls' => [
-        'auth' => [
-            'pattern' => '^/auth',
+        'basicAuth' => [
+            'pattern' => '^/basicAuth',
             'http' => true,
             'users' => [
                 'foo' => [
@@ -60,7 +60,7 @@ $app->post('files', function(Request $request) {
 /**
  * Return the HTTP method
  */
-$app->match('getMethod', function(Request $request) {
+$app->match('echoHttpMethod', function(Request $request) {
     return new JsonResponse([
         'method' => $request->getMethod(),
     ]);
@@ -69,7 +69,7 @@ $app->match('getMethod', function(Request $request) {
 /**
  * Return the authenticated user name
  */
-$app->match('auth', function(Application $app) {
+$app->match('basicAuth', function(Application $app) {
     return new JsonResponse([
         'user' => $app['security.token_storage']->getToken()->getUser()->getUsername(),
     ]);

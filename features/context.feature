@@ -1,4 +1,4 @@
-Feature: client aware context
+Feature: Client aware context
     In order to write scenario steps for API testing
     As a developer
     I need the Guzzle client in the feature context
@@ -19,7 +19,7 @@ Feature: client aware context
                 }
 
                 /**
-                 * @Then /^the client should be set$/
+                 * @Then the client should be set
                  */
                 public function theClientShouldBeSet() {
                     Assertion::isInstanceOf($this->client, 'GuzzleHttp\Client');
@@ -36,7 +36,7 @@ Feature: client aware context
             """
         And a file named "features/client.feature" with:
             """
-            Feature: Api client
+            Feature: API client
                 In order to call the API
                 As feature runner
                 I need to be able to access the client
@@ -63,7 +63,7 @@ Feature: client aware context
             """
         And a file named "features/client.feature" with:
             """
-            Feature: Api client
+            Feature: API client
                 In order to call the API
                 As feature runner
                 I need to be able to access the client

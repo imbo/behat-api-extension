@@ -7,6 +7,7 @@ use Behat\Behat\Context\SnippetAcceptingContext,
     GuzzleHttp\ClientInterface,
     GuzzleHttp\Exception\RequestException,
     GuzzleHttp\Psr7\Request,
+    Assert,
     Assert\Assertion,
     Psr\Http\Message\RequestInterface,
     Psr\Http\Message\ResponseInterface,
@@ -70,54 +71,49 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @When I request :path using HTTP :method
      */
     public function requestPath($path, $method = 'GET') {
-        $this->makeAndSendRequest($path, strtoupper($method));
+        $this->makeAndSendRequest($path, $method);
     }
+
+    /**
+     * Request a URL with a JSON request body using a specific method
+     *
+     * @param string $path The path to request
+     * @param string $method The HTTP Method to use
+     * @param PyStringNode $body The body to attach to request
+     * @When I request :path using HTTP :method with JSON body:
+     */
+    public function makeAndSendRequestWithJsonBody($path, $method, PyStringNode $body = null) {
+        Assertion::isJsonString((string) $body);
+
+        $this->addHeader('Content-Type', 'application/json');
+        $this->makeAndSendRequest($path, $method, $body);
+    }
+
 
     /**
      * Request a URL using a specific method
      *
      * @param string $path The path to request
      * @param string $method The HTTP Method to use
-     * @param boolean $bodyIsJson Whether or not the body is JSON-data
      * @param PyStringNode $body The body to attach to request
      * @When I request :path using HTTP :method with body:
      */
-    public function makeAndSendRequest($path, $method, $bodyIsJson = false, PyStringNode $body = null) {
+    public function makeAndSendRequest($path, $method, PyStringNode $body = null) {
         $url = $this->prepareUrl($path);
-
-        if ($bodyIsJson !== false) {
-            $this->addHeader('Content-Type', 'application/json');
-        }
-
-        $this->request = new Request($method, $url, $this->headers, (string) $body ?: null);
+        $this->request = new Request(strtoupper($method), $url, $this->headers, (string) $body ?: null);
         $this->sendRequest();
-    }
-
-    /**
-     * Assert that the response body matches some content
-     *
-     * @param string $content The content to match the response body against
-     * @Then the response body is :content
-     */
-    public function assertResponseBodyMatches($content) {
-        $this->requireResponse();
-
-        Assertion::same(
-            (string) $this->response->getBody(),
-            $content
-        );
     }
 
     /**
      * Assert the HTTP response code
      *
-     * @param string $code The HTTP response code
+     * @param int $code The HTTP response code
+     * @throws InvalidArgumentException
      * @Then the response code is :code
      */
     public function assertResponseCode($code) {
         $this->requireResponse();
-
-        $expected = (int) $code;
+        $expected = $this->validateResponseCode($code);
         $actual = $this->response->getStatusCode();
 
         Assertion::same(
@@ -130,13 +126,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Assert the HTTP response code is not a specific code
      *
-     * @param string $code The HTTP response code
+     * @param int $code The HTTP response code
      * @Then the response code is not :code
      */
     public function assertResponseCodeIsNot($code) {
         $this->requireResponse();
-
-        $expected = (int) $code;
+        $expected = $this->validateResponseCode($code);
         $actual = $this->response->getStatusCode();
 
         Assertion::notSame(
@@ -147,38 +142,47 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Checks the HTTP response code
+     * Checks if the HTTP response code is in a group
      *
-     * @param string $group Name of the group
-     * Then /^the response code means (informational|success|redirection|(?:client|server) error)$/
+     * @param string $group Name of the group that the response code should be in
+     * @Then the response is :group
      */
     public function assertResponseCodeIsInGroup($group) {
+        $this->requireResponse();
         $code = $this->response->getStatusCode();
+        $range = $this->getResponseCodeGroupRange($group);
+        Assertion::range($code, $range['min'], $range['max']);
+    }
 
-        switch ($group) {
-            case 'informational':
-                $min = 100;
-                $max = 199;
-                break;
-            case 'success':
-                $min = 200;
-                $max = 299;
-                break;
-            case 'redirection':
-                $min = 300;
-                $max = 399;
-                break;
-            case 'client error':
-                $min = 400;
-                $max = 499;
-                break;
-            case 'server error':
-                $min = 500;
-                $max = 599;
-                break;
+    /**
+     * Checks if the HTTP response code is *not* in a group
+     *
+     * @param string $group Name of the group that the response code is not in
+     * @Then the response is not :group
+     */
+    public function assertResponseCodeIsNotInGroup($group) {
+        try {
+            $this->assertResponseCodeIsInGroup($group);
+
+            throw new InvalidArgumentException(sprintf(
+                'Response was not supposed to be %s (actual response code: %d)',
+                $group,
+                $this->response->getStatusCode()
+            ));
+        } catch (Assert\InvalidArgumentException $e) {
+            // As expected, do nothing
         }
+    }
 
-        Assertion::range($code, $min, $max);
+    /**
+     * Assert that the response body matches some content
+     *
+     * @param string $content The content to match the response body against
+     * @Then the response body is :content
+     */
+    public function assertResponseBodyMatches($content) {
+        $this->requireResponse();
+        Assertion::same((string) $this->response->getBody(), $content);
     }
 
     /**
@@ -327,5 +331,58 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         if (!$this->response) {
             throw new RuntimeException('The request has not been made yet, so no response object exists.');
         }
+    }
+
+    /**
+     * Get the min and max values for a response body group
+     *
+     * @param string $group The name of the group
+     * @throws InvalidArgumentException
+     * @return array An array with two keys, min and max, which represents the min and max values
+     *               for $group
+     */
+    private function getResponseCodeGroupRange($group) {
+        switch ($group) {
+            case 'informational':
+                $min = 100;
+                $max = 199;
+                break;
+            case 'success':
+                $min = 200;
+                $max = 299;
+                break;
+            case 'redirection':
+                $min = 300;
+                $max = 399;
+                break;
+            case 'client error':
+                $min = 400;
+                $max = 499;
+                break;
+            case 'server error':
+                $min = 500;
+                $max = 599;
+                break;
+            default:
+                throw new InvalidArgumentException(sprintf('Invalid response code group: %s', $group));
+        }
+
+        return [
+            'min' => $min,
+            'max' => $max,
+        ];
+    }
+
+    /**
+     * Validate a response code
+     *
+     * @param int $code
+     * @throws InvalidArgumentException
+     */
+    private function validateResponseCode($code) {
+        $code = (int) $code;
+        Assertion::range($code, 100, 599, sprintf('Response code must be between 100 and 599, got %d.', $code));
+
+        return $code;
     }
 }

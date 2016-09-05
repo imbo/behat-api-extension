@@ -137,7 +137,7 @@ class FeatureContext implements SnippetAcceptingContext {
         Assertion::contains(
             $this->getOutput(),
             str_replace("'''", '"""', (string) $content),
-            'Command output: ' . $this->getOutput()
+            sprintf('Command output does not match. Actual output: %s', $this->getOutput())
         );
     }
 
@@ -149,11 +149,16 @@ class FeatureContext implements SnippetAcceptingContext {
      */
     public function assertCommandResult($result) {
         $callback = $result === 'fail' ? 'notEq' : 'eq';
+        $exitCode = $this->getExitCode();
 
         Assertion::$callback(
             0,
-            $this->getExitCode(),
-            'Command output: ' . $this->getOutput()
+            $exitCode,
+            sprintf(
+                'Invalid exit code, expected 0, got %d. Command output: %s',
+                $exitCode,
+                $this->getOutput()
+            )
         );
     }
 

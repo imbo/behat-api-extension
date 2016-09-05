@@ -135,7 +135,7 @@ When I request "some/endpoint" using HTTP PUT with JSON body:
     """
 ```
 
-The extension will validate the JSON data before sending the request using this step, and if it's not valid an `InvalidArgumentException` exception will be thrown. If you want to send invalid JSON data to the server, you can do the following:
+The extension will validate the JSON data before sending the request using this step. If you want to send invalid JSON data to the server, you can do the following:
 
 ```gherkin
 Given the "Content-Type" request header is "application/json"

@@ -99,7 +99,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @When I request :path using HTTP :method with body:
      */
     public function makeAndSendRequest($path, $method, PyStringNode $body = null) {
-        $this->request = new Request(strtoupper($method), ltrim($path, '/'), $this->headers, (string) $body ?: null);
+        $this->request = new Request(strtoupper($method), $path, $this->headers, (string) $body ?: null);
         $this->sendRequest();
     }
 

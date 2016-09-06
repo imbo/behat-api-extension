@@ -158,6 +158,22 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->assertResponseBodyMatches('response body');
     }
 
+    public function testAssertResponseBodyMatchesRegularExpressionPattern() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseBodyMatchesRegularExpressionPattern('/^{"FOO": ?"BAR"}$/i');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Value "{"foo":"bar"}" does not match expression.
+     */
+    public function testAssertResponseBodyMatchesRegularExpressionPatternWhenPatternDoesNotMatch() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseBodyMatchesRegularExpressionPattern('/^{"FOO": "BAR"}$/');
+    }
+
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Value "response body" is not the same as expected value "foobar".

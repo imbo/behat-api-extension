@@ -185,6 +185,17 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the response body matches some content using a regular expression
+     *
+     * @param string $pattern The regular expression pattern to use for the match
+     * @Then the response body matches :pattern
+     */
+    public function assertResponseBodyMatchesRegularExpressionPattern($pattern) {
+        $this->requireResponse();
+        Assertion::regex((string) $this->response->getBody(), $pattern);
+    }
+
+    /**
      * Attach a file to the request
      *
      * @param string $path Path to the image to add to the request

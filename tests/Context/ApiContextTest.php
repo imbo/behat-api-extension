@@ -5,8 +5,10 @@ use PHPUnit_Framework_TestCase,
     GuzzleHttp\Client,
     GuzzleHttp\Handler\MockHandler,
     GuzzleHttp\HandlerStack,
+    GuzzleHttp\Psr7\Request,
     GuzzleHttp\Psr7\Response,
     GuzzleHttp\Middleware,
+    GuzzleHttp\Exception\RequestException,
     Behat\Gherkin\Node\PyStringNode,
     RuntimeException;
 
@@ -269,5 +271,79 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
 
         $this->context->assertResponseCode($code);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: /foo/bar
+     */
+    public function testAddFileThatDoesNotExistToTheRequest() {
+        $this->context->addFile('/foo/bar', 'foo');
+    }
+
+    public function testAddFilesToTheRequest() {
+        $this->mockHandler->append(new Response(200));
+        $files = [
+            'file1' => __FILE__,
+            'file2' => __DIR__ . '/../../README.md'
+        ];
+
+        foreach ($files as $name => $path) {
+            $this->context->addFile($path, $name);
+        }
+
+        $this->context->makeAndSendRequest('/some/path', 'POST');
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $boundary = $request->getBody()->getBoundary();
+
+        $this->assertSame(sprintf('multipart/form-data; boundary=%s', $boundary), $request->getHeaderLine('Content-Type'));
+        $contents = $request->getBody()->getContents();
+
+        foreach ($files as $path) {
+            $this->assertContains(
+                file_get_contents($path),
+                $contents
+            );
+        }
+    }
+
+    public function testCanUseBasicAuth() {
+        $this->mockHandler->append(new Response(200));
+
+        $username = 'user';
+        $password = 'pass';
+
+        $this->context->setBasicAuth($username, $password);
+        $this->context->makeAndSendRequest('/some/path', 'POST');
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame('Basic dXNlcjpwYXNz', $request->getHeaderLine('authorization'));
+    }
+
+    public function testCanAddOneOrMoreHeaders() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->addHeader('foo', 'foo');
+        $this->context->addHeader('bar', 'foo');
+        $this->context->addHeader('bar', 'bar');
+        $this->context->makeAndSendRequest('/some/path', 'POST');
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame('foo', $request->getHeaderLine('foo'));
+        $this->assertSame('foo, bar', $request->getHeaderLine('bar'));
+    }
+
+    /**
+     * @expectedException GuzzleHttp\Exception\RequestException
+     * @expectedExceptionMessage error
+     */
+    public function testThrowsExceptionWhenErrorCommunicatingWithServer() {
+        $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
+        $this->context->requestPath('path');
     }
 }

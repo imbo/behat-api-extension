@@ -99,8 +99,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @When I request :path using HTTP :method with body:
      */
     public function makeAndSendRequest($path, $method, PyStringNode $body = null) {
-        $url = $this->prepareUrl($path);
-        $this->request = new Request(strtoupper($method), $url, $this->headers, (string) $body ?: null);
+        $this->request = new Request(strtoupper($method), ltrim($path, '/'), $this->headers, (string) $body ?: null);
         $this->sendRequest();
     }
 
@@ -190,7 +189,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $path Path to the image to add to the request
      * @param string $filename Multipart entry name
-     * Given /^I attach "(.*?)" to the request as "(.*?)"$/
+     * @Given I attach :path to the request as :partName
      */
     public function addFile($path, $partName) {
         if (!file_exists($path)) {
@@ -199,7 +198,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $part = [
             'name' => $partName,
-            'contents' => fopen($path, 'r'),
+            'contents' => file_get_contents($path),
         ];
 
         if (!isset($this->requestOptions['multipart'])) {
@@ -245,6 +244,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Get the request instance
      *
      * @return null|RequestInterface
+     * @codeCoverageIgnore
      */
     protected function getRequest() {
         return $this->request;
@@ -254,6 +254,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Get the response instance
      *
      * @return null|ResponseInterface
+     * @codeCoverageIgnore
      */
     protected function getResponse() {
         return $this->response;
@@ -263,6 +264,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Get the Guzzle client
      *
      * @return ClientInterface
+     * @codeCoverageIgnore
      */
     protected function getClient() {
         return $this->client;
@@ -272,19 +274,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Get the current request headers
      *
      * @return array
+     * @codeCoverageIgnore
      */
     protected function getHeaders() {
         return $this->headers;
-    }
-
-    /**
-     * Prepare URL for a request
-     *
-     * @param string $url
-     * @return string
-     */
-    private function prepareUrl($url) {
-        return ltrim($url, '/');
     }
 
     /**
@@ -302,24 +295,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 throw $e;
             }
         }
-    }
-
-    /**
-     * Get the JSON-decoded response body
-     *
-     * @return mixed
-     * @throws RuntimeException
-     */
-    protected function getResponseBody() {
-        $result = json_decode((string) $this->getResponse()->getBody(), true);
-
-        if ($result === null) {
-            throw new RuntimeException(
-                'Could not convert response body to JSON:' . PHP_EOL . (string) $this->getResponse()->getBody()
-            );
-        }
-
-        return $result;
     }
 
     /**

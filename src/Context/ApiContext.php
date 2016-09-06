@@ -99,7 +99,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @When I request :path using HTTP :method with body:
      */
     public function makeAndSendRequest($path, $method, PyStringNode $body = null) {
-        $this->request = new Request(strtoupper($method), $path, $this->headers, (string) $body ?: null);
+        $this->request = $this->createRequest($method, $path, $this->headers, (string) $body ?: null);
         $this->sendRequest();
     }
 
@@ -217,6 +217,31 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         }
 
         $this->requestOptions['multipart'][] = $part;
+    }
+
+    /**
+     * Send a file to a path using a given HTTP method
+     *
+     * @param string $filePath The path of the file to send
+     * @param string $path The path to request
+     * @param string $method HTTP method
+     * @param string $mimeType Optional mime type of the file to send
+     * @throws InvalidArgumentException
+     * @When I send :filePath :path using HTTP :method
+     * @When I send :filePath as :mimeType to :path using HTTP :method
+     */
+    public function sendFile($filePath, $path, $method, $mimeType = null) {
+        if (!file_exists($filePath)) {
+            throw new InvalidArgumentException(sprintf('File does not exist: %s', $filePath));
+        }
+
+        if ($mimeType === null) {
+            $mimeType = mime_content_type($filePath);
+        }
+
+        $this->addHeader('Content-Type', $mimeType);
+        $this->request = $this->createRequest($method, $path, $this->headers, file_get_contents($filePath));
+        $this->sendRequest();
     }
 
     /**
@@ -370,5 +395,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         Assertion::range($code, 100, 599, sprintf('Response code must be between 100 and 599, got %d.', $code));
 
         return $code;
+    }
+
+    /**
+     * Create a request instance
+     *
+     * @param string $method HTTP method
+     * @param string $path The path to request
+     * @param array $headers Request headers
+     * @param string $body Request body
+     * @return Request
+     */
+    private function createRequest($method, $path, $headers = [], $body = null) {
+        return new Request(strtoupper($method), $path, $headers, $body);
     }
 }

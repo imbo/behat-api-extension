@@ -362,4 +362,34 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
         $this->context->requestPath('path');
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: /foo/bar
+     */
+    public function testSendFileThatDoesNotExist() {
+        $this->context->sendFile('/foo/bar', '/path', 'POST');
+    }
+
+    public function getFilesToSend() {
+        return [
+            [__FILE__, 'POST', 'text/x-php'],
+            [__FILE__, 'POST', 'foo/bar', 'foo/bar'],
+        ];
+    }
+
+    /**
+     * @dataProvider getFilesToSend
+     */
+    public function testCanSendAFileAsRequestBody($filePath, $method, $expectedMimeType, $mimeTypeToSend = null) {
+        $this->mockHandler->append(new Response(200));
+        $this->context->sendFile($filePath, '/some/path', $method, $mimeTypeToSend);
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame($method, $request->getMethod());
+        $this->assertSame('/some/path', $request->getUri()->getPath());
+        $this->assertSame($expectedMimeType, $request->getHeaderLine('Content-Type'));
+        $this->assertSame(file_get_contents($filePath), (string) $request->getBody());
+    }
 }

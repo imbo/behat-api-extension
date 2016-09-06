@@ -148,7 +148,7 @@ When I request "some/endpoint" using HTTP POST with body:
     """
 ```
 
-#### When I send `:filePath` (as `:mimeType`) to `:path` using HTTP `:method`
+#### :white_check_mark: When I send `:filePath` (as `:mimeType`) to `:path` using HTTP `:method`
 
 Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:filePath` is relative to the working directory unless it's absolute. `:method` would typically be `PUT` or `POST` for this action, but any valid HTTP method can be used. The optional `:mimeType` can be added to force the `Content-Type` request header. If not specified the extension will try to guess the mime type using available methods.
 

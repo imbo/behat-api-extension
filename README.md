@@ -5,7 +5,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/imbo/behat-api-extension/v/unstable)](https://packagist.org/packages/imbo/behat-api-extension)
 [![License](https://poser.pugx.org/imbo/behat-api-extension/license)](https://packagist.org/packages/imbo/behat-api-extension)
 
-**This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning. Not all steps in the README have been fully implemented yet either.**
+**This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning. Steps prefixed with :white_check_mark: have been implemented and tested.**
 
 This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
 
@@ -72,7 +72,7 @@ Use this step when the URL you are requesting requires basic auth.
 | Given I am authenticating as "`foo bar`" with password '`bar foo`' | `foo bar` | `bar foo` |
 | Given I am authenticating as '`"foo"`' with password "`'bar'`"     | `"foo"`   | `'bar'`   |
 
-#### Given the `:header` request header is `:value`
+#### :white_check_mark: Given the `:header` request header is `:value`
 
 Set the `:header` request header to `:value`. Can be repeated to set multiple headers or to set the same header multiple times.
 
@@ -86,7 +86,7 @@ Trying to force specific headers to have certain values combined with other step
 | Given the "`X-Foo`" request header is `Bar`<br>Given the "`X-Foo`" request header is `Baz` | `X-Foo`      | `Bar, Baz`        |
 | Given the `Accept` request header is "`application/json`"                                  | `Accept`     | `application/json`|
 
-#### Given I attach `:path` to the request as `:name`
+#### :white_check_mark: Given I attach `:path` to the request as `:name`
 
 Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a specified file does not exist an `InvalidArgumentException` exception will be thrown. `:path` is relative to the working directory unless it's absolute.
 
@@ -102,7 +102,7 @@ Attach a file to the request (causing a `multipart/form-data` request, populatin
 
 After setting up the request it can be sent to the server in a few different ways. Keep in mind that all configuration regarding the request must be set prior to any of these steps, as they will actually send the request.
 
-#### When I request `:path` (using HTTP `:method`)
+#### :white_check_mark: When I request `:path` (using HTTP `:method`)
 
 `:path` is relative to the `base_uri` configuration option, and `:method` is any HTTP method, for instance `POST` or `DELETE`. If the last part of the step is omitted, `HTTP GET` will be used. If the `:path` starts with a slash, it will be relative to the root of `base_uri`.
 
@@ -116,7 +116,7 @@ After setting up the request it can be sent to the server in a few different way
 | When I request "`/some/path`" using HTTP `DELETE`  | `/some/path`        | `DELETE` | `http://example.com/some/path`        |
 | When I request `foobar` using HTTP `POST`          | `foobar`            | `POST`   | `http://example.com/dir/foobar`       |
 
-#### When I request `:path` using HTTP `:method` with (`JSON`) body: `<PyStringNode>`
+#### :white_check_mark: When I request `:path` using HTTP `:method` with (`JSON`) body: `<PyStringNode>`
 
 This step can be used to attach a body to the request. The same as above applies for `:path` and `:method`. If the `JSON` part is added to the step the `Content-Type` request header will be set to `application/json` (regardless of whether or not the `Content-Type` header has already been set with the `Given the :header request header is :value` step described above).
 
@@ -163,7 +163,7 @@ Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:fileP
 
 After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.
 
-#### Then the response code should (`not`) be `:code`
+#### :white_check_mark: Then the response code is (`not`) `:code`
 
 Match the response code to `:code`. If the optional `not` is added, the response should **not** match the response code.
 
@@ -175,7 +175,7 @@ Match the response code to `:code`. If the optional `not` is added, the response
 | Then the response code should be `404`       | `404` | No            | No            | Yes           |
 | Then the response code should `not` be `304` | `304` | Yes           | No            | Yes           |
 
-#### Then the response is (`not`) `:group`
+#### :white_check_mark: Then the response is (`not`) `:group`
 
 Match the response code to a group. If the optional `not` is added, the response should **not** be in the specified group.
 
@@ -276,7 +276,7 @@ This step can be used to verify the length of an array, without having to be exa
 | Then the response body is an array with a length of at `most` `6`  | `6`     | Yes          |
 | Then the response body is an array with a length of at `least` `6` | `6`     | No           |
 
-#### Then the response body `is`|`matches` `:content`
+#### :white_check_mark: Then the response body `is`|`matches` `:content`
 
 Compare or match the response body to `:content`. When using `is` the response body will be compared (`==`) to `:content` and when `matches` is used the `:content` must be a valid regular expression, including delimiters and optional modifiered that will be fed straight into [preg_match](http://php.net/preg_match). The raw response body will be used in both cases.
 

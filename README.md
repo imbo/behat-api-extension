@@ -60,7 +60,7 @@ The extension allows you to use the following steps in your features:
 
 The following steps can be used prior to sending a request.
 
-#### Given I am authenticating as `:username` with password `:password`
+#### :white_check_mark: Given I am authenticating as `:username` with password `:password`
 
 Use this step when the URL you are requesting requires basic auth.
 

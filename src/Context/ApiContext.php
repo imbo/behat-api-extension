@@ -232,6 +232,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $code = $this->response->getStatusCode();
         $range = $this->getResponseCodeGroupRange($group);
+
         Assertion::range($code, $range['min'], $range['max']);
     }
 

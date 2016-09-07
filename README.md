@@ -169,11 +169,11 @@ Match the response code to `:code`. If the optional `not` is added, the response
 
 **Examples:**
 
-| Step                                         | :code | Matches `200` | Matches `304` | Matches `404` |
-| -------------------------------------------- | ----- | ------------- | ------------- | ------------- |
-| Then the response code should be `200`       | `200` | Yes           | No            | No            |
-| Then the response code should be `404`       | `404` | No            | No            | Yes           |
-| Then the response code should `not` be `304` | `304` | Yes           | No            | Yes           |
+| Step                                  | :code | Matches `200` | Matches `304` | Matches `404` |
+| ------------------------------------- | ----- | ------------- | ------------- | ------------- |
+| Then the response code is `200`       | `200` | Yes           | No            | No            |
+| Then the response code is `404`       | `404` | No            | No            | Yes           |
+| Then the response code is `not` `304` | `304` | Yes           | No            | Yes           |
 
 #### :white_check_mark: Then the response is (`not`) `:group`
 
@@ -221,7 +221,7 @@ This step can be used to assert that the `:header` response header is present, o
 
 This step can be used to verify the value of one or more response headers.
 
-The step supports two different comparison modes, `is` and `matches`. `is` will compare the values using regular string comparison (`==`), and when `matches` is used, the `:value` must be a valid regular expression, complete with delimiters and optional modifiers. The expression will be fed straight into [preg_match](http://php.net/preg_match), so make sure it's valid before using it to verify values.
+The step supports two different comparison modes, `is` and `matches`. `is` will compare the values using regular string comparison, and when `matches` is used, the `:value` must be a valid regular expression, complete with delimiters and optional modifiers. The expression will be fed straight into [preg_match](http://php.net/preg_match), so make sure it's valid before using it to verify values.
 
 **Examples:**
 
@@ -278,7 +278,7 @@ This step can be used to verify the length of an array, without having to be exa
 
 #### :white_check_mark: Then the response body `is`|`matches` `:content`
 
-Compare or match the response body to `:content`. When using `is` the response body will be compared (`==`) to `:content` and when `matches` is used the `:content` must be a valid regular expression, including delimiters and optional modifiered that will be fed straight into [preg_match](http://php.net/preg_match). The raw response body will be used in both cases.
+Compare or match the response body to `:content`. When using `is` the response body will be compared to `:content` and when `matches` is used the `:content` must be a valid regular expression, including delimiters and optional modifiered that will be fed straight into [preg_match](http://php.net/preg_match). The raw response body will be used in both cases.
 
 **Examples:**
 

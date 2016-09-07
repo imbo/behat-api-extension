@@ -259,7 +259,7 @@ If the response body does not contain a JSON array, an `InvalidArgumentException
 
 This is the same as `Then the response body is an array of length 0`.
 
-#### Then the response body is an array with a length of at (`most`|`least`) `:length`
+#### :white_check_mark: Then the response body is an array with a length of at (`most`|`least`) `:length`
 
 This step can be used to verify the length of an array, without having to be exact.
 

@@ -155,23 +155,70 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function getResponseBodyArrays() {
         return [
             [
-                'array' => [1, 2, 3],
+                'body' => [1, 2, 3],
                 'lengthToUse' => 3,
                 'willFail' => false,
             ],
             [
-                'array' => [1, 2, 3],
+                'body' => [1, 2, 3],
                 'lengthToUse' => 2,
                 'willFail' => true,
             ],
             [
-                'array' => [],
+                'body' => [],
                 'lengthToUse' => 0,
                 'willFail' => false,
             ],
             [
-                'array' => [],
+                'body' => [],
                 'lengthToUse' => 1,
+                'willFail' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Data provider: Get response body arrays that will be used for testing that the length is at
+     *                least / most a given length
+     *
+     * @return array[]
+     */
+    public function getResponseBodyArraysForAtLeastOrMost() {
+        return [
+            [
+                'body' => [1, 2, 3],
+                'mode' => 'least',
+                'lengthToUse' => 3,
+                'willFail' => false,
+            ],
+            [
+                'body' => [1, 2, 3],
+                'mode' => 'most',
+                'lengthToUse' => 3,
+                'willFail' => false,
+            ],
+            [
+                'body' => [1, 2, 3],
+                'mode' => 'least',
+                'lengthToUse' => 4,
+                'willFail' => true,
+            ],
+            [
+                'body' => [1, 2, 3],
+                'mode' => 'most',
+                'lengthToUse' => 4,
+                'willFail' => false,
+            ],
+            [
+                'body' => [],
+                'mode' => 'most',
+                'lengthToUse' => 4,
+                'willFail' => false,
+            ],
+            [
+                'body' => [],
+                'mode' => 'least',
+                'lengthToUse' => 2,
                 'willFail' => true,
             ],
         ];
@@ -688,17 +735,19 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->thenTheResponseBodyIsAnArrayOfLength(5);
     }
 
+
+
     /**
      * @dataProvider getResponseBodyArrays
      * @covers ::thenTheResponseBodyIsAnArrayOfLength
      */
-    public function testThenTheResponseBodyIsAnArrayOfLength(array $array, $lengthToUse, $willFail) {
-        $this->mockHandler->append(new Response(200, [], json_encode($array)));
+    public function testThenTheResponseBodyIsAnArrayOfLength(array $body, $lengthToUse, $willFail) {
+        $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->whenIRequestPath('/some/path');
 
         if ($willFail) {
             $this->expectException('Assert\InvalidArgumentException');
-            $this->expectExceptionMessage(sprintf('Wrong length for the array in the response body. Expected %d, got %d.', $lengthToUse, count($array)));
+            $this->expectExceptionMessage(sprintf('Wrong length for the array in the response body. Expected %d, got %d.', $lengthToUse, count($body)));
         }
 
         $this->context->thenTheResponseBodyIsAnArrayOfLength($lengthToUse);
@@ -722,5 +771,63 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage The response body does not contain a valid JSON array.
+     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     */
+    public function testThenTheResponseBodyIsAnArrayOfLengthWithAnInvalidBody() {
+        $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMostWhenNoRequestHaveBeenMade() {
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost('least', 5);
+    }
+
+    /**
+     * @dataProvider getResponseBodyArraysForAtLeastOrMost
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost
+     * @covers ::getResponseBodyArray
+     */
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost(array $body, $mode, $lengthToUse, $willFail) {
+        $this->mockHandler->append(new Response(200, [], json_encode($body)));
+        $this->context->whenIRequestPath('/some/path');
+
+        if ($willFail) {
+            $this->expectException('Assert\InvalidArgumentException');
+
+            if ($mode === 'least') {
+                $message = 'Array length should be at least %d, but length was %d';
+            } else {
+                $message = 'Array length should be at most %d, but length was %d';
+
+            }
+
+            $this->expectExceptionMessage(sprintf($message, $lengthToUse, count($body)));
+        }
+
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost($mode, $lengthToUse);
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage The response body does not contain a valid JSON array.
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost
+     * @covers ::getResponseBodyArray
+     */
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMostWithAnInvalidBody() {
+        $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost('least', 2);
     }
 }

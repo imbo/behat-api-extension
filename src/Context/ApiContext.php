@@ -366,9 +366,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
         $this->requireResponse();
 
-        $body = json_decode((string) $this->response->getBody());
+        $body = $this->getResponseBodyArray();
 
-        Assertion::isArray($body, 'Response body did not contain a valid JSON array.');
         Assertion::count(
             $body,
             $length,
@@ -377,6 +376,33 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 $length,
                 count($body)
             )
+        );
+    }
+
+    /**
+     * Assert that the response body contains an array with a length of at least / most a given
+     * length
+     *
+     * @param string $mode Either "least" or "most" that decides which assertion to use
+     * @param int $length The length to use in the assertion
+     * @Then /^the response body is an array with a length of at (least|most) (\d+)$/
+     */
+    public function thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost($mode, $length) {
+        $this->requireResponse();
+
+        $body = $this->getResponseBodyArray();
+
+        $actualLength = count($body);
+
+        $callback = $mode === 'least' ? 'min' : 'max';
+        $message = $mode === 'least' ?
+            'Array length should be at least %d, but length was %d' :
+            'Array length should be at most %d, but length was %d';
+
+        Assertion::$callback(
+            $actualLength,
+            $length,
+            sprintf($message, $length, $actualLength)
         );
     }
 
@@ -555,5 +581,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $this->request = $this->request->withHeader($header, $value);
 
         return $this;
+    }
+
+    /**
+     * Get the JSON-encoded array from the response body
+     *
+     * @return array
+     */
+    private function getResponseBodyArray() {
+        $body = json_decode((string) $this->response->getBody());
+
+        Assertion::isArray($body, 'The response body does not contain a valid JSON array.');
+
+        return $body;
     }
 }

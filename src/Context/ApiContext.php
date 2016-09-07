@@ -357,6 +357,30 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the respones body contains an array with a specific length
+     *
+     * @param int $length The length of the array
+     * @Then the response body is an array of length :length
+     * @Then the response body is an empty array
+     */
+    public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
+        $this->requireResponse();
+
+        $body = json_decode((string) $this->response->getBody());
+
+        Assertion::isArray($body, 'Response body did not contain a valid JSON array.');
+        Assertion::count(
+            $body,
+            $length,
+            sprintf(
+                'Wrong length for the array in the response body. Expected %d, got %d.',
+                $length,
+                count($body)
+            )
+        );
+    }
+
+    /**
      * Get the request instance
      *
      * @return null|RequestInterface

@@ -147,6 +147,37 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Data provider: Get response body arrays, the length to use in the check, and whether or not
+     *                the test should fail
+     *
+     * @return array[]
+     */
+    public function getResponseBodyArrays() {
+        return [
+            [
+                'array' => [1, 2, 3],
+                'lengthToUse' => 3,
+                'willFail' => false,
+            ],
+            [
+                'array' => [1, 2, 3],
+                'lengthToUse' => 2,
+                'willFail' => true,
+            ],
+            [
+                'array' => [],
+                'lengthToUse' => 0,
+                'willFail' => false,
+            ],
+            [
+                'array' => [],
+                'lengthToUse' => 1,
+                'willFail' => true,
+            ],
+        ];
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: /foo/bar
      * @covers ::givenIAttachAFileToTheRequest
@@ -647,4 +678,49 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/xml$#');
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseBodyIsAnArrayOfLengthWhenNoRequestHasBeenMade() {
+        $this->context->thenTheResponseBodyIsAnArrayOfLength(5);
+    }
+
+    /**
+     * @dataProvider getResponseBodyArrays
+     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     */
+    public function testThenTheResponseBodyIsAnArrayOfLength(array $array, $lengthToUse, $willFail) {
+        $this->mockHandler->append(new Response(200, [], json_encode($array)));
+        $this->context->whenIRequestPath('/some/path');
+
+        if ($willFail) {
+            $this->expectException('Assert\InvalidArgumentException');
+            $this->expectExceptionMessage(sprintf('Wrong length for the array in the response body. Expected %d, got %d.', $lengthToUse, count($array)));
+        }
+
+        $this->context->thenTheResponseBodyIsAnArrayOfLength($lengthToUse);
+    }
+
+    /**
+     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     */
+    public function testThenTheResponseBodyIsAnEmptyArray() {
+        $this->mockHandler->append(new Response(200, [], json_encode([])));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Wrong length for the array in the response body. Expected 0, got 3.
+     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     */
+    public function testThenTheResponseBodyIsAnEmptyArrayWhenItsNot() {
+        $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+    }
 }

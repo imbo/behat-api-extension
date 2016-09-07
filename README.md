@@ -240,7 +240,7 @@ The step supports two different comparison modes, `is` and `matches`. `is` will 
 
 For more information regarding regular expressions and the usage of modifiers, [refer to the manual](http://php.net/pcre).
 
-#### Then the response body is an array of length `:length`
+#### :white_check_mark: Then the response body is an array of length `:length`
 
 This step can be used to verify the exact length of a JSON array in the response body.
 
@@ -255,7 +255,7 @@ This step can be used to verify the exact length of a JSON array in the response
 
 If the response body does not contain a JSON array, an `InvalidArgumentException` exception will be thrown.
 
-#### Then the response body should be an empty array
+#### :white_check_mark: Then the response body is an empty array
 
 This is the same as `Then the response body is an array of length 0`.
 

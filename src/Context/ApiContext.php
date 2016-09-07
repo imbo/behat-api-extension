@@ -280,6 +280,36 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that a response header is present
+     *
+     * @param string $header Then name of the header
+     * @Then the :header response header is present
+     */
+    public function thenTheResponseHeaderIsPresent($header) {
+        $this->requireResponse();
+
+        Assertion::true(
+            $this->response->hasHeader($header),
+            sprintf('The "%s" response header does not exist', $header)
+        );
+    }
+
+    /**
+     * Assert that a response header is not present
+     *
+     * @param string $header Then name of the header
+     * @Then the :header response header is not present
+     */
+    public function thenTheResponseHeaderIsNotPresent($header) {
+        $this->requireResponse();
+
+        Assertion::false(
+            $this->response->hasHeader($header),
+            sprintf('The "%s" response header should not exist', $header)
+        );
+    }
+
+    /**
      * Get the request instance
      *
      * @return null|RequestInterface

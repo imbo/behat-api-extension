@@ -526,4 +526,64 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
         $this->context->whenIRequestPath('path');
     }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseHeaderIsPresent
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseHeaderIsPresentWhenNoResponseExists() {
+        $this->context->thenTheResponseHeaderIsPresent('Connection');
+    }
+
+    /**
+     * @covers ::thenTheResponseHeaderIsPresent
+     */
+    public function testThenTheResponseHeaderIsPresent() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderIsPresent('Content-Type');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage The "Content-Type" response header does not exist
+     * @covers ::thenTheResponseHeaderIsPresent
+     */
+    public function testThenTheResponseHeaderIsPresentWhenHeaderIsNotPresent() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderIsPresent('Content-Type');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseHeaderIsNotPresent
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseHeaderIsNotPresentWhenNoResponseExists() {
+        $this->context->thenTheResponseHeaderIsNotPresent('Connection');
+    }
+
+    /**
+     * @covers ::thenTheResponseHeaderIsNotPresent
+     */
+    public function testThenTheResponseHeaderIsNotPresent() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderIsNotPresent('Content-Type');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage The "Content-Type" response header should not exist
+     * @covers ::thenTheResponseHeaderIsNotPresent
+     */
+    public function testThenTheResponseHeaderIsNotPresentWhenHeaderIsPresent() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderIsNotPresent('Content-Type');
+    }
 }

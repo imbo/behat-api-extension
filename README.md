@@ -197,7 +197,7 @@ Allowed groups and their ranges are:
 | Then the response is "`client error`"       | `client error`  | 400 to 499                       |
 | Then the response is `not` "`client error`" | `client error`  | 100 to 399 and 500 to 599        |
 
-#### Then the `:header` response header is (`not`) present
+#### :white_check_mark: Then the `:header` response header is (`not`) present
 
 This step can be used to assert that the `:header` response header is present, or not (if used with the optional `not` keyword). The value of `:header` is case-insensitive.
 

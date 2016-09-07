@@ -310,6 +310,52 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Compare a response header value against a string
+     *
+     * @param string $header The name of the header
+     * @param string $value The value to compare with
+     * @Then the :header response header is :value
+     */
+    public function thenTheResponseHeaderIs($header, $value) {
+        $this->requireResponse();
+        $actual = $this->response->getHeaderLine($header);
+
+        Assertion::same(
+            $actual,
+            $value,
+            sprintf(
+                'Response header (%s) mismatch. Expected "%s", got "%s".',
+                $header,
+                $value,
+                $actual
+            )
+        );
+    }
+
+    /**
+     * Match a response header value against a regular expression pattern
+     *
+     * @param string $header The name of the header
+     * @param string $pattern The regular expression pattern
+     * @Then the :header response header matches :pattern
+     */
+    public function thenTheResponseHeaderMatches($header, $pattern) {
+        $this->requireResponse();
+        $actual = $this->response->getHeaderLine($header);
+
+        Assertion::regex(
+            $actual,
+            $pattern,
+            sprintf(
+                'Response header (%s) mismatch. "%s" does not match "%s".',
+                $header,
+                $actual,
+                $pattern
+            )
+        );
+    }
+
+    /**
      * Get the request instance
      *
      * @return null|RequestInterface

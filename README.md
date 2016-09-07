@@ -217,7 +217,7 @@ This step can be used to assert that the `:header` response header is present, o
 | Then the "`Content-Length`" response header is present       | `Content-Length` | Yes          |
 | Then the "`content-length`" response header is `not` present | `content-length` | No           |
 
-#### Then the `:header` response header `is`|`matches` `:value`
+#### :white_check_mark: Then the `:header` response header `is`|`matches` `:value`
 
 This step can be used to verify the value of one or more response headers.
 

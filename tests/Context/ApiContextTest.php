@@ -586,4 +586,65 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseHeaderIsNotPresent('Content-Type');
     }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseHeaderIs
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseHeaderIsWhenNoResponseExists() {
+        $this->context->thenTheResponseHeaderIs('Connection', 'close');
+    }
+
+    /**
+     * @covers ::thenTheResponseHeaderIs
+     */
+    public function testThenTheResponseHeaderIs() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderIs('Content-Type', 'application/json');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Response header (Content-Type) mismatch. Expected "application/xml", got "application/json".
+     * @covers ::thenTheResponseHeaderIs
+     */
+    public function testThenTheResponseHeaderIsWhenValueDoesNotMatch() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderIs('Content-Type', 'application/xml');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseHeaderMatches
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseHeaderMatchesWhenNoResponseExists() {
+        $this->context->thenTheResponseHeaderMatches('Connection', 'close');
+    }
+
+    /**
+     * @covers ::thenTheResponseHeaderMatches
+     */
+    public function testThenTheResponseHeaderMatches() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Response header (Content-Type) mismatch. "application/json" does not match "#^application/xml$#".
+     * @covers ::thenTheResponseHeaderMatches
+     */
+    public function testThenTheResponseHeaderMatchesWhenValueDoesNotMatch() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/xml$#');
+    }
+
 }

@@ -7,6 +7,7 @@ use Behat\Behat\Context\SnippetAcceptingContext,
     GuzzleHttp\ClientInterface,
     GuzzleHttp\Exception\RequestException,
     GuzzleHttp\Psr7\Request,
+    GuzzleHttp\Psr7,
     Assert,
     Assert\Assertion,
     Psr\Http\Message\RequestInterface,
@@ -28,14 +29,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     private $client;
 
     /**
-     * Request headers
-     *
-     * @var array
-     */
-    private $headers = [];
-
-    /**
      * Request instance
+     *
+     * The request instance will be created once the client is ready to send it.
      *
      * @var RequestInterface
      */
@@ -44,6 +40,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Request options
      *
+     * Options to send with the request.
+     *
      * @var array
      */
     private $requestOptions = [];
@@ -51,148 +49,19 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Response instance
      *
+     * The response object will be set once the request has been made.
+     *
      * @var ResponseInterface
      */
     private $response;
 
     /**
      * {@inheritdoc}
+     * @codeCoverageIgnore
      */
     public function setClient(ClientInterface $client) {
         $this->client = $client;
-    }
-
-    /**
-     * Request a path using GET or another HTTP method
-     *
-     * @param string $path The path to request
-     * @param string $method The HTTP method to use
-     * @When I request :path
-     * @When I request :path using HTTP :method
-     */
-    public function requestPath($path, $method = 'GET') {
-        $this->makeAndSendRequest($path, $method);
-    }
-
-    /**
-     * Request a URL with a JSON request body using a specific method
-     *
-     * @param string $path The path to request
-     * @param string $method The HTTP Method to use
-     * @param PyStringNode $body The body to attach to request
-     * @When I request :path using HTTP :method with JSON body:
-     */
-    public function makeAndSendRequestWithJsonBody($path, $method, PyStringNode $body = null) {
-        Assertion::isJsonString((string) $body);
-
-        $this->addHeader('Content-Type', 'application/json');
-        $this->makeAndSendRequest($path, $method, $body);
-    }
-
-
-    /**
-     * Request a URL using a specific method
-     *
-     * @param string $path The path to request
-     * @param string $method The HTTP Method to use
-     * @param PyStringNode $body The body to attach to request
-     * @When I request :path using HTTP :method with body:
-     */
-    public function makeAndSendRequest($path, $method, PyStringNode $body = null) {
-        $this->request = $this->createRequest($method, $path, $this->headers, (string) $body ?: null);
-        $this->sendRequest();
-    }
-
-    /**
-     * Assert the HTTP response code
-     *
-     * @param int $code The HTTP response code
-     * @throws InvalidArgumentException
-     * @Then the response code is :code
-     */
-    public function assertResponseCode($code) {
-        $this->requireResponse();
-        $expected = $this->validateResponseCode($code);
-        $actual = $this->response->getStatusCode();
-
-        Assertion::same(
-            $actual,
-            $expected,
-            sprintf('Expected response code %d, got %d', $expected, $actual)
-        );
-    }
-
-    /**
-     * Assert the HTTP response code is not a specific code
-     *
-     * @param int $code The HTTP response code
-     * @Then the response code is not :code
-     */
-    public function assertResponseCodeIsNot($code) {
-        $this->requireResponse();
-        $expected = $this->validateResponseCode($code);
-        $actual = $this->response->getStatusCode();
-
-        Assertion::notSame(
-            $actual,
-            $expected,
-            sprintf('Did not expect response code %d', $actual)
-        );
-    }
-
-    /**
-     * Checks if the HTTP response code is in a group
-     *
-     * @param string $group Name of the group that the response code should be in
-     * @Then the response is :group
-     */
-    public function assertResponseCodeIsInGroup($group) {
-        $this->requireResponse();
-        $code = $this->response->getStatusCode();
-        $range = $this->getResponseCodeGroupRange($group);
-        Assertion::range($code, $range['min'], $range['max']);
-    }
-
-    /**
-     * Checks if the HTTP response code is *not* in a group
-     *
-     * @param string $group Name of the group that the response code is not in
-     * @Then the response is not :group
-     */
-    public function assertResponseCodeIsNotInGroup($group) {
-        try {
-            $this->assertResponseCodeIsInGroup($group);
-
-            throw new InvalidArgumentException(sprintf(
-                'Response was not supposed to be %s (actual response code: %d)',
-                $group,
-                $this->response->getStatusCode()
-            ));
-        } catch (Assert\InvalidArgumentException $e) {
-            // As expected, do nothing
-        }
-    }
-
-    /**
-     * Assert that the response body matches some content
-     *
-     * @param string $content The content to match the response body against
-     * @Then the response body is :content
-     */
-    public function assertResponseBodyMatches($content) {
-        $this->requireResponse();
-        Assertion::same((string) $this->response->getBody(), $content);
-    }
-
-    /**
-     * Assert that the response body matches some content using a regular expression
-     *
-     * @param string $pattern The regular expression pattern to use for the match
-     * @Then the response body matches :pattern
-     */
-    public function assertResponseBodyMatchesRegularExpressionPattern($pattern) {
-        $this->requireResponse();
-        Assertion::regex((string) $this->response->getBody(), $pattern);
+        $this->request = new Request('GET', $client->getConfig('base_uri'));
     }
 
     /**
@@ -202,7 +71,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $filename Multipart entry name
      * @Given I attach :path to the request as :partName
      */
-    public function addFile($path, $partName) {
+    public function givenIAttachAFileToTheRequest($path, $partName) {
         if (!file_exists($path)) {
             throw new InvalidArgumentException(sprintf('File does not exist: %s', $path));
         }
@@ -220,39 +89,17 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Send a file to a path using a given HTTP method
-     *
-     * @param string $filePath The path of the file to send
-     * @param string $path The path to request
-     * @param string $method HTTP method
-     * @param string $mimeType Optional mime type of the file to send
-     * @throws InvalidArgumentException
-     * @When I send :filePath :path using HTTP :method
-     * @When I send :filePath as :mimeType to :path using HTTP :method
-     */
-    public function sendFile($filePath, $path, $method, $mimeType = null) {
-        if (!file_exists($filePath)) {
-            throw new InvalidArgumentException(sprintf('File does not exist: %s', $filePath));
-        }
-
-        if ($mimeType === null) {
-            $mimeType = mime_content_type($filePath);
-        }
-
-        $this->addHeader('Content-Type', $mimeType);
-        $this->request = $this->createRequest($method, $path, $this->headers, file_get_contents($filePath));
-        $this->sendRequest();
-    }
-
-    /**
      * Set basic authentication information for the next request
      *
      * @param string $username The username to authenticate with
      * @param string $password The password to authenticate with
      * @Given I am authenticating as :username with password :password
      */
-    public function setBasicAuth($username, $password) {
-        $this->addHeader('Authorization', 'Basic ' . base64_encode($username . ':' . $password));
+    public function givenIAuthenticateAs($username, $password) {
+        $this->addRequestHeader(
+            'Authorization',
+            sprintf('Basic %s', base64_encode($username . ':' . $password))
+        );
     }
 
     /**
@@ -264,16 +111,172 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $value The header value
      * @Given the :header request header is :value
      */
-    public function addHeader($header, $value) {
-        if (isset($this->headers[$header])) {
-            if (!is_array($this->headers[$header])) {
-                $this->headers[$header] = [$this->headers[$header]];
-            }
+    public function givenTheRequestHeaderIs($header, $value) {
+        $this->addRequestHeader($header, $value);
+    }
 
-            $this->headers[$header][] = $value;
-        } else {
-            $this->headers[$header] = $value;
+    /**
+     * Request a path using GET or another HTTP method
+     *
+     * @param string $path The path to request
+     * @param string $method The HTTP method to use
+     * @When I request :path
+     * @When I request :path using HTTP :method
+     */
+    public function whenIRequestPath($path, $method = 'GET') {
+        $this->setRequestPath($path)
+             ->setRequestMethod($method)
+             ->sendRequest();
+    }
+
+    /**
+     * Request a URL using a specific method
+     *
+     * @param string $path The path to request
+     * @param string $method The HTTP Method to use
+     * @param PyStringNode $body The body to attach to request
+     * @When I request :path using HTTP :method with body:
+     */
+    public function whenIRequestPathWithBody($path, $method, PyStringNode $body) {
+        $this->setRequestMethod($method)
+             ->setRequestPath($path)
+             ->setRequestBody($body)
+             ->sendRequest();
+    }
+
+    /**
+     * Request a URL with a JSON request body using a specific method
+     *
+     * @param string $path The path to request
+     * @param string $method The HTTP Method to use
+     * @param PyStringNode $body The body to attach to request
+     * @When I request :path using HTTP :method with JSON body:
+     */
+    public function whenIRequestPathWithJsonBody($path, $method, PyStringNode $body) {
+        Assertion::isJsonString((string) $body);
+
+        $this->setRequestHeader('Content-Type', 'application/json')
+             ->whenIRequestPathWithBody($path, $method, $body);
+    }
+
+    /**
+     * Send a file to a path using a given HTTP method
+     *
+     * @param string $filePath The path of the file to send
+     * @param string $path The path to request
+     * @param string $method HTTP method
+     * @param string $mimeType Optional mime type of the file to send
+     * @throws InvalidArgumentException
+     * @When I send :filePath :path using HTTP :method
+     * @When I send :filePath as :mimeType to :path using HTTP :method
+     */
+    public function whenISendFile($filePath, $path, $method, $mimeType = null) {
+        if (!file_exists($filePath)) {
+            throw new InvalidArgumentException(sprintf('File does not exist: %s', $filePath));
         }
+
+        if ($mimeType === null) {
+            $mimeType = mime_content_type($filePath);
+        }
+
+        $this->setRequestHeader('Content-Type', $mimeType)
+             ->whenIRequestPathWithBody($path, $method, new PyStringNode([file_get_contents($filePath)], 1));
+    }
+
+    /**
+     * Assert the HTTP response code
+     *
+     * @param int $code The HTTP response code
+     * @Then the response code is :code
+     */
+    public function thenTheResponseCodeIs($code) {
+        $this->requireResponse();
+
+        $expected = $this->validateResponseCode($code);
+        $actual = $this->response->getStatusCode();
+
+        Assertion::same(
+            $actual,
+            $expected,
+            sprintf('Expected response code %d, got %d', $expected, $actual)
+        );
+    }
+
+    /**
+     * Assert the HTTP response code is not a specific code
+     *
+     * @param int $code The HTTP response code
+     * @Then the response code is not :code
+     */
+    public function thenTheResponseCodeIsNot($code) {
+        $this->requireResponse();
+
+        $expected = $this->validateResponseCode($code);
+        $actual = $this->response->getStatusCode();
+
+        Assertion::notSame(
+            $actual,
+            $expected,
+            sprintf('Did not expect response code %d', $actual)
+        );
+    }
+
+    /**
+     * Checks if the HTTP response code is in a group
+     *
+     * @param string $group Name of the group that the response code should be in
+     * @Then the response is :group
+     */
+    public function thenTheResponseIs($group) {
+        $this->requireResponse();
+
+        $code = $this->response->getStatusCode();
+        $range = $this->getResponseCodeGroupRange($group);
+        Assertion::range($code, $range['min'], $range['max']);
+    }
+
+    /**
+     * Checks if the HTTP response code is *not* in a group
+     *
+     * @param string $group Name of the group that the response code is not in
+     * @Then the response is not :group
+     */
+    public function thenTheResponseIsNot($group) {
+        try {
+            $this->thenTheResponseIs($group);
+
+            throw new InvalidArgumentException(sprintf(
+                'Response was not supposed to be %s (actual response code: %d)',
+                $group,
+                $this->response->getStatusCode()
+            ));
+        } catch (Assert\InvalidArgumentException $e) {
+            // As expected, do nothing
+        }
+    }
+
+    /**
+     * Assert that the response body matches some content
+     *
+     * @param string $content The content to match the response body against
+     * @Then the response body is :content
+     */
+    public function thenTheResponseBodyIs($content) {
+        $this->requireResponse();
+
+        Assertion::same((string) $this->response->getBody(), $content);
+    }
+
+    /**
+     * Assert that the response body matches some content using a regular expression
+     *
+     * @param string $pattern The regular expression pattern to use for the match
+     * @Then the response body matches :pattern
+     */
+    public function thenTheResponseBodyMatches($pattern) {
+        $this->requireResponse();
+
+        Assertion::regex((string) $this->response->getBody(), $pattern);
     }
 
     /**
@@ -307,23 +310,16 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Get the current request headers
-     *
-     * @return array
-     * @codeCoverageIgnore
-     */
-    protected function getHeaders() {
-        return $this->headers;
-    }
-
-    /**
      * Send the current request and set the response instance
      *
      * @throws RequestException
      */
     private function sendRequest() {
         try {
-            $this->response = $this->client->send($this->request, $this->requestOptions);
+            $this->response = $this->client->send(
+                $this->request,
+                $this->requestOptions
+            );
         } catch (RequestException $e) {
             $this->response = $e->getResponse();
 
@@ -398,15 +394,65 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Create a request instance
+     * Update the path of the request
      *
-     * @param string $method HTTP method
      * @param string $path The path to request
-     * @param array $headers Request headers
-     * @param string $body Request body
-     * @return Request
+     * @return self
      */
-    private function createRequest($method, $path, $headers = [], $body = null) {
-        return new Request(strtoupper($method), $path, $headers, $body);
+    private function setRequestPath($path) {
+        $uri = $this->request->getUri()->withPath($path);
+        $this->request = $this->request->withUri($uri);
+
+        return $this;
+    }
+
+    /**
+     * Update the HTTP method of the request
+     *
+     * @param string $method The HTTP method
+     * @return self
+     */
+    private function setRequestMethod($method) {
+        $this->request = $this->request->withMethod($method);
+
+        return $this;
+    }
+
+    /**
+     * Set the request body
+     *
+     * @param string $body The body to set
+     * @return self
+     */
+    private function setRequestBody($body) {
+        $this->request = $this->request->withBody(Psr7\stream_for($body));
+
+        return $this;
+    }
+
+    /**
+     * Add a request header
+     *
+     * @param string $header Name of the header
+     * @param mixed $value The value of the header
+     * @return self
+     */
+    private function addRequestHeader($header, $value) {
+        $this->request = $this->request->withAddedHeader($header, $value);
+
+        return $this;
+    }
+
+    /**
+     * Set a request header, possibly overwriting an existing one
+     *
+     * @param string $header Name of the header
+     * @param mixed $value The value of the header
+     * @return self
+     */
+    private function setRequestHeader($header, $value) {
+        $this->request = $this->request->withHeader($header, $value);
+
+        return $this;
     }
 }

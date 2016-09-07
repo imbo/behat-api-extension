@@ -14,7 +14,7 @@ use PHPUnit_Framework_TestCase,
 
 /**
  * @author Christer Edvartsen <cogo@starzinger.net>
- * @covers Imbo\BehatApiExtension\Context\ApiContext
+ * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
  */
 class ApiContextText extends PHPUnit_Framework_TestCase {
     private $mockHandler;
@@ -41,231 +41,101 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Get HTTP methods
+     * Data provider: Get HTTP methods
      *
      * @return array[]
      */
     public function getHttpMethods() {
         return [
-            ['GET'],
-            ['PUT'],
-            ['POST'],
-            ['HEAD'],
-            ['OPTIONS'],
-            ['DELETE'],
+            ['method' => 'GET'],
+            ['method' => 'PUT'],
+            ['method' => 'POST'],
+            ['method' => 'HEAD'],
+            ['method' => 'OPTIONS'],
+            ['method' => 'DELETE'],
         ];
     }
 
     /**
-     * @dataProvider getHttpMethods
+     * Data provider: Get files and mime types
+     *
+     * @return array[]
      */
-    public function testRequestPathUsingDifferentHttpMethods($method) {
-        $this->mockHandler->append(new Response(200));
-        $this->context->requestPath('/some/path', $method);
-
-        $this->assertSame(1, count($this->historyContainer));
-        $this->assertSame($method, $this->historyContainer[0]['request']->getMethod());
-    }
-
-    public function testSendRequestWithJsonBody() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->makeAndSendRequestWithJsonBody('/some/path', 'POST', new PyStringNode(['{"foo":"bar"}'], 1));
-
-        $this->assertSame(1, count($this->historyContainer));
-
-        $request = $this->historyContainer[0]['request'];
-        $this->assertSame('POST', $request->getMethod(), 'Invalid request method');
-        $this->assertSame('application/json', $request->getHeaderLine('content-type'), 'Content-Type request header is wrong');
+    public function getFilesAndMimeTypes() {
+        return [
+            [
+                'filePath'         => __FILE__,
+                'method'           => 'POST',
+                'expectedMimeType' => 'text/x-php',
+            ],
+            [
+                'filePath'         => __FILE__,
+                'method'           => 'POST',
+                'expectedMimeType' => 'foo/bar',
+                'mimeType'         => 'foo/bar',
+            ],
+        ];
     }
 
     /**
-     * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Value "{foo:"bar"}" is not a valid JSON string.
-     */
-    public function testSendRequestWithInvalidJsonBody() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->makeAndSendRequestWithJsonBody('/some/path', 'POST', new PyStringNode(['{foo:"bar"}'], 1));
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     */
-    public function testAssertResponseCodeWithNoResponse() {
-        $this->context->assertResponseCode(200);
-    }
-
-    /**
-     * Get a a response code, along with an array of other response codes that the first parameter
-     * does not match
+     * Data provider: Get a a response code, along with an array of other response codes that the
+     *                first parameter does not match
      *
      * @return array[]
      */
     public function getResponseCodes() {
         return [
-            [200, [300, 400, 500]],
-            [300, [200, 400, 500]],
-            [400, [200, 300, 500]],
-            [500, [200, 300, 400]],
+            [
+                'code' => 200,
+                'others' => [300, 400, 500],
+            ],
+            [
+                'code' => 300,
+                'others' => [200, 400, 500],
+            ],
+            [
+                'code' => 400,
+                'others' => [200, 300, 500],
+            ],
+            [
+                'code' => 500,
+                'others' => [200, 300, 400],
+            ],
         ];
     }
 
     /**
-     * @dataProvider getResponseCodes
+     * Data provider: Get response codes and groups
+     *
+     * @return array[]
      */
-    public function testAssertResponseCode($code) {
-        $this->mockHandler->append(new Response($code));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseCode($code);
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     */
-    public function testAssertResponseCodeIsNotWithNoResponse() {
-        $this->context->assertResponseCodeIsNot(200);
-    }
-
-    /**
-     * @dataProvider getResponseCodes
-     */
-    public function testAssertResponseCodeIsNot($code, $otherCodes) {
-        $this->mockHandler->append(new Response($code));
-        $this->context->requestPath('/some/path');
-
-        foreach ($otherCodes as $otherCode) {
-            $this->context->assertResponseCodeIsNot($otherCode);
-
-            $this->expectException('Assert\InvalidArgumentException');
-            $this->expectExceptionMessage('Did not expect response code ' . $code);
-
-            $this->context->assertResponseCodeIsNot($code);
-        }
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     */
-    public function testAssertResponseBodyMatchesWithNoResponse() {
-        $this->context->assertResponseBodyMatches('some body');
-    }
-
-    public function testAssertResponseBodyMatches() {
-        $this->mockHandler->append(new Response(200, [], 'response body'));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyMatches('response body');
-    }
-
-    public function testAssertResponseBodyMatchesRegularExpressionPattern() {
-        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyMatchesRegularExpressionPattern('/^{"FOO": ?"BAR"}$/i');
-    }
-
-    /**
-     * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Value "{"foo":"bar"}" does not match expression.
-     */
-    public function testAssertResponseBodyMatchesRegularExpressionPatternWhenPatternDoesNotMatch() {
-        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyMatchesRegularExpressionPattern('/^{"FOO": "BAR"}$/');
-    }
-
-    /**
-     * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Value "response body" is not the same as expected value "foobar".
-     */
-    public function testAssertResponseBodyMatchesWhenBodyDoesNotMatch() {
-        $this->mockHandler->append(new Response(200, [], 'response body'));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyMatches('foobar');
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     */
-    public function testAssertResponseCodeIsInGroupWhenNoResponseExist() {
-        $this->context->assertResponseCodeIsInGroup('success');
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     */
-    public function testAssertResponseCodeIsNotInGroupWhenNoResponseExist() {
-        $this->context->assertResponseCodeIsNotInGroup('success');
-    }
-
-    public function getResponseCodeAndGroup() {
+    public function getGroupAndResponseCodes() {
         return [
-            [100, 'informational'],
-            [199, 'informational'],
-            [200, 'success'],
-            [299, 'success'],
-            [300, 'redirection'],
-            [399, 'redirection'],
-            [400, 'client error'],
-            [499, 'client error'],
-            [500, 'server error'],
-            [599, 'server error'],
+            [
+                'group' => 'informational',
+                'codes' => [100, 199],
+            ],
+            [
+                'group' => 'success',
+                'codes' => [200, 299],
+            ],
+            [
+                'group' => 'redirection',
+                'codes' => [300, 399],
+            ],
+            [
+                'group' => 'client error',
+                'codes' => [400, 499],
+            ],
+            [
+                'group' => 'server error',
+                'codes' => [500, 599],
+            ],
         ];
     }
 
     /**
-     * @dataProvider getResponseCodeAndGroup
-     */
-    public function testAssertResponseCodeIsInGroup($code, $group) {
-        $this->mockHandler->append(new Response($code, [], 'response body'));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseCodeIsInGroup($group);
-    }
-
-    /**
-     * @dataProvider getResponseCodeAndGroup
-     */
-    public function testAssertResponseCodeIsNotInGroup($code, $group) {
-        $groups = [
-            'informational',
-            'success',
-            'redirection',
-            'client error',
-            'server error',
-        ];
-        $this->mockHandler->append(new Response($code, [], 'response body'));
-        $this->context->requestPath('/some/path');
-
-        foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
-            // Assert that the response is not in any of the other groups
-            $this->context->assertResponseCodeIsNotInGroup($g);
-        }
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Response was not supposed to be success (actual response code: 200)
-     */
-    public function testAssertResponseCodeIsNotInGroupWhenCodeIsInGroup() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseCodeIsNotInGroup('success');
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid response code group: foobar
-     */
-    public function testAssertResponseCodeIsInGroupWithInvalidGroup() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseCodeIsNotInGroup('foobar');
-    }
-
-    /**
-     * Data provider that returns invalid http response codes
+     * Data provider: Return invalid HTTP response codes
      *
      * @return array[]
      */
@@ -277,27 +147,18 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @dataProvider getInvalidHttpResponseCodes
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: /foo/bar
+     * @covers ::givenIAttachAFileToTheRequest
      */
-    public function testAssertResponseCodeIsAnInvalidCode($code) {
-        $this->mockHandler->append(new Response(200));
-        $this->context->requestPath('/some/path');
-
-        $this->expectException('Assert\InvalidArgumentException');
-        $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
-
-        $this->context->assertResponseCode($code);
+    public function testGivenIAttachAFileToTheRequestThatDoesNotExist() {
+        $this->context->givenIAttachAFileToTheRequest('/foo/bar', 'foo');
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage File does not exist: /foo/bar
+     * @covers ::givenIAttachAFileToTheRequest
      */
-    public function testAddFileThatDoesNotExistToTheRequest() {
-        $this->context->addFile('/foo/bar', 'foo');
-    }
-
-    public function testAddFilesToTheRequest() {
+    public function testGivenIAttachAFileToTheRequest() {
         $this->mockHandler->append(new Response(200));
         $files = [
             'file1' => __FILE__,
@@ -305,10 +166,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
 
         foreach ($files as $name => $path) {
-            $this->context->addFile($path, $name);
+            $this->context->givenIAttachAFileToTheRequest($path, $name);
         }
 
-        $this->context->makeAndSendRequest('/some/path', 'POST');
+        $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -326,14 +187,18 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         }
     }
 
-    public function testCanUseBasicAuth() {
+    /**
+     * @covers ::givenIAuthenticateAs
+     * @covers ::addRequestHeader
+     */
+    public function testGivenIAuthenticateAs() {
         $this->mockHandler->append(new Response(200));
 
         $username = 'user';
         $password = 'pass';
 
-        $this->context->setBasicAuth($username, $password);
-        $this->context->makeAndSendRequest('/some/path', 'POST');
+        $this->context->givenIAuthenticateAs($username, $password);
+        $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -341,12 +206,16 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->assertSame('Basic dXNlcjpwYXNz', $request->getHeaderLine('authorization'));
     }
 
-    public function testCanAddOneOrMoreHeaders() {
+    /**
+     * @covers ::givenTheRequestHeaderIs
+     * @covers ::addRequestHeader
+     */
+    public function testGivenTheRequestHeaderIs() {
         $this->mockHandler->append(new Response(200));
-        $this->context->addHeader('foo', 'foo');
-        $this->context->addHeader('bar', 'foo');
-        $this->context->addHeader('bar', 'bar');
-        $this->context->makeAndSendRequest('/some/path', 'POST');
+        $this->context->givenTheRequestHeaderIs('foo', 'foo');
+        $this->context->givenTheRequestHeaderIs('bar', 'foo');
+        $this->context->givenTheRequestHeaderIs('bar', 'bar');
+        $this->context->whenIRequestPath('/some/path', 'POST');
         $this->assertSame(1, count($this->historyContainer));
 
         $request = $this->historyContainer[0]['request'];
@@ -355,35 +224,83 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException GuzzleHttp\Exception\RequestException
-     * @expectedExceptionMessage error
+     * @dataProvider getHttpMethods
+     * @covers ::whenIRequestPath
+     * @covers ::setRequestPath
+     * @covers ::setRequestMethod
+     * @covers ::sendRequest
      */
-    public function testThrowsExceptionWhenErrorCommunicatingWithServer() {
-        $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
-        $this->context->requestPath('path');
+    public function testWhenIRequestPath($method) {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path', $method);
+
+        $this->assertSame(1, count($this->historyContainer));
+        $this->assertSame($method, $this->historyContainer[0]['request']->getMethod());
+    }
+
+    /**
+     * @covers ::whenIRequestPathWithBody
+     * @covers ::setRequestMethod
+     * @covers ::setRequestPath
+     * @covers ::setRequestBody
+     * @covers ::sendRequest
+     */
+    public function testWhenIRequestPathWithBody() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('some body', (string) $request->getBody());
+    }
+
+    /**
+     * @covers ::whenIRequestPathWithJsonBody
+     * @covers ::setRequestHeader
+     * @covers ::whenIRequestPathWithBody
+     */
+    public function testWhenIRequestPathWithValidJsonBody() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPathWithJsonBody('/some/path', 'POST', new PyStringNode(['{"foo":"bar"}'], 1));
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('application/json', $request->getHeaderLine('content-type'));
+        $this->assertSame('{"foo":"bar"}', (string) $request->getBody());
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Value "{foo:"bar"}" is not a valid JSON string.
+     * @covers ::whenIRequestPathWithJsonBody
+     */
+    public function testWhenIRequestPathWithInvalidJsonBody() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPathWithJsonBody('/some/path', 'POST', new PyStringNode(['{foo:"bar"}'], 1));
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: /foo/bar
+     * @covers ::whenISendFile
      */
-    public function testSendFileThatDoesNotExist() {
-        $this->context->sendFile('/foo/bar', '/path', 'POST');
-    }
-
-    public function getFilesToSend() {
-        return [
-            [__FILE__, 'POST', 'text/x-php'],
-            [__FILE__, 'POST', 'foo/bar', 'foo/bar'],
-        ];
+    public function testWhenISendAFileThatDoesNotExist() {
+        $this->context->whenISendFile('/foo/bar', '/path', 'POST');
     }
 
     /**
-     * @dataProvider getFilesToSend
+     * @dataProvider getFilesAndMimeTypes
+     * @covers ::whenISendFile
+     * @covers ::setRequestHeader
+     * @covers ::whenIRequestPathWithBody
      */
-    public function testCanSendAFileAsRequestBody($filePath, $method, $expectedMimeType, $mimeTypeToSend = null) {
+    public function testWhenISendFile($filePath, $method, $expectedMimeType, $mimeTypeToSend = null) {
         $this->mockHandler->append(new Response(200));
-        $this->context->sendFile($filePath, '/some/path', $method, $mimeTypeToSend);
+        $this->context->whenISendFile($filePath, '/some/path', $method, $mimeTypeToSend);
         $this->assertSame(1, count($this->historyContainer));
 
         $request = $this->historyContainer[0]['request'];
@@ -391,5 +308,222 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->assertSame('/some/path', $request->getUri()->getPath());
         $this->assertSame($expectedMimeType, $request->getHeaderLine('Content-Type'));
         $this->assertSame(file_get_contents($filePath), (string) $request->getBody());
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseCodeIs
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseCodeIsWithMissingResponseInstance() {
+        $this->context->thenTheResponseCodeIs(200);
+    }
+
+    /**
+     * @dataProvider getResponseCodes
+     * @covers ::thenTheResponseCodeIs
+     * @covers ::validateResponseCode
+     */
+    public function testThenTheResponseCodeIs($code) {
+        $this->mockHandler->append(new Response($code));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseCodeIs($code);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseCodeIsNot
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseCodeIsNotWithMissingResponseInstance() {
+        $this->context->thenTheResponseCodeIsNot(200);
+    }
+
+    /**
+     * @dataProvider getResponseCodes
+     * @covers ::thenTheResponseCodeIsNot
+     * @covers ::validateResponseCode
+     */
+    public function testThenTheResponseCodeIsNot($code, array $otherCodes) {
+        $this->mockHandler->append(new Response($code));
+        $this->context->whenIRequestPath('/some/path');
+
+        foreach ($otherCodes as $otherCode) {
+            $this->context->thenTheResponseCodeIsNot($otherCode);
+        }
+
+        $this->expectException('Assert\InvalidArgumentException');
+        $this->expectExceptionMessage('Did not expect response code ' . $code);
+
+        $this->context->thenTheResponseCodeIsNot($code);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseIs
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseIsWhenThereIsNoResponseInstance() {
+        $this->context->thenTheResponseIs('success');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseIsNot
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseIsNotWhenThereIsNoResponseInstance() {
+        $this->context->thenTheResponseIsNot('success');
+    }
+
+    /**
+     * @dataProvider getGroupAndResponseCodes
+     * @covers ::thenTheResponseIs
+     * @covers ::requireResponse
+     * @covers ::getResponseCodeGroupRange
+     */
+    public function testThenTheResponseIs($group, array $codes) {
+        foreach ($codes as $code) {
+            $this->mockHandler->append(new Response($code, [], 'response body'));
+            $this->context->whenIRequestPath('/some/path');
+            $this->context->thenTheResponseIs($group);
+        }
+    }
+
+    /**
+     * @dataProvider getGroupAndResponseCodes
+     * @covers ::thenTheResponseIsNot
+     * @covers ::thenTheResponseIs
+     */
+    public function testThenTheResponseIsNot($group, array $codes) {
+        $groups = [
+            'informational',
+            'success',
+            'redirection',
+            'client error',
+            'server error',
+        ];
+
+        foreach ($codes as $code) {
+            $this->mockHandler->append(new Response($code));
+            $this->context->whenIRequestPath('/some/path');
+
+            foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
+                // Assert that the response is not in any of the other groups
+                $this->context->thenTheResponseIsNot($g);
+            }
+        }
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Response was not supposed to be success (actual response code: 200)
+     * @covers ::thenTheResponseIsNot
+     * @covers ::thenTheResponseIs
+     */
+    public function testThenTheResponseIsNotWhenResponseIsInGroup() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseIsNot('success');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Invalid response code group: foobar
+     * @covers ::thenTheResponseIs
+     * @covers ::getResponseCodeGroupRange
+     */
+    public function testThenTheResponseIsInInvalidGroup() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseIsNot('foobar');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseBodyIs
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseBodyIsWhenNoResponseExists() {
+        $this->context->thenTheResponseBodyIs('some body');
+    }
+
+    /**
+     * @covers ::thenTheResponseBodyIs
+     */
+    public function testThenTheResponseBodyIsWithMatchingBody() {
+        $this->mockHandler->append(new Response(200, [], 'response body'));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIs('response body');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Value "response body" is not the same as expected value "foo".
+     * @covers ::thenTheResponseBodyIs
+     */
+    public function testThenTheResponseBodyIsWithNonMatchingBody() {
+        $this->mockHandler->append(new Response(200, [], 'response body'));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIs('foo');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseBodyMatches
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseBodyMatchesWhenNoResponseExists() {
+        $this->context->thenTheResponseBodyMatches('/foo/');
+    }
+
+    /**
+     * @covers ::thenTheResponseBodyMatches
+     */
+    public function testThenTheResponseBodyMatches() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyMatches('/^{"FOO": ?"BAR"}$/i');
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Value "{"foo":"bar"}" does not match expression.
+     * @covers ::thenTheResponseBodyMatches
+     */
+    public function testThenTheResponseBodyMatchesWithAPatternThatDoesNotMatch() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyMatches('/^{"FOO": "BAR"}$/');
+    }
+
+    /**
+     * @dataProvider getInvalidHttpResponseCodes
+     * @covers ::validateResponseCode
+     */
+    public function testThenTheResponseCodeIsUSingAnInvalidCode($code) {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path');
+
+        $this->expectException('Assert\InvalidArgumentException');
+        $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
+
+        $this->context->thenTheResponseCodeIs($code);
+    }
+
+    /**
+     * @expectedException GuzzleHttp\Exception\RequestException
+     * @expectedExceptionMessage error
+     * @covers ::sendRequest
+     */
+    public function testSendRequestWhenThereIsAnErrorCommunicatingWithTheServer() {
+        $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
+        $this->context->whenIRequestPath('path');
     }
 }

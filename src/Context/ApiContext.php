@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -13,12 +14,7 @@ use Assert\Assertion;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
-use LengthException;
-use LogicException;
-use OutOfRangeException;
 use RuntimeException;
-use UnexpectedValueException;
-use Closure;
 
 /**
  * API feature context that can be used to ease testing of HTTP APIs
@@ -433,10 +429,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $body = json_decode(json_encode($body), true);
         $contains = json_decode(json_encode($contains), true);
 
-        // Parse the contains array to convert some specific values to callbacks
-        $contains = $this->parseBodyContainsJson($contains);
+        $comparator = new ArrayContainsComparator();
 
-        $this->arrayContains($body, $contains);
+        // Compare the arrays. On error this will throw an exception
+        Assertion::true($comparator->compare($body, $contains));
     }
 
     /**
@@ -647,81 +643,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Recursively look over an array and make sure all the items in $needle exists
-     *
-     * @param array $haystack
-     * @param array $needle
-     * @throws Exception
-     */
-    private function arrayContains(array $haystack, array $needle, $path = null) {
-        foreach ($needle as $key => $value) {
-            // Path used in the error messages
-            $keyPath = ltrim($path . '.' . $key, '.');
-
-            if (!array_key_exists($key, $haystack)) {
-                throw new OutOfRangeException(sprintf(
-                    'Key is missing from the haystack: %s',
-                    $keyPath
-                ));
-            }
-
-            // Match types
-            $haystackValueType = gettype($haystack[$key]);
-            $needleValueType   = gettype($value);
-            $valueIsCallback   = $value instanceof Closure;
-
-            // If the needle is a closure we can disregard the fact that they are different, as this
-            // will be handled properly below
-            if (!$valueIsCallback && $haystackValueType !== $needleValueType) {
-                throw new UnexpectedValueException(sprintf(
-                    'Type mismatch for key: %s (haystack type: %s, needle type: %s)',
-                    $keyPath,
-                    $haystackValueType,
-                    $needleValueType
-                ));
-            }
-
-            if (is_scalar($value)) {
-                if ($haystack[$key] !== $value) {
-                    throw new InvalidArgumentException(sprintf('Value mismatch for key: %s', $keyPath));
-                } else {
-                    continue;
-                }
-            } else if ($valueIsCallback) {
-                $value($haystack[$key], $keyPath); // Throws exception on error
-                continue;
-            }
-
-            if (is_array($value)) {
-                if (key($value) === 0) {
-                    // Regular array, simply loop over the values and see if they are in the
-                    // haystack
-                    foreach ($value as $v) {
-                        if (!is_scalar($v)) {
-                            throw new InvalidArgumentException(sprintf('Array for key %s must only contain scalars.', $keyPath));
-                        }
-
-                        if (!in_array($v, $haystack[$key])) {
-                            throw new InvalidArgumentException(sprintf('Array for key %s is missing a value: %s', $keyPath, $v));
-                        }
-                    }
-                } else {
-                    $this->arrayContains($haystack[$key], $value, $keyPath);
-                }
-
-                continue;
-            }
-
-            // @codeCoverageIgnoreStart
-            throw new LogicException(sprintf(
-                'Value has not been matched for key: %s. This should never happen, so please file an issue.',
-                $keyPath
-            ));
-            // @codeCoverageIgnoreEnd
-        }
-    }
-
-    /**
      * Recursively walk over the values of the array, replacing some nodes with callbacks.
      *
      * This method will look for some specific patterns in the value part of the array and replace
@@ -729,15 +650,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * The specific values that we look for are:
      *
-     * <re>/pattern/</re>
-     * @length(num)
-     * @atLeast(num)
-     * @atMost(num)
      *
      * @param array $contains Array that will be used to match a response body
+     * @param ArrayContainsComparator The comparator that contains the callbacks
      * @return array Returne the array where specific value parts have been replaced by callbacks.
      */
-    private function parseBodyContainsJson(array $contains) {
+    private function parseBodyContainsJson(array $contains, ArrayContainsComparator $comparator) {
         array_walk_recursive($contains, function(&$value) {
             if (!is_string($value)) {
                 // We only care about string values
@@ -747,75 +665,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             // Initialize an array for the preg_match calls below
             $match = [];
 
-            if (preg_match('|^<re>(.*?)</re>$|', $value, $match)) {
-                $pattern = $match[1];
-                $value = function($value, $keyPath) use ($pattern) {
-                    if (!is_scalar($value)) {
-                        throw new InvalidArgumentException('Regular expressions must be used with scalars.');
-                    }
-
-                    if (!preg_match($pattern, (string) $value)) {
-                        throw new InvalidArgumentException(sprintf(
-                            'Regular expression mismatch for key: %s.',
-                            $keyPath
-                        ));
-                    }
-                };
-            } else if (preg_match('/^@length\(([\d]+)\)$/', $value, $match)) {
-                $expected = (int) $match[1];
-                $value = function($value, $keyPath) use ($expected) {
-                    if (!is_array($value)) {
-                        throw new InvalidArgumentException('@length function must be used with arrays.');
-                    }
-
-                    $actual = count($value);
-
-                    if ($actual !== $expected) {
-                        throw new InvalidArgumentException(sprintf(
-                            'Length of array for key %s is wrong. Expected %d but actual length is %d.',
-                            $keyPath,
-                            $expected,
-                            $actual
-                        ));
-                    }
-                };
-            } else if (preg_match('/^@atLeast\(([\d]+)\)$/', $value, $match)) {
-                $min = (int) $match[1];
-                $value = function($value, $keyPath) use ($min) {
-                    if (!is_array($value)) {
-                        throw new InvalidArgumentException('@atLeast function must be used with arrays.');
-                    }
-
-                    $length = count($value);
-
-                    if ($length < $min) {
-                        throw new InvalidArgumentException(sprintf(
-                            'Length of array for key %s is wrong. It should be at least %d but is actually %d.',
-                            $keyPath,
-                            $min,
-                            $length
-                        ));
-                    }
-                };
-            } else if (preg_match('/^@atMost\(([\d]+)\)$/', $value, $match)) {
-                $max = (int) $match[1];
-                $value = function($value, $keyPath) use ($max) {
-                    if (!is_array($value)) {
-                        throw new InvalidArgumentException('@atMost function must be used with arrays.');
-                    }
-
-                    $length = count($value);
-
-                    if ($length > $max) {
-                        throw new InvalidArgumentException(sprintf(
-                            'Length of array for key %s is wrong. It should be at most %d but is actually %d.',
-                            $keyPath,
-                            $max,
-                            $length
-                        ));
-                    }
-                };
-            }
         });
 
         return $contains;

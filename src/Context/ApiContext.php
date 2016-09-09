@@ -261,24 +261,24 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body matches some content
      *
      * @param string $content The content to match the response body against
-     * @Then the response body is :content
+     * @Then the response body is:
      */
-    public function thenTheResponseBodyIs($content) {
+    public function thenTheResponseBodyIs(PyStringNode $content) {
         $this->requireResponse();
 
-        Assertion::same((string) $this->response->getBody(), $content);
+        Assertion::same((string) $this->response->getBody(), (string) $content);
     }
 
     /**
      * Assert that the response body matches some content using a regular expression
      *
-     * @param string $pattern The regular expression pattern to use for the match
-     * @Then the response body matches :pattern
+     * @param PyStringNode $pattern The regular expression pattern to use for the match
+     * @Then the response body matches:
      */
-    public function thenTheResponseBodyMatches($pattern) {
+    public function thenTheResponseBodyMatches(PyStringNode $pattern) {
         $this->requireResponse();
 
-        Assertion::regex((string) $this->response->getBody(), $pattern);
+        Assertion::regex((string) $this->response->getBody(), (string) $pattern);
     }
 
     /**

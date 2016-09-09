@@ -5,7 +5,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/imbo/behat-api-extension/v/unstable)](https://packagist.org/packages/imbo/behat-api-extension)
 [![License](https://poser.pugx.org/imbo/behat-api-extension/license)](https://packagist.org/packages/imbo/behat-api-extension)
 
-**This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning. Steps prefixed with :white_check_mark: have been implemented and tested.**
+**This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning.**
 
 This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
 
@@ -90,7 +90,7 @@ The extension allows you to use the following steps in your features:
 
 The following steps can be used prior to sending a request.
 
-#### :white_check_mark: Given I am authenticating as `:username` with password `:password`
+#### Given I am authenticating as `:username` with password `:password`
 
 Use this step when the URL you are requesting requires basic auth.
 
@@ -102,7 +102,7 @@ Use this step when the URL you are requesting requires basic auth.
 | Given I am authenticating as "`foo bar`" with password '`bar foo`' | `foo bar` | `bar foo` |
 | Given I am authenticating as '`"foo"`' with password "`'bar'`"     | `"foo"`   | `'bar'`   |
 
-#### :white_check_mark: Given the `:header` request header is `:value`
+#### Given the `:header` request header is `:value`
 
 Set the `:header` request header to `:value`. Can be repeated to set multiple headers or to set the same header multiple times.
 
@@ -116,7 +116,7 @@ Trying to force specific headers to have certain values combined with other step
 | Given the "`X-Foo`" request header is `Bar`<br>Given the "`X-Foo`" request header is `Baz` | `X-Foo`      | `Bar, Baz`        |
 | Given the `Accept` request header is "`application/json`"                                  | `Accept`     | `application/json`|
 
-#### :white_check_mark: Given I attach `:path` to the request as `:name`
+#### Given I attach `:path` to the request as `:name`
 
 Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a specified file does not exist an `InvalidArgumentException` exception will be thrown. `:path` is relative to the working directory unless it's absolute.
 
@@ -132,7 +132,7 @@ Attach a file to the request (causing a `multipart/form-data` request, populatin
 
 After setting up the request it can be sent to the server in a few different ways. Keep in mind that all configuration regarding the request must be set prior to any of these steps, as they will actually send the request.
 
-#### :white_check_mark: When I request `:path` (using HTTP `:method`)
+#### When I request `:path` (using HTTP `:method`)
 
 `:path` is relative to the `base_uri` configuration option, and `:method` is any HTTP method, for instance `POST` or `DELETE`. If the last part of the step is omitted, `HTTP GET` will be used. If the `:path` starts with a slash, it will be relative to the root of `base_uri`.
 
@@ -146,7 +146,7 @@ After setting up the request it can be sent to the server in a few different way
 | When I request "`/some/path`" using HTTP `DELETE`  | `/some/path`        | `DELETE` | `http://example.com/some/path`        |
 | When I request `foobar` using HTTP `POST`          | `foobar`            | `POST`   | `http://example.com/dir/foobar`       |
 
-#### :white_check_mark: When I request `:path` using HTTP `:method` with (`JSON`) body: `<PyStringNode>`
+#### When I request `:path` using HTTP `:method` with (`JSON`) body: `<PyStringNode>`
 
 This step can be used to attach a body to the request. The same as above applies for `:path` and `:method`. If the `JSON` part is added to the step the `Content-Type` request header will be set to `application/json` (regardless of whether or not the `Content-Type` header has already been set with the `Given the :header request header is :value` step described above).
 
@@ -178,7 +178,7 @@ When I request "some/endpoint" using HTTP POST with body:
     """
 ```
 
-#### :white_check_mark: When I send `:filePath` (as `:mimeType`) to `:path` using HTTP `:method`
+#### When I send `:filePath` (as `:mimeType`) to `:path` using HTTP `:method`
 
 Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:filePath` is relative to the working directory unless it's absolute. `:method` would typically be `PUT` or `POST` for this action, but any valid HTTP method can be used. The optional `:mimeType` can be added to force the `Content-Type` request header. If not specified the extension will try to guess the mime type using available methods.
 
@@ -193,7 +193,7 @@ Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:fileP
 
 After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.
 
-#### :white_check_mark: Then the response code is (`not`) `:code`
+#### Then the response code is (`not`) `:code`
 
 Match the response code to `:code`. If the optional `not` is added, the response should **not** match the response code.
 
@@ -205,7 +205,7 @@ Match the response code to `:code`. If the optional `not` is added, the response
 | Then the response code is `404`       | `404` | No            | No            | Yes           |
 | Then the response code is `not` `304` | `304` | Yes           | No            | Yes           |
 
-#### :white_check_mark: Then the response is (`not`) `:group`
+#### Then the response is (`not`) `:group`
 
 Match the response code to a group. If the optional `not` is added, the response should **not** be in the specified group.
 
@@ -227,7 +227,7 @@ Allowed groups and their ranges are:
 | Then the response is "`client error`"       | `client error`  | 400 to 499                       |
 | Then the response is `not` "`client error`" | `client error`  | 100 to 399 and 500 to 599        |
 
-#### :white_check_mark: Then the `:header` response header is (`not`) present
+#### Then the `:header` response header is (`not`) present
 
 This step can be used to assert that the `:header` response header is present, or not (if used with the optional `not` keyword). The value of `:header` is case-insensitive.
 
@@ -247,7 +247,7 @@ This step can be used to assert that the `:header` response header is present, o
 | Then the "`Content-Length`" response header is present       | `Content-Length` | Yes          |
 | Then the "`content-length`" response header is `not` present | `content-length` | No           |
 
-#### :white_check_mark: Then the `:header` response header `is`|`matches` `:value`
+#### Then the `:header` response header `is`|`matches` `:value`
 
 This step can be used to verify the value of one or more response headers.
 
@@ -270,7 +270,7 @@ The step supports two different comparison modes, `is` and `matches`. `is` will 
 
 For more information regarding regular expressions and the usage of modifiers, [refer to the manual](http://php.net/pcre).
 
-#### :white_check_mark: Then the response body is an array of length `:length`
+#### Then the response body is an array of length `:length`
 
 This step can be used to verify the exact length of a JSON array in the response body.
 
@@ -285,11 +285,11 @@ This step can be used to verify the exact length of a JSON array in the response
 
 If the response body does not contain a JSON array, an `InvalidArgumentException` exception will be thrown.
 
-#### :white_check_mark: Then the response body is an empty array
+#### Then the response body is an empty array
 
 This is the same as `Then the response body is an array of length 0`.
 
-#### :white_check_mark: Then the response body is an array with a length of at (`most`|`least`) `:length`
+#### Then the response body is an array with a length of at (`most`|`least`) `:length`
 
 This step can be used to verify the length of an array, without having to be exact.
 
@@ -306,22 +306,34 @@ This step can be used to verify the length of an array, without having to be exa
 | Then the response body is an array with a length of at `most` `6`  | `6`     | Yes          |
 | Then the response body is an array with a length of at `least` `6` | `6`     | No           |
 
-#### :white_check_mark: Then the response body `is`|`matches` `:content`
+#### Then the response body is: `<PyStringNode>`
 
-Compare or match the response body to `:content`. When using `is` the response body will be compared to `:content` and when `matches` is used the `:content` must be a valid regular expression, including delimiters and optional modifiered that will be fed straight into [preg_match](http://php.net/preg_match). The raw response body will be used in both cases.
+Compare the response body to the text found in the `<PyStringNode>` using regular string comparison.
+
+**Examples:**
+
+*Assume that for the examples below, the response body is `{"foo":"bar"}`.*
+
+| Step                                                        | Compare to       | Matches |
+| ----------------------------------------------------------- | ---------------- | ------- |
+| Then the response body is:<br>"""<br>`{"foo":"bar"}`<br>""" | `{"foo":"bar"}`  | Yes     |
+| Then the response body is:<br>"""<br>`foo`<br>"""           | `foo`            | No      |
+
+#### Then the response body matches: `<PyStringNode>`
+
+Match the response body to the regular expression found in the content of `<PyStringNode>`. The expression must be a valid regular expression, including delimiters and optional modifieres.
 
 **Examples:**
 
 *Assume that for the examples below, the response body is `{"foo": "bar"}`.*
 
-| Step                                                      | Mode               | :content               | Matches response body |
-| --------------------------------------------------------- | ------------------ | ---------------------- | --------------------- |
-| Then the response body `matches` '`/^{"FOO": ?"BAR"}$/i`' | Regular expression | `/^{"FOO": ?"BAR"}$/i` | Yes                   |
-| Then the response body `is` '`/{"foo": "bar"}/`'          | Comparison         | `/{"foo": "bar"}/`     | No                    |
-| Then the response body `is` "`bar`"                       | Comparison         | `bar`                  | No                    |
-| Then the response body `is` '`{"foo": "bar"}`'            | Comparison         | `{"foo": "bar"}`       | Yes                   |
+| Step                                                                    | Expression             | Matches response body |
+| ----------------------------------------------------------------------- | ---------------------- | --------------------- |
+| Then the response body matches:<br>"""<br>`/^{"FOO": ?"BAR"}$/i`<br>""" | `/^{"FOO": ?"BAR"}$/i` | Yes                   |
+| Then the response body matches:<br>"""<br>`/foo/`<br>"""                | `/foo/`                | Yes                   |
+| Then the response body matches:<br>"""<br>`/^foo$/`<br>"""              | `/^foo$/`              | No                    |
 
-#### :white_check_mark: Then the response body contains: `<PyStringNode>`
+#### Then the response body contains: `<PyStringNode>`
 
 Used to recursively match the response body against a JSON blob (used for comparing objects, not regular arrays). The following occurs when using this step:
 

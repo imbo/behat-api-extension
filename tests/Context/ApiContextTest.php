@@ -527,7 +527,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::requireResponse
      */
     public function testThenTheResponseBodyIsWhenNoResponseExists() {
-        $this->context->thenTheResponseBodyIs('some body');
+        $this->context->thenTheResponseBodyIs(new PyStringNode(['some body'], 1));
     }
 
     /**
@@ -536,7 +536,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseBodyIsWithMatchingBody() {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyIs('response body');
+        $this->context->thenTheResponseBodyIs(new PyStringNode(['response body'], 1));
     }
 
     /**
@@ -547,7 +547,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseBodyIsWithNonMatchingBody() {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyIs('foo');
+        $this->context->thenTheResponseBodyIs(new PyStringNode(['foo'], 1));
     }
 
     /**
@@ -557,7 +557,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::requireResponse
      */
     public function testThenTheResponseBodyMatchesWhenNoResponseExists() {
-        $this->context->thenTheResponseBodyMatches('/foo/');
+        $this->context->thenTheResponseBodyMatches(new PyStringNode(['/foo/'], 1));
     }
 
     /**
@@ -566,7 +566,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseBodyMatches() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyMatches('/^{"FOO": ?"BAR"}$/i');
+        $this->context->thenTheResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1));
     }
 
     /**
@@ -577,7 +577,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseBodyMatchesWithAPatternThatDoesNotMatch() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyMatches('/^{"FOO": "BAR"}$/');
+        $this->context->thenTheResponseBodyMatches(new PyStringNode(['/^{"FOO": "BAR"}$/'], 1));
     }
 
     /**

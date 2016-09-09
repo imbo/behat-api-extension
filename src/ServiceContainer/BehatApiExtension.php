@@ -1,14 +1,14 @@
 <?php
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
-use Behat\Behat\Context\ServiceContainer\ContextExtension,
-    Behat\Testwork\ServiceContainer\Extension as ExtensionInterface,
-    Behat\Testwork\ServiceContainer\ExtensionManager,
-    Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition,
-    Symfony\Component\DependencyInjection\ContainerBuilder,
-    Symfony\Component\DependencyInjection\Definition,
-    Symfony\Component\DependencyInjection\Reference,
-    GuzzleHttp\ClientInterface;
+use Behat\Behat\Context\ServiceContainer\ContextExtension;
+use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
+use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Behat API extension

@@ -1,8 +1,8 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
-use Behat\Behat\Context\Context,
-    GuzzleHttp\ClientInterface;
+use Behat\Behat\Context\Context;
+use GuzzleHttp\ClientInterface;
 
 /**
  * Api client aware interface

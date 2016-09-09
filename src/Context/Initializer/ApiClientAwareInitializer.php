@@ -1,11 +1,11 @@
 <?php
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
-use Imbo\BehatApiExtension\Context\ApiClientAwareContext,
-    Behat\Behat\Context\Context,
-    Behat\Behat\Context\Initializer\ContextInitializer,
-    GuzzleHttp\ClientInterface,
-    RuntimeException;
+use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
+use Behat\Behat\Context\Context;
+use Behat\Behat\Context\Initializer\ContextInitializer;
+use GuzzleHttp\ClientInterface;
+use RuntimeException;
 
 /**
  * API client aware initializer

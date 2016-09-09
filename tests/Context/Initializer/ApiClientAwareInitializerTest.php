@@ -7,7 +7,6 @@ use Behat\Behat\Context\Context,
     RuntimeException;
 
 /**
- * @author Christer Edvartsen <cogo@starzinger.net>
  * @covers Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
  */
 class ApiClientAwareInitializerText extends PHPUnit_Framework_TestCase {

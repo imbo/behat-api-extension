@@ -6,7 +6,6 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder,
     PHPUnit_Framework_TestCase;
 
 /**
- * @author Christer Edvartsen <cogo@starzinger.net>
  * @covers Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
  */
 class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {

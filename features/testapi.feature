@@ -25,7 +25,10 @@ Feature: Test API
             Feature: Send a request using HTTP GET
                 Scenario: Send a request using HTTP GET
                     When I request echoHttpMethod
-                    Then the response body is '{"method":"GET"}'
+                    Then the response body is:
+                    '''
+                    {"method":"GET"}
+                    '''
             """
         When I run "behat features/request-using-http-get.feature"
         Then it should pass with:
@@ -43,7 +46,10 @@ Feature: Test API
             Feature: Send a request using different HTTP methods
                 Scenario: Send a request using different HTTP methods
                     When I request echoHttpMethod using HTTP <method>
-                    Then the response body is <response>
+                    Then the response body is:
+                    '''
+                    <response>
+                    '''
             """
         When I run "behat features/request-using-different-http-methods.feature"
         Then it should pass with:
@@ -55,12 +61,12 @@ Feature: Test API
             """
 
         Examples:
-            | method  | response               |
-            | GET     | '{"method":"GET"}'     |
-            | POST    | '{"method":"POST"}'    |
-            | PUT     | '{"method":"PUT"}'     |
-            | DELETE  | '{"method":"DELETE"}'  |
-            | OPTIONS | '{"method":"OPTIONS"}' |
+            | method  | response             |
+            | GET     | {"method":"GET"}     |
+            | POST    | {"method":"POST"}    |
+            | PUT     | {"method":"PUT"}     |
+            | DELETE  | {"method":"DELETE"}  |
+            | OPTIONS | {"method":"OPTIONS"} |
 
     @auth
     Scenario Outline: Sending requests using basic HTTP auth
@@ -70,7 +76,10 @@ Feature: Test API
                 Scenario: Authenticated endpoint
                     Given I am authenticating as <username> with password <password>
                     When I request basicAuth
-                    Then the response body is <response>
+                    Then the response body is:
+                    '''
+                    <response>
+                    '''
                     And the response code is <responseCode>
                     And the response code is not <notResponseCode>
             """
@@ -84,7 +93,7 @@ Feature: Test API
             """
 
         Examples:
-            | username | password | responseCode | notResponseCode | response         |
-            | foo      | foo      | 401          | 200             | ''               |
-            | foo      | bar      | 200          | 401             | '{"user":"foo"}' |
-            | bar      | foo      | 200          | 401             | '{"user":"bar"}' |
+            | username | password | responseCode | notResponseCode | response       |
+            | foo      | foo      | 401          | 200             |                |
+            | foo      | bar      | 200          | 401             | {"user":"foo"} |
+            | bar      | foo      | 200          | 401             | {"user":"bar"} |

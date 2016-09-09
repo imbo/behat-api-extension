@@ -1,19 +1,24 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
-use Behat\Behat\Context\SnippetAcceptingContext,
-    Behat\Gherkin\Node\PyStringNode,
-    Behat\Gherkin\Node\TableNode,
-    GuzzleHttp\ClientInterface,
-    GuzzleHttp\Exception\RequestException,
-    GuzzleHttp\Psr7\Request,
-    GuzzleHttp\Psr7,
-    Assert,
-    Assert\Assertion,
-    Psr\Http\Message\RequestInterface,
-    Psr\Http\Message\ResponseInterface,
-    RuntimeException,
-    InvalidArgumentException;
+use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7;
+use Assert;
+use Assert\Assertion;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use InvalidArgumentException;
+use LengthException;
+use LogicException;
+use OutOfRangeException;
+use RuntimeException;
+use UnexpectedValueException;
+use Closure;
 
 /**
  * API feature context that can be used to ease testing of HTTP APIs
@@ -407,6 +412,34 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the response body contains all keys / values in the parameter
+     *
+     * @param PyStringNode $body
+     * @Then the response body contains:
+     */
+    public function thenTheResponseBodyContains(PyStringNode $contains) {
+        $this->requireResponse();
+
+        $body = $this->getResponseBodyObject();
+        $contains = json_decode((string) $contains);
+
+        Assertion::isInstanceOf(
+            $contains,
+            'stdClass',
+            'The supplied parameter is not a valid JSON object.'
+        );
+
+        // Convert both objects to arrays
+        $body = json_decode(json_encode($body), true);
+        $contains = json_decode(json_encode($contains), true);
+
+        // Parse the contains array to convert some specific values to callbacks
+        $contains = $this->parseBodyContainsJson($contains);
+
+        $this->arrayContains($body, $contains);
+    }
+
+    /**
      * Get the request instance
      *
      * @return null|RequestInterface
@@ -594,5 +627,197 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         Assertion::isArray($body, 'The response body does not contain a valid JSON array.');
 
         return $body;
+    }
+
+    /**
+     * Get the JSON-encoded object from the response body
+     *
+     * @return stdClass
+     */
+    private function getResponseBodyObject() {
+        $body = json_decode((string) $this->response->getBody());
+
+        Assertion::isInstanceOf(
+            $body,
+            'stdClass',
+            'The response body does not contain a valid JSON object.'
+        );
+
+        return $body;
+    }
+
+    /**
+     * Recursively look over an array and make sure all the items in $needle exists
+     *
+     * @param array $haystack
+     * @param array $needle
+     * @throws Exception
+     */
+    private function arrayContains(array $haystack, array $needle, $path = null) {
+        foreach ($needle as $key => $value) {
+            // Path used in the error messages
+            $keyPath = ltrim($path . '.' . $key, '.');
+
+            if (!array_key_exists($key, $haystack)) {
+                throw new OutOfRangeException(sprintf(
+                    'Key is missing from the haystack: %s',
+                    $keyPath
+                ));
+            }
+
+            // Match types
+            $haystackValueType = gettype($haystack[$key]);
+            $needleValueType   = gettype($value);
+            $valueIsCallback   = $value instanceof Closure;
+
+            // If the needle is a closure we can disregard the fact that they are different, as this
+            // will be handled properly below
+            if (!$valueIsCallback && $haystackValueType !== $needleValueType) {
+                throw new UnexpectedValueException(sprintf(
+                    'Type mismatch for key: %s (haystack type: %s, needle type: %s)',
+                    $keyPath,
+                    $haystackValueType,
+                    $needleValueType
+                ));
+            }
+
+            if (is_scalar($value)) {
+                if ($haystack[$key] !== $value) {
+                    throw new InvalidArgumentException(sprintf('Value mismatch for key: %s', $keyPath));
+                } else {
+                    continue;
+                }
+            } else if ($valueIsCallback) {
+                $value($haystack[$key], $keyPath); // Throws exception on error
+                continue;
+            }
+
+            if (is_array($value)) {
+                if (key($value) === 0) {
+                    // Regular array, simply loop over the values and see if they are in the
+                    // haystack
+                    foreach ($value as $v) {
+                        if (!is_scalar($v)) {
+                            throw new InvalidArgumentException(sprintf('Array for key %s must only contain scalars.', $keyPath));
+                        }
+
+                        if (!in_array($v, $haystack[$key])) {
+                            throw new InvalidArgumentException(sprintf('Array for key %s is missing a value: %s', $keyPath, $v));
+                        }
+                    }
+                } else {
+                    $this->arrayContains($haystack[$key], $value, $keyPath);
+                }
+
+                continue;
+            }
+
+            // @codeCoverageIgnoreStart
+            throw new LogicException(sprintf(
+                'Value has not been matched for key: %s. This should never happen, so please file an issue.',
+                $keyPath
+            ));
+            // @codeCoverageIgnoreEnd
+        }
+    }
+
+    /**
+     * Recursively walk over the values of the array, replacing some nodes with callbacks.
+     *
+     * This method will look for some specific patterns in the value part of the array and replace
+     * them with callbacks that will be used in the matching process.
+     *
+     * The specific values that we look for are:
+     *
+     * <re>/pattern/</re>
+     * @length(num)
+     * @atLeast(num)
+     * @atMost(num)
+     *
+     * @param array $contains Array that will be used to match a response body
+     * @return array Returne the array where specific value parts have been replaced by callbacks.
+     */
+    private function parseBodyContainsJson(array $contains) {
+        array_walk_recursive($contains, function(&$value) {
+            if (!is_string($value)) {
+                // We only care about string values
+                return;
+            }
+
+            // Initialize an array for the preg_match calls below
+            $match = [];
+
+            if (preg_match('|^<re>(.*?)</re>$|', $value, $match)) {
+                $pattern = $match[1];
+                $value = function($value, $keyPath) use ($pattern) {
+                    if (!is_scalar($value)) {
+                        throw new InvalidArgumentException('Regular expressions must be used with scalars.');
+                    }
+
+                    if (!preg_match($pattern, (string) $value)) {
+                        throw new InvalidArgumentException(sprintf(
+                            'Regular expression mismatch for key: %s.',
+                            $keyPath
+                        ));
+                    }
+                };
+            } else if (preg_match('/^@length\(([\d]+)\)$/', $value, $match)) {
+                $expected = (int) $match[1];
+                $value = function($value, $keyPath) use ($expected) {
+                    if (!is_array($value)) {
+                        throw new InvalidArgumentException('@length function must be used with arrays.');
+                    }
+
+                    $actual = count($value);
+
+                    if ($actual !== $expected) {
+                        throw new InvalidArgumentException(sprintf(
+                            'Length of array for key %s is wrong. Expected %d but actual length is %d.',
+                            $keyPath,
+                            $expected,
+                            $actual
+                        ));
+                    }
+                };
+            } else if (preg_match('/^@atLeast\(([\d]+)\)$/', $value, $match)) {
+                $min = (int) $match[1];
+                $value = function($value, $keyPath) use ($min) {
+                    if (!is_array($value)) {
+                        throw new InvalidArgumentException('@atLeast function must be used with arrays.');
+                    }
+
+                    $length = count($value);
+
+                    if ($length < $min) {
+                        throw new InvalidArgumentException(sprintf(
+                            'Length of array for key %s is wrong. It should be at least %d but is actually %d.',
+                            $keyPath,
+                            $min,
+                            $length
+                        ));
+                    }
+                };
+            } else if (preg_match('/^@atMost\(([\d]+)\)$/', $value, $match)) {
+                $max = (int) $match[1];
+                $value = function($value, $keyPath) use ($max) {
+                    if (!is_array($value)) {
+                        throw new InvalidArgumentException('@atMost function must be used with arrays.');
+                    }
+
+                    $length = count($value);
+
+                    if ($length > $max) {
+                        throw new InvalidArgumentException(sprintf(
+                            'Length of array for key %s is wrong. It should be at most %d but is actually %d.',
+                            $keyPath,
+                            $max,
+                            $length
+                        ));
+                    }
+                };
+            }
+        });
+
+        return $contains;
     }
 }

@@ -54,6 +54,36 @@ The following configuration options are available:
 
 ## Usage
 
+**TL;DR Here is a bunch of steps you can use in your feature files:**
+
+```gherkin
+Given I am authenticating as :username with password :password
+Given the :header request header is :value
+Given I attach :path to the request as :name
+When I request :path
+When I request :path using HTTP :method
+When I request :path using HTTP :method with body: <PyStringNode>
+When I request :path using HTTP :method with JSON body: <PyStringNode>
+When I send :filePath to :path using HTTP :method
+When I send :filePath as :mimeType to :path using HTTP :method
+Then the response code is :code
+Then the response code is not :code
+Then the response is :group
+Then the response is not :group
+Then the :header response header is present
+Then the :header response header is not present
+Then the :header response header is :value
+Then the :header response header matches :value
+Then the response body is an array of length :length
+Then the response body is an empty array
+Then the response body is an array with a length of at most :length
+Then the response body is an array with a length of at least :length
+Then the response body is :content
+Then the response body matches :content
+Then the response body matches: <PyStringNode>
+Then the response body contains: <PyStringNode>
+```
+
 The extension allows you to use the following steps in your features:
 
 ### Set up the request
@@ -291,17 +321,17 @@ Compare or match the response body to `:content`. When using `is` the response b
 | Then the response body `is` "`bar`"                       | Comparison         | `bar`                  | No                    |
 | Then the response body `is` '`{"foo": "bar"}`'            | Comparison         | `{"foo": "bar"}`       | Yes                   |
 
-#### Then the response body `matches`|`contains`: `<PyStringNode>`
+#### :white_check_mark: Then the response body contains: `<PyStringNode>`
 
 Used to recursively match the response body against a JSON blob (used for comparing objects, not regular arrays). The following occurs when using this step:
 
-1. Decode the response body to a native PHP array. An `InvalidArgumentException` exception will be thrown if the JSON is invalid.
-2. Decode the `<PyStringNode>` to a native PHP array. An `InvalidArgumentException` exception will be thrown if the JSON is invalid.
-3. Loop through the `<PyStringNode>` array, making sure the keys => values are present in the response body array, in a recursive fashion.
+1. Decode the response body to a native PHP array. An exception will be thrown if the JSON is invalid.
+2. Decode the `<PyStringNode>` to a native PHP array. An exception will be thrown if the JSON is invalid.
+3. Loop through the `<PyStringNode>` array, making sure the key => value pairs are present in the response body array, in a recursive fashion.
 
-When used with `contains` the keys / values are simply compared, but when used with the `matches` mode, the `<PyStringNode>` can contain regular expressions for matching values or some specific functions for asserting lengths of arrays as well as content in specific items in an array.
+The `<PyStringNode>` can contain regular expressions for matching values or some specific functions for asserting lengths of arrays.
 
-To use regular expressions to match values, simply start the value part with `<re>`, then the regular expression, complete with delimiters and optional mofifiers, then ending the string with `</re>`. Example:
+To use regular expressions to match values, simply write the regular expression, complete with delimiters and optional modifiers, enclosed in `<re>` and `</re>`. Example:
 
 ```json
 {
@@ -314,7 +344,7 @@ To use regular expressions to match values, simply start the value part with `<r
 }
 ```
 
-This can be used to match strings and numbers, but will not work with arrays and objects.
+This can be used to match [scalar values](http://php.net/is_scalar) only, and the value will be cast to a string before doing the match.
 
 To assert lengths of arrays, three custom functions can be used: `@length(num)`, `@atLeast(num)` and `@atMost(num)`. Consider the following response body:
 

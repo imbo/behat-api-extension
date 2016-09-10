@@ -178,47 +178,52 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * Data provider: Get response body arrays that will be used for testing that the length is at
-     *                least / most a given length
+     *                least a given length
      *
      * @return array[]
      */
-    public function getResponseBodyArraysForAtLeastOrMost() {
+    public function getResponseBodyArraysForAtLeast() {
         return [
             [
                 'body' => [1, 2, 3],
-                'mode' => 'least',
                 'lengthToUse' => 3,
                 'willFail' => false,
             ],
             [
                 'body' => [1, 2, 3],
-                'mode' => 'most',
-                'lengthToUse' => 3,
-                'willFail' => false,
-            ],
-            [
-                'body' => [1, 2, 3],
-                'mode' => 'least',
                 'lengthToUse' => 4,
                 'willFail' => true,
             ],
             [
-                'body' => [1, 2, 3],
-                'mode' => 'most',
-                'lengthToUse' => 4,
-                'willFail' => false,
-            ],
-            [
                 'body' => [],
-                'mode' => 'most',
-                'lengthToUse' => 4,
-                'willFail' => false,
-            ],
-            [
-                'body' => [],
-                'mode' => 'least',
                 'lengthToUse' => 2,
                 'willFail' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Data provider: Get response body arrays that will be used for testing that the length is at
+     *                most a given length
+     *
+     * @return array[]
+     */
+    public function getResponseBodyArraysForAtMost() {
+        return [
+            [
+                'body' => [1, 2, 3],
+                'lengthToUse' => 3,
+                'willFail' => false,
+            ],
+            [
+                'body' => [1, 2, 3],
+                'lengthToUse' => 4,
+                'willFail' => false,
+            ],
+            [
+                'body' => [],
+                'lengthToUse' => 4,
+                'willFail' => false,
             ],
         ];
     }
@@ -331,6 +336,25 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $request = $this->historyContainer[0]['request'];
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame('some body', (string) $request->getBody());
+    }
+
+    /**
+     * @covers ::whenIRequestPath
+     * @covers ::setRequestMethod
+     * @covers ::setRequestPath
+     * @covers ::setRequestBody
+     * @covers ::sendRequest
+     * @group whens
+     */
+    public function testWhenIRequestPathWithQueryParameters() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->whenIRequestPath('/some/path?foo=bar&bar=foo&a[]=1&a[]=2');
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+
+        $this->assertSame('foo=bar&bar=foo&a%5B%5D=1&a%5B%5D=2', $request->getUri()->getQuery());
     }
 
     /**
@@ -607,61 +631,61 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseHeaderIsPresent
+     * @covers ::thenTheResponseHeaderExists
      * @covers ::requireResponse
      */
-    public function testThenTheResponseHeaderIsPresentWhenNoResponseExists() {
-        $this->context->thenTheResponseHeaderIsPresent('Connection');
+    public function testThenTheResponseHeaderExistsWhenNoResponseExists() {
+        $this->context->thenTheResponseHeaderExists('Connection');
     }
 
     /**
-     * @covers ::thenTheResponseHeaderIsPresent
+     * @covers ::thenTheResponseHeaderExists
      */
-    public function testThenTheResponseHeaderIsPresent() {
+    public function testThenTheResponseHeaderExists() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseHeaderIsPresent('Content-Type');
+        $this->context->thenTheResponseHeaderExists('Content-Type');
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage The "Content-Type" response header does not exist
-     * @covers ::thenTheResponseHeaderIsPresent
+     * @covers ::thenTheResponseHeaderExists
      */
-    public function testThenTheResponseHeaderIsPresentWhenHeaderIsNotPresent() {
+    public function testThenTheResponseHeaderExistsWhenHeaderDoesNotExist() {
         $this->mockHandler->append(new Response(200));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseHeaderIsPresent('Content-Type');
+        $this->context->thenTheResponseHeaderExists('Content-Type');
     }
 
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseHeaderIsNotPresent
+     * @covers ::thenTheResponseHeaderDoesNotExist
      * @covers ::requireResponse
      */
-    public function testThenTheResponseHeaderIsNotPresentWhenNoResponseExists() {
-        $this->context->thenTheResponseHeaderIsNotPresent('Connection');
+    public function testThenTheResponseHeaderDoesNotExistWhenNoResponseExists() {
+        $this->context->thenTheResponseHeaderDoesNotExist('Connection');
     }
 
     /**
-     * @covers ::thenTheResponseHeaderIsNotPresent
+     * @covers ::thenTheResponseHeaderDoesNotExist
      */
-    public function testThenTheResponseHeaderIsNotPresent() {
+    public function testThenTheResponseHeaderDoesNotExist() {
         $this->mockHandler->append(new Response(200));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseHeaderIsNotPresent('Content-Type');
+        $this->context->thenTheResponseHeaderDoesNotExist('Content-Type');
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage The "Content-Type" response header should not exist
-     * @covers ::thenTheResponseHeaderIsNotPresent
+     * @covers ::thenTheResponseHeaderDoesNotExist
      */
-    public function testThenTheResponseHeaderIsNotPresentWhenHeaderIsPresent() {
+    public function testThenTheResponseHeaderDoesNotExistWhenHeaderExists() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseHeaderIsNotPresent('Content-Type');
+        $this->context->thenTheResponseHeaderDoesNotExist('Content-Type');
     }
 
     /**
@@ -786,48 +810,87 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
      * @covers ::requireResponse
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMostWhenNoRequestHaveBeenMade() {
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost('least', 5);
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastWhenNoRequestHaveBeenMade() {
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast(5);
     }
 
     /**
-     * @dataProvider getResponseBodyArraysForAtLeastOrMost
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost
+     * @dataProvider getResponseBodyArraysForAtLeast
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
      * @covers ::getResponseBodyArray
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost(array $body, $mode, $lengthToUse, $willFail) {
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeast(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->whenIRequestPath('/some/path');
 
         if ($willFail) {
             $this->expectException('Assert\InvalidArgumentException');
-
-            if ($mode === 'least') {
-                $message = 'Array length should be at least %d, but length was %d';
-            } else {
-                $message = 'Array length should be at most %d, but length was %d';
-
-            }
-
-            $this->expectExceptionMessage(sprintf($message, $lengthToUse, count($body)));
+            $this->expectExceptionMessage(sprintf(
+                'Array length should be at least %d, but length was %d',
+                $lengthToUse,
+                count($body)
+            ));
         }
 
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost($mode, $lengthToUse);
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast($lengthToUse);
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
      * @covers ::getResponseBodyArray
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMostWithAnInvalidBody() {
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost('least', 2);
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast(2);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
+     * @covers ::requireResponse
+     */
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMostWhenNoRequestHaveBeenMade() {
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost(5);
+    }
+
+    /**
+     * @dataProvider getResponseBodyArraysForAtMost
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
+     * @covers ::getResponseBodyArray
+     */
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMost(array $body, $lengthToUse, $willFail) {
+        $this->mockHandler->append(new Response(200, [], json_encode($body)));
+        $this->context->whenIRequestPath('/some/path');
+
+        if ($willFail) {
+            $this->expectException('Assert\InvalidArgumentException');
+            $this->expectExceptionMessage(sprintf(
+                'Array length should be at least %d, but length was %d',
+                $lengthToUse,
+                count($body)
+            ));
+        }
+
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost($lengthToUse);
+    }
+
+    /**
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage The response body does not contain a valid JSON array.
+     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
+     * @covers ::getResponseBodyArray
+     */
+    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMostWithAnInvalidBody() {
+        $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost(2);
     }
 
     /**

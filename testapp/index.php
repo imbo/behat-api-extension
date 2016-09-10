@@ -5,17 +5,17 @@
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 
-use Silex\Application,
-    Silex\Provider,
-    Symfony\Component\HttpFoundation\Response,
-    Symfony\Component\HttpFoundation\JsonResponse,
-    Symfony\Component\HttpFoundation\Request;
+use Silex\Application;
+use Silex\Provider\SecurityServiceProvider;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Application();
 
-$app->register(new Provider\SecurityServiceProvider(), [
+$app->register(new SecurityServiceProvider(), [
     'security.firewalls' => [
         'basicAuth' => [
             'pattern' => '^/basicAuth',
@@ -38,7 +38,24 @@ $app->register(new Provider\SecurityServiceProvider(), [
  * Front page
  */
 $app->get('/', function(Request $request) {
-    return new JsonResponse();
+    return new JsonResponse([
+        'string' => 'value',
+        'integer' => 42,
+        'float' => 4.2,
+        'boolean true' => true,
+        'boolean false' => false,
+        'list' => [1, 2, 3],
+        'sub' => [
+            'string' => 'value',
+            'integer' => 42,
+            'float' => 4.2,
+            'boolean true' => true,
+            'boolean false' => false,
+            'list' => [1, 2, 3],
+        ],
+    ], 200, [
+        'X-Foo' => 'foo',
+    ]);
 });
 
 /**

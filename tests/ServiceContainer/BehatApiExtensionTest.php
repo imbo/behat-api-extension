@@ -1,9 +1,9 @@
 <?php
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder,
-    Symfony\Component\Config\Definition\Processor,
-    PHPUnit_Framework_TestCase;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Processor;
+use PHPUnit_Framework_TestCase;
 
 /**
  * @covers Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension

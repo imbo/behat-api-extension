@@ -1,16 +1,16 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
-use PHPUnit_Framework_TestCase,
-    GuzzleHttp\Client,
-    GuzzleHttp\Handler\MockHandler,
-    GuzzleHttp\HandlerStack,
-    GuzzleHttp\Psr7\Request,
-    GuzzleHttp\Psr7\Response,
-    GuzzleHttp\Middleware,
-    GuzzleHttp\Exception\RequestException,
-    Behat\Gherkin\Node\PyStringNode,
-    RuntimeException;
+use PHPUnit_Framework_TestCase;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Exception\RequestException;
+use Behat\Gherkin\Node\PyStringNode;
+use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext

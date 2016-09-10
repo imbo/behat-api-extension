@@ -1,10 +1,10 @@
 <?php
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
-use Behat\Behat\Context\Context,
-    GuzzleHttp\Client,
-    PHPUnit_Framework_TestCase,
-    RuntimeException;
+use Behat\Behat\Context\Context;
+use GuzzleHttp\Client;
+use PHPUnit_Framework_TestCase;
+use RuntimeException;
 
 /**
  * @covers Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer

@@ -1,11 +1,11 @@
 <?php
-use Behat\Behat\Context\SnippetAcceptingContext,
-    Behat\Gherkin\Node\PyStringNode,
-    Behat\Testwork\Hook\Scope\SuiteScope,
-    Behat\Behat\Hook\Scope\BeforeScenarioScope,
-    Symfony\Component\Process\PhpExecutableFinder,
-    Symfony\Component\Process\Process,
-    Assert\Assertion;
+use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Gherkin\Node\PyStringNode;
+use Behat\Testwork\Hook\Scope\SuiteScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
+use Assert\Assertion;
 
 /**
  * Behat feature context class

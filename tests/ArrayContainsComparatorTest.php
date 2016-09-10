@@ -1,9 +1,9 @@
 <?php
 namespace Imbo\BehatApiExtension;
 
-use PHPUnit_Framework_TestCase,
-    Closure,
-    RuntimeException;
+use PHPUnit_Framework_TestCase;
+use Closure;
+use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator

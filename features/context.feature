@@ -7,7 +7,7 @@ Feature: Client aware context
         Given a file named "features/bootstrap/FeatureContext.php" with:
             """
             <?php
-            use Imbo\BehatApiExtension\Context\ApiClientAwareContext,
+            use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
             use GuzzleHttp\ClientInterface;
             use Assert\Assertion;
 

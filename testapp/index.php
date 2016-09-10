@@ -48,7 +48,7 @@ $app->match('/', function(Request $request) {
         'sub' => [
             'string' => 'value',
             'integer' => 42,
-            'float' => 4.2
+            'float' => 4.2,
             'boolean true' => true,
             'boolean false' => false,
             'list' => [1, 2, 3],

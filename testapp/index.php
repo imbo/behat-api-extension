@@ -37,7 +37,7 @@ $app->register(new SecurityServiceProvider(), [
 /**
  * Front page
  */
-$app->get('/', function(Request $request) {
+$app->match('/', function(Request $request) {
     return new JsonResponse([
         'string' => 'value',
         'integer' => 42,
@@ -48,7 +48,7 @@ $app->get('/', function(Request $request) {
         'sub' => [
             'string' => 'value',
             'integer' => 42,
-            'float' => 4.2,
+            'float' => 4.2
             'boolean true' => true,
             'boolean false' => false,
             'list' => [1, 2, 3],

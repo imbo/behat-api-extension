@@ -45,14 +45,14 @@ $app->match('/', function(Request $request) {
         'float' => 4.2,
         'boolean true' => true,
         'boolean false' => false,
-        'list' => [1, 2, 3],
+        'list' => [1, 2, 3, [1], ['foo' => 'bar']],
         'sub' => [
             'string' => 'value',
             'integer' => 42,
             'float' => 4.2,
             'boolean true' => true,
             'boolean false' => false,
-            'list' => [1, 2, 3],
+            'list' => [1, 2, 3, [1], ['foo' => 'bar']],
         ],
     ], 200, [
         'X-Foo' => 'foo',

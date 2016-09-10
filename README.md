@@ -343,10 +343,8 @@ To use regular expressions to match values, simply write the regular expression,
 ```json
 {
     "foo": "<re>/(some|expression)/i</re>",
-    "bar": "some regular value",
-    "baz": {
-        "foo": "bar",
-        "bar": "<re>/[0-9]+/</re>"
+    "bar": {
+        "baz": "<re>/[0-9]+/</re>"
     }
 }
 ```
@@ -416,7 +414,7 @@ You can also assert that values exists in numerically indexed arrays. Consider t
 
 ```json
 {
-    "list": [1, 2, 3, "four"]
+    "list": [1, 2, 3, "four", [1], {"foo": "bar"}]
 }
 ```
 
@@ -424,11 +422,11 @@ To assert that one or more of the values exist, use the following:
 
 ```json
 {
-    "list": [2, 3]
+    "list": [3, [1], {"foo": "bar"}]
 }
 ```
 
-The index is not taken into consideration, and it's only possible to use this with scalar values.
+The index is not taken into consideration when comparing, it simply checks if the values specified are present in the list.
 
 ## Copyright / License
 

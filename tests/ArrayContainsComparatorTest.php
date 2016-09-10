@@ -7,7 +7,6 @@ use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
- * @group comparator
  */
 class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     private $comparator;
@@ -425,6 +424,7 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
 
             'MATCH ALL THE THINGS!!!' => [
                 'haystack' => [
+                    'null' => null,
                     'string' => 'value',
                     'integer' => 123,
                     'float' => 1.23,
@@ -447,6 +447,7 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
                     ],
                 ],
                 'needle' => [
+                    'null' => null,
                     'string' => 'value',
                     'integer' => 123,
                     'float' => 1.23,
@@ -579,5 +580,16 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
         // This last assert will only be executed when the comparison succeeds as a failure throws
         // an exception
         $this->assertTrue($this->comparator->compare($haystack, $needle));
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::compareHaystackValueWithCallback
+     * @see https://github.com/imbo/behat-api-extension/issues/1
+     */
+    public function testCompareValuesWithNull() {
+        // This last assert will only be executed when the comparison succeeds as a failure throws
+        // an exception
+        $this->assertTrue($this->comparator->compare(['null' => null], ['null' => null]));
     }
 }

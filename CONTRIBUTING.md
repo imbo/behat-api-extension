@@ -27,7 +27,16 @@ Please use the [issue tracker on GitHub](https://github.com/imbo/behat-api-exten
 
 If you want to implement a new feature, fork this project and create a feature branch called `feature/my-awesome-feature`, and send a pull request. The feature needs to be fully documented and tested before it will be merged.
 
-If the pull request is a bug fix, remember to file an issue in the issue tracker first, then create a branch called `issue/<issue number>`. One or more test cases to verify the bug is required.
+If the pull request is a bug fix, remember to file an issue in the issue tracker first, then create a branch called `issue/<issue number>`. One or more test cases to verify the bug is required. When creating specific test cases for issues, please add a `@see` tag to the docblock, or as a comment in the feature file. For instance:
+
+```php
+/**
+ * @see https://github.com/imbo/behat-api-extension/issues/<issue number>
+ */
+public function testSomething
+    // ...
+}
+```
 
 ## Coding standards
 

@@ -16,7 +16,7 @@ before_script:
 
 script:
   - composer lint
-  - php -S localhost:8080 -t ./testapp > server.log 2>&1 &
+  - php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &
   - composer test
 
 after_failure:

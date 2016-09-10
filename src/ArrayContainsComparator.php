@@ -56,7 +56,7 @@ class ArrayContainsComparator {
                     ));
                 }
 
-                if (is_scalar($value)) {
+                if (is_scalar($value) || is_null($value)) {
                     if ($value !== $haystack[$key][$index]) {
                         throw new InvalidArgumentException(sprintf(
                             'Item on index %d in array at haystak key "%s" does not match value %s',
@@ -105,7 +105,7 @@ class ArrayContainsComparator {
                 ));
             }
 
-            if (is_scalar($value)) {
+            if (is_scalar($value) || is_null($value)) {
                 if ($haystack[$key] !== $value) {
                     throw new InvalidArgumentException(sprintf(
                         'Value mismatch for haystack key "%s": %s != %s',

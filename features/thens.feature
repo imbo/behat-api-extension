@@ -34,7 +34,7 @@ Feature: Test Then steps
                     Then the "x-foo" response header matches "/FOO/i"
                     Then the response body is:
                     '''
-                    {"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3]}}
+                    {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3]}}
                     '''
                     Then the response body matches:
                     '''
@@ -43,6 +43,7 @@ Feature: Test Then steps
                     Then the response body contains:
                     '''
                     {
+                        "null": null,
                         "string": "value",
                         "integer": 42,
                         "float": 4.2,

@@ -39,6 +39,7 @@ $app->register(new SecurityServiceProvider(), [
  */
 $app->match('/', function(Request $request) {
     return new JsonResponse([
+        'null' => null,
         'string' => 'value',
         'integer' => 42,
         'float' => 4.2,

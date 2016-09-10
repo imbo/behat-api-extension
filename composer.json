@@ -47,6 +47,8 @@
         }
     },
     "scripts": {
+        "clean": "rm -rf build",
+        "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
         "test": [
             "vendor/bin/phpunit",
             "vendor/bin/behat --strict"

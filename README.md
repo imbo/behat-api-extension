@@ -362,7 +362,7 @@ To assert lengths of arrays, three custom functions can be used: `@length(num)`,
 
 To be able to verify the length of the arrays one can use the following JSON (excluding the comments which are not supported by JSON):
 
-```js
+```javascript
 {
     "items1": "@length(3)",  // Fails as the length is 4
     "items2": "@atLeast(3)", // Passes as the length is 3
@@ -391,7 +391,7 @@ If you need to verify an element at a specific index within an array, use the `k
 
 If you need to verify the values, use the following JSON:
 
-```js
+```javascript
 {
     "items[0]": "foo",                      // Passes, string comparison
     "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matches "bar"

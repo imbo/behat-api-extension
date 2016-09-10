@@ -168,7 +168,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $method HTTP method
      * @param string $mimeType Optional mime type of the file to send
      * @throws InvalidArgumentException
-     * @When I send :filePath :path using HTTP :method
+     * @When I send :filePath to :path using HTTP :method
      * @When I send :filePath as :mimeType to :path using HTTP :method
      */
     public function whenISendFile($filePath, $path, $method, $mimeType = null) {
@@ -258,36 +258,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert that the response body matches some content
-     *
-     * @param string $content The content to match the response body against
-     * @Then the response body is:
-     */
-    public function thenTheResponseBodyIs(PyStringNode $content) {
-        $this->requireResponse();
-
-        Assertion::same((string) $this->response->getBody(), (string) $content);
-    }
-
-    /**
-     * Assert that the response body matches some content using a regular expression
-     *
-     * @param PyStringNode $pattern The regular expression pattern to use for the match
-     * @Then the response body matches:
-     */
-    public function thenTheResponseBodyMatches(PyStringNode $pattern) {
-        $this->requireResponse();
-
-        Assertion::regex((string) $this->response->getBody(), (string) $pattern);
-    }
-
-    /**
-     * Assert that a response header is present
+     * Assert that a response header exists
      *
      * @param string $header Then name of the header
-     * @Then the :header response header is present
+     * @Then the :header response header exists
      */
-    public function thenTheResponseHeaderIsPresent($header) {
+    public function thenTheResponseHeaderExists($header) {
         $this->requireResponse();
 
         Assertion::true(
@@ -297,12 +273,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert that a response header is not present
+     * Assert that a response header does not exist
      *
      * @param string $header Then name of the header
-     * @Then the :header response header is not present
+     * @Then the :header response header does not exist
      */
-    public function thenTheResponseHeaderIsNotPresent($header) {
+    public function thenTheResponseHeaderDoesNotExist($header) {
         $this->requireResponse();
 
         Assertion::false(
@@ -361,8 +337,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the respones body contains an array with a specific length
      *
      * @param int $length The length of the array
-     * @Then the response body is an array of length :length
      * @Then the response body is an empty array
+     * @Then the response body is an array of length :length
      */
     public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
         $this->requireResponse();
@@ -371,7 +347,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         Assertion::count(
             $body,
-            $length,
+            (int) $length,
             sprintf(
                 'Wrong length for the array in the response body. Expected %d, got %d.',
                 $length,
@@ -381,30 +357,68 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert that the response body contains an array with a length of at least / most a given
-     * length
+     * Assert that the response body contains an array with a length of at least a given length
      *
-     * @param string $mode Either "least" or "most" that decides which assertion to use
      * @param int $length The length to use in the assertion
-     * @Then /^the response body is an array with a length of at (least|most) (\d+)$/
+     * @Then the response body is an array with a length of at least :length
      */
-    public function thenTheResponseBodyIsAnArrayWithALengthOfAtLeastOrMost($mode, $length) {
+    public function thenTheResponseBodyIsAnArrayWithALengthOfAtLeast($length) {
         $this->requireResponse();
 
         $body = $this->getResponseBodyArray();
 
         $actualLength = count($body);
 
-        $callback = $mode === 'least' ? 'min' : 'max';
-        $message = $mode === 'least' ?
-            'Array length should be at least %d, but length was %d' :
-            'Array length should be at most %d, but length was %d';
-
-        Assertion::$callback(
+        Assertion::min(
             $actualLength,
             $length,
-            sprintf($message, $length, $actualLength)
+            sprintf('Array length should be at least %d, but length was %d', $length, $actualLength)
         );
+    }
+
+    /**
+     * Assert that the response body contains an array with a length of at most a given length
+     *
+     * @param int $length The length to use in the assertion
+     * @Then the response body is an array with a length of at most :length
+     */
+    public function thenTheResponseBodyIsAnArrayWithALengthOfAtMost($length) {
+        $this->requireResponse();
+
+        $body = $this->getResponseBodyArray();
+
+        $actualLength = count($body);
+
+        Assertion::max(
+            $actualLength,
+            $length,
+            sprintf('Array length should be at most %d, but length was %d', $length, $actualLength)
+        );
+    }
+
+
+    /**
+     * Assert that the response body matches some content
+     *
+     * @param string $content The content to match the response body against
+     * @Then the response body is:
+     */
+    public function thenTheResponseBodyIs(PyStringNode $content) {
+        $this->requireResponse();
+
+        Assertion::same((string) $this->response->getBody(), (string) $content);
+    }
+
+    /**
+     * Assert that the response body matches some content using a regular expression
+     *
+     * @param PyStringNode $pattern The regular expression pattern to use for the match
+     * @Then the response body matches:
+     */
+    public function thenTheResponseBodyMatches(PyStringNode $pattern) {
+        $this->requireResponse();
+
+        Assertion::regex((string) $this->response->getBody(), (string) $pattern);
     }
 
     /**
@@ -556,7 +570,14 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @return self
      */
     private function setRequestPath($path) {
-        $uri = $this->request->getUri()->withPath($path);
+        $parts = parse_url($path);
+        $uri = $this->request->getUri();
+        $uri = $uri->withPath($parts['path']);
+
+        if (isset($parts['query'])) {
+            $uri = $uri->withQuery($parts['query']);
+        }
+
         $this->request = $this->request->withUri($uri);
 
         return $this;
@@ -640,33 +661,5 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         );
 
         return $body;
-    }
-
-    /**
-     * Recursively walk over the values of the array, replacing some nodes with callbacks.
-     *
-     * This method will look for some specific patterns in the value part of the array and replace
-     * them with callbacks that will be used in the matching process.
-     *
-     * The specific values that we look for are:
-     *
-     *
-     * @param array $contains Array that will be used to match a response body
-     * @param ArrayContainsComparator The comparator that contains the callbacks
-     * @return array Returne the array where specific value parts have been replaced by callbacks.
-     */
-    private function parseBodyContainsJson(array $contains, ArrayContainsComparator $comparator) {
-        array_walk_recursive($contains, function(&$value) {
-            if (!is_string($value)) {
-                // We only care about string values
-                return;
-            }
-
-            // Initialize an array for the preg_match calls below
-            $match = [];
-
-        });
-
-        return $contains;
     }
 }

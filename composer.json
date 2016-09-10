@@ -52,6 +52,7 @@
         "test": [
             "vendor/bin/phpunit",
             "vendor/bin/behat --strict"
-        ]
+        ],
+        "start-server": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &"
     }
 }

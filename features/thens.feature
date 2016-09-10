@@ -34,7 +34,7 @@ Feature: Test Then steps
                     Then the "x-foo" response header matches "/FOO/i"
                     Then the response body is:
                     '''
-                    {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3]}}
+                    {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]}}
                     '''
                     Then the response body matches:
                     '''
@@ -49,27 +49,27 @@ Feature: Test Then steps
                         "float": 4.2,
                         "boolean true": true,
                         "boolean false": false,
-                        "list": [1, 2, 3],
+                        "list": [1, 2, 3, [1], {"foo": "bar"}],
                         "list[0]": 1,
                         "list[1]": 2,
                         "list[2]": 3,
+                        "list[3]": [1],
+                        "list[4]": {"foo": "bar"},
                         "sub": {
                             "string": "value",
                             "integer": 42,
                             "float": 4.2,
                             "boolean true": true,
                             "boolean false": false,
-                            "list": [1,2,3],
+                            "list": [1, 2, 3, [1], {"foo": "bar"}],
                             "list[0]": 1,
                             "list[1]": 2,
-                            "list[2]": 3
+                            "list[2]": 3,
+                            "list[3]": [1],
+                            "list[4]": {"foo": "bar"}
                         }
                     }
                     '''
-                    #Then the response body is an array of length :length
-                    #Then the response body is an empty array
-                    #Then the response body is an array with a length of at most :length
-                    #Then the response body is an array with a length of at least :length
             """
         When I run "behat features/thens.feature"
         Then it should pass with:

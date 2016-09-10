@@ -56,28 +56,21 @@ class ArrayContainsComparator {
                     ));
                 }
 
-                if (is_scalar($value) || is_null($value)) {
-                    if ($value !== $haystack[$key][$index]) {
-                        throw new InvalidArgumentException(sprintf(
-                            'Item on index %d in array at haystak key "%s" does not match value %s',
-                            $index,
-                            $keyPath,
-                            $value
-                        ));
-                    }
-
-                    continue;
-                } else if ($valueIsCallback) {
+                if ($valueIsCallback) {
                     $this->compareHaystackValueWithCallback($haystack[$key][$index], $value, $keyPath);
                     continue;
                 }
 
-                // @codeCoverageIgnoreStart
-                throw new LogicException(sprintf(
-                    'IllegalValue has not been matched for key: %s. This should never happen, so please file an issue.',
-                    $keyPath
-                ));
-                // @codeCoverageIgnoreEnd
+                if ($value !== $haystack[$key][$index]) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Item on index %d in array at haystak key "%s" does not match value %s',
+                        $index,
+                        $keyPath,
+                        $value
+                    ));
+                }
+
+                continue;
             }
 
             if (!array_key_exists($key, $haystack)) {
@@ -120,17 +113,9 @@ class ArrayContainsComparator {
 
             if (is_array($value)) {
                 if (key($value) === 0) {
-                    // Numerically indexed array. Loop over all scalar values and see if they are
-                    // in the haystack value
+                    // Numerically indexed array. Loop over all values and see if they are in the
+                    // haystack value
                     foreach ($value as $v) {
-                        if (!is_scalar($v)) {
-                            throw new InvalidArgumentException(sprintf(
-                                'Non-scalar value found in the numerically indexed array at "%s"',
-                                $keyPath
-                            ));
-                        }
-
-                        // The value is scalar, simply check that the value is in the haystack array
                         if (!in_array($v, $haystack[$key])) {
                             throw new InvalidArgumentException(sprintf(
                                 'The value %s is not present in the haystack array at key "%s"',

@@ -339,14 +339,12 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
 
             'numerically indexed array with non-scalar value' => [
                 'haystack' => [
-                    'foo' => [1, 2, 3],
+                    'foo' => [[1], ['foo' => 'bar']],
                 ],
                 'needle' => [
-                    'foo' => [[1]],
+                    'foo' => [[1], ['foo' => 'bar']],
                 ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Non-scalar value found in the numerically indexed array at "foo"',
+                'willFail' => false,
             ],
 
             'match item in array when value is not an array' => [
@@ -405,10 +403,23 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
                         [1],
                         [1, 2],
                         [1, 2, 3],
+                        ['foo' => 'bar'],
                         'baz'
                     ],
                 ],
                 'needle' => [
+                    'foo' => [
+                        1,
+                        'bar',
+                        1.1,
+                        true,
+                        false,
+                        [1],
+                        [1, 2],
+                        [1, 2, 3],
+                        ['foo' => 'bar'],
+                        'baz'
+                    ],
                     'foo[0]' => 1,
                     'foo[1]' => 'bar',
                     'foo[2]' => 1.1,
@@ -417,7 +428,8 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
                     'foo[5]' => '@length(1)',
                     'foo[6]' => '@atLeast(2)',
                     'foo[7]' => '@atMost(3)',
-                    'foo[8]' => '<re>/baz/</re>',
+                    'foo[8]' => ['foo' => 'bar'],
+                    'foo[9]' => '<re>/baz/</re>',
                 ],
                 'willFail' => false,
             ],

@@ -7,9 +7,15 @@
     "license": "MIT",
     "authors": [{
         "name": "Christer Edvartsen",
-        "email": "cogo@starzinger.net"
+        "email": "cogo@starzinger.net",
+        "homepage": "https://github.com/christeredvartsen"
+    }, {
+        "name": "Contributors",
+        "homepage": "https://github.com/imbo/behat-api-extension/graphs/contributors"
     }],
     "support": {
+        "source": "https://github.com/imbo/behat-api-extension",
+        "docs": "https://github.com/imbo/behat-api-extension",
         "issues": "https://github.com/imbo/behat-api-extension/issues",
         "irc": "irc://irc.freenode.net/imbo"
     },
@@ -27,12 +33,23 @@
     },
     "autoload": {
         "psr-4": {
-            "Imbo\\BehatApiExtension\\": ["src/", "tests/"]
+            "Imbo\\BehatApiExtension\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Imbo\\BehatApiExtension\\": "tests/"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-develop": "1.0.x-dev"
+            "dev-develop": "1.0-dev"
         }
+    },
+    "scripts": {
+        "test": [
+            "vendor/bin/phpunit",
+            "vendor/bin/behat --strict"
+        ]
     }
 }

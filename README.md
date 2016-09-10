@@ -57,38 +57,49 @@ The following configuration options are available:
 **TL;DR Here is a bunch of steps you can use in your feature files:**
 
 ```gherkin
+Given I attach :path to the request as :partName
 Given I am authenticating as :username with password :password
 Given the :header request header is :value
-Given I attach :path to the request as :name
+
 When I request :path
 When I request :path using HTTP :method
 When I request :path using HTTP :method with body: <PyStringNode>
 When I request :path using HTTP :method with JSON body: <PyStringNode>
 When I send :filePath to :path using HTTP :method
 When I send :filePath as :mimeType to :path using HTTP :method
+
 Then the response code is :code
 Then the response code is not :code
 Then the response is :group
 Then the response is not :group
-Then the :header response header is present
-Then the :header response header is not present
+Then the :header response header exists
+Then the :header response header does not exist
 Then the :header response header is :value
-Then the :header response header matches :value
-Then the response body is an array of length :length
+Then the :header response header matches :pattern
 Then the response body is an empty array
-Then the response body is an array with a length of at most :length
+Then the response body is an array of length :length
 Then the response body is an array with a length of at least :length
-Then the response body is :content
-Then the response body matches :content
+Then the response body is an array with a length of at most :length
+Then the response body is: <PyStringNode>
 Then the response body matches: <PyStringNode>
 Then the response body contains: <PyStringNode>
 ```
 
-The extension allows you to use the following steps in your features:
-
 ### Set up the request
 
 The following steps can be used prior to sending a request.
+
+#### Given I attach `:path` to the request as `:partName`
+
+Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a specified file does not exist an `InvalidArgumentException` exception will be thrown. `:path` is relative to the working directory unless it's absolute.
+
+**Examples:**
+
+| Step                                                                  | :path                   | Entry in `$_FILES` on the server (:partName) |
+| --------------------------------------------------------------------- | ----------------------- | -------------------------------------------- |
+| Given I attach "`/path/to/file.jpg`" to the request as `file1`        | `/path/to/file.jpg`     | $\_FILES['`file1`']                          |
+| Given I attach "`c:\some\file.jpg`" to the request as `file2`         | `c:\some\file.jpg`      | $\_FILES['`file2`']                          |
+| Given I attach "`features/some.feature`" to the request as `feature`  | `features/some.feature` | $\_FILES['`feature`']                        |
 
 #### Given I am authenticating as `:username` with password `:password`
 
@@ -116,18 +127,6 @@ Trying to force specific headers to have certain values combined with other step
 | Given the "`X-Foo`" request header is `Bar`<br>Given the "`X-Foo`" request header is `Baz` | `X-Foo`      | `Bar, Baz`        |
 | Given the `Accept` request header is "`application/json`"                                  | `Accept`     | `application/json`|
 
-#### Given I attach `:path` to the request as `:name`
-
-Attach a file to the request (causing a `multipart/form-data` request, populating the `$_FILES` array on the server). Can be repeated to attach several files. If a specified file does not exist an `InvalidArgumentException` exception will be thrown. `:path` is relative to the working directory unless it's absolute.
-
-**Examples:**
-
-| Step                                                                  | :path                   | Entry in `$_FILES` on the server (:name) |
-| --------------------------------------------------------------------- | ----------------------- | ---------------------------------------- |
-| Given I attach "`/path/to/file.jpg`" to the request as `file1`        | `/path/to/file.jpg`     | $\_FILES['`file1`']                      |
-| Given I attach "`c:\some\file.jpg`" to the request as `file2`         | `c:\some\file.jpg`      | $\_FILES['`file2`']                      |
-| Given I attach "`features/some.feature`" to the request as `feature`  | `features/some.feature` | $\_FILES['`feature`']                    |
-
 ### Send the request
 
 After setting up the request it can be sent to the server in a few different ways. Keep in mind that all configuration regarding the request must be set prior to any of these steps, as they will actually send the request.
@@ -146,7 +145,7 @@ After setting up the request it can be sent to the server in a few different way
 | When I request "`/some/path`" using HTTP `DELETE`  | `/some/path`        | `DELETE` | `http://example.com/some/path`        |
 | When I request `foobar` using HTTP `POST`          | `foobar`            | `POST`   | `http://example.com/dir/foobar`       |
 
-#### When I request `:path` using HTTP `:method` with (`JSON`) body: `<PyStringNode>`
+#### When I request `:path` using HTTP `:method` with (JSON) body: `<PyStringNode>`
 
 This step can be used to attach a body to the request. The same as above applies for `:path` and `:method`. If the `JSON` part is added to the step the `Content-Type` request header will be set to `application/json` (regardless of whether or not the `Content-Type` header has already been set with the `Given the :header request header is :value` step described above).
 
@@ -193,7 +192,7 @@ Send the file at `:filePath` to `:path` using the `:method` HTTP method. `:fileP
 
 After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.
 
-#### Then the response code is (`not`) `:code`
+#### Then the response code is (not) `:code`
 
 Match the response code to `:code`. If the optional `not` is added, the response should **not** match the response code.
 
@@ -205,7 +204,7 @@ Match the response code to `:code`. If the optional `not` is added, the response
 | Then the response code is `404`       | `404` | No            | No            | Yes           |
 | Then the response code is `not` `304` | `304` | Yes           | No            | Yes           |
 
-#### Then the response is (`not`) `:group`
+#### Then the response is (not) `:group`
 
 Match the response code to a group. If the optional `not` is added, the response should **not** be in the specified group.
 
@@ -227,7 +226,7 @@ Allowed groups and their ranges are:
 | Then the response is "`client error`"       | `client error`  | 400 to 499                       |
 | Then the response is `not` "`client error`" | `client error`  | 100 to 399 and 500 to 599        |
 
-#### Then the `:header` response header is (`not`) present
+#### Then the `:header` response header (does not) exist(s)
 
 This step can be used to assert that the `:header` response header is present, or not (if used with the optional `not` keyword). The value of `:header` is case-insensitive.
 
@@ -247,7 +246,7 @@ This step can be used to assert that the `:header` response header is present, o
 | Then the "`Content-Length`" response header is present       | `Content-Length` | Yes          |
 | Then the "`content-length`" response header is `not` present | `content-length` | No           |
 
-#### Then the `:header` response header `is`|`matches` `:value`
+#### Then the `:header` response header is|matches `:value`
 
 This step can be used to verify the value of one or more response headers.
 
@@ -270,6 +269,10 @@ The step supports two different comparison modes, `is` and `matches`. `is` will 
 
 For more information regarding regular expressions and the usage of modifiers, [refer to the manual](http://php.net/pcre).
 
+#### Then the response body is an empty array
+
+This is the same as `Then the response body is an array of length 0`.
+
 #### Then the response body is an array of length `:length`
 
 This step can be used to verify the exact length of a JSON array in the response body.
@@ -285,11 +288,7 @@ This step can be used to verify the exact length of a JSON array in the response
 
 If the response body does not contain a JSON array, an `InvalidArgumentException` exception will be thrown.
 
-#### Then the response body is an empty array
-
-This is the same as `Then the response body is an array of length 0`.
-
-#### Then the response body is an array with a length of at (`most`|`least`) `:length`
+#### Then the response body is an array with a length of at least|most `:length`
 
 This step can be used to verify the length of an array, without having to be exact.
 

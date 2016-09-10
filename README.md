@@ -382,7 +382,7 @@ If you need to verify an element at a specific index within an array, use the `k
             "some":
             {
                 "nested": "object",
-                "foo": "bar
+                "foo": "bar"
             }
         }
     ]

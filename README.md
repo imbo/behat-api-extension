@@ -5,8 +5,6 @@
 [![Latest Unstable Version](https://poser.pugx.org/imbo/behat-api-extension/v/unstable)](https://packagist.org/packages/imbo/behat-api-extension)
 [![License](https://poser.pugx.org/imbo/behat-api-extension/license)](https://packagist.org/packages/imbo/behat-api-extension)
 
-**This extension is a work in progress. The steps mentioned below will probably change along the way until a stable release has been made, so expect things to break without warning.**
-
 This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
 
 ## Requirements
@@ -25,7 +23,7 @@ Install the extension by adding the following to your `composer.json` file:
 ```json
 {
     "require-dev": {
-        "imbo/behat-api-extension": "^1.0@dev"
+        "imbo/behat-api-extension": "^1.0"
     }
 }
 ```
@@ -46,7 +44,7 @@ default:
 
 ## Configuration
 
-The following configuration options are available:
+The following configuration options are available for the extension:
 
 | Key      | Type   | Default value         | Description                            |
 | -------- | ------ | --------------------- | -------------------------------------- |
@@ -198,11 +196,11 @@ Match the response code to `:code`. If the optional `not` is added, the response
 
 **Examples:**
 
-| Step                                  | :code | Matches `200` | Matches `304` | Matches `404` |
-| ------------------------------------- | ----- | ------------- | ------------- | ------------- |
-| Then the response code is `200`       | `200` | Yes           | No            | No            |
-| Then the response code is `404`       | `404` | No            | No            | Yes           |
-| Then the response code is `not` `304` | `304` | Yes           | No            | Yes           |
+| Step                                | :code | Matches `200` | Matches `304` | Matches `404` |
+| ----------------------------------- | ----- | ------------- | ------------- | ------------- |
+| Then the response code is `200`     | `200` | Yes           | No            | No            |
+| Then the response code is `404`     | `404` | No            | No            | Yes           |
+| Then the response code is not `304` | `304` | Yes           | No            | Yes           |
 
 #### Then the response is (not) `:group`
 
@@ -220,37 +218,34 @@ Allowed groups and their ranges are:
 
 **Examples:**
 
-| Step                                        | :group          | Response code range that matches |
-| ------------------------------------------- | --------------- | -------------------------------- |
-| Then the response is `informational`        | `informational` | 100 to 199                       |
-| Then the response is "`client error`"       | `client error`  | 400 to 499                       |
-| Then the response is `not` "`client error`" | `client error`  | 100 to 399 and 500 to 599        |
+| Step                                      | :group          | Response code range that matches |
+| ----------------------------------------- | --------------- | -------------------------------- |
+| Then the response is `informational`      | `informational` | 100 to 199                       |
+| Then the response is "`client error`"     | `client error`  | 400 to 499                       |
+| Then the response is not "`client error`" | `client error`  | 100 to 399 and 500 to 599        |
 
 #### Then the `:header` response header (does not) exist(s)
 
-This step can be used to assert that the `:header` response header is present, or not (if used with the optional `not` keyword). The value of `:header` is case-insensitive.
+This step can be used to assert that the `:header` response header exists, or not (if used with the optional `does not` part). The value of `:header` is case-insensitive.
 
 **Examples:**
 
 *Assume that these response headers exist in the following examples:*
 
-* *Content-Encoding: gzip*
-* *Content-Type: application/json*
 * *Content-Length: 186*
-* *Date: Wed, 31 Aug 2016 15:06:02 GMT*
 
-| Step                                                         | :header          | Test passes? |
-| ------------------------------------------------------------ | ---------------- | ------------ |
-| Then the `Vary` response header is present                   | `Vary`           | No           |
-| Then the `vary` response header is `not` present             | `Vary`           | Yes          |
-| Then the "`Content-Length`" response header is present       | `Content-Length` | Yes          |
-| Then the "`content-length`" response header is `not` present | `content-length` | No           |
+| Step                                                       | :header          | Test passes? |
+| ---------------------------------------------------------- | ---------------- | ------------ |
+| Then the `Vary` response header exists                     | `Vary`           | No           |
+| Then the `vary` response header does not exist             | `vary`           | Yes          |
+| Then the "`Content-Length`" response header exists         | `Content-Length` | Yes          |
+| Then the "`content-length`" response header does not exist | `content-length` | No           |
 
 #### Then the `:header` response header is|matches `:value`
 
 This step can be used to verify the value of one or more response headers.
 
-The step supports two different comparison modes, `is` and `matches`. `is` will compare the values using regular string comparison, and when `matches` is used, the `:value` must be a valid regular expression, complete with delimiters and optional modifiers. The expression will be fed straight into [preg_match](http://php.net/preg_match), so make sure it's valid before using it to verify values.
+The step supports two different comparison modes, `is` and `matches`. `is` will compare the values using string comparison, and when `matches` is used, the `:value` must be a valid regular expression, complete with delimiters and optional modifiers.
 
 **Examples:**
 
@@ -283,6 +278,7 @@ This step can be used to verify the exact length of a JSON array in the response
 
 | Step                                             | :length | Test passes? |
 | ------------------------------------------------ | ------- | ------------ |
+| Then the response body is an empty array         | `0`     | No           |
 | Then the response body is an array of length `1` | `1`     | No           |
 | Then the response body is an array of length `3` | `3`     | Yes          |
 
@@ -296,24 +292,24 @@ This step can be used to verify the length of an array, without having to be exa
 
 *Assume that for the examples below, the response body is `[1, 2, 3, 4, 5]`.*
 
-| Step                                                               | :length | Test passes? |
-| ------------------------------------------------------------------ | ------- | ------------ |
-| Then the response body is an array with a length of at `most` `4`  | `4`     | No           |
-| Then the response body is an array with a length of at `least` `4` | `4`     | Yes          |
-| Then the response body is an array with a length of at `most` `5`  | `5`     | Yes          |
-| Then the response body is an array with a length of at `least` `5` | `5`     | Yes          |
-| Then the response body is an array with a length of at `most` `6`  | `6`     | Yes          |
-| Then the response body is an array with a length of at `least` `6` | `6`     | No           |
+| Step                                                             | :length | Test passes? |
+| ---------------------------------------------------------------- | ------- | ------------ |
+| Then the response body is an array with a length of at most `4`  | `4`     | No           |
+| Then the response body is an array with a length of at least `4` | `4`     | Yes          |
+| Then the response body is an array with a length of at most `5`  | `5`     | Yes          |
+| Then the response body is an array with a length of at least `5` | `5`     | Yes          |
+| Then the response body is an array with a length of at most `6`  | `6`     | Yes          |
+| Then the response body is an array with a length of at least `6` | `6`     | No           |
 
 #### Then the response body is: `<PyStringNode>`
 
-Compare the response body to the text found in the `<PyStringNode>` using regular string comparison.
+Compare the response body to the text found in the `<PyStringNode>` using string comparison.
 
 **Examples:**
 
 *Assume that for the examples below, the response body is `{"foo":"bar"}`.*
 
-| Step                                                        | Compare to       | Matches |
+| Step                                                        | PyStringNode     | Matches |
 | ----------------------------------------------------------- | ---------------- | ------- |
 | Then the response body is:<br>"""<br>`{"foo":"bar"}`<br>""" | `{"foo":"bar"}`  | Yes     |
 | Then the response body is:<br>"""<br>`foo`<br>"""           | `foo`            | No      |
@@ -326,7 +322,7 @@ Match the response body to the regular expression found in the content of `<PySt
 
 *Assume that for the examples below, the response body is `{"foo": "bar"}`.*
 
-| Step                                                                    | Expression             | Matches response body |
+| Step                                                                    | PyStringNode           | Matches response body |
 | ----------------------------------------------------------------------- | ---------------------- | --------------------- |
 | Then the response body matches:<br>"""<br>`/^{"FOO": ?"BAR"}$/i`<br>""" | `/^{"FOO": ?"BAR"}$/i` | Yes                   |
 | Then the response body matches:<br>"""<br>`/foo/`<br>"""                | `/foo/`                | Yes                   |
@@ -367,13 +363,13 @@ To assert lengths of arrays, three custom functions can be used: `@length(num)`,
 }
 ```
 
-To be able to verify the length of the arrays one can use the following JSON:
+To be able to verify the length of the arrays one can use the following JSON (excluding the comments which are not supported by JSON):
 
 ```js
 {
     "items1": "@length(3)",  // Fails as the length is 4
     "items2": "@atLeast(3)", // Passes as the length is 3
-    "items3": "@atMost(1)"   // Fails as the length if 2
+    "items3": "@atMost(1)"   // Fails as the length is 2
 }
 ```
 
@@ -400,8 +396,8 @@ If you need to verify the values, use the following JSON:
 
 ```js
 {
-    "items[0]": "bar",                      // Passes, regular string comparison
-    "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matxhes "bar"
+    "items[0]": "foo",                      // Passes, string comparison
+    "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matches "bar"
     "items[2]": "bar",                      // Fails as the value is baz
     "items[3]":
     {
@@ -415,6 +411,24 @@ If you need to verify the values, use the following JSON:
 ```
 
 If you use the index checking against something that is not a numeric array, the extension will throw an `InvalidArgumentException` exception.
+
+You can also assert that values exists in numerically indexed arrays. Consider the following JSON response body:
+
+```json
+{
+    "list": [1, 2, 3, "four"]
+}
+```
+
+To assert that one or more of the values exist, use the following:
+
+```json
+{
+    "list": [2, 3]
+}
+```
+
+The index is not taken into consideration, and it's only possible to use this with scalar values.
 
 ## Copyright / License
 

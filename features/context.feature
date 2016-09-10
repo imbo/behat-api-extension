@@ -8,8 +8,8 @@ Feature: Client aware context
             """
             <?php
             use Imbo\BehatApiExtension\Context\ApiClientAwareContext,
-                GuzzleHttp\ClientInterface,
-                Assert\Assertion;
+            use GuzzleHttp\ClientInterface;
+            use Assert\Assertion;
 
             class FeatureContext implements ApiClientAwareContext {
                 private $client;

@@ -15,9 +15,9 @@ before_script:
   - composer install --prefer-source
 
 script:
+  - composer lint
   - php -S localhost:8080 -t ./testapp > server.log 2>&1 &
-  - ./vendor/bin/phpunit
-  - ./vendor/bin/behat --strict
+  - composer test
 
 after_failure:
   - echo "Tests failed - httpd log follows"

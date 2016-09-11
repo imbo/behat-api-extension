@@ -600,9 +600,16 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Set the request body
      *
      * @param string $body The body to set
+     * @throws InvalidArgumentException
      * @return self
      */
     private function setRequestBody($body) {
+        if (isset($this->requestOptions['multipart'])) {
+            throw new InvalidArgumentException(
+                'It\'s not allowed to set a request body when using multipart/form-data.'
+            );
+        }
+
         $this->request = $this->request->withBody(Psr7\stream_for($body));
 
         return $this;

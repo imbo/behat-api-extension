@@ -947,4 +947,18 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseBodyContains(new PyStringNode(['{"bar":"foo"}'], 1));
     }
+
+    /**
+     * @see https://github.com/imbo/behat-api-extension/issues/7
+     * @covers ::setRequestBody
+     */
+    public function testDontAllowRequestBodyWithMultipartFormDataRequests() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->context->givenIAttachAFileToTheRequest(__FILE__, 'file');
+
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data');
+
+        $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
+    }
 }

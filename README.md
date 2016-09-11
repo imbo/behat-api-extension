@@ -98,6 +98,8 @@ Attach a file to the request (causing a `multipart/form-data` request, populatin
 | Given I attach "`c:\some\file.jpg`" to the request as `file2`         | `c:\some\file.jpg`      | $\_FILES['`file2`']                          |
 | Given I attach "`features/some.feature`" to the request as `feature`  | `features/some.feature` | $\_FILES['`feature`']                        |
 
+This step can not be used when sending requests with a request body. Doing so results in an `InvalidArgumentException` exception.
+
 #### Given I am authenticating as `:username` with password `:password`
 
 Use this step when the URL you are requesting requires basic auth.

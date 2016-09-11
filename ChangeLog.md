@@ -5,6 +5,8 @@ v1.0.2
 ------
 __N/A__
 
+* #8: Step(s) for working with form data
+
 Bug fixes:
 
 * #7: Don't allow request body when sending multipart/form-data requests

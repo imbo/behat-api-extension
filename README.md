@@ -57,6 +57,7 @@ The following configuration options are available for the extension:
 Given I attach :path to the request as :partName
 Given I am authenticating as :username with password :password
 Given the :header request header is :value
+Given the following form parameters are set: <TableNode>
 
 When I request :path
 When I request :path using HTTP :method
@@ -125,6 +126,22 @@ Trying to force specific headers to have certain values combined with other step
 | Given the "`User-Agent`" request header is "`test/1.0`"                                    | `User-Agent` | `test/1.0`        |
 | Given the "`X-Foo`" request header is `Bar`<br>Given the "`X-Foo`" request header is `Baz` | `X-Foo`      | `Bar, Baz`        |
 | Given the `Accept` request header is "`application/json`"                                  | `Accept`     | `application/json`|
+
+#### Given the following form parameters are set: `<TableNode>`
+
+This step can be used to set form parameters (as if the request is a `<form>` being submitted. A table node must be used to specify which fields / values to send:
+
+```gherkin
+Given the following form parameters are set:
+    | name | value |
+    | foo  | bar   |
+    | bar  | foo   |
+    | bar  | bar   |
+```
+
+The first row in the table must contain two values: `name` and `value`. The rows that follows are the fields / values you want to send. This step sets the HTTP method to `POST` and the `Content-Type` request header to `application/x-www-form-urlencoded`, unless the step is combined with `Given I attach :path to the request as :partName`, in which case the `Content-Type` will be `multipart/form-data` and all the specified fields will be sent as parts in the multipart request.
+
+This step can not be used when sending requests with a request body. Doing so results in an `InvalidArgumentException` exception.
 
 ### Send the request
 

@@ -79,7 +79,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $part = [
             'name' => $partName,
-            'contents' => file_get_contents($path),
+            'contents' => fopen($path, 'r'),
+            'filename' => basename($path),
         ];
 
         if (!isset($this->requestOptions['multipart'])) {

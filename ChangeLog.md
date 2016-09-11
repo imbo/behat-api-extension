@@ -7,6 +7,7 @@ __N/A__
 
 Bug fixes:
 
+* #7: Don't allow request body when sending multipart/form-data requests
 * #5: Attaching files does not work
 
 v1.0.1

@@ -62,7 +62,7 @@ $app->match('/', function(Request $request) {
 /**
  * Echo the request body
  */
-$app->match('echo', function(Request $request) {
+$app->match('/echo', function(Request $request) {
     return $request->query->has('json') ?
         new JsonResponse(json_decode($request->getContent(), true)) :
         new Response($request->getContent());
@@ -71,14 +71,14 @@ $app->match('echo', function(Request $request) {
 /**
  * Return information about uploaded files
  */
-$app->post('files', function(Request $request) {
+$app->post('/files', function(Request $request) {
     return new JsonResponse($_FILES);
 });
 
 /**
  * Return the HTTP method
  */
-$app->match('echoHttpMethod', function(Request $request) {
+$app->match('/echoHttpMethod', function(Request $request) {
     return new JsonResponse([
         'method' => $request->getMethod(),
     ]);
@@ -87,7 +87,7 @@ $app->match('echoHttpMethod', function(Request $request) {
 /**
  * Return the authenticated user name
  */
-$app->match('basicAuth', function(Application $app) {
+$app->match('/basicAuth', function(Application $app) {
     return new JsonResponse([
         'user' => $app['security.token_storage']->getToken()->getUser()->getUsername(),
     ]);
@@ -96,7 +96,7 @@ $app->match('basicAuth', function(Application $app) {
 /**
  * Return a client error
  */
-$app->match('clientError', function(Application $app) {
+$app->match('/clientError', function(Application $app) {
     return new JsonResponse([
         'error' => 'client error',
     ], 400);
@@ -105,7 +105,7 @@ $app->match('clientError', function(Application $app) {
 /**
  * Return a server error
  */
-$app->match('serverError', function(Application $app) {
+$app->match('/serverError', function(Application $app) {
     return new JsonResponse([
         'error' => 'server error',
     ], 500);

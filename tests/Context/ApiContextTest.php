@@ -10,6 +10,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Exception\RequestException;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
 use RuntimeException;
 
 /**
@@ -344,7 +345,6 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::setRequestPath
      * @covers ::setRequestBody
      * @covers ::sendRequest
-     * @group whens
      */
     public function testWhenIRequestPathWithQueryParameters() {
         $this->mockHandler->append(new Response(200));
@@ -953,12 +953,104 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::setRequestBody
      */
     public function testDontAllowRequestBodyWithMultipartFormDataRequests() {
-        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->mockHandler->append(new Response(200));
         $this->context->givenIAttachAFileToTheRequest(__FILE__, 'file');
 
         $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data');
+        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data or form parameters.');
 
         $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
     }
+
+    /**
+     * @covers ::givenTheFollowingFormParametersAreSet
+     * @covers ::sendRequest
+     */
+    public function testGivenTheFollowingFormParametersAreSet() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->givenTheFollowingFormParametersAreSet(new TableNode([
+            ['name', 'value'],
+            ['foo', 'bar'],
+            ['bar', 'foo'],
+            ['bar', 'bar'],
+        ]));
+        $this->context->whenIRequestPath('/some/path');
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('application/x-www-form-urlencoded', $request->getHeaderLine('Content-Type'));
+        $this->assertSame(37, (int) $request->getHeaderLine('Content-Length'));
+        $this->assertSame('foo=bar&bar%5B0%5D=foo&bar%5B1%5D=bar', (string) $request->getBody());
+    }
+
+    /**
+     * @covers ::sendRequest
+     */
+    public function testGivenTheFollowingFormParametersAreSetCombinedWithAttachingAFile() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->givenTheFollowingFormParametersAreSet(new TableNode([
+            ['name', 'value'],
+            ['foo', 'bar'],
+            ['bar', 'foo'],
+            ['bar', 'bar'],
+        ]));
+        $this->context->givenIAttachAFileToTheRequest(__FILE__, 'file');
+        $this->context->whenIRequestPath('/some/path');
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $boundary = $request->getBody()->getBoundary();
+
+        $this->assertSame('POST', $request->getMethod());
+        $this->assertSame(sprintf('multipart/form-data; boundary=%s', $boundary), $request->getHeaderLine('Content-Type'));
+
+        $contents = $request->getBody()->getContents();
+
+        $this->assertContains('Content-Disposition: form-data; name="file"; filename="ApiContextTest.php"', $contents);
+        $this->assertContains(file_get_contents(__FILE__), $contents);
+
+        $foo = <<<FOO
+Content-Disposition: form-data; name="foo"
+Content-Length: 3
+
+bar
+FOO;
+
+        $bar0 = <<<BAR
+Content-Disposition: form-data; name="bar[]"
+Content-Length: 3
+
+foo
+BAR;
+        $bar1 = <<<BAR
+Content-Disposition: form-data; name="bar[]"
+Content-Length: 3
+
+bar
+BAR;
+        $this->assertContains($foo, $contents);
+        $this->assertContains($bar0, $contents);
+        $this->assertContains($bar1, $contents);
+    }
+
+    /**
+     * @covers ::setRequestBody
+     */
+    public function testDontAllowRequestBodyWithFormParameters() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->givenTheFollowingFormParametersAreSet(new TableNode([
+            ['name', 'value'],
+            ['foo', 'bar'],
+        ]));
+
+        $this->expectException('InvalidArgumentException');
+        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data or form parameters.');
+
+        $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
+    }
+
 }

@@ -76,6 +76,13 @@ $app->post('/files', function(Request $request) {
 });
 
 /**
+ * Return information about $_POST and $_FILES vars
+ */
+$app->post('/formData', function(Request $request) {
+    return new JsonResponse(['_POST' => $_POST, '_FILES' => $_FILES]);
+});
+
+/**
  * Return the HTTP method
  */
 $app->match('/echoHttpMethod', function(Request $request) {

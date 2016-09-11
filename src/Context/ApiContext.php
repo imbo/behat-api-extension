@@ -118,6 +118,33 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Set form parameters
+     *
+     * @param TableNode $table Table with name / value pairs
+     * @Given the following form parameters are set:
+     */
+    public function givenTheFollowingFormParametersAreSet(TableNode $table) {
+        if (!isset($this->requestOptions['form_params'])) {
+            $this->requestOptions['form_params'] = [];
+        }
+
+        foreach ($table as $row) {
+            $name = $row['name'];
+            $value = $row['value'];
+
+            if (isset($this->requestOptions['form_params'][$name]) && !is_array($this->requestOptions['form_params'][$name])) {
+                $this->requestOptions['form_params'][$name] = [$this->requestOptions['form_params'][$name]];
+            }
+
+            if (isset($this->requestOptions['form_params'][$name])) {
+                $this->requestOptions['form_params'][$name][] = $value;
+            } else {
+                $this->requestOptions['form_params'][$name] = $value;
+            }
+        }
+    }
+
+    /**
      * Request a path using GET or another HTTP method
      *
      * @param string $path The path to request
@@ -486,6 +513,33 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws RequestException
      */
     private function sendRequest() {
+        if (!empty($this->requestOptions['form_params'])) {
+            $this->setRequestMethod('POST');
+        }
+
+        if (!empty($this->requestOptions['multipart']) && !empty($this->requestOptions['form_params'])) {
+            foreach ($this->requestOptions['form_params'] as $name => $contents) {
+                if (is_array($contents)) {
+                    $name .= '[]';
+
+                    foreach ($contents as $content) {
+                        $this->requestOptions['multipart'][] = [
+                            'name' => $name,
+                            'contents' => $content,
+                        ];
+                    }
+                } else {
+                    $this->requestOptions['multipart'][] = [
+                        'name' => $name,
+                        'contents' => $contents
+                    ];
+                }
+            }
+
+            // Remove form_params from the options, otherwise Guzzle will throw an exception
+            unset($this->requestOptions['form_params']);
+        }
+
         try {
             $this->response = $this->client->send(
                 $this->request,
@@ -604,9 +658,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @return self
      */
     private function setRequestBody($body) {
-        if (isset($this->requestOptions['multipart'])) {
+        if (!empty($this->requestOptions['multipart']) || !empty($this->requestOptions['form_params'])) {
             throw new InvalidArgumentException(
-                'It\'s not allowed to set a request body when using multipart/form-data.'
+                'It\'s not allowed to set a request body when using multipart/form-data or form parameters.'
             );
         }
 

@@ -446,6 +446,52 @@ To assert that one or more of the values exist, use the following:
 
 The index is not taken into consideration when comparing, it simply checks if the values specified are present in the list.
 
+## Extending the extension
+
+If you want to implement your own assertions, or for instance add custom authentication for all requests made against your APIs you can extend the context class provided by the extension to access the client, request, request options and response properties.
+
+**Example:**
+
+```php
+<?php
+use Imbo\BehatApiExtension\Context\ApiContext,
+    Behat\Behat\Hook\Scope\BeforeFeatureScope,
+    Assert\Assertion;
+
+class FeatureContext extends ApiContext {
+    /**
+     * @BeforeFeature
+     */
+    public function setApiAuth(BeforeFeatureScope $scope) {
+        // For instance add a middleware to the client to handle API authentication
+
+        // ...
+    }
+
+    /**
+     * Custom assertion, match the HTTP reason phrase
+     *
+     * @param string $phrase Expected HTTP reason phrase
+     * @Then the response reason phrase is :phrase
+     */
+    public function assertResponseReasonPhrase($phrase) {
+        Assertion::same($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
+            'Invalid HTTP reason phrase, expected "%s", got "%s"',
+            $phrase,
+            $actual
+        ));
+    }
+}
+```
+
+The client, request, request options and response are accessed via the protected `$this->client`, `$this->request`, `$this->requestOptions` and `$this->response` properties respectively. Keep in mind that `$this->response` is not populated until the client has made a request, i.e. after any of the aforementioned `@When` steps have finished. Since Guzzle implements [PSR-7](http://www.php-fig.org/psr/psr-7/), both `$this->request` and `$this->response` are value objects, which means that they can not be modified, but needs to be re-set for new values to stick:
+
+```php
+$this->request = $this->request->withAddedHeader('Some-Customer-Header', 'some value');
+```
+
+If you end up adding some generic assertions, please don't hesitate to send a pull request if you think they should be added to this project.
+
 ## Copyright / License
 
 Copyright (c) 2016, Christer Edvartsen <cogo@starzinger.net>

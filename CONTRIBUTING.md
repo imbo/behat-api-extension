@@ -8,7 +8,11 @@ Behat API Extension has both [Behat](http://docs.behat.org/) and [PHPUnit](https
 
 The Behat tests requires a web server hosting the `features/bootstrap/index.php` script. A quick and easy alternative is to use PHP's built in web server:
 
-    php -S localhost:8080 -t ./features/bootstrap
+    composer start-server
+
+which is a composer script that simply runs:
+
+    php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &
 
 After this has been started you can execute the test suites by running:
 
@@ -21,7 +25,7 @@ If you want to run the suites separately they can be executed like this:
 
 ## Reporting bugs
 
-Please use the [issue tracker on GitHub](https://github.com/imbo/behat-api-extension/issues) for this.
+Use the [issue tracker on GitHub](https://github.com/imbo/behat-api-extension/issues) for this. Please add necessary steps that can reproduce the bugs.
 
 ## Submitting a pull request
 

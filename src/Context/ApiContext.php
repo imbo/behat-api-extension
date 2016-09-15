@@ -27,7 +27,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @var ClientInterface
      */
-    private $client;
+    protected $client;
 
     /**
      * Request instance
@@ -36,7 +36,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @var RequestInterface
      */
-    private $request;
+    protected $request;
 
     /**
      * Request options
@@ -45,7 +45,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @var array
      */
-    private $requestOptions = [];
+    protected $requestOptions = [];
 
     /**
      * Response instance
@@ -54,7 +54,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @var ResponseInterface
      */
-    private $response;
+    protected $response;
 
     /**
      * {@inheritdoc}
@@ -475,36 +475,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         // Compare the arrays. On error this will throw an exception
         Assertion::true($comparator->compare($body, $contains));
-    }
-
-    /**
-     * Get the request instance
-     *
-     * @return null|RequestInterface
-     * @codeCoverageIgnore
-     */
-    protected function getRequest() {
-        return $this->request;
-    }
-
-    /**
-     * Get the response instance
-     *
-     * @return null|ResponseInterface
-     * @codeCoverageIgnore
-     */
-    protected function getResponse() {
-        return $this->response;
-    }
-
-    /**
-     * Get the Guzzle client
-     *
-     * @return ClientInterface
-     * @codeCoverageIgnore
-     */
-    protected function getClient() {
-        return $this->client;
     }
 
     /**

@@ -3,7 +3,7 @@ Changelog for Behat API Extension
 
 v1.0.2
 ------
-__N/A__
+__2016-09-15__
 
 * #8: Step(s) for working with form data
 

@@ -1,6 +1,14 @@
 Changelog for Behat API Extension
 =================================
 
+v1.0.3
+------
+__N/A__
+
+Bug fixes:
+
+* #13: Checking multi-dimensional arrays
+
 v1.0.2
 ------
 __2016-09-15__

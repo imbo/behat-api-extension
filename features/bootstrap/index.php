@@ -118,5 +118,31 @@ $app->match('/serverError', function(Application $app) {
     ], 500);
 });
 
+$app->match('/issue-13', function(Application $app) {
+    return new JsonResponse([
+        'customer' => [
+            'id' => '12345',
+            'name' => 'Behat Testing API',
+            'images' => [
+                [
+                    'id' => '5678',
+                    'filename_client' => 'tech.ai',
+                    'filename_preview' => 'testimage-converted.png',
+                    'filename_print' => 'testimage.ai',
+                    'url' => '\/media\/testimage-converted.png',
+                    'created_time' => '2016-10-10 07 => 28 => 42'
+                ], [
+                    'id' => '7890',
+                    'filename_client' => 'demo.ai',
+                    'filename_preview' => 'demoimage-converted.png',
+                    'filename_print' => 'demoimage.ai',
+                    'url' => '\/media\/demoimage-converted.png',
+                    'created_time' => '2016-10-10 07 => 38 => 22'
+                ],
+            ],
+        ],
+    ]);
+});
+
 // Run the application
 $app->run();

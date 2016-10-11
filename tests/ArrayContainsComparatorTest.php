@@ -434,6 +434,35 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
                 'willFail' => false,
             ],
 
+            // @see https://github.com/imbo/behat-api-extension/issues/13
+            'match sub-arrays using indexes' => [
+                'haystack' => [
+                    'foo' => [
+                        'bar' => [
+                            [
+                                'foo' => 'bar',
+                                'baz' => 'bat',
+                            ],
+                            [
+                                'foo' => 'bar',
+                                'baz' => 'bat',
+                            ],
+                        ],
+                    ],
+                ],
+                'needle' => [
+                    'foo' => [
+                        'bar[0]' => [
+                            'foo' => 'bar',
+                        ],
+                        'bar[1]' => [
+                            'baz' => 'bat',
+                        ]
+                    ]
+                ],
+                'willFail' => false,
+            ],
+
             'MATCH ALL THE THINGS!!!' => [
                 'haystack' => [
                     'null' => null,

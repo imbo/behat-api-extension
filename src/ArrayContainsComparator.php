@@ -61,6 +61,12 @@ class ArrayContainsComparator {
                     continue;
                 }
 
+                if (is_array($value) && is_array($haystack[$key][$index])) {
+                    // Recursively compare the haystack against the needle
+                    $this->compare($haystack[$key][$index], $value);
+                    continue;
+                }
+
                 if ($value !== $haystack[$key][$index]) {
                     throw new InvalidArgumentException(sprintf(
                         'Item on index %d in array at haystak key "%s" does not match value %s',

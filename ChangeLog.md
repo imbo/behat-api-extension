@@ -3,7 +3,7 @@ Changelog for Behat API Extension
 
 v1.0.3
 ------
-__N/A__
+__2016-10-13__
 
 Bug fixes:
 

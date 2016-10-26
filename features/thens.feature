@@ -125,3 +125,48 @@ Feature: Test Then steps
             1 scenario (1 passed)
             3 steps (3 passed)
             """
+
+    Scenario: Use Then steps to verify responses with numerical array as root
+        Given a file named "features/response-with-numerical-array.feature" with:
+            """
+            Feature: Test response body with numerical array as root
+                Scenario: Response returns numerical array
+                    When I request "/echo?json" using HTTP POST with body:
+                    '''
+                    [
+                        1,
+                        "foo",
+                        {
+                            "foo": "bar",
+                            "bar": "foo"
+                        },
+                        [1, 2, 3]
+                    ]
+                    '''
+                    Then the response body is an array of length 4
+                    And the response body contains:
+                    '''
+                    {
+                        "[0]": 1,
+                        "[1]": "foo",
+                        "[2]": {"foo": "bar", "bar": "foo"},
+                        "[3]": [1, 2, 3]
+                    }
+                    '''
+                    And the response body contains:
+                    '''
+                    {
+                        "[1]": "<re>/foo/</re>",
+                        "[3]": "@length(3)"
+                    }
+                    '''
+            """
+        When I run "behat features/response-with-numerical-array.feature"
+        Then it should pass with:
+            """
+            ....
+
+            1 scenario (1 passed)
+            4 steps (4 passed)
+            """
+

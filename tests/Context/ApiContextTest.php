@@ -797,7 +797,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Assert\InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::thenTheResponseBodyIsAnArrayOfLength
      */
@@ -820,7 +820,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getResponseBodyArraysForAtLeast
      * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
-     * @covers ::getResponseBodyArray
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeast(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
@@ -839,10 +839,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Assert\InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
-     * @covers ::getResponseBodyArray
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
@@ -863,7 +863,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getResponseBodyArraysForAtMost
      * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
-     * @covers ::getResponseBodyArray
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMost(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
@@ -882,10 +882,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Assert\InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
-     * @covers ::getResponseBodyArray
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMostWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
@@ -904,10 +904,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain a valid JSON object.
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The response body does not contain a valid JSON array / object.
      * @covers ::thenTheResponseBodyContains
-     * @covers ::getResponseBodyObject
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyContainsWithInvalidJsonInBody() {
         $this->mockHandler->append(new Response(200, [], 'foobar'));
@@ -928,7 +928,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::thenTheResponseBodyContains
-     * @covers ::getResponseBodyObject
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyContains() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
@@ -940,7 +940,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @expectedException OutOfRangeException
      * @expectedExceptionMessage Key is missing from the haystack: bar
      * @covers ::thenTheResponseBodyContains
-     * @covers ::getResponseBodyObject
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyContainsOnFailure() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));

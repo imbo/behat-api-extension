@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v1.0.4
+------
+__2016-10-26__
+
+* #15: Add support for checking numerical arrays on root
+
 v1.0.3
 ------
 __2016-10-13__

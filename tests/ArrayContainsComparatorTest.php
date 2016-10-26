@@ -389,7 +389,7 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
                 ],
                 'willFail' => true,
                 'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Item on index 0 in array at haystak key "foo" does not match value 2',
+                'exceptionMessage' => 'Item on index 0 in array at haystack key "foo" does not match value 2',
             ],
 
             'match item in array' => [
@@ -632,5 +632,93 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
         // This last assert will only be executed when the comparison succeeds as a failure throws
         // an exception
         $this->assertTrue($this->comparator->compare(['null' => null], ['null' => null]));
+    }
+
+    public function getNumericalArrayValuesAndNeedles() {
+        return [
+            'all checks 2' => [
+                'haystack' => [
+                    1,
+                    'foo',
+                    ['foo' => 'bar', 'bar' => 'foo'],
+                    [1, 2, 3],
+                ],
+                'needle' => [
+                    '[1]' => '<re>/foo/</re>',
+                    '[3]' => '@length(3)',
+                ],
+            ],
+            'all checks' => [
+                'haystack' => [
+                    1,
+                    'foo',
+                    ['foo' => 'bar', 'bar' => 'foo'],
+                    [1, 2, 3],
+                    [1, 2, 3, 4],
+                ],
+                'needle' => [
+                    '[0]' => 1,
+                    '[1]' => 'foo',
+                    '[2]' => [
+                        'foo' => 'bar',
+                        'bar' => '<re>/foo/</re>',
+                    ],
+                    '[3]' => [1, 2, 3],
+                    '[4]' => '@length(4)',
+                ],
+            ],
+            'undefined index' => [
+                'haystack' => [
+                    1,
+                ],
+                'needle' => [
+                    '[1]' => 1,
+                ],
+                'willFail' => true,
+                'exception' => 'OutOfRangeException',
+                'exceptionMessage' => 'Index 1 does not exist in the haystack array',
+            ],
+            'value mismatch' => [
+                'haystack' => [
+                    1,
+                ],
+                'needle' => [
+                    '[0]' => 0,
+                ],
+                'willFail' => true,
+                'exception' => 'InvalidArgumentException',
+                'exceptionMessage' => 'Item on index 0 in array at haystack key "<root>" does not match value 0',
+            ],
+            'nested regular expression mismatch' => [
+                'haystack' => [
+                    [
+                        'foo' => 'bar',
+                        'bar' => 'baz',
+                    ]
+                ],
+                'needle' => [
+                    '[0]' => [
+                        'foo' => '<re>/bar/</re>',
+                        'bar' => '<re>/foo/</re>',
+                    ],
+                ],
+                'willFail' => true,
+                'exception' => 'InvalidArgumentException',
+                'exceptionMessage' => '"regular expression" function failed for the "bar" haystack key',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getNumericalArrayValuesAndNeedles
+     * @covers ::compare
+     */
+    public function testCompareWhenRootNodeIsNumericalArray($haystack, $needle, $willFail = false, $exception = null, $exceptionMessage = null) {
+        if ($willFail) {
+            $this->expectException($exception);
+            $this->expectExceptionMessage($exceptionMessage);
+        }
+
+        $this->assertTrue($this->comparator->compare($haystack, $needle));
     }
 }

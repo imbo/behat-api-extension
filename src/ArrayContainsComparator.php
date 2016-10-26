@@ -37,7 +37,39 @@ class ArrayContainsComparator {
             // See if the key refers to an element in an array
             $match = [];
 
-            if (preg_match('/^(.*?)\[([\d+])\]$/', $key, $match)) {
+            if (preg_match('/^\[(\d+)\]$/', $key, $match)) {
+                // The matcher refers to an index in a numerical array
+                $index = (int) $match[1];
+
+                if (!isset($haystack[$index])) {
+                    throw new OutOfRangeException(sprintf(
+                        'Index %d does not exist in the haystack array',
+                        $index
+                    ));
+                }
+
+                if ($valueIsCallback) {
+                    $this->compareHaystackValueWithCallback($haystack[$index], $value, $keyPath);
+                    continue;
+                }
+
+                if (is_array($value) && is_array($haystack[$index])) {
+                    // Recursively compare the haystack against the needle
+                    $this->compare($haystack[$index], $value);
+                    continue;
+                }
+
+                if ($value !== $haystack[$index]) {
+                    throw new InvalidArgumentException(sprintf(
+                        'Item on index %d in array at haystack key "%s" does not match value %s',
+                        $index,
+                        $keyPath ?: '<root>',
+                        $value
+                    ));
+                }
+
+                continue;
+            } else if (preg_match('/^(.*?)\[([\d+])\]$/', $key, $match)) {
                 $key = $match[1];
                 $index = (int) $match[2];
 
@@ -69,7 +101,7 @@ class ArrayContainsComparator {
 
                 if ($value !== $haystack[$key][$index]) {
                     throw new InvalidArgumentException(sprintf(
-                        'Item on index %d in array at haystak key "%s" does not match value %s',
+                        'Item on index %d in array at haystack key "%s" does not match value %s',
                         $index,
                         $keyPath,
                         $value

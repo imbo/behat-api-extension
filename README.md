@@ -446,6 +446,36 @@ To assert that one or more of the values exist, use the following:
 
 The index is not taken into consideration when comparing, it simply checks if the values specified are present in the list.
 
+If the response body contains a numerical array as the root node, you will need to use a special syntax for validation. Consider the following response body:
+
+```json
+[
+    "foo",
+    123,
+    {
+        "foo": "bar"
+    },
+    "bar",
+    [1, 2, 3]
+]
+```
+
+To validate this, use the following syntax:
+
+```json
+{
+    "[0]": "foo",
+    "[1]": 123,
+    "[2]": {
+        "foo": "bar"
+    },
+    "[3]": "<re>/bar/</re>",
+    "[4]": "@length(3)"
+}
+```
+
+This simply refers to the indexes in the root numerical array.
+
 ## Extending the extension
 
 If you want to implement your own assertions, or for instance add custom authentication for all requests made against your APIs you can extend the context class provided by the extension to access the client, request, request options and response properties.

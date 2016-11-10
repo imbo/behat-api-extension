@@ -517,7 +517,7 @@ class FeatureContext extends ApiContext {
 The client, request, request options and response are accessed via the protected `$this->client`, `$this->request`, `$this->requestOptions` and `$this->response` properties respectively. Keep in mind that `$this->response` is not populated until the client has made a request, i.e. after any of the aforementioned `@When` steps have finished. Since Guzzle implements [PSR-7](http://www.php-fig.org/psr/psr-7/), both `$this->request` and `$this->response` are value objects, which means that they can not be modified, but needs to be re-set for new values to stick:
 
 ```php
-$this->request = $this->request->withAddedHeader('Some-Customer-Header', 'some value');
+$this->request = $this->request->withAddedHeader('Some-Custom-Header', 'some value');
 ```
 
 If you end up adding some generic assertions, please don't hesitate to send a pull request if you think they should be added to this project.

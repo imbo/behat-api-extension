@@ -1101,4 +1101,38 @@ BAR;
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseReasonPhraseIs('ok');
     }
+
+    /**
+     * @dataProvider getResponseCodesAndReasonPhrases
+     * @covers ::thenTheResponseStatusLineIs
+     * @param int $code The HTTP response code
+     * @param string $phrase The HTTP response reason phrase
+     */
+    public function testCanAssertResponseStatusLine($code, $phrase) {
+        $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseStatusLineIs(sprintf('%d %s', $code, $phrase));
+    }
+
+    /**
+     * @covers ::thenTheResponseStatusLineIs
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Invalid status line: "200". Must consist of a status code and a test, for instance "200 OK"
+     */
+    public function testAssertResponseStatusLineFailsOnInvalidStatusLine() {
+        $this->mockHandler->append(new Response());
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseStatusLineIs('200');
+    }
+
+    /**
+     * @covers ::thenTheResponseStatusLineIs
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Response status line did not match. Expected "200 Foobar", got "200 OK"
+     */
+    public function testAssertResponseStatusLineCanFail() {
+        $this->mockHandler->append(new Response());
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseStatusLineIs('200 Foobar');
+    }
 }

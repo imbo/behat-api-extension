@@ -69,6 +69,7 @@ When I send :filePath as :mimeType to :path using HTTP :method
 Then the response code is :code
 Then the response code is not :code
 Then the response reason phrase is :phrase
+Then the response status line is :line
 Then the response is :group
 Then the response is not :group
 Then the :header response header exists
@@ -233,6 +234,19 @@ Match the response reason phrase to `:phrase`.
 | ----------------------------------------- | ------- | ------------ |
 | Then the response reason phrase is "`OK`" | `OK`    | Yes          |
 | Then the response reason phrase is "`ok`" | `ok`    | No           |
+
+#### Then the response status line is `:line`
+
+Match the response status line to `:line`.
+
+*Assume that these steps match a response with `200 OK` as a status line.*
+
+**Examples:**
+
+| Step                                        | :line    | Test passes? |
+| ------------------------------------------- | -------- | ------------ |
+| Then the response status line is "`200`"    | `200`    | No           |
+| Then the response status line is "`200 OK`" | `200 OK` | Yes          |
 
 #### Then the response is (not) `:group`
 

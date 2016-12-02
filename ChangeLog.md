@@ -5,6 +5,7 @@ vx.x.x
 ------
 __N/A__
 
+* #29: New step: Assert response status line
 * #18: New step: Assert response reason phrase
 
 v1.0.4

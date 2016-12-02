@@ -14,6 +14,36 @@ use Behat\Gherkin\Node\TableNode;
 use RuntimeException;
 
 /**
+ * Namespaced version of file_exists that returns true for a fixed filename. All other paths are
+ * checked by the global file_exists function.
+ *
+ * @param string $path
+ * @return boolean
+ */
+function file_exists($path) {
+    if ($path === '/non/readable/file') {
+        return true;
+    }
+
+    return \file_exists($path);
+}
+
+/**
+ * Namespaced version of is_readable that returns false for a fixed filename. All other paths are
+ * checked by the global is_readable function.
+ *
+ * @param string $path
+ * @return boolean
+ */
+function is_readable($path) {
+    if ($path === '/none/readable/file') {
+        return false;
+    }
+
+    return \is_readable($path);
+}
+
+/**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
  */
 class ApiContextText extends PHPUnit_Framework_TestCase {
@@ -1134,5 +1164,53 @@ BAR;
         $this->mockHandler->append(new Response());
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseStatusLineIs('200 Foobar');
+    }
+
+    /**
+     * @covers ::givenTheRequestBodyIs
+     */
+    public function testCanSetRequestBodyToAString() {
+        $this->mockHandler->append(new Response());
+        $this->context->givenTheRequestBodyIs('some string');
+        $this->context->whenIRequestPath('/some/path', 'POST');
+
+        $this->assertSame(1, count($this->historyContainer));
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame('some string', (string) $request->getBody());
+    }
+
+    /**
+     * @covers ::givenTheRequestBodyContains
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File does not exist: "/foo/bar"
+     */
+    public function testFailsWhenSettingRequestBodyToAFileThatDoesNotExist() {
+        $this->mockHandler->append(new Response());
+        $this->context->givenTheRequestBodyContains('/foo/bar');
+    }
+
+    /**
+     * @covers ::givenTheRequestBodyContains
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage File is not readable: "/non/readable/file"
+     */
+    public function testFailsWhenSettingRequestBodyToAFileThatIsNotReadable() {
+        $this->mockHandler->append(new Response());
+        $this->context->givenTheRequestBodyContains('/non/readable/file');
+    }
+
+    /**
+     * @covers ::givenTheRequestBodyContains
+     * @covers ::givenTheRequestBodyIs
+     */
+    public function testCanSetRequestBodyToAFile() {
+        $this->mockHandler->append(new Response());
+        $this->context->givenTheRequestBodyContains(__FILE__);
+        $this->context->whenIRequestPath('/some/path', 'POST');
+
+        $this->assertSame(1, count($this->historyContainer));
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame(file_get_contents(__FILE__), (string) $request->getBody());
+        $this->assertSame('text/x-php', $request->getHeaderLine('Content-Type'));
     }
 }

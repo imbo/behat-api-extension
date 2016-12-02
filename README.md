@@ -58,6 +58,8 @@ Given I attach :path to the request as :partName
 Given I am authenticating as :username with password :password
 Given the :header request header is :value
 Given the following form parameters are set: <TableNode>
+Given the request body is :string
+Given the request body contains :path
 
 When I request :path
 When I request :path using HTTP :method
@@ -144,6 +146,28 @@ Given the following form parameters are set:
 The first row in the table must contain two values: `name` and `value`. The rows that follows are the fields / values you want to send. This step sets the HTTP method to `POST` and the `Content-Type` request header to `application/x-www-form-urlencoded`, unless the step is combined with `Given I attach :path to the request as :partName`, in which case the `Content-Type` will be `multipart/form-data` and all the specified fields will be sent as parts in the multipart request.
 
 This step can not be used when sending requests with a request body. Doing so results in an `InvalidArgumentException` exception.
+
+#### Given the request body is `:string`
+
+Set the request body to `:string`.
+
+**Examples:**
+
+| Step                                       | :string        |
+| ------------------------------------------ | -------------- |
+| Given the request body is "`some content`" | `some content` |
+
+#### Given the request body contains `:path`
+
+This step can be used to set the contents of the file at `:path` in the request body. If the file does not exist or is not readable the step will fail.
+
+**Examples:**
+
+| Step                                              | :path           |
+| --------------------------------------------------| --------------- |
+| Given the request body contains "`/path/to/file`" | `/path/to/file` |
+
+The step will figure out the mime type of the file (using [mime\_content\_type](http://php.net/mime_content_type)) and set the `Content-Type` request header as well. If you wish to override the mime type you can use the `Given the :header request header is :value` step **after** setting the request body.
 
 ### Send the request
 

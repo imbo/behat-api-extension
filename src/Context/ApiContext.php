@@ -610,7 +610,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @throws RuntimeException
      */
-    private function requireResponse() {
+    protected function requireResponse() {
         if (!$this->response) {
             throw new RuntimeException('The request has not been made yet, so no response object exists.');
         }

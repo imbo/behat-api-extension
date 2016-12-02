@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+vx.x.x
+------
+__N/A__
+
+* #18: New step: Assert response reason phrase
+
 v1.0.4
 ------
 __2016-10-26__

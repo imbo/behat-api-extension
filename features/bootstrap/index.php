@@ -144,5 +144,15 @@ $app->match('/issue-13', function(Application $app) {
     ]);
 });
 
+/**
+ * Return a response with a custom reason phrase
+ */
+$app->get('/customReasonPhrase', function(Application $app) {
+    return (new Response())->setStatusCode(
+        isset($_GET['code']) ? $_GET['code'] : 200,
+        isset($_GET['phrase']) ? $_GET['phrase'] : null
+    );
+});
+
 // Run the application
 $app->run();

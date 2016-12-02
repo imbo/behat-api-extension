@@ -63,9 +63,16 @@ $app->match('/', function(Request $request) {
  * Echo the request body
  */
 $app->match('/echo', function(Request $request) {
+    $headers = [];
+
+    // Set the same Content-Type header in the response as found in the request
+    if ($contentType = $request->headers->get('Content-Type')) {
+        $headers['Content-Type'] = $contentType;
+    }
+
     return $request->query->has('json') ?
-        new JsonResponse(json_decode($request->getContent(), true)) :
-        new Response($request->getContent());
+        new JsonResponse(json_decode($request->getContent(), true), 200, $headers) :
+        new Response($request->getContent(), 200, $headers);
 });
 
 /**

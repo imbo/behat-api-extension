@@ -146,6 +146,42 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Set the request body to a string
+     *
+     * @param resource|string $string The content to set as the request body
+     * @Given the request body is :string
+     */
+    public function givenTheRequestBodyIs($string) {
+        $this->setRequestBody($string);
+    }
+
+    /**
+     * Set the request body to a read-only resource pointing to a file
+     *
+     * This step will open a read-only resource to $path and attach it to the request body. If the
+     * file does not exist or is not readable the method will end up throwing an exception. The
+     * method will also set the Content-Type request header. mime_content_type() is used to get the
+     * mime type of the file.
+     *
+     * @param string $path Path to a file
+     * @throws InvalidArgumentException
+     * @Given the request body contains :path
+     */
+    public function givenTheRequestBodyContains($path) {
+        if (!file_exists($path)) {
+            throw new InvalidArgumentException(sprintf('File does not exist: "%s"', $path));
+        }
+
+        if (!is_readable($path)) {
+            throw new InvalidArgumentException(sprintf('File is not readable: "%s"', $path));
+        }
+
+        // Set the Content-Type request header and the request body
+        $this->setRequestHeader('Content-Type', mime_content_type($path))
+             ->setRequestBody(fopen($path, 'r'));
+    }
+
+    /**
      * Request a path using GET or another HTTP method
      *
      * @param string $path The path to request

@@ -6,6 +6,7 @@ vx.x.x
 __N/A__
 
 * #29: New step: Assert response status line
+* #19: New steps: Set request body to a string or a file before sending the request
 * #18: New step: Assert response reason phrase
 
 v1.0.4

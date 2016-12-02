@@ -252,6 +252,20 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert HTTP reason phrase
+     *
+     * @param string $phrase Expected HTTP reason phrase
+     * @Then the response reason phrase is :phrase
+     */
+    public function thenTheResponseReasonPhraseIs($phrase) {
+        Assertion::same($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
+            'Invalid HTTP response reason phrase, expected "%s", got "%s"',
+            $phrase,
+            $actual
+        ));
+    }
+
+    /**
      * Checks if the HTTP response code is in a group
      *
      * @param string $group Name of the group that the response code should be in

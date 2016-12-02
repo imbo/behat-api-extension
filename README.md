@@ -68,6 +68,7 @@ When I send :filePath as :mimeType to :path using HTTP :method
 
 Then the response code is :code
 Then the response code is not :code
+Then the response reason phrase is :phrase
 Then the response is :group
 Then the response is not :group
 Then the :header response header exists
@@ -219,6 +220,19 @@ Match the response code to `:code`. If the optional `not` is added, the response
 | Then the response code is `200`     | `200` | Yes           | No            | No            |
 | Then the response code is `404`     | `404` | No            | No            | Yes           |
 | Then the response code is not `304` | `304` | Yes           | No            | Yes           |
+
+#### Then the response reason phrase is `:phrase`
+
+Match the response reason phrase to `:phrase`.
+
+*Assume that these steps match a response with `200 OK` as a status line.*
+
+**Examples:**
+
+| Step                                      | :phrase | Test passes? |
+| ----------------------------------------- | ------- | ------------ |
+| Then the response reason phrase is "`OK`" | `OK`    | Yes          |
+| Then the response reason phrase is "`ok`" | `ok`    | No           |
 
 #### Then the response is (not) `:group`
 

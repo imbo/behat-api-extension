@@ -1053,4 +1053,52 @@ BAR;
         $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
     }
 
+    /**
+     * Data provider
+     *
+     * @return []
+     */
+    public function getResponseCodesAndReasonPhrases() {
+        return [
+            200 => [
+                'code' => 200,
+                'phrase' => 'OK',
+            ],
+            300 => [
+                'code' => 300,
+                'phrase' => 'Multiple Choices',
+            ],
+            400 => [
+                'code' => 400,
+                'phrase' => 'Bad Request',
+            ],
+            500 => [
+                'code' => 500,
+                'phrase' => 'Internal Server Error',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getResponseCodesAndReasonPhrases
+     * @covers ::thenTheResponseReasonPhraseIs
+     * @param int $code The HTTP response code
+     * @param string $phrase The HTTP response reason phrase
+     */
+    public function testCanAssertResponseReasonPhrase($code, $phrase) {
+        $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseReasonPhraseIs($phrase);
+    }
+
+    /**
+     * @covers ::thenTheResponseReasonPhraseIs
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Invalid HTTP response reason phrase, expected "ok", got "OK"
+     */
+    public function testAssertResponseReasonPhraseCanFail() {
+        $this->mockHandler->append(new Response());
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseReasonPhraseIs('ok');
+    }
 }

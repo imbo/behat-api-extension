@@ -25,22 +25,23 @@ Feature: Test Then steps
                 Scenario: Use all Given steps in a scenario
                     When I request "/"
                     Then the response code is 200
-                    Then the response code is not 400
-                    Then the response is success
-                    Then the response is not "client error"
-                    Then the "X-Foo" response header exists
-                    Then the "X-Bar" response header does not exist
-                    Then the "x-foo" response header is foo
-                    Then the "x-foo" response header matches "/FOO/i"
-                    Then the response body is:
+                    And the response code is not 400
+                    And the response reason phrase is "OK"
+                    And the response is success
+                    And the response is not "client error"
+                    And the "X-Foo" response header exists
+                    And the "X-Bar" response header does not exist
+                    And the "x-foo" response header is foo
+                    And the "x-foo" response header matches "/FOO/i"
+                    And the response body is:
                     '''
                     {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]}}
                     '''
-                    Then the response body matches:
+                    And the response body matches:
                     '''
                     /"list":\[.*?\]/
                     '''
-                    Then the response body contains:
+                    And the response body contains:
                     '''
                     {
                         "null": null,
@@ -74,10 +75,10 @@ Feature: Test Then steps
         When I run "behat features/thens.feature"
         Then it should pass with:
             """
-            ............
+            .............
 
             1 scenario (1 passed)
-            12 steps (12 passed)
+            13 steps (13 passed)
             """
 
     Scenario: Use Then steps to verify responses with arrays
@@ -90,11 +91,11 @@ Feature: Test Then steps
                     [1, 2, 3]
                     '''
                     Then the response body is an array of length 3
-                    Then the response body is an array with a length of at most 3
-                    Then the response body is an array with a length of at most 4
-                    Then the response body is an array with a length of at least 1
-                    Then the response body is an array with a length of at least 2
-                    Then the response body is an array with a length of at least 3
+                    And the response body is an array with a length of at most 3
+                    And the response body is an array with a length of at most 4
+                    And the response body is an array with a length of at least 1
+                    And the response body is an array with a length of at least 2
+                    And the response body is an array with a length of at least 3
             """
         When I run "behat features/thens-array.feature"
         Then it should pass with:
@@ -115,7 +116,7 @@ Feature: Test Then steps
                     []
                     '''
                     Then the response body is an array of length 0
-                    Then the response body is an empty array
+                    And the response body is an empty array
             """
         When I run "behat features/thens-empty-array.feature"
         Then it should pass with:
@@ -170,3 +171,19 @@ Feature: Test Then steps
             4 steps (4 passed)
             """
 
+    Scenario: Verify a custom response reason phrase
+        Given a file named "features/thens.feature" with:
+            """
+            Feature: Set up the request
+                Scenario: Verify a custom response reason phrase
+                    When I request "/customReasonPhrase?phrase=foo"
+                    Then the response reason phrase is "foo"
+            """
+        When I run "behat features/thens.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """

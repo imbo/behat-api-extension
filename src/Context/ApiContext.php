@@ -252,9 +252,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert HTTP reason phrase
+     * Assert HTTP response reason phrase
      *
-     * @param string $phrase Expected HTTP reason phrase
+     * @param string $phrase Expected HTTP response reason phrase
      * @Then the response reason phrase is :phrase
      */
     public function thenTheResponseReasonPhraseIs($phrase) {
@@ -263,6 +263,36 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $phrase,
             $actual
         ));
+    }
+
+    /**
+     * Assert HTTP response status line
+     *
+     * @param string $line Expected HTTP response status line
+     * @throws InvalidArgumentException
+     * @Then the response status line is :line
+     */
+    public function thenTheResponseStatusLineIs($line) {
+        try {
+            $parts = explode(' ', $line, 2);
+
+            if (count($parts) !== 2) {
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid status line: "%s". Must consist of a status code and a test, for instance "200 OK"',
+                    $line
+                ));
+            }
+
+            $this->thenTheResponseCodeIs((int) $parts[0]);
+            $this->thenTheResponseReasonPhraseIs($parts[1]);
+        } catch (Assert\InvalidArgumentException $e) {
+            throw new InvalidArgumentException(sprintf(
+                'Response status line did not match. Expected "%s", got "%d %s"',
+                $line,
+                $this->response->getStatusCode(),
+                $this->response->getReasonPhrase()
+            ));
+        }
     }
 
     /**

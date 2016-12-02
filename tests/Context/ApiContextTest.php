@@ -1168,6 +1168,7 @@ BAR;
 
     /**
      * @covers ::givenTheRequestBodyIs
+     * @covers ::setRequestBody
      */
     public function testCanSetRequestBodyToAString() {
         $this->mockHandler->append(new Response());
@@ -1201,7 +1202,7 @@ BAR;
 
     /**
      * @covers ::givenTheRequestBodyContains
-     * @covers ::givenTheRequestBodyIs
+     * @covers ::setRequestBody
      */
     public function testCanSetRequestBodyToAFile() {
         $this->mockHandler->append(new Response());

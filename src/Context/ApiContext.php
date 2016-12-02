@@ -152,7 +152,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Given the request body is :string
      */
     public function givenTheRequestBodyIs($string) {
-        $this->requestOptions['body'] = $string;
+        $this->setRequestBody($string);
     }
 
     /**
@@ -176,11 +176,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             throw new InvalidArgumentException(sprintf('File is not readable: "%s"', $path));
         }
 
-        // Set the Content-Type request header
-        $this->requestOptions['headers']['Content-Type'] = mime_content_type($path);
-
-        // Set the request body
-        $this->givenTheRequestBodyIs(fopen($path, 'r'));
+        // Set the Content-Type request header and the request body
+        $this->setRequestHeader('Content-Type', mime_content_type($path))
+             ->setRequestBody(fopen($path, 'r'));
     }
 
     /**

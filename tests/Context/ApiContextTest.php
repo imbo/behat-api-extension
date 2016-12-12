@@ -1214,4 +1214,90 @@ BAR;
         $this->assertSame(file_get_contents(__FILE__), (string) $request->getBody());
         $this->assertSame('text/x-php', $request->getHeaderLine('Content-Type'));
     }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getUris() {
+        return [
+            // The first six sets are from http://docs.guzzlephp.org/en/latest/quickstart.html (2016-12-12)
+            [
+                'baseUri' => 'http://foo.com',
+                'path' => '/bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com/foo',
+                'path' => '/bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com/foo',
+                'path' => 'bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com/foo/',
+                'path' => 'bar',
+                'fullUri' => 'http://foo.com/foo/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com',
+                'path' => 'http://baz.com',
+                'fullUri' => 'http://baz.com',
+            ],
+            [
+                'baseUri' => 'http://foo.com/?bar',
+                'path' => 'bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+
+            [
+                'baseUri' => 'http://foo.com',
+                'path' => '/bar?foo=bar',
+                'fullUri' => 'http://foo.com/bar?foo=bar',
+            ],
+
+            // https://github.com/imbo/behat-api-extension/issues/20
+            [
+                'baseUri' => 'http://localhost:8080/app_dev.php',
+                'path' => '/api/authenticate',
+                'fullUri' => 'http://localhost:8080/api/authenticate',
+            ],
+            [
+                'baseUri' => 'http://localhost:8080/app_dev.php/',
+                'path' => 'api/authenticate',
+                'fullUri' => 'http://localhost:8080/app_dev.php/api/authenticate',
+            ],
+            [
+                'baseUri' => 'http://localhost:8080',
+                'path' => '/app_dev.php/api/authenticate',
+                'fullUri' => 'http://localhost:8080/app_dev.php/api/authenticate',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getUris
+     * @param string $baseUri
+     * @param string $path
+     * @param string $fullUri
+     */
+    public function testResolvesPathsCorrectly($baseUri, $path, $fullUri) {
+        // Set a new client with the given base_uri (and not the one used in setUp())
+        $this->context->setClient(new Client([
+            'handler' => $this->handlerStack,
+            'base_uri' => $baseUri,
+        ]));
+
+        $this->mockHandler->append(new Response());
+        $this->context->givenTheRequestBodyContains(__FILE__);
+        $this->context->whenIRequestPath($path);
+
+        $this->assertSame(1, count($this->historyContainer));
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame($fullUri, (string) $request->getUri());
+    }
 }

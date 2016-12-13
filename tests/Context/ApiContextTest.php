@@ -946,7 +946,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Assert\InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The supplied parameter is not a valid JSON object.
      * @covers ::thenTheResponseBodyContains
      */

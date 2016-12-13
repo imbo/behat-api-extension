@@ -70,7 +70,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Attach a file to the request
      *
      * @param string $path Path to the image to add to the request
-     * @param string $filename Multipart entry name
+     * @param string $partName Multipart entry name
      * @Given I attach :path to the request as :partName
      */
     public function givenIAttachAFileToTheRequest($path, $partName) {
@@ -509,7 +509,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Assert that the response body matches some content
      *
-     * @param string $content The content to match the response body against
+     * @param PyStringNode $content The content to match the response body against
      * @Then the response body is:
      */
     public function thenTheResponseBodyIs(PyStringNode $content) {
@@ -533,24 +533,21 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Assert that the response body contains all keys / values in the parameter
      *
-     * @param PyStringNode $body
+     * @param PyStringNode $contains
      * @Then the response body contains:
      */
     public function thenTheResponseBodyContains(PyStringNode $contains) {
         $this->requireResponse();
 
         $body = $this->getResponseBody(false);
-        $contains = json_decode((string) $contains);
-
-        Assertion::isInstanceOf(
-            $contains,
-            'stdClass',
-            'The supplied parameter is not a valid JSON object.'
-        );
 
         // Convert both objects to arrays
         $body = json_decode(json_encode($body), true);
-        $contains = json_decode(json_encode($contains), true);
+        try {
+            $contains = \GuzzleHttp\json_decode((string) $contains, true);
+        } catch (InvalidArgumentException $e) {
+            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
+        }
 
         $comparator = new ArrayContainsComparator();
 
@@ -660,6 +657,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Validate a response code
      *
      * @param int $code
+     * @return int
      * @throws InvalidArgumentException
      */
     private function validateResponseCode($code) {

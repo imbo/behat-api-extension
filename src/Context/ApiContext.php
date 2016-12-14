@@ -70,7 +70,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Attach a file to the request
      *
      * @param string $path Path to the image to add to the request
-     * @param string $filename Multipart entry name
+     * @param string $partName Multipart entry name
      * @Given I attach :path to the request as :partName
      */
     public function givenIAttachAFileToTheRequest($path, $partName) {
@@ -443,7 +443,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert that the respones body contains an array with a specific length
+     * Assert that the response body contains an array with a specific length
      *
      * @param int $length The length of the array
      * @Then the response body is an empty array
@@ -509,7 +509,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Assert that the response body matches some content
      *
-     * @param string $content The content to match the response body against
+     * @param PyStringNode $content The content to match the response body against
      * @Then the response body is:
      */
     public function thenTheResponseBodyIs(PyStringNode $content) {
@@ -533,7 +533,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Assert that the response body contains all keys / values in the parameter
      *
-     * @param PyStringNode $body
+     * @param PyStringNode $contains
      * @Then the response body contains:
      */
     public function thenTheResponseBodyContains(PyStringNode $contains) {
@@ -660,6 +660,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Validate a response code
      *
      * @param int $code
+     * @return int
      * @throws InvalidArgumentException
      */
     private function validateResponseCode($code) {

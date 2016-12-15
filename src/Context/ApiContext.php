@@ -443,6 +443,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the response body contains an empty object
+     *
+     * @Then the response body is an empty object
+     */
+    public function thenTheResponseBodyIsAnEmptyObject() {
+        $this->requireResponse();
+
+        Assertion::isInstanceOf($body = $this->getResponseBody(), 'stdClass', 'Response body is not an object.');
+        Assertion::same('{}', json_encode($body), 'Object in response body is not empty.');
+    }
+
+    /**
      * Assert that the response body contains an array with a specific length
      *
      * @param int $length The length of the array
@@ -452,7 +464,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
         $this->requireResponse();
 
-        $body = $this->getResponseBody();
+        $body = $this->getResponseBodyArray();
 
         Assertion::count(
             $body,
@@ -474,7 +486,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function thenTheResponseBodyIsAnArrayWithALengthOfAtLeast($length) {
         $this->requireResponse();
 
-        $body = $this->getResponseBody();
+        $body = $this->getResponseBodyArray();
 
         $actualLength = count($body);
 
@@ -494,7 +506,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function thenTheResponseBodyIsAnArrayWithALengthOfAtMost($length) {
         $this->requireResponse();
 
-        $body = $this->getResponseBody();
+        $body = $this->getResponseBodyArray();
 
         $actualLength = count($body);
 
@@ -744,17 +756,30 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Get the JSON-encoded array or stdClass from the response body
      *
-     * @param boolean $requireArray Whether or not the response body should be an array or not
      * @throws InvalidArgumentException
      * @return array|stdClass
      */
-    private function getResponseBody($requireArray = true) {
+    private function getResponseBody() {
         $body = json_decode((string) $this->response->getBody());
 
-        if ($requireArray && !is_array($body)) {
-            throw new InvalidArgumentException('The response body does not contain a valid JSON array.');
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException('The response body does not contain valid JSON data.');
         } else if (!is_array($body) && !($body instanceof stdClass)) {
             throw new InvalidArgumentException('The response body does not contain a valid JSON array / object.');
+        }
+
+        return $body;
+    }
+
+    /**
+     * Get the response body as an array
+     *
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    private function getResponseBodyArray() {
+        if (!is_array($body = $this->getResponseBody())) {
+            throw new InvalidArgumentException('The response body does not contain a valid JSON array.');
         }
 
         return $body;

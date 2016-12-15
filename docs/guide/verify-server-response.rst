@@ -148,6 +148,11 @@ Then the response body is an empty array
 
 This is an alias of :ref:`Then the response body is an array of length 0 <then-the-response-body-is-an-array-of-length>`.
 
+Then the response body is an empty object
+-----------------------------------------
+
+Assert that the response body is an empty JSON object (`{}`).
+
 Then the response body is an array with a length of at least|most ``:length``
 -----------------------------------------------------------------------------
 

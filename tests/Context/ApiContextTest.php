@@ -12,6 +12,7 @@ use GuzzleHttp\Exception\RequestException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use RuntimeException;
+use stdClass;
 
 /**
  * Namespaced version of file_exists that returns true for a fixed filename. All other paths are
@@ -824,6 +825,39 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+    }
+
+    /**
+     * @covers ::thenTheResponseBodyIsAnEmptyObject
+     */
+    public function testThenTheResponseBodyIsAnEmptyObject() {
+        $this->mockHandler->append(new Response(200, [], json_encode(new stdClass())));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnEmptyObject();
+    }
+
+    /**
+     * @covers ::thenTheResponseBodyIsAnEmptyObject
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Response body is not an object.
+     */
+    public function testThenTheResponseBodyIsAnEmptyObjectWhenTheResponseBodyIsNotAnObject() {
+        $this->mockHandler->append(new Response(200, [], json_encode([])));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnEmptyObject();
+    }
+
+    /**
+     * @covers ::thenTheResponseBodyIsAnEmptyObject
+     * @expectedException Assert\InvalidArgumentException
+     * @expectedExceptionMessage Object in response body is not empty.
+     */
+    public function testThenTheResponseBodyIsAnEmptyObjectWhenItIsNot() {
+        $object = new stdClass();
+        $object->foo = 'bar';
+        $this->mockHandler->append(new Response(200, [], json_encode($object)));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnEmptyObject();
     }
 
     /**

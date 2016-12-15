@@ -146,7 +146,7 @@ If the response body does not contain a JSON array, an ``InvalidArgumentExceptio
 Then the response body is an empty array
 ----------------------------------------
 
-This is an alias of :ref:`Then the response body is an array of length 0 <then-the-response-body-is-an-array-of-length>`.
+Assert that the response body is an empty JSON array (`[]`).
 
 Then the response body is an empty object
 -----------------------------------------

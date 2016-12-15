@@ -59,7 +59,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
     /**
      * {@inheritdoc}
-     * @codeCoverageIgnore
      */
     public function setClient(ClientInterface $client) {
         $this->client = $client;
@@ -71,6 +70,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $path Path to the image to add to the request
      * @param string $partName Multipart entry name
+     * @throws InvalidArgumentException
      * @Given I attach :path to the request as :partName
      */
     public function givenIAttachAFileToTheRequest($path, $partName) {
@@ -99,7 +99,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Given I am authenticating as :username with password :password
      */
     public function givenIAuthenticateAs($username, $password) {
-        $this->addRequestHeader(
+        $this->setRequestHeader(
             'Authorization',
             sprintf('Basic %s', base64_encode($username . ':' . $password))
         );
@@ -196,7 +196,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Request a URL using a specific method
+     * Request a URL using a specific method and a request body
      *
      * @param string $path The path to request
      * @param string $method The HTTP Method to use
@@ -206,7 +206,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function whenIRequestPathWithBody($path, $method, PyStringNode $body) {
         $this->setRequestMethod($method)
              ->setRequestPath($path)
-             ->setRequestBody($body)
+             ->setRequestBody((string) $body)
              ->sendRequest();
     }
 
@@ -256,9 +256,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response code is :code
      */
     public function thenTheResponseCodeIs($code) {
+        $expected = $this->validateResponseCode($code);
+
         $this->requireResponse();
 
-        $expected = $this->validateResponseCode($code);
         $actual = $this->response->getStatusCode();
 
         Assertion::same(
@@ -275,9 +276,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response code is not :code
      */
     public function thenTheResponseCodeIsNot($code) {
+        $expected = $this->validateResponseCode($code);
+
         $this->requireResponse();
 
-        $expected = $this->validateResponseCode($code);
         $actual = $this->response->getStatusCode();
 
         Assertion::notSame(
@@ -455,10 +457,26 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the response body contains an empty array
+     *
+     * @Then the response body is an empty array
+     */
+    public function thenTheResponseBodyIsAnEmptyArray() {
+        $this->requireResponse();
+
+        $body = $this->getResponseBodyArray();
+
+        Assertion::same(
+            [],
+            $body,
+            sprintf('Expected empty array in response body, got an array with %d entries.', count($body))
+        );
+    }
+
+    /**
      * Assert that the response body contains an array with a specific length
      *
      * @param int $length The length of the array
-     * @Then the response body is an empty array
      * @Then the response body is an array of length :length
      */
     public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
@@ -551,7 +569,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function thenTheResponseBodyContains(PyStringNode $contains) {
         $this->requireResponse();
 
-        $body = $this->getResponseBody(false);
+        $body = $this->getResponseBody();
         $contains = json_decode((string) $contains);
 
         Assertion::isInstanceOf(
@@ -581,8 +599,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         }
 
         if (!empty($this->requestOptions['multipart']) && !empty($this->requestOptions['form_params'])) {
+            // We have both multipart and form_params set in the request options. Take all
+            // form_params and add them to the multipart part of the option array as it's not
+            // allowed to have both.
             foreach ($this->requestOptions['form_params'] as $name => $contents) {
                 if (is_array($contents)) {
+                    // The contents is an array, so use array notation for the part name and store
+                    // all values under this name
                     $name .= '[]';
 
                     foreach ($contents as $content) {
@@ -689,7 +712,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @return self
      */
     private function setRequestPath($path) {
-        // Resolve the path with the base_uri
+        // Resolve the path with the base_uri set in the client
         $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
         $this->request = $this->request->withUri($uri);
 

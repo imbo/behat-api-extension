@@ -393,7 +393,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::givenIAuthenticateAs
-     * @covers ::addRequestHeader
+     * @covers ::setRequestHeader
      */
     public function testGivenIAuthenticateAs() {
         $this->mockHandler->append(new Response(200));
@@ -434,7 +434,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::setRequestMethod
      * @covers ::sendRequest
      */
-    public function testWhenIRequestPath($method) {
+    public function testWhenIRequestPathUsesTheCorrectHTTPMethod($method) {
         $this->mockHandler->append(new Response(200));
         $this->context->whenIRequestPath('/some/path', $method);
 
@@ -884,6 +884,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getResponseBodyArrays
      * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     * @covers ::getResponseBodyArray
      */
     public function testThenTheResponseBodyIsAnArrayOfLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
@@ -898,23 +899,27 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     * @covers ::thenTheResponseBodyIsAnEmptyArray
+     * @covers ::getResponseBodyArray
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyIsAnEmptyArray() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+        $this->context->thenTheResponseBodyIsAnEmptyArray();
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Wrong length for the array in the response body. Expected 0, got 3.
-     * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     * @expectedExceptionMessage Expected empty array in response body, got an array with 3 entries.
+     * @covers ::thenTheResponseBodyIsAnEmptyArray
+     * @covers ::getResponseBodyArray
+     * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyIsAnEmptyArrayWhenItsNot() {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
+        $this->context->thenTheResponseBodyIsAnEmptyArray();
     }
 
     /**
@@ -954,6 +959,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::thenTheResponseBodyIsAnArrayOfLength
+     * @covers ::getResponseBodyArray
      */
     public function testThenTheResponseBodyIsAnArrayOfLengthWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
@@ -1059,12 +1065,12 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain a valid JSON array / object.
+     * @expectedExceptionMessage The response body does not contain valid JSON data.
      * @covers ::thenTheResponseBodyContains
      * @covers ::getResponseBody
      */
     public function testThenTheResponseBodyContainsWithInvalidJsonInBody() {
-        $this->mockHandler->append(new Response(200, [], 'foobar'));
+        $this->mockHandler->append(new Response(200, [], "{'foo':'bar'}"));
         $this->context->whenIRequestPath('/some/path');
         $this->context->thenTheResponseBodyContains(new PyStringNode(['{"foo":"bar"}'], 1));
     }
@@ -1077,7 +1083,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseBodyContainsWithInvalidJsonParameter() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->whenIRequestPath('/some/path');
-        $this->context->thenTheResponseBodyContains(new PyStringNode(['foobar'], 1));
+        $this->context->thenTheResponseBodyContains(new PyStringNode(["{'foo':'bar'}"], 1));
     }
 
     /**
@@ -1315,6 +1321,8 @@ BAR;
 
     /**
      * @dataProvider getUris
+     * @covers ::setClient
+     * @covers ::setRequestPath
      * @param string $baseUri
      * @param string $path
      * @param string $fullUri
@@ -1333,5 +1341,16 @@ BAR;
         $this->assertSame(1, count($this->historyContainer));
         $request = $this->historyContainer[0]['request'];
         $this->assertSame($fullUri, (string) $request->getUri());
+    }
+
+    /**
+     * @covers ::getResponseBody
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The response body does not contain a valid JSON array / object.
+     */
+    public function testGetResponseBodyThrowsExceptionIfBodyIsNotJSONArrayOrObject() {
+        $this->mockHandler->append(new Response(200, [], 123));
+        $this->context->whenIRequestPath('/some/path');
+        $this->context->thenTheResponseBodyIsAnEmptyObject();
     }
 }

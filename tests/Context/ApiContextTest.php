@@ -261,6 +261,96 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Data provider
+     *
+     * @return []
+     */
+    public function getResponseCodesAndReasonPhrases() {
+        return [
+            200 => [
+                'code' => 200,
+                'phrase' => 'OK',
+            ],
+            300 => [
+                'code' => 300,
+                'phrase' => 'Multiple Choices',
+            ],
+            400 => [
+                'code' => 400,
+                'phrase' => 'Bad Request',
+            ],
+            500 => [
+                'code' => 500,
+                'phrase' => 'Internal Server Error',
+            ],
+        ];
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getUris() {
+        return [
+            // The first six sets are from http://docs.guzzlephp.org/en/latest/quickstart.html (2016-12-12)
+            [
+                'baseUri' => 'http://foo.com',
+                'path' => '/bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com/foo',
+                'path' => '/bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com/foo',
+                'path' => 'bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com/foo/',
+                'path' => 'bar',
+                'fullUri' => 'http://foo.com/foo/bar',
+            ],
+            [
+                'baseUri' => 'http://foo.com',
+                'path' => 'http://baz.com',
+                'fullUri' => 'http://baz.com',
+            ],
+            [
+                'baseUri' => 'http://foo.com/?bar',
+                'path' => 'bar',
+                'fullUri' => 'http://foo.com/bar',
+            ],
+
+            [
+                'baseUri' => 'http://foo.com',
+                'path' => '/bar?foo=bar',
+                'fullUri' => 'http://foo.com/bar?foo=bar',
+            ],
+
+            // https://github.com/imbo/behat-api-extension/issues/20
+            [
+                'baseUri' => 'http://localhost:8080/app_dev.php',
+                'path' => '/api/authenticate',
+                'fullUri' => 'http://localhost:8080/api/authenticate',
+            ],
+            [
+                'baseUri' => 'http://localhost:8080/app_dev.php/',
+                'path' => 'api/authenticate',
+                'fullUri' => 'http://localhost:8080/app_dev.php/api/authenticate',
+            ],
+            [
+                'baseUri' => 'http://localhost:8080',
+                'path' => '/app_dev.php/api/authenticate',
+                'fullUri' => 'http://localhost:8080/app_dev.php/api/authenticate',
+            ],
+        ];
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: /foo/bar
      * @covers ::givenIAttachAFileToTheRequest
@@ -1118,32 +1208,6 @@ BAR;
     }
 
     /**
-     * Data provider
-     *
-     * @return []
-     */
-    public function getResponseCodesAndReasonPhrases() {
-        return [
-            200 => [
-                'code' => 200,
-                'phrase' => 'OK',
-            ],
-            300 => [
-                'code' => 300,
-                'phrase' => 'Multiple Choices',
-            ],
-            400 => [
-                'code' => 400,
-                'phrase' => 'Bad Request',
-            ],
-            500 => [
-                'code' => 500,
-                'phrase' => 'Internal Server Error',
-            ],
-        ];
-    }
-
-    /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::thenTheResponseReasonPhraseIs
      * @param int $code The HTTP response code
@@ -1247,70 +1311,6 @@ BAR;
         $request = $this->historyContainer[0]['request'];
         $this->assertSame(file_get_contents(__FILE__), (string) $request->getBody());
         $this->assertSame('text/x-php', $request->getHeaderLine('Content-Type'));
-    }
-
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getUris() {
-        return [
-            // The first six sets are from http://docs.guzzlephp.org/en/latest/quickstart.html (2016-12-12)
-            [
-                'baseUri' => 'http://foo.com',
-                'path' => '/bar',
-                'fullUri' => 'http://foo.com/bar',
-            ],
-            [
-                'baseUri' => 'http://foo.com/foo',
-                'path' => '/bar',
-                'fullUri' => 'http://foo.com/bar',
-            ],
-            [
-                'baseUri' => 'http://foo.com/foo',
-                'path' => 'bar',
-                'fullUri' => 'http://foo.com/bar',
-            ],
-            [
-                'baseUri' => 'http://foo.com/foo/',
-                'path' => 'bar',
-                'fullUri' => 'http://foo.com/foo/bar',
-            ],
-            [
-                'baseUri' => 'http://foo.com',
-                'path' => 'http://baz.com',
-                'fullUri' => 'http://baz.com',
-            ],
-            [
-                'baseUri' => 'http://foo.com/?bar',
-                'path' => 'bar',
-                'fullUri' => 'http://foo.com/bar',
-            ],
-
-            [
-                'baseUri' => 'http://foo.com',
-                'path' => '/bar?foo=bar',
-                'fullUri' => 'http://foo.com/bar?foo=bar',
-            ],
-
-            // https://github.com/imbo/behat-api-extension/issues/20
-            [
-                'baseUri' => 'http://localhost:8080/app_dev.php',
-                'path' => '/api/authenticate',
-                'fullUri' => 'http://localhost:8080/api/authenticate',
-            ],
-            [
-                'baseUri' => 'http://localhost:8080/app_dev.php/',
-                'path' => 'api/authenticate',
-                'fullUri' => 'http://localhost:8080/app_dev.php/api/authenticate',
-            ],
-            [
-                'baseUri' => 'http://localhost:8080',
-                'path' => '/app_dev.php/api/authenticate',
-                'fullUri' => 'http://localhost:8080/app_dev.php/api/authenticate',
-            ],
-        ];
     }
 
     /**

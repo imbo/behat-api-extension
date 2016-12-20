@@ -22,4 +22,4 @@ End user guide
     guide/setup-request
     guide/send-request
     guide/verify-server-response
-
+    guide/extending-the-extension

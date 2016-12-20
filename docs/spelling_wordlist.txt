@@ -3,3 +3,4 @@ behat
 guzzlehttp
 beberlei
 URI
+multipart

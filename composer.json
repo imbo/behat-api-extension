@@ -1,60 +1,64 @@
 {
-    "name": "imbo/behat-api-extension",
-    "type": "library",
-    "description": "API extension for Behat",
-    "keywords": ["behat", "testing", "api", "REST", "http"],
-    "homepage": "https://github.com/imbo/behat-api-extension",
-    "license": "MIT",
-    "authors": [{
-        "name": "Christer Edvartsen",
-        "email": "cogo@starzinger.net",
-        "homepage": "https://github.com/christeredvartsen"
-    }, {
-        "name": "Contributors",
-        "homepage": "https://github.com/imbo/behat-api-extension/graphs/contributors"
-    }],
-    "support": {
-        "source": "https://github.com/imbo/behat-api-extension",
-        "docs": "https://github.com/imbo/behat-api-extension",
-        "issues": "https://github.com/imbo/behat-api-extension/issues",
-        "irc": "irc://irc.freenode.net/imbo"
-    },
-    "require": {
-        "php": ">=5.6",
-        "behat/behat": "^3.0",
-        "guzzlehttp/guzzle": "^6.0",
-        "beberlei/assert": "^2.1"
-    },
-    "require-dev": {
-        "silex/silex": "^2.0",
-        "symfony/security": "^3.1",
-        "symfony/process": "^3.1",
-        "phpunit/phpunit": "^5.5"
-    },
-    "autoload": {
-        "psr-4": {
-            "Imbo\\BehatApiExtension\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Imbo\\BehatApiExtension\\": "tests/"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-develop": "1.0-dev"
-        }
-    },
-    "scripts": {
-        "clean": "rm -rf build",
-        "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
-        "test-phpunit": "vendor/bin/phpunit",
-        "test-behat": "vendor/bin/behat --strict",
-        "test": [
-            "@test-phpunit",
-            "@test-behat"
-        ],
-        "start-server": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &"
+  "name": "imbo/behat-api-extension",
+  "type": "library",
+  "description": "API extension for Behat",
+  "keywords": ["behat", "testing", "api", "REST", "http"],
+  "homepage": "https://github.com/imbo/behat-api-extension",
+  "license": "MIT",
+  "authors": [{
+    "name": "Christer Edvartsen",
+    "email": "cogo@starzinger.net",
+    "homepage": "https://github.com/christeredvartsen"
+  }, {
+    "name": "Contributors",
+    "homepage": "https://github.com/imbo/behat-api-extension/graphs/contributors"
+  }],
+  "support": {
+    "source": "https://github.com/imbo/behat-api-extension",
+    "docs": "http://behat-api-extension.readthedocs.io/",
+    "issues": "https://github.com/imbo/behat-api-extension/issues",
+    "irc": "irc://irc.freenode.net/imbo"
+  },
+  "require": {
+    "php": ">=5.6",
+    "behat/behat": "^3.0",
+    "guzzlehttp/guzzle": "^6.0",
+    "beberlei/assert": "^2.1"
+  },
+  "require-dev": {
+    "silex/silex": "^2.0",
+    "symfony/security": "^3.1",
+    "symfony/process": "^3.1",
+    "phpunit/phpunit": "^5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Imbo\\BehatApiExtension\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Imbo\\BehatApiExtension\\": "tests/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-develop": "1.0-dev"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf build",
+    "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
+    "test-phpunit": "vendor/bin/phpunit",
+    "test-behat": "vendor/bin/behat --strict",
+    "test": [
+      "@test-phpunit",
+      "@test-behat"
+    ],
+    "start-server": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &",
+    "docs": [
+      "cd docs; make spelling",
+      "cd docs; make html"
+    ]
+  }
 }

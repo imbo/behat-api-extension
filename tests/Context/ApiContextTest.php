@@ -362,7 +362,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::addMultipartFileToRequest
      */
-    public function testGivenIAttachAFileToTheRequest() {
+    public function testCanAddMultipartFileToRequest() {
         $this->mockHandler->append(new Response(200));
         $files = [
             'file1' => __FILE__,
@@ -370,7 +370,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
 
         foreach ($files as $name => $path) {
-            $this->context->addMultipartFileToRequest($path, $name);
+            $this->assertSame($this->context, $this->context->addMultipartFileToRequest($path, $name));
         }
 
         $this->context->whenIRequestPath('/some/path', 'POST');

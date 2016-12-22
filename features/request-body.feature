@@ -23,7 +23,10 @@ Feature: Test steps to set a request body
             """
             Feature: Set the request body to a string
                 Scenario: Use steps to set the request body
-                    Given the request body is "foobar"
+                    Given the request body is:
+                    '''
+                    foobar
+                    '''
                     When I request "/echo"
                     Then the response body is:
                     '''

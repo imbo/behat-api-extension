@@ -28,7 +28,7 @@ When I request ``:path``
 Request ``:path`` using HTTP GET. Shorthand for :ref:`When I request :path using HTTP GET <when-i-request-path-using-http-method>`.
 
 When I request ``:path`` using HTTP ``:method`` with body: ``<PyStringNode>``
-------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 This step can be used to attach a body to the request. The same as above applies for ``:path`` and ``:method``.
 
@@ -42,7 +42,7 @@ This step can be used to attach a body to the request. The same as above applies
         """
 
 When I request ``:path`` using HTTP ``:method`` with JSON body: ``<PyStringNode>``
-------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
 Use this step to send a request to ``:path`` using HTTP method ``:method`` with a JSON body. The ``Content-Type`` request header will be set to ``application/json`` (regardless of whether or not the ``Content-Type`` header has already been set with the :ref:`given-the-header-request-header-is-value` step.
 

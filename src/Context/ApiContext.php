@@ -103,11 +103,14 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $username The username to authenticate with
      * @param string $password The password to authenticate with
+     * @return self
      *
      * @Given I am authenticating as :username with password :password
      */
     public function setBasicAuth($username, $password) {
         $this->requestOptions['auth'] = [$username, $password];
+
+        return $this;
     }
 
     /**

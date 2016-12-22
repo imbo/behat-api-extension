@@ -400,7 +400,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $username = 'user';
         $password = 'pass';
 
-        $this->context->setBasicAuth($username, $password);
+        $this->assertSame($this->context, $this->context->setBasicAuth($username, $password));
         $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));

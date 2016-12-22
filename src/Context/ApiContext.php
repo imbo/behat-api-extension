@@ -181,12 +181,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Set the request body to a string
      *
-     * @param resource|string $string The content to set as the request body
+     * @param resource|string|PyStringNode $string The content to set as the request body
      * @throws InvalidArgumentException If form_params or multipart is used in the request options
      *                                  an exception will be thrown as these can't be combined.
      * @return self
      *
-     * @Given the request body is :string
+     * @Given the request body is:
      */
     public function setRequestBody($string) {
         if (!empty($this->requestOptions['multipart']) || !empty($this->requestOptions['form_params'])) {

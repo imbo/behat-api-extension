@@ -1291,16 +1291,37 @@ BAR;
     }
 
     /**
-     * @covers ::setRequestBody
+     * Data provider
+     *
+     * @return array[]
      */
-    public function testCanSetRequestBodyToAString() {
+    public function getRequestBodyValues() {
+        return [
+            'regular string' => [
+                'data' => 'some string',
+                'expected' => 'some string',
+            ],
+            'PyStringNode' => [
+                'data' => new PyStringNode(['some string'], 1),
+                'expected' => 'some string',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider getRequestBodyValues
+     * @covers ::setRequestBody
+     * @param string|PyStringNode $data
+     * @param string $expected
+     */
+    public function testCanSetRequestBodyToAString($data, $expected) {
         $this->mockHandler->append(new Response());
-        $this->context->setRequestBody('some string');
+        $this->context->setRequestBody($data);
         $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
         $request = $this->historyContainer[0]['request'];
-        $this->assertSame('some string', (string) $request->getBody());
+        $this->assertSame($expected, (string) $request->getBody());
     }
 
     /**

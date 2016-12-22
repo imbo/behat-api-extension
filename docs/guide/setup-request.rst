@@ -86,18 +86,21 @@ The first row in the table must contain two values: ``name`` and ``value``. The 
 
 This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
 
-Given the request body is ``:string``
--------------------------------------
+Given the request body is: ``<PyStringNode>``
+---------------------------------------------
 
-Set the request body to ``:string``.
+Set the request body to a string represented by the contents of the ``<PyStringNode>``.
 
 **Examples:**
 
-============================================  ================
-Step                                          ``:string``
-============================================  ================
-Given the request body is "``some content``"  ``some content``
-============================================  ================
+.. code-block:: gherkin
+
+    Given the request body is:
+        """
+        {
+            "some": "data"
+        }
+        """
 
 Given the request body contains ``:path``
 -----------------------------------------

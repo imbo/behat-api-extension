@@ -353,14 +353,14 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: /foo/bar
-     * @covers ::givenIAttachAFileToTheRequest
+     * @covers ::addMultipartFileToRequest
      */
     public function testGivenIAttachAFileToTheRequestThatDoesNotExist() {
-        $this->context->givenIAttachAFileToTheRequest('/foo/bar', 'foo');
+        $this->context->addMultipartFileToRequest('/foo/bar', 'foo');
     }
 
     /**
-     * @covers ::givenIAttachAFileToTheRequest
+     * @covers ::addMultipartFileToRequest
      */
     public function testGivenIAttachAFileToTheRequest() {
         $this->mockHandler->append(new Response(200));
@@ -370,7 +370,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
 
         foreach ($files as $name => $path) {
-            $this->context->givenIAttachAFileToTheRequest($path, $name);
+            $this->context->addMultipartFileToRequest($path, $name);
         }
 
         $this->context->whenIRequestPath('/some/path', 'POST');
@@ -392,8 +392,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::givenIAuthenticateAs
-     * @covers ::setRequestHeader
+     * @covers ::setBasicAuth
      */
     public function testGivenIAuthenticateAs() {
         $this->mockHandler->append(new Response(200));
@@ -401,7 +400,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $username = 'user';
         $password = 'pass';
 
-        $this->context->givenIAuthenticateAs($username, $password);
+        $this->context->setBasicAuth($username, $password);
         $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
@@ -411,20 +410,41 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::givenTheRequestHeaderIs
      * @covers ::addRequestHeader
      */
-    public function testGivenTheRequestHeaderIs() {
+    public function testAddRequestHeader() {
         $this->mockHandler->append(new Response(200));
-        $this->context->givenTheRequestHeaderIs('foo', 'foo');
-        $this->context->givenTheRequestHeaderIs('bar', 'foo');
-        $this->context->givenTheRequestHeaderIs('bar', 'bar');
+
+        $this->assertSame($this->context, $this->context
+            ->addRequestHeader('foo', 'foo')
+            ->addRequestHeader('bar', 'foo')
+            ->addRequestHeader('bar', 'bar')
+        );
         $this->context->whenIRequestPath('/some/path', 'POST');
         $this->assertSame(1, count($this->historyContainer));
 
         $request = $this->historyContainer[0]['request'];
         $this->assertSame('foo', $request->getHeaderLine('foo'));
         $this->assertSame('foo, bar', $request->getHeaderLine('bar'));
+    }
+
+    /**
+     * @covers ::setRequestHeader
+     */
+    public function testSetRequestHeader() {
+        $this->mockHandler->append(new Response(200));
+
+        $this->assertSame($this->context, $this->context
+            ->setRequestHeader('foo', 'foo')
+            ->setRequestHeader('bar', 'foo')
+            ->setRequestHeader('bar', 'bar')
+        );
+        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $this->assertSame('foo', $request->getHeaderLine('foo'));
+        $this->assertSame('bar', $request->getHeaderLine('bar'));
     }
 
     /**
@@ -1114,7 +1134,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testDontAllowRequestBodyWithMultipartFormDataRequests() {
         $this->mockHandler->append(new Response(200));
-        $this->context->givenIAttachAFileToTheRequest(__FILE__, 'file');
+        $this->context->addMultipartFileToRequest(__FILE__, 'file');
 
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data or form parameters.');
@@ -1123,17 +1143,17 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::givenTheFollowingFormParametersAreSet
+     * @covers ::setRequestFormParams
      * @covers ::sendRequest
      */
-    public function testGivenTheFollowingFormParametersAreSet() {
+    public function testCanSetRequestFormParams() {
         $this->mockHandler->append(new Response(200));
-        $this->context->givenTheFollowingFormParametersAreSet(new TableNode([
+        $this->assertSame($this->context, $this->context->setRequestFormParams(new TableNode([
             ['name', 'value'],
             ['foo', 'bar'],
             ['bar', 'foo'],
             ['bar', 'bar'],
-        ]));
+        ])));
         $this->context->whenIRequestPath('/some/path');
 
         $this->assertSame(1, count($this->historyContainer));
@@ -1149,15 +1169,15 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::sendRequest
      */
-    public function testGivenTheFollowingFormParametersAreSetCombinedWithAttachingAFile() {
+    public function testCanSetFormParamsAndAttachAFileInTheSameRequest() {
         $this->mockHandler->append(new Response(200));
-        $this->context->givenTheFollowingFormParametersAreSet(new TableNode([
+        $this->context->setRequestFormParams(new TableNode([
             ['name', 'value'],
             ['foo', 'bar'],
             ['bar', 'foo'],
             ['bar', 'bar'],
         ]));
-        $this->context->givenIAttachAFileToTheRequest(__FILE__, 'file');
+        $this->context->addMultipartFileToRequest(__FILE__, 'file');
         $this->context->whenIRequestPath('/some/path');
 
         $this->assertSame(1, count($this->historyContainer));
@@ -1202,7 +1222,7 @@ BAR;
      */
     public function testDontAllowRequestBodyWithFormParameters() {
         $this->mockHandler->append(new Response(200));
-        $this->context->givenTheFollowingFormParametersAreSet(new TableNode([
+        $this->context->setRequestFormParams(new TableNode([
             ['name', 'value'],
             ['foo', 'bar'],
         ]));
@@ -1271,12 +1291,11 @@ BAR;
     }
 
     /**
-     * @covers ::givenTheRequestBodyIs
      * @covers ::setRequestBody
      */
     public function testCanSetRequestBodyToAString() {
         $this->mockHandler->append(new Response());
-        $this->context->givenTheRequestBodyIs('some string');
+        $this->context->setRequestBody('some string');
         $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
@@ -1285,32 +1304,32 @@ BAR;
     }
 
     /**
-     * @covers ::givenTheRequestBodyContains
+     * @covers ::setRequestBodyToFileResource
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: "/foo/bar"
      */
     public function testFailsWhenSettingRequestBodyToAFileThatDoesNotExist() {
         $this->mockHandler->append(new Response());
-        $this->context->givenTheRequestBodyContains('/foo/bar');
+        $this->context->setRequestBodyToFileResource('/foo/bar');
     }
 
     /**
-     * @covers ::givenTheRequestBodyContains
+     * @covers ::setRequestBodyToFileResource
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File is not readable: "/non/readable/file"
      */
     public function testFailsWhenSettingRequestBodyToAFileThatIsNotReadable() {
         $this->mockHandler->append(new Response());
-        $this->context->givenTheRequestBodyContains('/non/readable/file');
+        $this->context->setRequestBodyToFileResource('/non/readable/file');
     }
 
     /**
-     * @covers ::givenTheRequestBodyContains
+     * @covers ::setRequestBodyToFileResource
      * @covers ::setRequestBody
      */
     public function testCanSetRequestBodyToAFile() {
         $this->mockHandler->append(new Response());
-        $this->context->givenTheRequestBodyContains(__FILE__);
+        $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
         $this->context->whenIRequestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
@@ -1329,13 +1348,13 @@ BAR;
      */
     public function testResolvesPathsCorrectly($baseUri, $path, $fullUri) {
         // Set a new client with the given base_uri (and not the one used in setUp())
-        $this->context->setClient(new Client([
+        $this->assertSame($this->context, $this->context->setClient(new Client([
             'handler' => $this->handlerStack,
             'base_uri' => $baseUri,
-        ]));
+        ])));
 
         $this->mockHandler->append(new Response());
-        $this->context->givenTheRequestBodyContains(__FILE__);
+        $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
         $this->context->whenIRequestPath($path);
 
         $this->assertSame(1, count($this->historyContainer));

@@ -63,6 +63,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function setClient(ClientInterface $client) {
         $this->client = $client;
         $this->request = new Request('GET', $client->getConfig('base_uri'));
+
+        return $this;
     }
 
     /**
@@ -70,25 +72,30 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $path Path to the image to add to the request
      * @param string $partName Multipart entry name
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException If the $path does not point to a file, an exception is
+     *                                  thrown
+     * @return self
+     *
      * @Given I attach :path to the request as :partName
      */
-    public function givenIAttachAFileToTheRequest($path, $partName) {
+    public function addMultipartFileToRequest($path, $partName) {
         if (!file_exists($path)) {
             throw new InvalidArgumentException(sprintf('File does not exist: %s', $path));
         }
 
-        $part = [
+        // Create the multipart entry in the request options if it does not already exist
+        if (!isset($this->requestOptions['multipart'])) {
+            $this->requestOptions['multipart'] = [];
+        }
+
+        // Add an entry to the multipart array
+        $this->requestOptions['multipart'][] = [
             'name' => $partName,
             'contents' => fopen($path, 'r'),
             'filename' => basename($path),
         ];
 
-        if (!isset($this->requestOptions['multipart'])) {
-            $this->requestOptions['multipart'] = [];
-        }
-
-        $this->requestOptions['multipart'][] = $part;
+        return $this;
     }
 
     /**
@@ -96,35 +103,56 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $username The username to authenticate with
      * @param string $password The password to authenticate with
+     *
      * @Given I am authenticating as :username with password :password
      */
-    public function givenIAuthenticateAs($username, $password) {
-        $this->setRequestHeader(
-            'Authorization',
-            sprintf('Basic %s', base64_encode($username . ':' . $password))
-        );
+    public function setBasicAuth($username, $password) {
+        $this->requestOptions['auth'] = [$username, $password];
     }
 
     /**
      * Set a HTTP request header
      *
+     * If the header already exists it will be overwritten
+     *
+     * @param string $header The header name
+     * @param string $value The header value
+     * @return self
+     *
+     * @Given the :header request header is :value
+     */
+    public function setRequestHeader($header, $value) {
+        $this->request = $this->request->withHeader($header, $value);
+
+        return $this;
+    }
+
+    /**
+     * Set/add a HTTP request header
+     *
      * If the header already exists it will be converted to an array
      *
      * @param string $header The header name
      * @param string $value The header value
-     * @Given the :header request header is :value
+     * @return self
+     *
+     * @Given the :header request header contains :value
      */
-    public function givenTheRequestHeaderIs($header, $value) {
-        $this->addRequestHeader($header, $value);
+    public function addRequestHeader($header, $value) {
+        $this->request = $this->request->withAddedHeader($header, $value);
+
+        return $this;
     }
 
     /**
      * Set form parameters
      *
      * @param TableNode $table Table with name / value pairs
+     * @return self
+     *
      * @Given the following form parameters are set:
      */
-    public function givenTheFollowingFormParametersAreSet(TableNode $table) {
+    public function setRequestFormParams(TableNode $table) {
         if (!isset($this->requestOptions['form_params'])) {
             $this->requestOptions['form_params'] = [];
         }
@@ -143,16 +171,30 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 $this->requestOptions['form_params'][$name] = $value;
             }
         }
+
+        return $this;
     }
 
     /**
      * Set the request body to a string
      *
      * @param resource|string $string The content to set as the request body
+     * @throws InvalidArgumentException If form_params or multipart is used in the request options
+     *                                  an exception will be thrown as these can't be combined.
+     * @return self
+     *
      * @Given the request body is :string
      */
-    public function givenTheRequestBodyIs($string) {
-        $this->setRequestBody($string);
+    public function setRequestBody($string) {
+        if (!empty($this->requestOptions['multipart']) || !empty($this->requestOptions['form_params'])) {
+            throw new InvalidArgumentException(
+                'It\'s not allowed to set a request body when using multipart/form-data or form parameters.'
+            );
+        }
+
+        $this->request = $this->request->withBody(Psr7\stream_for($string));
+
+        return $this;
     }
 
     /**
@@ -165,9 +207,11 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $path Path to a file
      * @throws InvalidArgumentException
+     * @return self
+     *
      * @Given the request body contains :path
      */
-    public function givenTheRequestBodyContains($path) {
+    public function setRequestBodyToFileResource($path) {
         if (!file_exists($path)) {
             throw new InvalidArgumentException(sprintf('File does not exist: "%s"', $path));
         }
@@ -177,8 +221,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         }
 
         // Set the Content-Type request header and the request body
-        $this->setRequestHeader('Content-Type', mime_content_type($path))
-             ->setRequestBody(fopen($path, 'r'));
+        return $this
+            ->setRequestHeader('Content-Type', mime_content_type($path))
+            ->setRequestBody(fopen($path, 'r'));
     }
 
     /**
@@ -186,6 +231,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $path The path to request
      * @param string $method The HTTP method to use
+     *
      * @When I request :path
      * @When I request :path using HTTP :method
      */
@@ -201,6 +247,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $path The path to request
      * @param string $method The HTTP Method to use
      * @param PyStringNode $body The body to attach to request
+     *
      * @When I request :path using HTTP :method with body:
      */
     public function whenIRequestPathWithBody($path, $method, PyStringNode $body) {
@@ -216,13 +263,14 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $path The path to request
      * @param string $method The HTTP Method to use
      * @param PyStringNode $body The body to attach to request
+     *
      * @When I request :path using HTTP :method with JSON body:
      */
     public function whenIRequestPathWithJsonBody($path, $method, PyStringNode $body) {
         Assertion::isJsonString((string) $body);
 
-        $this->setRequestHeader('Content-Type', 'application/json')
-             ->whenIRequestPathWithBody($path, $method, $body);
+        $this->setRequestHeader('Content-Type', 'application/json');
+        $this->whenIRequestPathWithBody($path, $method, $body);
     }
 
     /**
@@ -233,6 +281,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $method HTTP method
      * @param string $mimeType Optional mime type of the file to send
      * @throws InvalidArgumentException
+     *
      * @When I send :filePath to :path using HTTP :method
      * @When I send :filePath as :mimeType to :path using HTTP :method
      */
@@ -245,14 +294,15 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $mimeType = mime_content_type($filePath);
         }
 
-        $this->setRequestHeader('Content-Type', $mimeType)
-             ->whenIRequestPathWithBody($path, $method, new PyStringNode([file_get_contents($filePath)], 1));
+        $this->setRequestHeader('Content-Type', $mimeType);
+        $this->whenIRequestPathWithBody($path, $method, new PyStringNode([file_get_contents($filePath)], 1));
     }
 
     /**
      * Assert the HTTP response code
      *
      * @param int $code The HTTP response code
+     *
      * @Then the response code is :code
      */
     public function thenTheResponseCodeIs($code) {
@@ -273,6 +323,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert the HTTP response code is not a specific code
      *
      * @param int $code The HTTP response code
+     *
      * @Then the response code is not :code
      */
     public function thenTheResponseCodeIsNot($code) {
@@ -293,6 +344,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert HTTP response reason phrase
      *
      * @param string $phrase Expected HTTP response reason phrase
+     *
      * @Then the response reason phrase is :phrase
      */
     public function thenTheResponseReasonPhraseIs($phrase) {
@@ -308,6 +360,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $line Expected HTTP response status line
      * @throws InvalidArgumentException
+     *
      * @Then the response status line is :line
      */
     public function thenTheResponseStatusLineIs($line) {
@@ -337,6 +390,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Checks if the HTTP response code is in a group
      *
      * @param string $group Name of the group that the response code should be in
+     *
      * @Then the response is :group
      */
     public function thenTheResponseIs($group) {
@@ -352,6 +406,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Checks if the HTTP response code is *not* in a group
      *
      * @param string $group Name of the group that the response code is not in
+     *
      * @Then the response is not :group
      */
     public function thenTheResponseIsNot($group) {
@@ -372,6 +427,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that a response header exists
      *
      * @param string $header Then name of the header
+     *
      * @Then the :header response header exists
      */
     public function thenTheResponseHeaderExists($header) {
@@ -387,6 +443,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that a response header does not exist
      *
      * @param string $header Then name of the header
+     *
      * @Then the :header response header does not exist
      */
     public function thenTheResponseHeaderDoesNotExist($header) {
@@ -403,6 +460,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The name of the header
      * @param string $value The value to compare with
+     *
      * @Then the :header response header is :value
      */
     public function thenTheResponseHeaderIs($header, $value) {
@@ -426,6 +484,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The name of the header
      * @param string $pattern The regular expression pattern
+     *
      * @Then the :header response header matches :pattern
      */
     public function thenTheResponseHeaderMatches($header, $pattern) {
@@ -477,6 +536,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains an array with a specific length
      *
      * @param int $length The length of the array
+     *
      * @Then the response body is an array of length :length
      */
     public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
@@ -499,6 +559,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains an array with a length of at least a given length
      *
      * @param int $length The length to use in the assertion
+     *
      * @Then the response body is an array with a length of at least :length
      */
     public function thenTheResponseBodyIsAnArrayWithALengthOfAtLeast($length) {
@@ -519,6 +580,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains an array with a length of at most a given length
      *
      * @param int $length The length to use in the assertion
+     *
      * @Then the response body is an array with a length of at most :length
      */
     public function thenTheResponseBodyIsAnArrayWithALengthOfAtMost($length) {
@@ -540,6 +602,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body matches some content
      *
      * @param PyStringNode $content The content to match the response body against
+     *
      * @Then the response body is:
      */
     public function thenTheResponseBodyIs(PyStringNode $content) {
@@ -552,6 +615,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body matches some content using a regular expression
      *
      * @param PyStringNode $pattern The regular expression pattern to use for the match
+     *
      * @Then the response body matches:
      */
     public function thenTheResponseBodyMatches(PyStringNode $pattern) {
@@ -564,6 +628,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains all keys / values in the parameter
      *
      * @param PyStringNode $contains
+     *
      * @Then the response body contains:
      */
     public function thenTheResponseBodyContains(PyStringNode $contains) {
@@ -727,51 +792,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     private function setRequestMethod($method) {
         $this->request = $this->request->withMethod($method);
-
-        return $this;
-    }
-
-    /**
-     * Set the request body
-     *
-     * @param string $body The body to set
-     * @throws InvalidArgumentException
-     * @return self
-     */
-    private function setRequestBody($body) {
-        if (!empty($this->requestOptions['multipart']) || !empty($this->requestOptions['form_params'])) {
-            throw new InvalidArgumentException(
-                'It\'s not allowed to set a request body when using multipart/form-data or form parameters.'
-            );
-        }
-
-        $this->request = $this->request->withBody(Psr7\stream_for($body));
-
-        return $this;
-    }
-
-    /**
-     * Add a request header
-     *
-     * @param string $header Name of the header
-     * @param mixed $value The value of the header
-     * @return self
-     */
-    private function addRequestHeader($header, $value) {
-        $this->request = $this->request->withAddedHeader($header, $value);
-
-        return $this;
-    }
-
-    /**
-     * Set a request header, possibly overwriting an existing one
-     *
-     * @param string $header Name of the header
-     * @param mixed $value The value of the header
-     * @return self
-     */
-    private function setRequestHeader($header, $value) {
-        $this->request = $this->request->withHeader($header, $value);
 
         return $this;
     }

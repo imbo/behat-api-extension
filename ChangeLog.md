@@ -1,9 +1,20 @@
 Changelog for Behat API Extension
 =================================
 
-vx.x.x
+v2.0.0
 ------
 __N/A__
+
+Renamed some public methods in the `Imbo\BehatApiExtension\Context\ApiContext` class:
+
+    * `givenIAttachAFileToTheRequest` => `addMultipartFileToRequest`
+    * `givenIAuthenticateAs` => `setBasicAuth`
+    * `givenTheRequestHeaderIs` => `addRequestHeader`
+    * `giventhefollowingformparametersareset` => `setRequestFormParams`
+    * `givenTheRequestBodyIs` => `setRequestBody`
+    * `givenTheRequestBodyContains` => `setRequestBodyToFileResource`
+
+Other changes:
 
 * #29: New step: Assert response status line
 * #19: New steps: Set request body to a string or a file before sending the request

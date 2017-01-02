@@ -12,6 +12,7 @@ Installation guide
     installation/requirements
     installation/installation
     installation/configuration
+    installation/upgrade
 
 End user guide
 **************

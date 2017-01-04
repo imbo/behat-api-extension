@@ -7,7 +7,7 @@
 This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
 
 ## Installation / Configuration / Documentation
-End-user docs can be found [here](http://behat-api-extension.readthedocs.io/en/latest/).
+End-user docs can be found [here](http://behat-api-extension.readthedocs.io/en/develop/).
 
 ## Copyright / License
 

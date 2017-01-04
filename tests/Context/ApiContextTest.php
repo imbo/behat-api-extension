@@ -373,7 +373,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             $this->assertSame($this->context, $this->context->addMultipartFileToRequest($path, $name));
         }
 
-        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -401,7 +401,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $password = 'pass';
 
         $this->assertSame($this->context, $this->context->setBasicAuth($username, $password));
-        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -420,7 +420,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ->addRequestHeader('bar', 'foo')
             ->addRequestHeader('bar', 'bar')
         );
-        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', 'POST');
         $this->assertSame(1, count($this->historyContainer));
 
         $request = $this->historyContainer[0]['request'];
@@ -439,7 +439,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ->setRequestHeader('bar', 'foo')
             ->setRequestHeader('bar', 'bar')
         );
-        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', 'POST');
         $this->assertSame(1, count($this->historyContainer));
 
         $request = $this->historyContainer[0]['request'];
@@ -449,14 +449,14 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @dataProvider getHttpMethods
-     * @covers ::whenIRequestPath
+     * @covers ::requestPath
      * @covers ::setRequestPath
      * @covers ::setRequestMethod
      * @covers ::sendRequest
      */
     public function testWhenIRequestPathUsesTheCorrectHTTPMethod($method) {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path', $method);
+        $this->assertSame($this->context, $this->context->requestPath('/some/path', $method));
 
         $this->assertSame(1, count($this->historyContainer));
         $this->assertSame($method, $this->historyContainer[0]['request']->getMethod());
@@ -481,7 +481,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::whenIRequestPath
+     * @covers ::requestPath
      * @covers ::setRequestMethod
      * @covers ::setRequestPath
      * @covers ::setRequestBody
@@ -489,7 +489,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testWhenIRequestPathWithQueryParameters() {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path?foo=bar&bar=foo&a[]=1&a[]=2');
+        $this->assertSame(
+            $this->context,
+            $this->context->requestPath('/some/path?foo=bar&bar=foo&a[]=1&a[]=2')
+        );
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -569,7 +572,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseCodeIs($code) {
         $this->mockHandler->append(new Response($code));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseCodeIs($code);
     }
 
@@ -590,7 +593,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseCodeIsNot($code, array $otherCodes) {
         $this->mockHandler->append(new Response($code));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         foreach ($otherCodes as $otherCode) {
             $this->context->thenTheResponseCodeIsNot($otherCode);
@@ -631,7 +634,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseIs($group, array $codes) {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
-            $this->context->whenIRequestPath('/some/path');
+            $this->context->requestPath('/some/path');
             $this->context->thenTheResponseIs($group);
         }
     }
@@ -652,7 +655,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code));
-            $this->context->whenIRequestPath('/some/path');
+            $this->context->requestPath('/some/path');
 
             foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
                 // Assert that the response is not in any of the other groups
@@ -669,7 +672,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseIsNotWhenResponseIsInGroup() {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseIsNot('success');
     }
 
@@ -681,7 +684,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseIsInInvalidGroup() {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseIsNot('foobar');
     }
 
@@ -700,7 +703,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsWithMatchingBody() {
         $this->mockHandler->append(new Response(200, [], 'response body'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIs(new PyStringNode(['response body'], 1));
     }
 
@@ -711,7 +714,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsWithNonMatchingBody() {
         $this->mockHandler->append(new Response(200, [], 'response body'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIs(new PyStringNode(['foo'], 1));
     }
 
@@ -730,7 +733,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyMatches() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1));
     }
 
@@ -741,7 +744,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyMatchesWithAPatternThatDoesNotMatch() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyMatches(new PyStringNode(['/^{"FOO": "BAR"}$/'], 1));
     }
 
@@ -751,7 +754,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseCodeIsUSingAnInvalidCode($code) {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         $this->expectException('Assert\InvalidArgumentException');
         $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
@@ -766,7 +769,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testSendRequestWhenThereIsAnErrorCommunicatingWithTheServer() {
         $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
-        $this->context->whenIRequestPath('path');
+        $this->context->requestPath('path');
     }
 
     /**
@@ -784,7 +787,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderExists() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderExists('Content-Type');
     }
 
@@ -795,7 +798,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderExistsWhenHeaderDoesNotExist() {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderExists('Content-Type');
     }
 
@@ -814,7 +817,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderDoesNotExist() {
         $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderDoesNotExist('Content-Type');
     }
 
@@ -825,7 +828,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderDoesNotExistWhenHeaderExists() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderDoesNotExist('Content-Type');
     }
 
@@ -844,7 +847,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderIs() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderIs('Content-Type', 'application/json');
     }
 
@@ -855,7 +858,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderIsWhenValueDoesNotMatch() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderIs('Content-Type', 'application/xml');
     }
 
@@ -874,7 +877,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderMatches() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#');
     }
 
@@ -885,7 +888,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseHeaderMatchesWhenValueDoesNotMatch() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/xml$#');
     }
 
@@ -908,7 +911,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnArrayOfLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         if ($willFail) {
             $this->expectException('Assert\InvalidArgumentException');
@@ -925,7 +928,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnEmptyArray() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnEmptyArray();
     }
 
@@ -938,7 +941,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnEmptyArrayWhenItsNot() {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnEmptyArray();
     }
 
@@ -947,7 +950,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnEmptyObject() {
         $this->mockHandler->append(new Response(200, [], json_encode(new stdClass())));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnEmptyObject();
     }
 
@@ -958,7 +961,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnEmptyObjectWhenTheResponseBodyIsNotAnObject() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnEmptyObject();
     }
 
@@ -971,7 +974,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $object = new stdClass();
         $object->foo = 'bar';
         $this->mockHandler->append(new Response(200, [], json_encode($object)));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnEmptyObject();
     }
 
@@ -983,7 +986,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnArrayOfLengthWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnArrayOfLength(0);
     }
 
@@ -1004,7 +1007,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeast(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         if ($willFail) {
             $this->expectException('Assert\InvalidArgumentException');
@@ -1026,7 +1029,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast(2);
     }
 
@@ -1047,7 +1050,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMost(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         if ($willFail) {
             $this->expectException('Assert\InvalidArgumentException');
@@ -1069,7 +1072,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMostWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost(2);
     }
 
@@ -1091,7 +1094,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyContainsWithInvalidJsonInBody() {
         $this->mockHandler->append(new Response(200, [], "{'foo':'bar'}"));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyContains(new PyStringNode(['{"foo":"bar"}'], 1));
     }
 
@@ -1102,7 +1105,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyContainsWithInvalidJsonParameter() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyContains(new PyStringNode(["{'foo':'bar'}"], 1));
     }
 
@@ -1112,7 +1115,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyContains() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyContains(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1));
     }
 
@@ -1124,7 +1127,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      */
     public function testThenTheResponseBodyContainsOnFailure() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyContains(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 
@@ -1154,7 +1157,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ['bar', 'foo'],
             ['bar', 'bar'],
         ])));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -1178,7 +1181,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ['bar', 'bar'],
         ]));
         $this->context->addMultipartFileToRequest(__FILE__, 'file');
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
 
         $this->assertSame(1, count($this->historyContainer));
 
@@ -1241,7 +1244,7 @@ BAR;
      */
     public function testCanAssertResponseReasonPhrase($code, $phrase) {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseReasonPhraseIs($phrase);
     }
 
@@ -1252,7 +1255,7 @@ BAR;
      */
     public function testAssertResponseReasonPhraseCanFail() {
         $this->mockHandler->append(new Response());
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseReasonPhraseIs('ok');
     }
 
@@ -1264,7 +1267,7 @@ BAR;
      */
     public function testCanAssertResponseStatusLine($code, $phrase) {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseStatusLineIs(sprintf('%d %s', $code, $phrase));
     }
 
@@ -1275,7 +1278,7 @@ BAR;
      */
     public function testAssertResponseStatusLineFailsOnInvalidStatusLine() {
         $this->mockHandler->append(new Response());
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseStatusLineIs('200');
     }
 
@@ -1286,7 +1289,7 @@ BAR;
      */
     public function testAssertResponseStatusLineCanFail() {
         $this->mockHandler->append(new Response());
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseStatusLineIs('200 Foobar');
     }
 
@@ -1317,7 +1320,7 @@ BAR;
     public function testCanSetRequestBodyToAString($data, $expected) {
         $this->mockHandler->append(new Response());
         $this->context->setRequestBody($data);
-        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
         $request = $this->historyContainer[0]['request'];
@@ -1351,7 +1354,7 @@ BAR;
     public function testCanSetRequestBodyToAFile() {
         $this->mockHandler->append(new Response());
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
-        $this->context->whenIRequestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', 'POST');
 
         $this->assertSame(1, count($this->historyContainer));
         $request = $this->historyContainer[0]['request'];
@@ -1376,7 +1379,7 @@ BAR;
 
         $this->mockHandler->append(new Response());
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
-        $this->context->whenIRequestPath($path);
+        $this->context->requestPath($path);
 
         $this->assertSame(1, count($this->historyContainer));
         $request = $this->historyContainer[0]['request'];
@@ -1390,7 +1393,7 @@ BAR;
      */
     public function testGetResponseBodyThrowsExceptionIfBodyIsNotJSONArrayOrObject() {
         $this->mockHandler->append(new Response(200, [], 123));
-        $this->context->whenIRequestPath('/some/path');
+        $this->context->requestPath('/some/path');
         $this->context->thenTheResponseBodyIsAnEmptyObject();
     }
 }

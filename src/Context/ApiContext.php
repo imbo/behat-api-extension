@@ -230,18 +230,20 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Request a path using GET or another HTTP method
+     * Request a path
      *
      * @param string $path The path to request
      * @param string $method The HTTP method to use
+     * @return self
      *
      * @When I request :path
      * @When I request :path using HTTP :method
      */
-    public function whenIRequestPath($path, $method = 'GET') {
-        $this->setRequestPath($path)
-             ->setRequestMethod($method)
-             ->sendRequest();
+    public function requestPath($path, $method = 'GET') {
+        return $this
+            ->setRequestPath($path)
+            ->setRequestMethod($method)
+            ->sendRequest();
     }
 
     /**
@@ -660,6 +662,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Send the current request and set the response instance
      *
      * @throws RequestException
+     * @return self
      */
     private function sendRequest() {
         if (!empty($this->requestOptions['form_params'])) {
@@ -706,6 +709,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 throw $e;
             }
         }
+
+        return $this;
     }
 
     /**

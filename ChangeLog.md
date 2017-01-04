@@ -13,6 +13,7 @@ Renamed some public methods in the `Imbo\BehatApiExtension\Context\ApiContext` c
     * `giventhefollowingformparametersareset` => `setRequestFormParams`
     * `givenTheRequestBodyIs` => `setRequestBody`
     * `givenTheRequestBodyContains` => `setRequestBodyToFileResource`
+    * `whenIRequestPath` => `requestPath`
 
 Other changes:
 

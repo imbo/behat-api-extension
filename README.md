@@ -11,6 +11,6 @@ End-user docs can be found [here](http://behat-api-extension.readthedocs.io/en/d
 
 ## Copyright / License
 
-Copyright (c) 2016, Christer Edvartsen <cogo@starzinger.net>
+Copyright (c) 2016-2017, Christer Edvartsen <cogo@starzinger.net>
 
 Licensed under the MIT License

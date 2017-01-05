@@ -317,10 +317,11 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $line Expected HTTP response status line
      * @throws InvalidArgumentException
+     * @return self
      *
      * @Then the response status line is :line
      */
-    public function thenTheResponseStatusLineIs($line) {
+    public function assertResponseStatusLineIs($line) {
         try {
             $parts = explode(' ', $line, 2);
 
@@ -341,6 +342,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 $this->response->getReasonPhrase()
             ));
         }
+
+        return $this;
     }
 
     /**

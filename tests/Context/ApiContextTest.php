@@ -1148,25 +1148,25 @@ BAR;
 
     /**
      * @dataProvider getResponseCodesAndReasonPhrases
-     * @covers ::thenTheResponseReasonPhraseIs
+     * @covers ::assertResponseReasonPhraseIs
      * @param int $code The HTTP response code
      * @param string $phrase The HTTP response reason phrase
      */
-    public function testCanAssertResponseReasonPhrase($code, $phrase) {
+    public function testCanAssertResponseReasonPhraseIs($code, $phrase) {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseReasonPhraseIs($phrase);
+        $this->assertSame($this->context, $this->context->assertResponseReasonPhraseIs($phrase));
     }
 
     /**
-     * @covers ::thenTheResponseReasonPhraseIs
+     * @covers ::assertResponseReasonPhraseIs
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Invalid HTTP response reason phrase, expected "ok", got "OK"
      */
-    public function testAssertResponseReasonPhraseCanFail() {
+    public function testAssertResponseReasonPhraseIsCanFail() {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseReasonPhraseIs('ok');
+        $this->context->assertResponseReasonPhraseIs('ok');
     }
 
     /**

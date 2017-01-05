@@ -23,6 +23,7 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``whenIRequestPath``                       ``requestPath``
 ``thenTheResponseCodeIs``                  ``assertResponseCodeIs``
 ``thenTheResponseCodeIsNot``               ``assertResponseCodeIsNot``
+``thenTheResponseReasonPhraseIs``          ``assertResponseReasonPhraseIs``
 =========================================  =================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):

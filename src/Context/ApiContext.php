@@ -298,15 +298,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert HTTP response reason phrase
      *
      * @param string $phrase Expected HTTP response reason phrase
+     * @return self
      *
      * @Then the response reason phrase is :phrase
      */
-    public function thenTheResponseReasonPhraseIs($phrase) {
+    public function assertResponseReasonPhraseIs($phrase) {
         Assertion::same($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
             'Invalid HTTP response reason phrase, expected "%s", got "%s"',
             $phrase,
             $actual
         ));
+
+        return $this;
     }
 
     /**
@@ -329,7 +332,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             }
 
             $this->assertResponseCodeIs((int) $parts[0]);
-            $this->thenTheResponseReasonPhraseIs($parts[1]);
+            $this->assertResponseReasonPhraseIs($parts[1]);
         } catch (Assert\InvalidArgumentException $e) {
             throw new InvalidArgumentException(sprintf(
                 'Response status line did not match. Expected "%s", got "%d %s"',

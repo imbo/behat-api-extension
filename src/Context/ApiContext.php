@@ -354,7 +354,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the response is :group
      */
-    public function thenTheResponseIs($group) {
+    public function assertResponseIs($group) {
         $this->requireResponse();
 
         $code = $this->response->getStatusCode();
@@ -373,9 +373,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the response is not :group
      */
-    public function thenTheResponseIsNot($group) {
+    public function assertResponseIsNot($group) {
         try {
-            $this->thenTheResponseIs($group);
+            $this->assertResponseIs($group);
 
             throw new InvalidArgumentException(sprintf(
                 'Response was not supposed to be %s (actual response code: %d)',

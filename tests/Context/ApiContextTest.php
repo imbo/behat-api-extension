@@ -536,26 +536,26 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseIs
+     * @covers ::assertResponseIs
      * @covers ::requireResponse
      */
     public function testThenTheResponseIsWhenThereIsNoResponseInstance() {
-        $this->context->thenTheResponseIs('success');
+        $this->context->assertResponseIs('success');
     }
 
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseIsNot
+     * @covers ::assertResponseIsNot
      * @covers ::requireResponse
      */
     public function testThenTheResponseIsNotWhenThereIsNoResponseInstance() {
-        $this->context->thenTheResponseIsNot('success');
+        $this->context->assertResponseIsNot('success');
     }
 
     /**
      * @dataProvider getGroupAndResponseCodes
-     * @covers ::thenTheResponseIs
+     * @covers ::assertResponseIs
      * @covers ::requireResponse
      * @covers ::getResponseCodeGroupRange
      */
@@ -563,14 +563,14 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
             $this->context->requestPath('/some/path');
-            $this->assertSame($this->context, $this->context->thenTheResponseIs($group));
+            $this->assertSame($this->context, $this->context->assertResponseIs($group));
         }
     }
 
     /**
      * @dataProvider getGroupAndResponseCodes
-     * @covers ::thenTheResponseIsNot
-     * @covers ::thenTheResponseIs
+     * @covers ::assertResponseIsNot
+     * @covers ::assertResponseIs
      */
     public function testThenTheResponseIsNot($group, array $codes) {
         $groups = [
@@ -587,7 +587,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
             foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
                 // Assert that the response is not in any of the other groups
-                $this->assertSame($this->context, $this->context->thenTheResponseIsNot($g));
+                $this->assertSame($this->context, $this->context->assertResponseIsNot($g));
             }
         }
     }
@@ -595,25 +595,25 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Response was not supposed to be success (actual response code: 200)
-     * @covers ::thenTheResponseIsNot
-     * @covers ::thenTheResponseIs
+     * @covers ::assertResponseIsNot
+     * @covers ::assertResponseIs
      */
     public function testThenTheResponseIsNotWhenResponseIsInGroup() {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseIsNot('success');
+        $this->context->assertResponseIsNot('success');
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Invalid response code group: foobar
-     * @covers ::thenTheResponseIsNot
+     * @covers ::assertResponseIsNot
      * @covers ::getResponseCodeGroupRange
      */
     public function testThenTheResponseIsInInvalidGroup() {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseIsNot('foobar');
+        $this->context->assertResponseIsNot('foobar');
     }
 
     /**

@@ -15,6 +15,13 @@ Renamed some public methods in the `Imbo\BehatApiExtension\Context\ApiContext` c
     * `givenTheRequestBodyContains` => `setRequestBodyToFileResource`
     * `whenIRequestPath` => `requestPath`
 
+Removed steps and public methods (refer to [the docs](https://behat-api-extension.readthedocs.io) regarding upgrading):
+
+    * `When I request :path using HTTP :method with body: <PyStringNode>` (`whenIRequestPathWithBody`)
+    * `When I request :path using HTTP :method with JSON body: <PyStringNode>` (`whenIRequestPathWithJsonBody`)
+    * `When I send :filePath to :path using HTTP :method` (`whenISendFile`)
+    * `When I send :filePath as :mimeType to :path using HTTP :method` (`whenISendFile`)
+
 Other changes:
 
 * #36: Improved documentation: https://behat-api-extension.readthedocs.io

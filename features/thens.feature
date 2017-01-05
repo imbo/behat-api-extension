@@ -87,10 +87,11 @@ Feature: Test Then steps
             """
             Feature: Set up the request
                 Scenario: Use all Given steps in a scenario
-                    When I request "/echo?json" using HTTP POST with body:
+                    Given the request body is:
                     '''
                     [1, 2, 3]
                     '''
+                    When I request "/echo?json" using HTTP POST
                     Then the response body is an array of length 3
                     And the response body is an array with a length of at most 3
                     And the response body is an array with a length of at most 4
@@ -101,10 +102,10 @@ Feature: Test Then steps
         When I run "behat features/thens-array.feature"
         Then it should pass with:
             """
-            .......
+            ........
 
             1 scenario (1 passed)
-            7 steps (7 passed)
+            8 steps (8 passed)
             """
 
     Scenario: Use Then step to verify responses with empty array
@@ -112,20 +113,21 @@ Feature: Test Then steps
             """
             Feature: Set up the request
                 Scenario: Use all Given steps in a scenario
-                    When I request "/echo?json" using HTTP POST with body:
+                    Given the request body is:
                     '''
                     []
                     '''
+                    When I request "/echo?json" using HTTP POST
                     Then the response body is an array of length 0
                     And the response body is an empty array
             """
         When I run "behat features/thens-empty-array.feature"
         Then it should pass with:
             """
-            ...
+            ....
 
             1 scenario (1 passed)
-            3 steps (3 passed)
+            4 steps (4 passed)
             """
 
     Scenario: Use Then steps to verify responses with numerical array as root
@@ -133,7 +135,7 @@ Feature: Test Then steps
             """
             Feature: Test response body with numerical array as root
                 Scenario: Response returns numerical array
-                    When I request "/echo?json" using HTTP POST with body:
+                    Given the request body is:
                     '''
                     [
                         1,
@@ -145,6 +147,7 @@ Feature: Test Then steps
                         [1, 2, 3]
                     ]
                     '''
+                    When I request "/echo?json" using HTTP POST
                     Then the response body is an array of length 4
                     And the response body contains:
                     '''
@@ -166,10 +169,10 @@ Feature: Test Then steps
         When I run "behat features/response-with-numerical-array.feature"
         Then it should pass with:
             """
-            ....
+            .....
 
             1 scenario (1 passed)
-            4 steps (4 passed)
+            5 steps (5 passed)
             """
 
     Scenario: Verify a custom response reason phrase

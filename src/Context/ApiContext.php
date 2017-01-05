@@ -247,63 +247,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Request a URL using a specific method and a request body
-     *
-     * @param string $path The path to request
-     * @param string $method The HTTP Method to use
-     * @param PyStringNode $body The body to attach to request
-     *
-     * @When I request :path using HTTP :method with body:
-     */
-    public function whenIRequestPathWithBody($path, $method, PyStringNode $body) {
-        $this->setRequestMethod($method)
-             ->setRequestPath($path)
-             ->setRequestBody((string) $body)
-             ->sendRequest();
-    }
-
-    /**
-     * Request a URL with a JSON request body using a specific method
-     *
-     * @param string $path The path to request
-     * @param string $method The HTTP Method to use
-     * @param PyStringNode $body The body to attach to request
-     *
-     * @When I request :path using HTTP :method with JSON body:
-     */
-    public function whenIRequestPathWithJsonBody($path, $method, PyStringNode $body) {
-        Assertion::isJsonString((string) $body);
-
-        $this->setRequestHeader('Content-Type', 'application/json');
-        $this->whenIRequestPathWithBody($path, $method, $body);
-    }
-
-    /**
-     * Send a file to a path using a given HTTP method
-     *
-     * @param string $filePath The path of the file to send
-     * @param string $path The path to request
-     * @param string $method HTTP method
-     * @param string $mimeType Optional mime type of the file to send
-     * @throws InvalidArgumentException
-     *
-     * @When I send :filePath to :path using HTTP :method
-     * @When I send :filePath as :mimeType to :path using HTTP :method
-     */
-    public function whenISendFile($filePath, $path, $method, $mimeType = null) {
-        if (!file_exists($filePath)) {
-            throw new InvalidArgumentException(sprintf('File does not exist: %s', $filePath));
-        }
-
-        if ($mimeType === null) {
-            $mimeType = mime_content_type($filePath);
-        }
-
-        $this->setRequestHeader('Content-Type', $mimeType);
-        $this->whenIRequestPathWithBody($path, $method, new PyStringNode([file_get_contents($filePath)], 1));
-    }
-
-    /**
      * Assert the HTTP response code
      *
      * @param int $code The HTTP response code

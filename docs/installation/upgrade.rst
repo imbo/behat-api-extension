@@ -54,3 +54,58 @@ The body needs to be set using a ``Given`` step and not in the ``When`` step:
         {"some":"data"}
         """
     When I request "/some/path" using HTTP POST
+
+When I request ``:path`` using HTTP ``:method`` with JSON body: ``<PyStringNode>``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``Content-Type`` header and body needs to be set using ``Given`` steps:
+
+**v1**
+
+.. code-block:: gherkin
+
+    When I request "/some/path" using HTTP POST with JSON body:
+        """
+        {"some":"data"}
+        """
+
+**v2**
+
+.. code-block:: gherkin
+
+    Given the request body is:
+        """
+        {"some":"data"}
+        """
+    And the "Content-Type" request header is "application/json"
+    When I request "/some/path" using HTTP POST
+
+When I send ``:filePath`` (as ``:mimeType``) to ``:path`` using HTTP ``:method``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These steps must be replaced with the following:
+
+**v1**
+
+.. code-block:: gherkin
+
+    When I send "/some/file.jpg" to "/some/endpoint" using HTTP POST
+
+.. code-block:: gherkin
+
+    When I send "/some/file" as "application/json" to "/some/endpoint" using HTTP POST
+
+**v2**
+
+.. code-block:: gherkin
+
+    Given the request body contains "/some/file.jpg"
+    When I request "/some/endpoint" using HTTP POST
+
+.. code-block:: gherkin
+
+    Given the request body contains "/some/file"
+    And the "Content-Type" request header is "application/json"
+    When I request "/some/endpoint" using HTTP POST
+
+The first form in the old and new versions will guess the mime type of the file and set the ``Content-Type`` request header accordingly.

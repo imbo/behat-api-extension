@@ -463,24 +463,6 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::whenIRequestPathWithBody
-     * @covers ::setRequestMethod
-     * @covers ::setRequestPath
-     * @covers ::setRequestBody
-     * @covers ::sendRequest
-     */
-    public function testWhenIRequestPathWithBody() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
-
-        $this->assertSame(1, count($this->historyContainer));
-
-        $request = $this->historyContainer[0]['request'];
-        $this->assertSame('POST', $request->getMethod());
-        $this->assertSame('some body', (string) $request->getBody());
-    }
-
-    /**
      * @covers ::requestPath
      * @covers ::setRequestMethod
      * @covers ::setRequestPath
@@ -499,60 +481,6 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $request = $this->historyContainer[0]['request'];
 
         $this->assertSame('foo=bar&bar=foo&a%5B%5D=1&a%5B%5D=2', $request->getUri()->getQuery());
-    }
-
-    /**
-     * @covers ::whenIRequestPathWithJsonBody
-     * @covers ::setRequestHeader
-     * @covers ::whenIRequestPathWithBody
-     */
-    public function testWhenIRequestPathWithValidJsonBody() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPathWithJsonBody('/some/path', 'POST', new PyStringNode(['{"foo":"bar"}'], 1));
-
-        $this->assertSame(1, count($this->historyContainer));
-
-        $request = $this->historyContainer[0]['request'];
-        $this->assertSame('POST', $request->getMethod());
-        $this->assertSame('application/json', $request->getHeaderLine('content-type'));
-        $this->assertSame('{"foo":"bar"}', (string) $request->getBody());
-    }
-
-    /**
-     * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Value "{foo:"bar"}" is not a valid JSON string.
-     * @covers ::whenIRequestPathWithJsonBody
-     */
-    public function testWhenIRequestPathWithInvalidJsonBody() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->whenIRequestPathWithJsonBody('/some/path', 'POST', new PyStringNode(['{foo:"bar"}'], 1));
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage File does not exist: /foo/bar
-     * @covers ::whenISendFile
-     */
-    public function testWhenISendAFileThatDoesNotExist() {
-        $this->context->whenISendFile('/foo/bar', '/path', 'POST');
-    }
-
-    /**
-     * @dataProvider getFilesAndMimeTypes
-     * @covers ::whenISendFile
-     * @covers ::setRequestHeader
-     * @covers ::whenIRequestPathWithBody
-     */
-    public function testWhenISendFile($filePath, $method, $expectedMimeType, $mimeTypeToSend = null) {
-        $this->mockHandler->append(new Response(200));
-        $this->context->whenISendFile($filePath, '/some/path', $method, $mimeTypeToSend);
-        $this->assertSame(1, count($this->historyContainer));
-
-        $request = $this->historyContainer[0]['request'];
-        $this->assertSame($method, $request->getMethod());
-        $this->assertSame('/some/path', $request->getUri()->getPath());
-        $this->assertSame($expectedMimeType, $request->getHeaderLine('Content-Type'));
-        $this->assertSame(file_get_contents($filePath), (string) $request->getBody());
     }
 
     /**
@@ -1133,16 +1061,14 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @see https://github.com/imbo/behat-api-extension/issues/7
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage It's not allowed to set a request body when using multipart/form-data or form parameters.
      * @covers ::setRequestBody
      */
     public function testDontAllowRequestBodyWithMultipartFormDataRequests() {
         $this->mockHandler->append(new Response(200));
         $this->context->addMultipartFileToRequest(__FILE__, 'file');
-
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data or form parameters.');
-
-        $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
+        $this->context->setRequestBody('some body');
     }
 
     /**
@@ -1218,22 +1144,6 @@ BAR;
         $this->assertContains($foo, $contents);
         $this->assertContains($bar0, $contents);
         $this->assertContains($bar1, $contents);
-    }
-
-    /**
-     * @covers ::setRequestBody
-     */
-    public function testDontAllowRequestBodyWithFormParameters() {
-        $this->mockHandler->append(new Response(200));
-        $this->context->setRequestFormParams(new TableNode([
-            ['name', 'value'],
-            ['foo', 'bar'],
-        ]));
-
-        $this->expectException('InvalidArgumentException');
-        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data or form parameters.');
-
-        $this->context->whenIRequestPathWithBody('/some/path', 'POST', new PyStringNode(['some body'], 1));
     }
 
     /**

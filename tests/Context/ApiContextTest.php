@@ -563,7 +563,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
             $this->context->requestPath('/some/path');
-            $this->context->thenTheResponseIs($group);
+            $this->assertSame($this->context, $this->context->thenTheResponseIs($group));
         }
     }
 
@@ -587,7 +587,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
             foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
                 // Assert that the response is not in any of the other groups
-                $this->context->thenTheResponseIsNot($g);
+                $this->assertSame($this->context, $this->context->thenTheResponseIsNot($g));
             }
         }
     }
@@ -607,7 +607,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Invalid response code group: foobar
-     * @covers ::thenTheResponseIs
+     * @covers ::thenTheResponseIsNot
      * @covers ::getResponseCodeGroupRange
      */
     public function testThenTheResponseIsInInvalidGroup() {

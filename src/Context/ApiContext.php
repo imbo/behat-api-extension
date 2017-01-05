@@ -350,6 +350,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Checks if the HTTP response code is in a group
      *
      * @param string $group Name of the group that the response code should be in
+     * @return self
      *
      * @Then the response is :group
      */
@@ -360,12 +361,15 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $range = $this->getResponseCodeGroupRange($group);
 
         Assertion::range($code, $range['min'], $range['max']);
+
+        return $this;
     }
 
     /**
      * Checks if the HTTP response code is *not* in a group
      *
      * @param string $group Name of the group that the response code is not in
+     * @return self
      *
      * @Then the response is not :group
      */
@@ -381,6 +385,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         } catch (Assert\InvalidArgumentException $e) {
             // As expected, do nothing
         }
+
+        return $this;
     }
 
     /**

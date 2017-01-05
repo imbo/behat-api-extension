@@ -486,37 +486,37 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseCodeIs
+     * @covers ::assertResponseCodeIs
      * @covers ::requireResponse
      */
     public function testThenTheResponseCodeIsWithMissingResponseInstance() {
-        $this->context->thenTheResponseCodeIs(200);
+        $this->context->assertResponseCodeIs(200);
     }
 
     /**
      * @dataProvider getResponseCodes
-     * @covers ::thenTheResponseCodeIs
+     * @covers ::assertResponseCodeIs
      * @covers ::validateResponseCode
      */
     public function testThenTheResponseCodeIs($code) {
         $this->mockHandler->append(new Response($code));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseCodeIs($code);
+        $this->assertSame($this->context, $this->context->assertResponseCodeIs($code));
     }
 
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseCodeIsNot
+     * @covers ::assertResponseCodeIsNot
      * @covers ::requireResponse
      */
     public function testThenTheResponseCodeIsNotWithMissingResponseInstance() {
-        $this->context->thenTheResponseCodeIsNot(200);
+        $this->context->assertResponseCodeIsNot(200);
     }
 
     /**
      * @dataProvider getResponseCodes
-     * @covers ::thenTheResponseCodeIsNot
+     * @covers ::assertResponseCodeIsNot
      * @covers ::validateResponseCode
      */
     public function testThenTheResponseCodeIsNot($code, array $otherCodes) {
@@ -524,13 +524,13 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->requestPath('/some/path');
 
         foreach ($otherCodes as $otherCode) {
-            $this->context->thenTheResponseCodeIsNot($otherCode);
+            $this->assertSame($this->context, $this->context->assertResponseCodeIsNot($otherCode));
         }
 
         $this->expectException('Assert\InvalidArgumentException');
         $this->expectExceptionMessage('Did not expect response code ' . $code);
 
-        $this->context->thenTheResponseCodeIsNot($code);
+        $this->context->assertResponseCodeIsNot($code);
     }
 
     /**
@@ -687,7 +687,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->expectException('Assert\InvalidArgumentException');
         $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
 
-        $this->context->thenTheResponseCodeIs($code);
+        $this->context->assertResponseCodeIs($code);
     }
 
     /**

@@ -6,13 +6,41 @@ This section will cover breaking changes between major versions to ease upgradin
 v2.0.0
 ------
 
+Changed public methods
+^^^^^^^^^^^^^^^^^^^^^^
+
+The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`` class have been renamed:
+
+=========================================  =================================
+``v1`` method name                         ``v2`` method name
+=========================================  =================================
+``givenIAttachAFileToTheRequest``          ``addMultipartFileToRequest``
+``givenIAuthenticateAs``                   ``setBasicAuth``
+``givenTheRequestHeaderIs``                ``addRequestHeader``
+``giventhefollowingformparametersareset``  ``setRequestFormParams``
+``givenTheRequestBodyIs``                  ``setRequestBody``
+``givenTheRequestBodyContains``            ``setRequestBodyToFileResource``
+``whenIRequestPath``                       ``requestPath``
+``thenTheResponseCodeIs``                  ``assertResponseCodeIs``
+``thenTheResponseCodeIsNot``               ``assertResponseCodeIsNot``
+=========================================  =================================
+
+Some methods have also been removed (as the result of steps that can no longer be used):
+
+* ``whenIRequestPathWithBody``
+* ``whenIRequestPathWithJsonBody``
+* ``whenISendFile``
+
+Update steps
+^^^^^^^^^^^^
+
 ``v1.*`` contained several ``When`` steps that could configure the request as well as sending it, in the same step. These steps has been removed in ``v2.0.0``, and the extension now requires you to configure all aspects of the request using the ``Given`` steps prior to issuing one of the few ``When`` steps.
 
 .. contents:: Removed / updated steps
     :local:
 
 Given the request body is ``:string``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""
 
 This step now uses a ``<PyStringNode>`` instead of a regular string:
 
@@ -32,7 +60,7 @@ This step now uses a ``<PyStringNode>`` instead of a regular string:
         """
 
 When I request ``:path`` using HTTP ``:method`` with body: ``<PyStringNode>``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The body needs to be set using a ``Given`` step and not in the ``When`` step:
 
@@ -56,7 +84,7 @@ The body needs to be set using a ``Given`` step and not in the ``When`` step:
     When I request "/some/path" using HTTP POST
 
 When I request ``:path`` using HTTP ``:method`` with JSON body: ``<PyStringNode>``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 The ``Content-Type`` header and body needs to be set using ``Given`` steps:
 
@@ -81,7 +109,7 @@ The ``Content-Type`` header and body needs to be set using ``Given`` steps:
     When I request "/some/path" using HTTP POST
 
 When I send ``:filePath`` (as ``:mimeType``) to ``:path`` using HTTP ``:method``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 These steps must be replaced with the following:
 

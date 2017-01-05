@@ -5,22 +5,7 @@ v2.0.0
 ------
 __N/A__
 
-Renamed some public methods in the `Imbo\BehatApiExtension\Context\ApiContext` class:
-
-    * `givenIAttachAFileToTheRequest` => `addMultipartFileToRequest`
-    * `givenIAuthenticateAs` => `setBasicAuth`
-    * `givenTheRequestHeaderIs` => `addRequestHeader`
-    * `giventhefollowingformparametersareset` => `setRequestFormParams`
-    * `givenTheRequestBodyIs` => `setRequestBody`
-    * `givenTheRequestBodyContains` => `setRequestBodyToFileResource`
-    * `whenIRequestPath` => `requestPath`
-
-Removed steps and public methods (refer to [the docs](https://behat-api-extension.readthedocs.io) regarding upgrading):
-
-    * `When I request :path using HTTP :method with body: <PyStringNode>` (`whenIRequestPathWithBody`)
-    * `When I request :path using HTTP :method with JSON body: <PyStringNode>` (`whenIRequestPathWithJsonBody`)
-    * `When I send :filePath to :path using HTTP :method` (`whenISendFile`)
-    * `When I send :filePath as :mimeType to :path using HTTP :method` (`whenISendFile`)
+* Removed some steps and public methods (refer to [the docs](https://behat-api-extension.readthedocs.io) regarding upgrading)
 
 Other changes:
 

@@ -250,10 +250,11 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert the HTTP response code
      *
      * @param int $code The HTTP response code
+     * @return self
      *
      * @Then the response code is :code
      */
-    public function thenTheResponseCodeIs($code) {
+    public function assertResponseCodeIs($code) {
         $expected = $this->validateResponseCode($code);
 
         $this->requireResponse();
@@ -265,16 +266,19 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $expected,
             sprintf('Expected response code %d, got %d', $expected, $actual)
         );
+
+        return $this;
     }
 
     /**
      * Assert the HTTP response code is not a specific code
      *
      * @param int $code The HTTP response code
+     * @return self
      *
      * @Then the response code is not :code
      */
-    public function thenTheResponseCodeIsNot($code) {
+    public function assertResponseCodeIsNot($code) {
         $expected = $this->validateResponseCode($code);
 
         $this->requireResponse();
@@ -286,6 +290,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $expected,
             sprintf('Did not expect response code %d', $actual)
         );
+
+        return $this;
     }
 
     /**
@@ -322,7 +328,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 ));
             }
 
-            $this->thenTheResponseCodeIs((int) $parts[0]);
+            $this->assertResponseCodeIs((int) $parts[0]);
             $this->thenTheResponseReasonPhraseIs($parts[1]);
         } catch (Assert\InvalidArgumentException $e) {
             throw new InvalidArgumentException(sprintf(

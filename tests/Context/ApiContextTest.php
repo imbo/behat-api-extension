@@ -733,31 +733,31 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseHeaderDoesNotExist
+     * @covers ::assertResponseHeaderDoesNotExist
      * @covers ::requireResponse
      */
-    public function testThenTheResponseHeaderDoesNotExistWhenNoResponseExists() {
-        $this->context->thenTheResponseHeaderDoesNotExist('Connection');
+    public function testAssertResponseHeaderDoesNotExistWhenNoResponseExists() {
+        $this->context->assertResponseHeaderDoesNotExist('Connection');
     }
 
     /**
-     * @covers ::thenTheResponseHeaderDoesNotExist
+     * @covers ::assertResponseHeaderDoesNotExist
      */
-    public function testThenTheResponseHeaderDoesNotExist() {
+    public function testAssertResponseHeaderDoesNotExist() {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseHeaderDoesNotExist('Content-Type');
+        $this->context->assertResponseHeaderDoesNotExist('Content-Type');
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage The "Content-Type" response header should not exist
-     * @covers ::thenTheResponseHeaderDoesNotExist
+     * @covers ::assertResponseHeaderDoesNotExist
      */
-    public function testThenTheResponseHeaderDoesNotExistWhenHeaderExists() {
+    public function testAssertResponseHeaderDoesNotExistWhenHeaderExists() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseHeaderDoesNotExist('Content-Type');
+        $this->context->assertResponseHeaderDoesNotExist('Content-Type');
     }
 
     /**

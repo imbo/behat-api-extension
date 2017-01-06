@@ -402,7 +402,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the :header response header does not exist
      */
-    public function thenTheResponseHeaderDoesNotExist($header) {
+    public function assertResponseHeaderDoesNotExist($header) {
         $this->requireResponse();
 
         Assertion::false(

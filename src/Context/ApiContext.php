@@ -250,6 +250,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert the HTTP response code
      *
      * @param int $code The HTTP response code
+     * @return void
      *
      * @Then the response code is :code
      */
@@ -271,6 +272,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert the HTTP response code is not a specific code
      *
      * @param int $code The HTTP response code
+     * @return void
      *
      * @Then the response code is not :code
      */
@@ -292,6 +294,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert HTTP response reason phrase
      *
      * @param string $phrase Expected HTTP response reason phrase
+     * @return void
      *
      * @Then the response reason phrase is :phrase
      */
@@ -308,6 +311,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $line Expected HTTP response status line
      * @throws InvalidArgumentException
+     * @return void
      *
      * @Then the response status line is :line
      */
@@ -338,6 +342,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Checks if the HTTP response code is in a group
      *
      * @param string $group Name of the group that the response code should be in
+     * @return void
      *
      * @Then the response is :group
      */
@@ -354,6 +359,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Checks if the HTTP response code is *not* in a group
      *
      * @param string $group Name of the group that the response code is not in
+     * @return void
      *
      * @Then the response is not :group
      */
@@ -375,6 +381,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that a response header exists
      *
      * @param string $header Then name of the header
+     * @return void
      *
      * @Then the :header response header exists
      */
@@ -391,6 +398,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that a response header does not exist
      *
      * @param string $header Then name of the header
+     * @return void
      *
      * @Then the :header response header does not exist
      */
@@ -408,6 +416,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The name of the header
      * @param string $value The value to compare with
+     * @return void
      *
      * @Then the :header response header is :value
      */
@@ -432,6 +441,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The name of the header
      * @param string $pattern The regular expression pattern
+     * @return void
      *
      * @Then the :header response header matches :pattern
      */
@@ -454,6 +464,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Assert that the response body contains an empty object
      *
+     * @return void
+     *
      * @Then the response body is an empty object
      */
     public function thenTheResponseBodyIsAnEmptyObject() {
@@ -465,6 +477,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
     /**
      * Assert that the response body contains an empty array
+     *
+     * @return void
      *
      * @Then the response body is an empty array
      */
@@ -484,6 +498,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains an array with a specific length
      *
      * @param int $length The length of the array
+     * @return void
      *
      * @Then the response body is an array of length :length
      */
@@ -507,6 +522,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains an array with a length of at least a given length
      *
      * @param int $length The length to use in the assertion
+     * @return void
      *
      * @Then the response body is an array with a length of at least :length
      */
@@ -528,6 +544,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains an array with a length of at most a given length
      *
      * @param int $length The length to use in the assertion
+     * @return void
      *
      * @Then the response body is an array with a length of at most :length
      */
@@ -550,6 +567,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body matches some content
      *
      * @param PyStringNode $content The content to match the response body against
+     * @return void
      *
      * @Then the response body is:
      */
@@ -563,6 +581,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body matches some content using a regular expression
      *
      * @param PyStringNode $pattern The regular expression pattern to use for the match
+     * @return void
      *
      * @Then the response body matches:
      */
@@ -576,6 +595,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains all keys / values in the parameter
      *
      * @param PyStringNode $contains
+     * @return void
      *
      * @Then the response body contains:
      */

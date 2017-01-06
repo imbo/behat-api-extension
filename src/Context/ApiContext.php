@@ -445,7 +445,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the :header response header matches :pattern
      */
-    public function thenTheResponseHeaderMatches($header, $pattern) {
+    public function assertResponseHeaderMatches($header, $pattern) {
         $this->requireResponse();
         $actual = $this->response->getHeaderLine($header);
 

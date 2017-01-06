@@ -793,31 +793,31 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseHeaderMatches
+     * @covers ::assertResponseHeaderMatches
      * @covers ::requireResponse
      */
-    public function testThenTheResponseHeaderMatchesWhenNoResponseExists() {
-        $this->context->thenTheResponseHeaderMatches('Connection', 'close');
+    public function testAssertResponseHeaderMatchesWhenNoResponseExists() {
+        $this->context->assertResponseHeaderMatches('Connection', 'close');
     }
 
     /**
-     * @covers ::thenTheResponseHeaderMatches
+     * @covers ::assertResponseHeaderMatches
      */
-    public function testThenTheResponseHeaderMatches() {
+    public function testAssertResponseHeaderMatches() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#');
+        $this->context->assertResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#');
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Response header (Content-Type) mismatch. "application/json" does not match "#^application/xml$#".
-     * @covers ::thenTheResponseHeaderMatches
+     * @covers ::assertResponseHeaderMatches
      */
-    public function testThenTheResponseHeaderMatchesWhenValueDoesNotMatch() {
+    public function testAssertResponseHeaderMatchesWhenValueDoesNotMatch() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseHeaderMatches('Content-Type', '#^application/xml$#');
+        $this->context->assertResponseHeaderMatches('Content-Type', '#^application/xml$#');
     }
 
     /**

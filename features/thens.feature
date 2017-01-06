@@ -108,26 +108,39 @@ Feature: Test Then steps
             8 steps (8 passed)
             """
 
-    Scenario: Use Then step to verify responses with empty array
-        Given a file named "features/thens-empty-array.feature" with:
+    Scenario: Use Then step to verify responses with empty JSON object
+        Given a file named "features/thens-empty-json-object.feature" with:
             """
-            Feature: Set up the request
-                Scenario: Use all Given steps in a scenario
-                    Given the request body is:
-                    '''
-                    []
-                    '''
-                    When I request "/echo?json" using HTTP POST
-                    Then the response body is an array of length 0
-                    And the response body is an empty array
+            Feature: Test for empty JSON object in response body
+                Scenario: Assert that the response body is an empty object
+                    When I request "/emptyObject"
+                    Then the response body is an empty JSON object
             """
-        When I run "behat features/thens-empty-array.feature"
+        When I run "behat features/thens-empty-json-object.feature"
         Then it should pass with:
             """
-            ....
+            ..
 
             1 scenario (1 passed)
-            4 steps (4 passed)
+            2 steps (2 passed)
+            """
+
+    Scenario: Use Then step to verify responses with empty JSON array
+        Given a file named "features/thens-empty-json-array.feature" with:
+            """
+            Feature: Test for empty JSON array in response body
+                Scenario: Assert that the response body is an empty JSON array
+                    When I request "/emptyArray"
+                    Then the response body is an array of length 0
+                    And the response body is an empty JSON array
+            """
+        When I run "behat features/thens-empty-json-array.feature"
+        Then it should pass with:
+            """
+            ...
+
+            1 scenario (1 passed)
+            3 steps (3 passed)
             """
 
     Scenario: Use Then steps to verify responses with numerical array as root

@@ -161,5 +161,19 @@ $app->get('/customReasonPhrase', function(Application $app) {
     );
 });
 
+/**
+ * Return a response with an empty array
+ */
+$app->get('/emptyArray', function(Application $app) {
+    return new JsonResponse([]);
+});
+
+/**
+ * Return a response with an empty object
+ */
+$app->get('/emptyObject', function(Application $app) {
+    return new JsonResponse(new stdClass());
+});
+
 // Run the application
 $app->run();

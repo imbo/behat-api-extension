@@ -11,9 +11,9 @@ Changed public methods
 
 The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`` class have been renamed:
 
-=========================================  =================================
+=========================================  =========================================
 ``v1`` method name                         ``v2`` method name
-=========================================  =================================
+=========================================  =========================================
 ``givenIAttachAFileToTheRequest``          ``addMultipartFileToRequest``
 ``givenIAuthenticateAs``                   ``setBasicAuth``
 ``givenTheRequestHeaderIs``                ``addRequestHeader``
@@ -31,7 +31,9 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseHeaderDoesNotExist``      ``assertResponseHeaderDoesNotExists``
 ``thenTheResponseHeaderIs``                ``assertResponseHeaderIs``
 ``thenTheResponseHeaderMatches``           ``assertResponseHeaderMatches``
-=========================================  =================================
+``thenTheResponseBodyIsAnEmptyObject``     ``assertResponseBodyIsAnEmptyJsonObject``
+``thenTheResponseBodyIsAnEmptyArray``      ``assertResponseBodyIsAnEmptyJsonArray``
+=========================================  =========================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):
 
@@ -145,3 +147,37 @@ These steps must be replaced with the following:
     When I request "/some/endpoint" using HTTP POST
 
 The first form in the old and new versions will guess the mime type of the file and set the ``Content-Type`` request header accordingly.
+
+Then the response body is an empty object
+"""""""""""""""""""""""""""""""""""""""""
+
+Slight change that adds "JSON" in the step text for clarification:
+
+**v1**
+
+.. code-block:: gherkin
+
+    Then the response body is an empty object
+
+**v2**
+
+.. code-block:: gherkin
+
+    Then the response body is an empty JSON object
+
+Then the response body is an empty array
+""""""""""""""""""""""""""""""""""""""""
+
+Slight change that adds "JSON" in the step text for clarification:
+
+**v1**
+
+.. code-block:: gherkin
+
+    Then the response body is an empty array
+
+**v2**
+
+.. code-block:: gherkin
+
+    Then the response body is an empty JSON array

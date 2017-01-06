@@ -850,60 +850,60 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers ::thenTheResponseBodyIsAnEmptyArray
+     * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyIsAnEmptyArray() {
+    public function testAssertResponseBodyIsAnEmptyJsonArray() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnEmptyArray();
+        $this->context->assertResponseBodyIsAnEmptyJsonArray();
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Expected empty array in response body, got an array with 3 entries.
-     * @covers ::thenTheResponseBodyIsAnEmptyArray
+     * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyIsAnEmptyArrayWhenItsNot() {
+    public function testAssertResponseBodyIsAnEmptyJsonArrayWhenItsNot() {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnEmptyArray();
+        $this->context->assertResponseBodyIsAnEmptyJsonArray();
     }
 
     /**
-     * @covers ::thenTheResponseBodyIsAnEmptyObject
+     * @covers ::assertResponseBodyIsAnEmptyJsonObject
      */
-    public function testThenTheResponseBodyIsAnEmptyObject() {
+    public function testAssertResponseBodyIsAnEmptyJsonObject() {
         $this->mockHandler->append(new Response(200, [], json_encode(new stdClass())));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnEmptyObject();
+        $this->context->assertResponseBodyIsAnEmptyJsonObject();
     }
 
     /**
-     * @covers ::thenTheResponseBodyIsAnEmptyObject
+     * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Response body is not an object.
      */
-    public function testThenTheResponseBodyIsAnEmptyObjectWhenTheResponseBodyIsNotAnObject() {
+    public function testAssertResponseBodyIsAnEmptyJsonObjectWhenTheResponseBodyIsNotAnObject() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnEmptyObject();
+        $this->context->assertResponseBodyIsAnEmptyJsonObject();
     }
 
     /**
-     * @covers ::thenTheResponseBodyIsAnEmptyObject
+     * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Object in response body is not empty.
      */
-    public function testThenTheResponseBodyIsAnEmptyObjectWhenItIsNot() {
+    public function testAssertResponseBodyIsAnEmptyJsonObjectWhenItIsNot() {
         $object = new stdClass();
         $object->foo = 'bar';
         $this->mockHandler->append(new Response(200, [], json_encode($object)));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnEmptyObject();
+        $this->context->assertResponseBodyIsAnEmptyJsonObject();
     }
 
     /**
@@ -1304,6 +1304,6 @@ BAR;
     public function testGetResponseBodyThrowsExceptionIfBodyIsNotJSONArrayOrObject() {
         $this->mockHandler->append(new Response(200, [], 123));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnEmptyObject();
+        $this->context->assertResponseBodyIsAnEmptyJsonObject();
     }
 }

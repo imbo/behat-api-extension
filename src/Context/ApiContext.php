@@ -420,7 +420,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the :header response header is :value
      */
-    public function thenTheResponseHeaderIs($header, $value) {
+    public function assertResponseHeaderIs($header, $value) {
         $this->requireResponse();
         $actual = $this->response->getHeaderLine($header);
 

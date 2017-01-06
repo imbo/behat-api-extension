@@ -27,6 +27,7 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseStatusLineIs``            ``assertResponseStatusLineIs``
 ``thenTheResponseIs``                      ``assertResponseIs``
 ``thenTheResponseIsNot``                   ``assertResponseIsNot``
+``thenTheResponseHeaderExists``            ``assertResponseHeaderExists``
 =========================================  =================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):

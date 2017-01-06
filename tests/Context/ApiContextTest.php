@@ -501,7 +501,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     public function testThenTheResponseCodeIs($code) {
         $this->mockHandler->append(new Response($code));
         $this->context->requestPath('/some/path');
-        $this->assertSame($this->context, $this->context->assertResponseCodeIs($code));
+        $this->context->assertResponseCodeIs($code);
     }
 
     /**
@@ -524,7 +524,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->requestPath('/some/path');
 
         foreach ($otherCodes as $otherCode) {
-            $this->assertSame($this->context, $this->context->assertResponseCodeIsNot($otherCode));
+            $this->context->assertResponseCodeIsNot($otherCode);
         }
 
         $this->expectException('Assert\InvalidArgumentException');
@@ -563,7 +563,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
             $this->context->requestPath('/some/path');
-            $this->assertSame($this->context, $this->context->assertResponseIs($group));
+            $this->context->assertResponseIs($group);
         }
     }
 
@@ -587,7 +587,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
             foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
                 // Assert that the response is not in any of the other groups
-                $this->assertSame($this->context, $this->context->assertResponseIsNot($g));
+                $this->context->assertResponseIsNot($g);
             }
         }
     }
@@ -703,31 +703,31 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseHeaderExists
+     * @covers ::assertResponseHeaderExists
      * @covers ::requireResponse
      */
-    public function testThenTheResponseHeaderExistsWhenNoResponseExists() {
-        $this->context->thenTheResponseHeaderExists('Connection');
+    public function testAssertResponseHeaderExistsWhenNoResponseExists() {
+        $this->context->assertResponseHeaderExists('Connection');
     }
 
     /**
-     * @covers ::thenTheResponseHeaderExists
+     * @covers ::assertResponseHeaderExists
      */
-    public function testThenTheResponseHeaderExists() {
+    public function testAssertResponseHeaderExists() {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseHeaderExists('Content-Type');
+        $this->context->assertResponseHeaderExists('Content-Type');
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage The "Content-Type" response header does not exist
-     * @covers ::thenTheResponseHeaderExists
+     * @covers ::assertResponseHeaderExists
      */
-    public function testThenTheResponseHeaderExistsWhenHeaderDoesNotExist() {
+    public function testAssertResponseHeaderExistsWhenHeaderDoesNotExist() {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseHeaderExists('Content-Type');
+        $this->context->assertResponseHeaderExists('Content-Type');
     }
 
     /**
@@ -1155,7 +1155,7 @@ BAR;
     public function testCanAssertResponseReasonPhraseIs($code, $phrase) {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
         $this->context->requestPath('/some/path');
-        $this->assertSame($this->context, $this->context->assertResponseReasonPhraseIs($phrase));
+        $this->context->assertResponseReasonPhraseIs($phrase);
     }
 
     /**
@@ -1178,10 +1178,7 @@ BAR;
     public function testCanAssertResponseStatusLine($code, $phrase) {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
         $this->context->requestPath('/some/path');
-        $this->assertSame(
-            $this->context,
-            $this->context->assertResponseStatusLineIs(sprintf('%d %s', $code, $phrase))
-        );
+        $this->context->assertResponseStatusLineIs(sprintf('%d %s', $code, $phrase));
     }
 
     /**

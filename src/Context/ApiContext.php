@@ -250,7 +250,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert the HTTP response code
      *
      * @param int $code The HTTP response code
-     * @return self
      *
      * @Then the response code is :code
      */
@@ -266,15 +265,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $expected,
             sprintf('Expected response code %d, got %d', $expected, $actual)
         );
-
-        return $this;
     }
 
     /**
      * Assert the HTTP response code is not a specific code
      *
      * @param int $code The HTTP response code
-     * @return self
      *
      * @Then the response code is not :code
      */
@@ -290,15 +286,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $expected,
             sprintf('Did not expect response code %d', $actual)
         );
-
-        return $this;
     }
 
     /**
      * Assert HTTP response reason phrase
      *
      * @param string $phrase Expected HTTP response reason phrase
-     * @return self
      *
      * @Then the response reason phrase is :phrase
      */
@@ -308,8 +301,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             $phrase,
             $actual
         ));
-
-        return $this;
     }
 
     /**
@@ -317,7 +308,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $line Expected HTTP response status line
      * @throws InvalidArgumentException
-     * @return self
      *
      * @Then the response status line is :line
      */
@@ -342,15 +332,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 $this->response->getReasonPhrase()
             ));
         }
-
-        return $this;
     }
 
     /**
      * Checks if the HTTP response code is in a group
      *
      * @param string $group Name of the group that the response code should be in
-     * @return self
      *
      * @Then the response is :group
      */
@@ -361,15 +348,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $range = $this->getResponseCodeGroupRange($group);
 
         Assertion::range($code, $range['min'], $range['max']);
-
-        return $this;
     }
 
     /**
      * Checks if the HTTP response code is *not* in a group
      *
      * @param string $group Name of the group that the response code is not in
-     * @return self
      *
      * @Then the response is not :group
      */
@@ -385,8 +369,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         } catch (Assert\InvalidArgumentException $e) {
             // As expected, do nothing
         }
-
-        return $this;
     }
 
     /**
@@ -396,7 +378,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the :header response header exists
      */
-    public function thenTheResponseHeaderExists($header) {
+    public function assertResponseHeaderExists($header) {
         $this->requireResponse();
 
         Assertion::true(

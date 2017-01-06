@@ -471,8 +471,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseBodyIsAnEmptyJsonObject() {
         $this->requireResponse();
 
-        Assertion::isInstanceOf($body = $this->getResponseBody(), 'stdClass', 'Response body is not an object.');
-        Assertion::same('{}', json_encode($body), 'Object in response body is not empty.');
+        Assertion::isInstanceOf($body = $this->getResponseBody(), 'stdClass', 'Response body is not a JSON object.');
+        Assertion::same('{}', json_encode($body), 'JSON object in response body is not empty.');
     }
 
     /**
@@ -490,7 +490,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         Assertion::same(
             [],
             $body,
-            sprintf('Expected empty array in response body, got an array with %d entries.', count($body))
+            sprintf('Expected empty JSON array in response body, got an array with %d entries.', count($body))
         );
     }
 

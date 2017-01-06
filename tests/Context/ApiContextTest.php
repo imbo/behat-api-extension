@@ -862,7 +862,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Expected empty array in response body, got an array with 3 entries.
+     * @expectedExceptionMessage Expected empty JSON array in response body, got an array with 3 entries.
      * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
@@ -885,7 +885,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Response body is not an object.
+     * @expectedExceptionMessage Response body is not a JSON object.
      */
     public function testAssertResponseBodyIsAnEmptyJsonObjectWhenTheResponseBodyIsNotAnObject() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
@@ -896,7 +896,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @expectedException Assert\InvalidArgumentException
-     * @expectedExceptionMessage Object in response body is not empty.
+     * @expectedExceptionMessage JSON object in response body is not empty.
      */
     public function testAssertResponseBodyIsAnEmptyJsonObjectWhenItIsNot() {
         $object = new stdClass();

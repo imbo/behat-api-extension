@@ -500,9 +500,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param int $length The length of the array
      * @return void
      *
-     * @Then the response body is an array of length :length
+     * @Then the response body is a JSON array of length :length
      */
-    public function thenTheResponseBodyIsAnArrayOfLength($length = 0) {
+    public function assertResponseBodyJsonArrayLength($length = 0) {
         $this->requireResponse();
 
         $body = $this->getResponseBodyArray();

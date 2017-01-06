@@ -33,6 +33,7 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseHeaderMatches``           ``assertResponseHeaderMatches``
 ``thenTheResponseBodyIsAnEmptyObject``     ``assertResponseBodyIsAnEmptyJsonObject``
 ``thenTheResponseBodyIsAnEmptyArray``      ``assertResponseBodyIsAnEmptyJsonArray``
+``thenTheResponseBodyIsAnArrayOfLength``   ``assertResponseBodyJsonArrayLength``
 =========================================  =========================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):
@@ -181,3 +182,20 @@ Slight change that adds "JSON" in the step text for clarification:
 .. code-block:: gherkin
 
     Then the response body is an empty JSON array
+
+Then the response body is an array of length ``:length``
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Slight change that adds "JSON" in the step text for clarification:
+
+**v1**
+
+.. code-block:: gherkin
+
+    Then the response body is an array of length 5
+
+**v2**
+
+.. code-block:: gherkin
+
+    Then the response body is a JSON array of length 5

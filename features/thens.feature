@@ -92,7 +92,7 @@ Feature: Test Then steps
                     [1, 2, 3]
                     '''
                     When I request "/echo?json" using HTTP POST
-                    Then the response body is an array of length 3
+                    Then the response body is a JSON array of length 3
                     And the response body is an array with a length of at most 3
                     And the response body is an array with a length of at most 4
                     And the response body is an array with a length of at least 1
@@ -131,7 +131,7 @@ Feature: Test Then steps
             Feature: Test for empty JSON array in response body
                 Scenario: Assert that the response body is an empty JSON array
                     When I request "/emptyArray"
-                    Then the response body is an array of length 0
+                    Then the response body is a JSON array of length 0
                     And the response body is an empty JSON array
             """
         When I run "behat features/thens-empty-json-array.feature"
@@ -161,7 +161,7 @@ Feature: Test Then steps
                     ]
                     '''
                     When I request "/echo?json" using HTTP POST
-                    Then the response body is an array of length 4
+                    Then the response body is a JSON array of length 4
                     And the response body contains:
                     '''
                     {

@@ -30,6 +30,7 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseHeaderExists``            ``assertResponseHeaderExists``
 ``thenTheResponseHeaderDoesNotExist``      ``assertResponseHeaderDoesNotExists``
 ``thenTheResponseHeaderIs``                ``assertResponseHeaderIs``
+``thenTheResponseHeaderMatches``           ``assertResponseHeaderMatches``
 =========================================  =================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):

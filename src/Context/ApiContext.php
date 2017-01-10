@@ -6,7 +6,7 @@ use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert;
@@ -561,7 +561,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Send the current request and set the response instance
      *
-     * @throws RequestException
+     * @throws ServerException
      */
     protected function sendRequest() {
         if (!empty($this->requestOptions['form_params'])) {
@@ -591,10 +591,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             unset($this->requestOptions['form_params']);
         }
 
-        $this->response = $this->client->send(
-            $this->request,
-            $this->requestOptions
-        );
+        try {
+            $this->response = $this->client->send(
+                $this->request,
+                $this->requestOptions
+            );
+        } catch (ServerException $e) {
+            $this->response = $e->getResponse();
+
+            if (!$this->response) {
+                throw $e;
+            }
+        }
     }
 
     /**

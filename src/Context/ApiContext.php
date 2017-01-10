@@ -6,7 +6,7 @@ use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert;
@@ -561,9 +561,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Send the current request and set the response instance
      *
-     * @throws RequestException
+     * @throws ServerException
      */
-    private function sendRequest() {
+    protected function sendRequest() {
         if (!empty($this->requestOptions['form_params'])) {
             $this->setRequestMethod('POST');
         }
@@ -596,7 +596,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 $this->request,
                 $this->requestOptions
             );
-        } catch (RequestException $e) {
+        } catch (ServerException $e) {
             $this->response = $e->getResponse();
 
             if (!$this->response) {
@@ -624,7 +624,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @return array An array with two keys, min and max, which represents the min and max values
      *               for $group
      */
-    private function getResponseCodeGroupRange($group) {
+    protected function getResponseCodeGroupRange($group) {
         switch ($group) {
             case 'informational':
                 $min = 100;
@@ -662,7 +662,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param int $code
      * @throws InvalidArgumentException
      */
-    private function validateResponseCode($code) {
+    protected function validateResponseCode($code) {
         $code = (int) $code;
         Assertion::range($code, 100, 599, sprintf('Response code must be between 100 and 599, got %d.', $code));
 
@@ -675,7 +675,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $path The path to request
      * @return self
      */
-    private function setRequestPath($path) {
+    protected function setRequestPath($path) {
         // Resolve the path with the base_uri
         $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
         $this->request = $this->request->withUri($uri);
@@ -689,7 +689,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $method The HTTP method
      * @return self
      */
-    private function setRequestMethod($method) {
+    protected function setRequestMethod($method) {
         $this->request = $this->request->withMethod($method);
 
         return $this;
@@ -702,7 +702,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws InvalidArgumentException
      * @return self
      */
-    private function setRequestBody($body) {
+    protected function setRequestBody($body) {
         if (!empty($this->requestOptions['multipart']) || !empty($this->requestOptions['form_params'])) {
             throw new InvalidArgumentException(
                 'It\'s not allowed to set a request body when using multipart/form-data or form parameters.'
@@ -721,7 +721,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param mixed $value The value of the header
      * @return self
      */
-    private function addRequestHeader($header, $value) {
+    protected function addRequestHeader($header, $value) {
         $this->request = $this->request->withAddedHeader($header, $value);
 
         return $this;
@@ -734,7 +734,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param mixed $value The value of the header
      * @return self
      */
-    private function setRequestHeader($header, $value) {
+    protected function setRequestHeader($header, $value) {
         $this->request = $this->request->withHeader($header, $value);
 
         return $this;
@@ -747,7 +747,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws InvalidArgumentException
      * @return array|stdClass
      */
-    private function getResponseBody($requireArray = true) {
+    protected function getResponseBody($requireArray = true) {
         $body = json_decode((string) $this->response->getBody());
 
         if ($requireArray && !is_array($body)) {

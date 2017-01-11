@@ -649,31 +649,31 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseBodyMatches
+     * @covers ::assertResponseBodyMatches
      * @covers ::requireResponse
      */
-    public function testThenTheResponseBodyMatchesWhenNoResponseExists() {
-        $this->context->thenTheResponseBodyMatches(new PyStringNode(['/foo/'], 1));
+    public function testAssertResponseBodyMatchesWhenNoResponseExists() {
+        $this->context->assertResponseBodyMatches(new PyStringNode(['/foo/'], 1));
     }
 
     /**
-     * @covers ::thenTheResponseBodyMatches
+     * @covers ::assertResponseBodyMatches
      */
-    public function testThenTheResponseBodyMatches() {
+    public function testAssertResponseBodyMatches() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1));
+        $this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1));
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Value "{"foo":"bar"}" does not match expression.
-     * @covers ::thenTheResponseBodyMatches
+     * @covers ::assertResponseBodyMatches
      */
-    public function testThenTheResponseBodyMatchesWithAPatternThatDoesNotMatch() {
+    public function testAssertResponseBodyMatchesWithAPatternThatDoesNotMatch() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyMatches(new PyStringNode(['/^{"FOO": "BAR"}$/'], 1));
+        $this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": "BAR"}$/'], 1));
     }
 
     /**

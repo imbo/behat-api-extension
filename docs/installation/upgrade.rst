@@ -1,12 +1,16 @@
 Upgrading
 =========
 
-This section will cover breaking changes between major versions to ease upgrading to the latest version.
+This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
 Migrating from v1.x to v2.x
 ---------------------------
 
-Changed public methods
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+Renamed public methods
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`` class have been renamed:
@@ -41,14 +45,14 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseBodyContains``                       ``assertResponseBodyContainsJson``
 ====================================================  =========================================
 
-Some methods have also been removed (as the result of steps that can no longer be used):
+Some methods have also been removed (as the result of removed steps):
 
 * ``whenIRequestPathWithBody``
 * ``whenIRequestPathWithJsonBody``
 * ``whenISendFile``
 
-Update steps
-^^^^^^^^^^^^
+Updated steps
+^^^^^^^^^^^^^
 
 ``v1.*`` contained several ``When`` steps that could configure the request as well as sending it, in the same step. These steps has been removed in ``v2.0.0``, and the extension now requires you to configure all aspects of the request using the ``Given`` steps prior to issuing one of the few ``When`` steps.
 

@@ -524,9 +524,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param int $length The length to use in the assertion
      * @return void
      *
-     * @Then the response body is an array with a length of at least :length
+     * @Then the response body is a JSON array with a length of at least :length
      */
-    public function thenTheResponseBodyIsAnArrayWithALengthOfAtLeast($length) {
+    public function assertResponseBodyJsonArrayMinLength($length) {
         $this->requireResponse();
 
         $body = $this->getResponseBodyArray();

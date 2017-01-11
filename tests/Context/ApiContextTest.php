@@ -919,19 +919,19 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
+     * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::requireResponse
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastWhenNoRequestHaveBeenMade() {
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast(5);
+    public function testAssertResponseBodyJsonArrayMinLengthWhenNoRequestHaveBeenMade() {
+        $this->context->assertResponseBodyJsonArrayMinLength(5);
     }
 
     /**
      * @dataProvider getResponseBodyArraysForAtLeast
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
+     * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeast(array $body, $lengthToUse, $willFail) {
+    public function testAssertResponseBodyJsonArrayMinLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->requestPath('/some/path');
 
@@ -944,19 +944,19 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ));
         }
 
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast($lengthToUse);
+        $this->context->assertResponseBodyJsonArrayMinLength($lengthToUse);
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtLeast
+     * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtLeastWithAnInvalidBody() {
+    public function testAssertResponseBodyJsonArrayMinLengthWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtLeast(2);
+        $this->context->assertResponseBodyJsonArrayMinLength(2);
     }
 
     /**

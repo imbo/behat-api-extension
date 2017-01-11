@@ -11,30 +11,31 @@ Changed public methods
 
 The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`` class have been renamed:
 
-=========================================  =========================================
-``v1`` method name                         ``v2`` method name
-=========================================  =========================================
-``givenIAttachAFileToTheRequest``          ``addMultipartFileToRequest``
-``givenIAuthenticateAs``                   ``setBasicAuth``
-``givenTheRequestHeaderIs``                ``addRequestHeader``
-``giventhefollowingformparametersareset``  ``setRequestFormParams``
-``givenTheRequestBodyIs``                  ``setRequestBody``
-``givenTheRequestBodyContains``            ``setRequestBodyToFileResource``
-``whenIRequestPath``                       ``requestPath``
-``thenTheResponseCodeIs``                  ``assertResponseCodeIs``
-``thenTheResponseCodeIsNot``               ``assertResponseCodeIsNot``
-``thenTheResponseReasonPhraseIs``          ``assertResponseReasonPhraseIs``
-``thenTheResponseStatusLineIs``            ``assertResponseStatusLineIs``
-``thenTheResponseIs``                      ``assertResponseIs``
-``thenTheResponseIsNot``                   ``assertResponseIsNot``
-``thenTheResponseHeaderExists``            ``assertResponseHeaderExists``
-``thenTheResponseHeaderDoesNotExist``      ``assertResponseHeaderDoesNotExists``
-``thenTheResponseHeaderIs``                ``assertResponseHeaderIs``
-``thenTheResponseHeaderMatches``           ``assertResponseHeaderMatches``
-``thenTheResponseBodyIsAnEmptyObject``     ``assertResponseBodyIsAnEmptyJsonObject``
-``thenTheResponseBodyIsAnEmptyArray``      ``assertResponseBodyIsAnEmptyJsonArray``
-``thenTheResponseBodyIsAnArrayOfLength``   ``assertResponseBodyJsonArrayLength``
-=========================================  =========================================
+====================================================  =========================================
+``v1`` method name                                    ``v2`` method name
+====================================================  =========================================
+``givenIAttachAFileToTheRequest``                     ``addMultipartFileToRequest``
+``givenIAuthenticateAs``                              ``setBasicAuth``
+``givenTheRequestHeaderIs``                           ``addRequestHeader``
+``giventhefollowingformparametersareset``             ``setRequestFormParams``
+``givenTheRequestBodyIs``                             ``setRequestBody``
+``givenTheRequestBodyContains``                       ``setRequestBodyToFileResource``
+``whenIRequestPath``                                  ``requestPath``
+``thenTheResponseCodeIs``                             ``assertResponseCodeIs``
+``thenTheResponseCodeIsNot``                          ``assertResponseCodeIsNot``
+``thenTheResponseReasonPhraseIs``                     ``assertResponseReasonPhraseIs``
+``thenTheResponseStatusLineIs``                       ``assertResponseStatusLineIs``
+``thenTheResponseIs``                                 ``assertResponseIs``
+``thenTheResponseIsNot``                              ``assertResponseIsNot``
+``thenTheResponseHeaderExists``                       ``assertResponseHeaderExists``
+``thenTheResponseHeaderDoesNotExist``                 ``assertResponseHeaderDoesNotExists``
+``thenTheResponseHeaderIs``                           ``assertResponseHeaderIs``
+``thenTheResponseHeaderMatches``                      ``assertResponseHeaderMatches``
+``thenTheResponseBodyIsAnEmptyObject``                ``assertResponseBodyIsAnEmptyJsonObject``
+``thenTheResponseBodyIsAnEmptyArray``                 ``assertResponseBodyIsAnEmptyJsonArray``
+``thenTheResponseBodyIsAnArrayOfLength``              ``assertResponseBodyJsonArrayLength``
+``thenTheResponseBodyIsAnArrayWithALengthOfAtLeast``  ``assertResponseBodyJsonArrayMinLength``
+====================================================  =========================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):
 
@@ -199,3 +200,20 @@ Slight change that adds "JSON" in the step text for clarification:
 .. code-block:: gherkin
 
     Then the response body is a JSON array of length 5
+
+Then the response body is an array with a length of at least ``:length``
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Slight change that adds "JSON" in the step text for clarification:
+
+**v1**
+
+.. code-block:: gherkin
+
+    Then the response body is an array with a length of at least 5
+
+**v2**
+
+.. code-block:: gherkin
+
+    Then the response body is a JSON array with a length of at least 5

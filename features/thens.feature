@@ -95,9 +95,9 @@ Feature: Test Then steps
                     Then the response body is a JSON array of length 3
                     And the response body is an array with a length of at most 3
                     And the response body is an array with a length of at most 4
-                    And the response body is an array with a length of at least 1
-                    And the response body is an array with a length of at least 2
-                    And the response body is an array with a length of at least 3
+                    And the response body is a JSON array with a length of at least 1
+                    And the response body is a JSON array with a length of at least 2
+                    And the response body is a JSON array with a length of at least 3
             """
         When I run "behat features/thens-array.feature"
         Then it should pass with:

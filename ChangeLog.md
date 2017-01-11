@@ -5,7 +5,7 @@ v2.0.0
 ------
 __N/A__
 
-* Removed some steps and public methods (refer to [the docs](https://behat-api-extension.readthedocs.io) regarding upgrading)
+* Removed and updated some steps and public methods (refer to [the docs](https://behat-api-extension.readthedocs.io) regarding upgrading)
 
 Other changes:
 

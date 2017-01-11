@@ -93,8 +93,8 @@ Feature: Test Then steps
                     '''
                     When I request "/echo?json" using HTTP POST
                     Then the response body is a JSON array of length 3
-                    And the response body is an array with a length of at most 3
-                    And the response body is an array with a length of at most 4
+                    And the response body is a JSON array with a length of at most 3
+                    And the response body is a JSON array with a length of at most 4
                     And the response body is a JSON array with a length of at least 1
                     And the response body is a JSON array with a length of at least 2
                     And the response body is a JSON array with a length of at least 3

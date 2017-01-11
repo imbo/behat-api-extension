@@ -962,19 +962,19 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
+     * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::requireResponse
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMostWhenNoRequestHaveBeenMade() {
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost(5);
+    public function testAssertResponseBodyJsonArrayMaxLengthWhenNoRequestHaveBeenMade() {
+        $this->context->assertResponseBodyJsonArrayMaxLength(5);
     }
 
     /**
      * @dataProvider getResponseBodyArraysForAtMost
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
+     * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMost(array $body, $lengthToUse, $willFail) {
+    public function testAssertResponseBodyJsonArrayMaxLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->requestPath('/some/path');
 
@@ -987,19 +987,19 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ));
         }
 
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost($lengthToUse);
+        $this->context->assertResponseBodyJsonArrayMaxLength($lengthToUse);
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain a valid JSON array.
-     * @covers ::thenTheResponseBodyIsAnArrayWithALengthOfAtMost
+     * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyIsAnArrayWithALengthOfAtMostWithAnInvalidBody() {
+    public function testAssertResponseBodyJsonArrayMaxLengthWithAnInvalidBody() {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIsAnArrayWithALengthOfAtMost(2);
+        $this->context->assertResponseBodyJsonArrayMaxLength(2);
     }
 
     /**

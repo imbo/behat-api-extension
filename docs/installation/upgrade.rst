@@ -3,8 +3,8 @@ Upgrading
 
 This section will cover breaking changes between major versions to ease upgrading to the latest version.
 
-v2.0.0
-------
+Migrating from v1.x to v2.x
+---------------------------
 
 Changed public methods
 ^^^^^^^^^^^^^^^^^^^^^^

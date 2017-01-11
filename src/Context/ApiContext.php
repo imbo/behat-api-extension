@@ -571,7 +571,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the response body is:
      */
-    public function thenTheResponseBodyIs(PyStringNode $content) {
+    public function assertResponseBodyIs(PyStringNode $content) {
         $this->requireResponse();
 
         Assertion::same((string) $this->response->getBody(), (string) $content);

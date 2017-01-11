@@ -36,6 +36,7 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseBodyIsAnArrayOfLength``              ``assertResponseBodyJsonArrayLength``
 ``thenTheResponseBodyIsAnArrayWithALengthOfAtLeast``  ``assertResponseBodyJsonArrayMinLength``
 ``thenTheResponseBodyIsAnArrayWithALengthOfAtMost``   ``assertResponseBodyJsonArrayMaxLength``
+``thenTheResponseBodyIs``                             ``assertResponseBodyIs``
 ====================================================  =========================================
 
 Some methods have also been removed (as the result of steps that can no longer be used):

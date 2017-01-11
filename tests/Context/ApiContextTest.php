@@ -619,31 +619,31 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseBodyIs
+     * @covers ::assertResponseBodyIs
      * @covers ::requireResponse
      */
-    public function testThenTheResponseBodyIsWhenNoResponseExists() {
-        $this->context->thenTheResponseBodyIs(new PyStringNode(['some body'], 1));
+    public function testAssertResponseBodyIsWhenNoResponseExists() {
+        $this->context->assertResponseBodyIs(new PyStringNode(['some body'], 1));
     }
 
     /**
-     * @covers ::thenTheResponseBodyIs
+     * @covers ::assertResponseBodyIs
      */
-    public function testThenTheResponseBodyIsWithMatchingBody() {
+    public function testAssertResponseBodyIsWithMatchingBody() {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIs(new PyStringNode(['response body'], 1));
+        $this->context->assertResponseBodyIs(new PyStringNode(['response body'], 1));
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage Value "response body" is not the same as expected value "foo".
-     * @covers ::thenTheResponseBodyIs
+     * @covers ::assertResponseBodyIs
      */
-    public function testThenTheResponseBodyIsWithNonMatchingBody() {
+    public function testAssertResponseBodyIsWithNonMatchingBody() {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyIs(new PyStringNode(['foo'], 1));
+        $this->context->assertResponseBodyIs(new PyStringNode(['foo'], 1));
     }
 
     /**

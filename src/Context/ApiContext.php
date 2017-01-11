@@ -597,9 +597,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param PyStringNode $contains
      * @return void
      *
-     * @Then the response body contains:
+     * @Then the response body contains JSON:
      */
-    public function thenTheResponseBodyContains(PyStringNode $contains) {
+    public function assertResponseBodyContainsJson(PyStringNode $contains) {
         $this->requireResponse();
 
         $body = $this->getResponseBody();

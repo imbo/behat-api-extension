@@ -29,7 +29,7 @@ Feature: Test form-data handling
                         | bar  | foo   |
                         | bar  | bar   |
                     When I request "/formData"
-                    Then the response body contains:
+                    Then the response body contains JSON:
                     '''
                     {
                         "_POST": {
@@ -62,7 +62,7 @@ Feature: Test form-data handling
                         | bar  | bar   |
                     And I attach "behat.yml" to the request as file
                     When I request "/formData"
-                    Then the response body contains:
+                    Then the response body contains JSON:
                     '''
                     {
                         "_POST": {

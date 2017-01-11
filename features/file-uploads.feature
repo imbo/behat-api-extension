@@ -26,7 +26,7 @@ Feature: Test file uploading
                     Given I attach "behat.yml" to the request as file1
                     And I attach "features/attach-files.feature" to the request as file2
                     When I request "/files" using HTTP POST
-                    Then the response body contains:
+                    Then the response body contains JSON:
                     '''
                     {
                         "file1": {

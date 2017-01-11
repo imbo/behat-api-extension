@@ -42,7 +42,7 @@ Feature: Test Then steps
                     '''
                     /"list":\[.*?\]/
                     '''
-                    And the response body contains:
+                    And the response body contains JSON:
                     '''
                     {
                         "null": null,
@@ -162,7 +162,7 @@ Feature: Test Then steps
                     '''
                     When I request "/echo?json" using HTTP POST
                     Then the response body is a JSON array of length 4
-                    And the response body contains:
+                    And the response body contains JSON:
                     '''
                     {
                         "[0]": 1,
@@ -171,7 +171,7 @@ Feature: Test Then steps
                         "[3]": [1, 2, 3]
                     }
                     '''
-                    And the response body contains:
+                    And the response body contains JSON:
                     '''
                     {
                         "[1]": "<re>/foo/</re>",

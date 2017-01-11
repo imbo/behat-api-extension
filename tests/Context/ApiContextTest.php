@@ -1005,56 +1005,56 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
-     * @covers ::thenTheResponseBodyContains
+     * @covers ::assertResponseBodyContainsJson
      * @covers ::requireResponse
      */
-    public function testThenTheResponseBodyContainsWhenNoRequestHaveBeenMade() {
-        $this->context->thenTheResponseBodyContains(new PyStringNode(['{"foo":"bar"}'], 1));
+    public function testAssertResponseBodyContainsJsonWhenNoRequestHaveBeenMade() {
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"foo":"bar"}'], 1));
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The response body does not contain valid JSON data.
-     * @covers ::thenTheResponseBodyContains
+     * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyContainsWithInvalidJsonInBody() {
+    public function testAssertResponseBodyContainsJsonWithInvalidJsonInBody() {
         $this->mockHandler->append(new Response(200, [], "{'foo':'bar'}"));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyContains(new PyStringNode(['{"foo":"bar"}'], 1));
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"foo":"bar"}'], 1));
     }
 
     /**
      * @expectedException Assert\InvalidArgumentException
      * @expectedExceptionMessage The supplied parameter is not a valid JSON object.
-     * @covers ::thenTheResponseBodyContains
+     * @covers ::assertResponseBodyContainsJson
      */
-    public function testThenTheResponseBodyContainsWithInvalidJsonParameter() {
+    public function testAssertResponseBodyContainsJsonWithInvalidJsonParameter() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyContains(new PyStringNode(["{'foo':'bar'}"], 1));
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(["{'foo':'bar'}"], 1));
     }
 
     /**
-     * @covers ::thenTheResponseBodyContains
+     * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyContains() {
+    public function testAssertResponseBodyContainsJson() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyContains(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1));
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1));
     }
 
     /**
      * @expectedException OutOfRangeException
      * @expectedExceptionMessage Key is missing from the haystack: bar
-     * @covers ::thenTheResponseBodyContains
+     * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      */
-    public function testThenTheResponseBodyContainsOnFailure() {
+    public function testAssertResponseBodyContainsJsonOnFailure() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->context->thenTheResponseBodyContains(new PyStringNode(['{"bar":"foo"}'], 1));
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 
     /**

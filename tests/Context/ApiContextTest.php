@@ -489,7 +489,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseCodeIs
      * @covers ::requireResponse
      */
-    public function testThenTheResponseCodeIsWithMissingResponseInstance() {
+    public function testAssertResponseCodeIsWithMissingResponseInstance() {
         $this->context->assertResponseCodeIs(200);
     }
 
@@ -498,7 +498,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseCodeIs
      * @covers ::validateResponseCode
      */
-    public function testThenTheResponseCodeIs($code) {
+    public function testAssertResponseCodeIs($code) {
         $this->mockHandler->append(new Response($code));
         $this->context->requestPath('/some/path');
         $this->context->assertResponseCodeIs($code);
@@ -510,7 +510,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseCodeIsNot
      * @covers ::requireResponse
      */
-    public function testThenTheResponseCodeIsNotWithMissingResponseInstance() {
+    public function testAssertResponseCodeIsNotWithMissingResponseInstance() {
         $this->context->assertResponseCodeIsNot(200);
     }
 
@@ -519,7 +519,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseCodeIsNot
      * @covers ::validateResponseCode
      */
-    public function testThenTheResponseCodeIsNot($code, array $otherCodes) {
+    public function testAssertResponseCodeIsNot($code, array $otherCodes) {
         $this->mockHandler->append(new Response($code));
         $this->context->requestPath('/some/path');
 
@@ -539,7 +539,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseIs
      * @covers ::requireResponse
      */
-    public function testThenTheResponseIsWhenThereIsNoResponseInstance() {
+    public function testAssertResponseIsWhenThereIsNoResponseInstance() {
         $this->context->assertResponseIs('success');
     }
 
@@ -549,7 +549,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseIsNot
      * @covers ::requireResponse
      */
-    public function testThenTheResponseIsNotWhenThereIsNoResponseInstance() {
+    public function testAssertResponseIsNotWhenThereIsNoResponseInstance() {
         $this->context->assertResponseIsNot('success');
     }
 
@@ -559,7 +559,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::requireResponse
      * @covers ::getResponseCodeGroupRange
      */
-    public function testThenTheResponseIs($group, array $codes) {
+    public function testAssertResponseIs($group, array $codes) {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
             $this->context->requestPath('/some/path');
@@ -572,7 +572,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
      */
-    public function testThenTheResponseIsNot($group, array $codes) {
+    public function testAssertResponseIsNot($group, array $codes) {
         $groups = [
             'informational',
             'success',
@@ -598,7 +598,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
      */
-    public function testThenTheResponseIsNotWhenResponseIsInGroup() {
+    public function testAssertResponseIsNotWhenResponseIsInGroup() {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
         $this->context->assertResponseIsNot('success');
@@ -610,7 +610,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseIsNot
      * @covers ::getResponseCodeGroupRange
      */
-    public function testThenTheResponseIsInInvalidGroup() {
+    public function testAssertResponseIsInInvalidGroup() {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
         $this->context->assertResponseIsNot('foobar');
@@ -680,7 +680,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getInvalidHttpResponseCodes
      * @covers ::validateResponseCode
      */
-    public function testThenTheResponseCodeIsUSingAnInvalidCode($code) {
+    public function testAssertResponseCodeIsUSingAnInvalidCode($code) {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
 

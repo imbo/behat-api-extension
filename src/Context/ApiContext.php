@@ -2,6 +2,7 @@
 namespace Imbo\BehatApiExtension\Context;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator;
+use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -11,6 +12,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert;
 use Assert\Assertion;
+use Assert\AssertionFailedException as AssertionFailure;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
@@ -250,6 +252,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert the HTTP response code
      *
      * @param int $code The HTTP response code
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response code is :code
@@ -261,17 +264,22 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $actual = $this->response->getStatusCode();
 
-        Assertion::same(
-            $actual,
-            $expected,
-            sprintf('Expected response code %d, got %d', $expected, $actual)
-        );
+        try {
+            Assertion::same(
+                $actual,
+                $expected,
+                sprintf('Expected response code %d, got %d', $expected, $actual)
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert the HTTP response code is not a specific code
      *
      * @param int $code The HTTP response code
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response code is not :code
@@ -283,34 +291,43 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $actual = $this->response->getStatusCode();
 
-        Assertion::notSame(
-            $actual,
-            $expected,
-            sprintf('Did not expect response code %d', $actual)
-        );
+        try {
+            Assertion::notSame(
+                $actual,
+                $expected,
+                sprintf('Did not expect response code %d', $actual)
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert HTTP response reason phrase
      *
      * @param string $phrase Expected HTTP response reason phrase
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response reason phrase is :phrase
      */
     public function assertResponseReasonPhraseIs($phrase) {
-        Assertion::same($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
-            'Invalid HTTP response reason phrase, expected "%s", got "%s"',
-            $phrase,
-            $actual
-        ));
+        try {
+            Assertion::same($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
+                'Invalid HTTP response reason phrase, expected "%s", got "%s"',
+                $phrase,
+                $actual
+            ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert HTTP response status line
      *
      * @param string $line Expected HTTP response status line
-     * @throws InvalidArgumentException
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response status line is :line
@@ -328,8 +345,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
             $this->assertResponseCodeIs((int) $parts[0]);
             $this->assertResponseReasonPhraseIs($parts[1]);
-        } catch (Assert\InvalidArgumentException $e) {
-            throw new InvalidArgumentException(sprintf(
+        } catch (AssertionFailedException $e) {
+            throw new AssertionFailedException(sprintf(
                 'Response status line did not match. Expected "%s", got "%d %s"',
                 $line,
                 $this->response->getStatusCode(),
@@ -341,7 +358,16 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     /**
      * Checks if the HTTP response code is in a group
      *
+     * Allowed groups are:
+     *
+     * - informational
+     * - success
+     * - redirection
+     * - client error
+     * - server error
+     *
      * @param string $group Name of the group that the response code should be in
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response is :group
@@ -352,13 +378,30 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $code = $this->response->getStatusCode();
         $range = $this->getResponseCodeGroupRange($group);
 
-        Assertion::range($code, $range['min'], $range['max']);
+        try {
+            Assertion::range($code, $range['min'], $range['max']);
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException(sprintf(
+                'Response code %d is not in the "%s" group',
+                $code,
+                $group
+            ));
+        }
     }
 
     /**
      * Checks if the HTTP response code is *not* in a group
      *
+     * Allowed groups are:
+     *
+     * - informational
+     * - success
+     * - redirection
+     * - client error
+     * - server error
+     *
      * @param string $group Name of the group that the response code is not in
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response is not :group
@@ -366,21 +409,23 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseIsNot($group) {
         try {
             $this->assertResponseIs($group);
-
-            throw new InvalidArgumentException(sprintf(
-                'Response was not supposed to be %s (actual response code: %d)',
-                $group,
-                $this->response->getStatusCode()
-            ));
-        } catch (Assert\InvalidArgumentException $e) {
-            // As expected, do nothing
+        } catch (AssertionFailedException $e) {
+            // As expected, return
+            return;
         }
+
+        throw new AssertionFailedException(sprintf(
+            'Response was not supposed to be %s (actual response code: %d)',
+            $group,
+            $this->response->getStatusCode()
+        ));
     }
 
     /**
      * Assert that a response header exists
      *
      * @param string $header Then name of the header
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the :header response header exists
@@ -388,16 +433,21 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseHeaderExists($header) {
         $this->requireResponse();
 
-        Assertion::true(
-            $this->response->hasHeader($header),
-            sprintf('The "%s" response header does not exist', $header)
-        );
+        try {
+            Assertion::true(
+                $this->response->hasHeader($header),
+                sprintf('The "%s" response header does not exist', $header)
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that a response header does not exist
      *
      * @param string $header Then name of the header
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the :header response header does not exist
@@ -405,10 +455,14 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseHeaderDoesNotExist($header) {
         $this->requireResponse();
 
-        Assertion::false(
-            $this->response->hasHeader($header),
-            sprintf('The "%s" response header should not exist', $header)
-        );
+        try {
+            Assertion::false(
+                $this->response->hasHeader($header),
+                sprintf('The "%s" response header should not exist', $header)
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
@@ -416,6 +470,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The name of the header
      * @param string $value The value to compare with
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the :header response header is :value
@@ -424,16 +479,20 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $this->requireResponse();
         $actual = $this->response->getHeaderLine($header);
 
-        Assertion::same(
-            $actual,
-            $value,
-            sprintf(
-                'Response header (%s) mismatch. Expected "%s", got "%s".',
-                $header,
+        try {
+            Assertion::same(
+                $actual,
                 $value,
-                $actual
-            )
-        );
+                sprintf(
+                    'Response header mismatch, expected the "%s" header to be "%s", got "%s".',
+                    $header,
+                    $value,
+                    $actual
+                )
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
@@ -441,6 +500,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @param string $header The name of the header
      * @param string $pattern The regular expression pattern
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the :header response header matches :pattern
@@ -449,21 +509,26 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $this->requireResponse();
         $actual = $this->response->getHeaderLine($header);
 
-        Assertion::regex(
-            $actual,
-            $pattern,
-            sprintf(
-                'Response header (%s) mismatch. "%s" does not match "%s".',
-                $header,
+        try {
+            Assertion::regex(
                 $actual,
-                $pattern
-            )
-        );
+                $pattern,
+                sprintf(
+                    'Response header mismatch, the value of the "%s" header ("%s") does not match the regular expression: "%s".',
+                    $header,
+                    $actual,
+                    $pattern
+                )
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body contains an empty JSON object
      *
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body is an empty JSON object
@@ -471,13 +536,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseBodyIsAnEmptyJsonObject() {
         $this->requireResponse();
 
-        Assertion::isInstanceOf($body = $this->getResponseBody(), 'stdClass', 'Response body is not a JSON object.');
-        Assertion::same('{}', json_encode($body), 'JSON object in response body is not empty.');
+        try {
+            Assertion::isInstanceOf($body = $this->getResponseBody(), 'stdClass', 'Response body is not a JSON object.');
+            Assertion::same('{}', json_encode($body), 'JSON object in response body is not empty.');
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body contains an empty JSON array
      *
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body is an empty JSON array
@@ -487,17 +557,22 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $body = $this->getResponseBodyArray();
 
-        Assertion::same(
-            [],
-            $body,
-            sprintf('Expected empty JSON array in response body, got an array with %d entries.', count($body))
-        );
+        try {
+            Assertion::same(
+                [],
+                $body,
+                sprintf('Expected empty JSON array in response body, got an array with %d entries.', count($body))
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body contains an array with a specific length
      *
      * @param int $length The length of the array
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body is a JSON array of length :length
@@ -507,21 +582,26 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $body = $this->getResponseBodyArray();
 
-        Assertion::count(
-            $body,
-            (int) $length,
-            sprintf(
-                'Wrong length for the array in the response body. Expected %d, got %d.',
-                $length,
-                count($body)
-            )
-        );
+        try {
+            Assertion::count(
+                $body,
+                (int) $length,
+                sprintf(
+                    'Wrong length for the array in the response body. Expected %d, got %d.',
+                    $length,
+                    count($body)
+                )
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body contains an array with a length of at least a given length
      *
      * @param int $length The length to use in the assertion
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body is a JSON array with a length of at least :length
@@ -533,17 +613,22 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $actualLength = count($body);
 
-        Assertion::min(
-            $actualLength,
-            $length,
-            sprintf('Array length should be at least %d, but length was %d', $length, $actualLength)
-        );
+        try {
+            Assertion::min(
+                $actualLength,
+                $length,
+                sprintf('Array length should be at least %d, but length was %d', $length, $actualLength)
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body contains an array with a length of at most a given length
      *
      * @param int $length The length to use in the assertion
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body is a JSON array with a length of at most :length
@@ -555,11 +640,15 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $actualLength = count($body);
 
-        Assertion::max(
-            $actualLength,
-            $length,
-            sprintf('Array length should be at most %d, but length was %d', $length, $actualLength)
-        );
+        try {
+            Assertion::max(
+                $actualLength,
+                $length,
+                sprintf('Array length should be at most %d, but length was %d', $length, $actualLength)
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
 
@@ -567,6 +656,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body matches some content
      *
      * @param PyStringNode $content The content to match the response body against
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body is:
@@ -574,13 +664,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseBodyIs(PyStringNode $content) {
         $this->requireResponse();
 
-        Assertion::same((string) $this->response->getBody(), (string) $content);
+        try {
+            Assertion::same((string) $this->response->getBody(), (string) $content);
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body matches some content using a regular expression
      *
      * @param PyStringNode $pattern The regular expression pattern to use for the match
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body matches:
@@ -588,13 +683,18 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseBodyMatches(PyStringNode $pattern) {
         $this->requireResponse();
 
-        Assertion::regex((string) $this->response->getBody(), (string) $pattern);
+        try {
+            Assertion::regex((string) $this->response->getBody(), (string) $pattern);
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
      * Assert that the response body contains all keys / values in the parameter
      *
      * @param PyStringNode $contains
+     * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body contains JSON:
@@ -605,11 +705,15 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $body = $this->getResponseBody();
         $contains = json_decode((string) $contains);
 
-        Assertion::isInstanceOf(
-            $contains,
-            'stdClass',
-            'The supplied parameter is not a valid JSON object.'
-        );
+        try {
+            Assertion::isInstanceOf(
+                $contains,
+                'stdClass',
+                'The supplied parameter is not a valid JSON object.'
+            );
+        } catch (AssertionFailure $e) {
+            throw new InvalidArgumentException($e->getMessage());
+        }
 
         // Convert both objects to arrays
         $body = json_decode(json_encode($body), true);
@@ -617,8 +721,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         $comparator = new ArrayContainsComparator();
 
-        // Compare the arrays. On error this will throw an exception
-        Assertion::true($comparator->compare($body, $contains));
+        try {
+            // Compare the arrays. On error this will throw an exception
+            Assertion::true($comparator->compare($body, $contains));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
     }
 
     /**
@@ -731,12 +839,17 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Validate a response code
      *
      * @param int $code
-     * @return int
      * @throws InvalidArgumentException
+     * @return int
      */
     private function validateResponseCode($code) {
         $code = (int) $code;
-        Assertion::range($code, 100, 599, sprintf('Response code must be between 100 and 599, got %d.', $code));
+
+        try {
+            Assertion::range($code, 100, 599, sprintf('Response code must be between 100 and 599, got %d.', $code));
+        } catch (AssertionFailure $e) {
+            throw new InvalidArgumentException($e->getMessage());
+        }
 
         return $code;
     }

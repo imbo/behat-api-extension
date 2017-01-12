@@ -265,3 +265,10 @@ Slight change that adds "JSON" in the step text for clarification:
         """
         {"some": "value"}
         """
+
+Exceptions
+^^^^^^^^^^
+
+The extension will from ``v2`` on throw native PHP exceptions or namespaced exceptions (like for instance ``Imbo\BehatApiExtension\Exception\AssertionException``). In ``v1`` exceptions could come directly from ``beberlei/assert``, which is the assertion library used in the extension. The fact that the extension uses this library is an implementation detail, and it should be possible to switch out this library without making any changes to the public API of the extension.
+
+If versions after ``v2`` throws other exceptions it should be classified as a bug and fixed accordingly.

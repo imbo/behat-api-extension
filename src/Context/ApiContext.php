@@ -190,6 +190,11 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @When I request :path using HTTP :method
      */
     public function whenIRequestPath($path, $method = 'GET') {
+        $existingPath = $this->request->getUri()->getPath();
+        if ($existingPath) {
+            $path = $existingPath . $path;
+        }
+
         $this->setRequestPath($path)
              ->setRequestMethod($method)
              ->sendRequest();

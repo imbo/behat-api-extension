@@ -20,7 +20,6 @@ End user guide
 .. toctree::
     :maxdepth: 3
 
-    guide/introduction
     guide/setup-request
     guide/send-request
     guide/verify-server-response

@@ -694,12 +694,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains all keys / values in the parameter
      *
      * @param PyStringNode $contains
+     * @param ArrayContainsComparator $comparator
      * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body contains JSON:
      */
-    public function assertResponseBodyContainsJson(PyStringNode $contains) {
+    public function assertResponseBodyContainsJson(PyStringNode $contains, ArrayContainsComparator $comparator = null) {
         $this->requireResponse();
 
         $body = $this->getResponseBody();
@@ -719,7 +720,9 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         $body = json_decode(json_encode($body), true);
         $contains = json_decode(json_encode($contains), true);
 
-        $comparator = new ArrayContainsComparator();
+        if ($comparator === null) {
+            $comparator = new ArrayContainsComparator();
+        }
 
         try {
             // Compare the arrays. On error this will throw an exception

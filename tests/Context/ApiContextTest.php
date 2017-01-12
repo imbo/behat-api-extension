@@ -257,6 +257,11 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
                 'lengthToUse' => 4,
                 'willFail' => false,
             ],
+            [
+                'body' => [1, 2, 3, 4],
+                'lengthToUse' => 3,
+                'willFail' => true,
+            ],
         ];
     }
 
@@ -1004,7 +1009,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
             $this->expectExceptionMessage(sprintf(
-                'Array length should be at least %d, but length was %d',
+                'Array length should be at most %d, but length was %d',
                 $lengthToUse,
                 count($body)
             ));
@@ -1326,5 +1331,18 @@ BAR;
         $this->mockHandler->append(new Response(200, [], 123));
         $this->context->requestPath('/some/path');
         $this->context->assertResponseBodyIsAnEmptyJsonObject();
+    }
+
+    /**
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Value "<NULL>" is not TRUE.
+     * @covers ::assertResponseBodyContainsJson
+     */
+    public function testAssertResponseBodyContainsJsonWhenComparatorDoesNotReturnTrue() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
+        $this->context->requestPath('/some/path');
+        $comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
+        $comparator->expects($this->once())->method('compare')->will($this->returnValue(null));
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1), $comparator);
     }
 }

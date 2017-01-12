@@ -100,11 +100,12 @@ class ArrayContainsComparator {
                 }
 
                 if ($value !== $haystack[$key][$index]) {
+                    $valueStr = (is_array($value)) ? var_export($value, true) : $value;
                     throw new InvalidArgumentException(sprintf(
                         'Item on index %d in array at haystack key "%s" does not match value %s',
                         $index,
                         $keyPath,
-                        $value
+                        $valueStr
                     ));
                 }
 

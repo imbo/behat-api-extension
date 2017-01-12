@@ -10,7 +10,6 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
-use Assert;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Psr\Http\Message\RequestInterface;

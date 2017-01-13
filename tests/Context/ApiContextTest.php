@@ -1196,6 +1196,26 @@ BAR;
     }
 
     /**
+     * @covers ::assertResponseReasonPhraseIsNot
+     */
+    public function testCanAssertResponseReasonPhraseIsNot() {
+        $this->mockHandler->append(new Response());
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseReasonPhraseIsNot('Not Modified');
+    }
+
+    /**
+     * @covers ::assertResponseReasonPhraseIsNot
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Invalid HTTP response reason phrase, did not expect "OK"
+     */
+    public function testAssertResponseReasonPhraseIsNotFailure() {
+        $this->mockHandler->append(new Response());
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseReasonPhraseIsNot('OK');
+    }
+
+    /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseStatusLineIs
      * @param int $code The HTTP response code

@@ -33,6 +33,16 @@ Assert that the response reason phrase equals ``:phrase``. The comparison is cas
 * Then the response reason phrase is "``OK``"
 * Then the response reason phrase is "``Bad Request``"
 
+Then the response reason phrase is not ``:phrase``
+--------------------------------------------------
+
+Assert that the response reason phrase does not equal ``:phrase``. The comparison is case sensitive.
+
+**Examples:**
+
+* Then the response reason phrase is not "``OK``"
+* Then the response reason phrase is not "``Bad Request``"
+
 Then the response status line is ``:line``
 ------------------------------------------
 
@@ -41,7 +51,7 @@ Assert that the response status line equals ``:line``. The comparison is case se
 **Examples:**
 
 * Then the response status line is "``200 OK``"
-* Then the response status line is "``306 Switch Proxy``"
+* Then the response status line is "``304 Not Modified``"
 
 Then the response is ``:group``
 -------------------------------

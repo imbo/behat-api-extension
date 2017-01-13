@@ -302,7 +302,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert HTTP response reason phrase
+     * Assert that the HTTP response reason phrase equals a given value
      *
      * @param string $phrase Expected HTTP response reason phrase
      * @throws AssertionFailedException
@@ -316,6 +316,26 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 'Invalid HTTP response reason phrase, expected "%s", got "%s"',
                 $phrase,
                 $actual
+            ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+    }
+
+    /**
+     * Assert that the HTTP response reason phrase does not equal a given value
+     *
+     * @param string $phrase Reason phrase that the HTTP response should not equal
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the response reason phrase is not :phrase
+     */
+    public function assertResponseReasonPhraseIsNot($phrase) {
+        try {
+            Assertion::notSame($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
+                'Invalid HTTP response reason phrase, did not expect "%s"',
+                $phrase
             ));
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException($e->getMessage());

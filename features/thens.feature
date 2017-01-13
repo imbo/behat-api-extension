@@ -29,6 +29,7 @@ Feature: Test Then steps
                     And the response reason phrase is "OK"
                     And the response reason phrase is not "Not Modified"
                     And the response status line is "200 OK"
+                    And the response status line is not "304 Not Modified"
                     And the response is success
                     And the response is not "client error"
                     And the "X-Foo" response header exists
@@ -77,10 +78,10 @@ Feature: Test Then steps
         When I run "behat features/thens.feature"
         Then it should pass with:
             """
-            ...............
+            ................
 
             1 scenario (1 passed)
-            15 steps (15 passed)
+            16 steps (16 passed)
             """
 
     Scenario: Use Then steps to verify responses with arrays

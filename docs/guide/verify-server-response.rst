@@ -53,6 +53,16 @@ Assert that the response status line equals ``:line``. The comparison is case se
 * Then the response status line is "``200 OK``"
 * Then the response status line is "``304 Not Modified``"
 
+Then the response status line is not ``:line``
+----------------------------------------------
+
+Assert that the response status line does not equal ``:line``. The comparison is case sensitive.
+
+**Examples:**
+
+* Then the response status line is not "``200 OK``"
+* Then the response status line is not "``304 Not Modified``"
+
 Then the response is ``:group``
 -------------------------------
 

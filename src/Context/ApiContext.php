@@ -343,7 +343,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
-     * Assert HTTP response status line
+     * Assert that the HTTP response status line equals a given value
      *
      * @param string $line Expected HTTP response status line
      * @throws AssertionFailedException
@@ -353,24 +353,45 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseStatusLineIs($line) {
         try {
-            $parts = explode(' ', $line, 2);
-
-            if (count($parts) !== 2) {
-                throw new InvalidArgumentException(sprintf(
-                    'Invalid status line: "%s". Must consist of a status code and a test, for instance "200 OK"',
-                    $line
-                ));
-            }
-
-            $this->assertResponseCodeIs((int) $parts[0]);
-            $this->assertResponseReasonPhraseIs($parts[1]);
-        } catch (AssertionFailedException $e) {
-            throw new AssertionFailedException(sprintf(
-                'Response status line did not match. Expected "%s", got "%d %s"',
-                $line,
+            $actualStatusLine = sprintf(
+                '%d %s',
                 $this->response->getStatusCode(),
                 $this->response->getReasonPhrase()
+            );
+
+            Assertion::same($line, $actualStatusLine, sprintf(
+                'Response status line did not match. Expected "%s", got "%s"',
+                $line,
+                $actualStatusLine
             ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+    }
+
+    /**
+     * Assert that the HTTP response status line does not equal a given value
+     *
+     * @param string $line Value that the HTTP response status line must not equal
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the response status line is not :line
+     */
+    public function assertResponseStatusLineIsNot($line) {
+        try {
+            $actualStatusLine = sprintf(
+                '%d %s',
+                $this->response->getStatusCode(),
+                $this->response->getReasonPhrase()
+            );
+
+            Assertion::notSame($line, $actualStatusLine, sprintf(
+                'Invalid HTTP response status line. Did not expect "%s"',
+                $line
+            ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
         }
     }
 

@@ -1229,17 +1229,6 @@ BAR;
 
     /**
      * @covers ::assertResponseStatusLineIs
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid status line: "200". Must consist of a status code and a test, for instance "200 OK"
-     */
-    public function testAssertResponseStatusLineFailsOnInvalidStatusLine() {
-        $this->mockHandler->append(new Response());
-        $this->context->requestPath('/some/path');
-        $this->context->assertResponseStatusLineIs('200');
-    }
-
-    /**
-     * @covers ::assertResponseStatusLineIs
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
      * @expectedExceptionMessage Response status line did not match. Expected "200 Foobar", got "200 OK"
      */
@@ -1247,6 +1236,26 @@ BAR;
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
         $this->context->assertResponseStatusLineIs('200 Foobar');
+    }
+
+    /**
+     * @covers ::assertResponseStatusLineIsNot
+     */
+    public function testCanAssertResponseStatusLineIsNot() {
+        $this->mockHandler->append(new Response());
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseStatusLineIsNot('304 Not Modified');
+    }
+
+    /**
+     * @covers ::assertResponseStatusLineIsNot
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Invalid HTTP response status line. Did not expect "200 OK"
+     */
+    public function testAssertResponseStatusLineIsNotFailure() {
+        $this->mockHandler->append(new Response());
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseStatusLineIsNot('200 OK');
     }
 
     /**

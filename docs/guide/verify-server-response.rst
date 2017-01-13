@@ -1,59 +1,74 @@
 Verify server response
 ======================
 
-After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.
+After a request has been sent, some steps exist that can be used to verify the response from the server.
 
-Then the response code is (not) ``:code``
------------------------------------------
+Then the response code is ``:code``
+-----------------------------------
 
-Match the response code to ``:code``. If the optional ``not`` is added, the response should **not** match the response code.
+Asserts that the response code equals ``:code``.
 
 **Examples:**
 
-=====================================  =========  ===============  ===============  ===============
-Step                                   ``:code``  Matches ``200``  Matches ``304``  Matches ``404``
-=====================================  =========  ===============  ===============  ===============
-Then the response code is ``200``      ``200``    Yes              No               No
-Then the response code is ``404``      ``404``    No               No               Yes
-Then the response code is not ``304``  ``304``    Yes              No               Yes
-=====================================  =========  ===============  ===============  ===============
+* Then the response code is ``200``
+* Then the response code is ``404``
+
+Then the response code is not ``:code``
+---------------------------------------
+
+Asserts that the response code **does not** equal ``:code``.
+
+**Examples:**
+
+* Then the response code is not ``200``
+* Then the response code is not ``404``
 
 Then the response reason phrase is ``:phrase``
 ----------------------------------------------
 
-Match the response reason phrase to ``:phrase``.
-
-*Assume that these steps match a response with "200 OK" as a status line.*
+Assert that the response reason phrase equals ``:phrase``. The comparison is case sensitive.
 
 **Examples:**
 
-===========================================  ===========  ============
-Step                                         ``:phrase``  Test passes?
-===========================================  ===========  ============
-Then the response reason phrase is "``OK``"  ``OK``       Yes
-Then the response reason phrase is "``ok``"  ``ok``       No
-===========================================  ===========  ============
+* Then the response reason phrase is "``OK``"
+* Then the response reason phrase is "``Bad Request``"
 
 Then the response status line is ``:line``
 ------------------------------------------
 
-Match the response status line to ``:line``.
-
-*Assume that these steps match a response with "200 OK" as a status line.*
+Assert that the response status line equals ``:line``. The comparison is case sensitive.
 
 **Examples:**
 
-=============================================  ==========  ============
-Step                                           ``:line``   Test passes?
-=============================================  ==========  ============
-Then the response status line is "``200``"     ``200``     No
-Then the response status line is "``200 OK``"  ``200 OK``  Yes
-=============================================  ==========  ============
+* Then the response status line is "``200 OK``"
+* Then the response status line is "``306 Switch Proxy``"
 
-Then the response is (not) ``:group``
--------------------------------------
+Then the response is ``:group``
+-------------------------------
 
-Match the response code to a group. If the optional ``not`` is added, the response should **not** be in the specified group.
+Asserts that the response is in ``:group``.
+
+Allowed groups and their response code ranges are:
+
+=================  ===================
+Group              Response code range
+=================  ===================
+``informational``  100 to 199
+``success``        200 to 299
+``redirection``    300 to 399
+``client error``   400 to 499
+``server error``   500 to 599
+=================  ===================
+
+**Examples:**
+
+* Then the response is "``informational``"
+* Then the response is "``client error``"
+
+Then the response is not ``:group``
+-----------------------------------
+
+Assert that the response is not in ``:group``.
 
 Allowed groups and their ranges are:
 
@@ -69,114 +84,104 @@ Group              Response code range
 
 **Examples:**
 
-===========================================  =================  ================================
-Step                                         ``:group``         Response code range that matches
-===========================================  =================  ================================
-Then the response is "``informational``"     ``informational``  100 to 199
-Then the response is "``client error``"      ``client error``   400 to 499
-Then the response is not "``client error``"  ``client error``   100 to 399 and 500 to 599
-===========================================  =================  ================================
+* Then the response is not "``informational``"
+* Then the response is not "``client error``"
 
-Then the ``:header`` response header (does not) exist(s)
---------------------------------------------------------
+Then the ``:header`` response header exists
+-------------------------------------------
 
-This step can be used to assert that the ``:header`` response header exists, or not (if used with the optional ``does not`` part). The value of ``:header`` is case-insensitive.
+Assert that the ``:header`` response header exists. The value of ``:header`` is case-insensitive.
 
 **Examples:**
 
-*Assume that these response headers exist in the following examples:*
+* Then the "``Vary``" response header exists
+* Then the "``content-length``" response header exists
 
-* *Content-Length: 186*
+Then the ``:header`` response header does not exists
+----------------------------------------------------
 
-============================================================  ==================  ============
-Step                                                          ``:header``         Test passes?
-============================================================  ==================  ============
-Then the "``Vary``" response header exists                    ``Vary``            No
-Then the "``vary``" response header does not exist            ``vary``            Yes
-Then the "``Content-Length``" response header exists          ``Content-Length``  Yes
-Then the "``content-length``" response header does not exist  ``content-length``  No
-============================================================  ==================  ============
-
-Then the ``:header`` response header is|matches ``:value``
-----------------------------------------------------------
-
-This step can be used to verify the value of one or more response headers.
-
-The step supports two different comparison modes, ``is`` and ``matches``. ``is`` will compare the values using string comparison, and when ``matches`` is used, the ``:value`` must be a valid regular expression, complete with delimiters and optional modifiers.
+Assert that the ``:header`` response header does not exist. The value of ``:header`` is case-insensitive.
 
 **Examples:**
 
-*Assume that these response headers exist in the following examples:*
+* Then the "``Vary``" response header does not exist
+* Then the "``content-length``" response header does not exist
 
-* *Content-Length: 14327*
-* *X-Foo: foo, bar*
+Then the ``:header`` response header is ``:value``
+--------------------------------------------------
 
-====================================================================  ==================  =================  ==================  ==============
-Step                                                                  ``:header``         ``:value``         Mode                Matches header
-====================================================================  ==================  =================  ==================  ==============
-Then the "``Content-Length``" response header is "``15000``"          ``Content-Length``  ``15000``          Comparison          No
-Then the "``content-length``" response header matches "``/[0-9]+/``"  ``content-length``  ``/[0-9]+/``       Regular expression  Yes
-Then the "``x-foo``" response header matches "``/(FOO|BAR)/i``"       ``x-foo``           ``/(FOO|BAR)/i``   Regular expression  Yes
-Then the "``X-FOO``" response header matches "``/^(foo|bar)$/``"      ``X-FOO``           ``/^(foo|bar)$/``  Regular expression  No
-Then the "``X-foo``" response header is "``foo, bar``"                ``X-foo``           ``foo, bar``       Comparison          Yes
-====================================================================  ==================  =================  ==================  ==============
+Assert that the value of the ``:header`` response header equals ``:value``. The value of ``:header`` is case-insensitive, but the value of ``:value`` is not.
 
-For more information regarding regular expressions and the usage of modifiers, `refer to the manual <http://php.net/pcre>`_.
+**Examples:**
+
+* Then the "``Content-Length``" response header is "``15000``"
+* Then the "``X-foo``" response header is "``foo, bar``"
+
+Then the ``:header`` response header matches ``:pattern``
+---------------------------------------------------------
+
+Assert that the value of the ``:header`` response header matches the regular expression ``:pattern``. The pattern must be a valid regular expression, including delimiters, and can also include optional modifiers. The value of ``:header`` is case-insensitive.
+
+**Examples:**
+
+* Then the "``content-length``" response header matches "``/[0-9]+/``"
+* Then the "``x-foo``" response header matches "``/(FOO|BAR)/i``"
+* Then the "``X-FOO``" response header matches "``/^(foo|bar)$/``"
+
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+
+Then the response body is an empty JSON object
+----------------------------------------------
+
+Assert that the response body is an empty JSON object (``{}``).
+
+Then the response body is an empty JSON array
+---------------------------------------------
+
+Assert that the response body is an empty JSON array (``[]``).
 
 .. _then-the-response-body-is-an-array-of-length:
 
-Then the response body is an array of length ``:length``
---------------------------------------------------------
+Then the response body is a JSON array of length ``:length``
+------------------------------------------------------------
 
-This step can be used to verify the exact length of a JSON array in the response body.
-
-**Examples:**
-
-*Assume that for the examples below, the response body is ``[1, 2, 3]``.*
-
-==================================================  ===========  ============
-Step                                                ``:length``  Test passes?
-==================================================  ===========  ============
-Then the response body is an array of length ``1``  ``1``        No
-Then the response body is an array of length ``3``  ``3``        Yes
-==================================================  ===========  ============
-
-If the response body does not contain a JSON array, an ``InvalidArgumentException`` exception will be thrown.
-
-Then the response body is an empty array
-----------------------------------------
-
-Assert that the response body is an empty JSON array (`[]`).
-
-Then the response body is an empty object
------------------------------------------
-
-Assert that the response body is an empty JSON object (`{}`).
-
-Then the response body is an array with a length of at least|most ``:length``
------------------------------------------------------------------------------
-
-This step can be used to verify the length of an array, without having to be exact.
+Assert that the length of the JSON array in the response body equals ``:length``.
 
 **Examples:**
 
-*Assume that for the examples below, the response body is [1, 2, 3, 4, 5].*
+* Then the response body is an array of length ``1``
+* Then the response body is an array of length ``3``
 
-==================================================================  ===========  ============
-Step                                                                ``:length``  Test passes?
-==================================================================  ===========  ============
-Then the response body is an array with a length of at most ``4``   ``4``        No
-Then the response body is an array with a length of at least ``4``  ``4``        Yes
-Then the response body is an array with a length of at most ``5``   ``5``        Yes
-Then the response body is an array with a length of at least ``5``  ``5``        Yes
-Then the response body is an array with a length of at most ``6``   ``6``        Yes
-Then the response body is an array with a length of at least ``6``  ``6``        No
-==================================================================  ===========  ============
+If the response body does not contain a JSON array, the test will fail.
+
+Then the response body is a JSON array with a length of at least ``:length``
+----------------------------------------------------------------------------
+
+Assert that the length of the JSON array in the response body has a length of at least ``:length``.
+
+**Examples:**
+
+* Then the response body is an array with a length of at least ``4``
+* Then the response body is an array with a length of at least ``5``
+
+If the response body does not contain a JSON array, the test will fail.
+
+Then the response body is a JSON array with a length of at most ``:length``
+---------------------------------------------------------------------------
+
+Assert that the length of the JSON array in the response body has a length of at most ``:length``.
+
+**Examples:**
+
+* Then the response body is an array with a length of at most ``4``
+* Then the response body is an array with a length of at most ``5``
+
+If the response body does not contain a JSON array, the test will fail.
 
 Then the response body is: ``<PyStringNode>``
 ---------------------------------------------
 
-Compare the response body to the text found in the ``<PyStringNode>`` using string comparison.
+Assert that the response body equals the text found in the ``<PyStringNode>``. The comparison is case-sensitive.
 
 **Examples:**
 
@@ -197,7 +202,7 @@ Compare the response body to the text found in the ``<PyStringNode>`` using stri
 Then the response body matches: ``<PyStringNode>``
 --------------------------------------------------
 
-Match the response body to the regular expression found in the content of ``<PyStringNode>``. The expression must be a valid regular expression, including delimiters and optional modifiers.
+Assert that the response body matches the regular expression pattern found in ``<PyStringNode>``. The expression must be a valid regular expression, including delimiters and optional modifiers.
 
 **Examples:**
 
@@ -215,8 +220,8 @@ Match the response body to the regular expression found in the content of ``<PyS
         /foo/
         """
 
-Then the response body contains: ``<PyStringNode>``
----------------------------------------------------
+Then the response body contains JSON: ``<PyStringNode>``
+--------------------------------------------------------
 
 Used to recursively match the response body against a JSON blob (used for comparing objects, not regular arrays). The following occurs when using this step:
 

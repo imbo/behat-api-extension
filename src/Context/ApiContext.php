@@ -8,6 +8,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert\Assertion;
@@ -59,9 +60,19 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     protected $response;
 
     /**
+     * Array container for the history middleware
+     *
+     * @var array
+     */
+    protected $history = [];
+
+    /**
      * {@inheritdoc}
      */
     public function setClient(ClientInterface $client) {
+        // Push the history middleware to the handler stack of the client
+        $client->getConfig()['handler']->push(Middleware::history($this->history));
+
         $this->client = $client;
         $this->request = new Request('GET', $client->getConfig('base_uri'));
 

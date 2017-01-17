@@ -53,7 +53,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
      */
     public function initializeContext(Context $context) {
         if ($context instanceof ApiClientAwareContext) {
-            $context->setClient($this->client);
+            $context->setClient(clone $this->client);
         }
     }
 }

@@ -175,5 +175,12 @@ $app->get('/emptyObject', function(Application $app) {
     return new JsonResponse(new stdClass());
 });
 
+/**
+ * Return a response with 403 Forbidden
+ */
+$app->get('/403', function(Application $app) {
+    return (new Response())->setStatusCode(403);
+});
+
 // Run the application
 $app->run();

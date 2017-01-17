@@ -778,7 +778,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws RequestException
      * @return self
      */
-    private function sendRequest() {
+    protected function sendRequest() {
         if (!empty($this->requestOptions['form_params'])) {
             $this->setRequestMethod('POST');
         }
@@ -846,7 +846,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @return array An array with two keys, min and max, which represents the min and max values
      *               for $group
      */
-    private function getResponseCodeGroupRange($group) {
+    protected function getResponseCodeGroupRange($group) {
         switch ($group) {
             case 'informational':
                 $min = 100;
@@ -885,7 +885,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws InvalidArgumentException
      * @return int
      */
-    private function validateResponseCode($code) {
+    protected function validateResponseCode($code) {
         $code = (int) $code;
 
         try {
@@ -903,7 +903,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $path The path to request
      * @return self
      */
-    private function setRequestPath($path) {
+    protected function setRequestPath($path) {
         // Resolve the path with the base_uri set in the client
         $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
         $this->request = $this->request->withUri($uri);
@@ -917,7 +917,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @param string $method The HTTP method
      * @return self
      */
-    private function setRequestMethod($method) {
+    protected function setRequestMethod($method) {
         $this->request = $this->request->withMethod($method);
 
         return $this;
@@ -929,7 +929,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws InvalidArgumentException
      * @return array|stdClass
      */
-    private function getResponseBody() {
+    protected function getResponseBody() {
         $body = json_decode((string) $this->response->getBody());
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -947,7 +947,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @throws InvalidArgumentException
      * @return array
      */
-    private function getResponseBodyArray() {
+    protected function getResponseBodyArray() {
         if (!is_array($body = $this->getResponseBody())) {
             throw new InvalidArgumentException('The response body does not contain a valid JSON array.');
         }

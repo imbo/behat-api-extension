@@ -50,18 +50,17 @@ function is_readable($path) {
 class ApiContextText extends PHPUnit_Framework_TestCase {
     private $mockHandler;
     private $handlerStack;
-    private $historyContainer;
+    private $historyContainer = [];
     private $context;
     private $client;
     private $baseUri = 'http://localhost:9876';
 
     public function setUp() {
         $this->historyContainer = [];
-        $this->history = Middleware::history($this->historyContainer);
 
         $this->mockHandler = new MockHandler();
         $this->handlerStack = HandlerStack::create($this->mockHandler);
-        $this->handlerStack->push($this->history);
+        $this->handlerStack->push(Middleware::history($this->historyContainer));
         $this->client = new Client([
             'handler' => $this->handlerStack,
             'base_uri' => $this->baseUri,

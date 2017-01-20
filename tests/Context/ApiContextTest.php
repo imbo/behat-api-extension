@@ -598,7 +598,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Response was not supposed to be success (actual response code: 200)
+     * @expectedExceptionMessage Did not expect response to be in the "success" group (response code: 200).
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
      */
@@ -622,7 +622,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Response code 200 is not in the "server error" group
+     * @expectedExceptionMessage Expected response group "server error", got "success" (response code: 200).
      * @covers ::assertResponseIs
      * @covers ::getResponseCodeGroupRange
      */
@@ -653,7 +653,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Value "response body" is not the same as expected value "foo".
+     * @expectedExceptionMessage Expected response body "foo", got "response body".
      * @covers ::assertResponseBodyIs
      */
     public function testAssertResponseBodyIsWithNonMatchingBody() {
@@ -683,7 +683,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Value "{"foo":"bar"}" does not match expression.
+     * @expectedExceptionMessage Expected response body to match regular expression "/^{"FOO": "BAR"}$/", got "{"foo":"bar"}".
      * @covers ::assertResponseBodyMatches
      */
     public function testAssertResponseBodyMatchesWithAPatternThatDoesNotMatch() {
@@ -696,7 +696,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getInvalidHttpResponseCodes
      * @covers ::validateResponseCode
      */
-    public function testAssertResponseCodeIsUSingAnInvalidCode($code) {
+    public function testAssertResponseCodeIsUsingAnInvalidCode($code) {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
 
@@ -808,7 +808,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Response header mismatch, expected the "Content-Type" header to be "application/xml", got "application/json".
+     * @expectedExceptionMessage Expected the "Content-Type" response header to be "application/xml", got "application/json".
      * @covers ::assertResponseHeaderIs
      */
     public function testAssertResponseHeaderIsWhenValueDoesNotMatch() {
@@ -838,7 +838,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Response header mismatch, the value of the "Content-Type" header ("application/json") does not match the regular expression: "#^application/xml$#".
+     * @expectedExceptionMessage Expected the "Content-Type" response header to match the regular expression "#^application/xml$#", got "application/json".
      * @covers ::assertResponseHeaderMatches
      */
     public function testAssertResponseHeaderMatchesWhenValueDoesNotMatch() {
@@ -868,7 +868,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
-            $this->expectExceptionMessage(sprintf('Wrong length for the array in the response body. Expected %d, got %d.', $lengthToUse, count($body)));
+            $this->expectExceptionMessage(sprintf(
+                'Expected response to be a JSON array with %d entries, got "',
+                $lengthToUse
+            ));
         }
 
         $this->context->assertResponseBodyJsonArrayLength($lengthToUse);
@@ -887,7 +890,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected empty JSON array in response body, got an array with 3 entries.
+     * @expectedExceptionMessage Expected response to be an empty JSON array, got "[
      * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
@@ -910,7 +913,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Response body is not a JSON object.
+     * @expectedExceptionMessage Expected response body to be a JSON object.
      */
     public function testAssertResponseBodyIsAnEmptyJsonObjectWhenTheResponseBodyIsNotAnObject() {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
@@ -921,7 +924,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage JSON object in response body is not empty.
+     * @expectedExceptionMessage Expected response body to be an empty JSON object, got "{
      */
     public function testAssertResponseBodyIsAnEmptyJsonObjectWhenItIsNot() {
         $object = new stdClass();
@@ -965,9 +968,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
             $this->expectExceptionMessage(sprintf(
-                'Array length should be at least %d, but length was %d',
-                $lengthToUse,
-                count($body)
+                'Expected response to be a JSON array with at least %d entries, got "[',
+                $lengthToUse
             ));
         }
 
@@ -1008,9 +1010,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
             $this->expectExceptionMessage(sprintf(
-                'Array length should be at most %d, but length was %d',
-                $lengthToUse,
-                count($body)
+                'Expected response to be a JSON array with at most %d entries, got "[',
+                $lengthToUse
             ));
         }
 
@@ -1186,7 +1187,7 @@ BAR;
     /**
      * @covers ::assertResponseReasonPhraseIs
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Invalid HTTP response reason phrase, expected "ok", got "OK"
+     * @expectedExceptionMessage Expected response reason phrase "ok", got "OK".
      */
     public function testAssertResponseReasonPhraseIsCanFail() {
         $this->mockHandler->append(new Response());
@@ -1206,7 +1207,7 @@ BAR;
     /**
      * @covers ::assertResponseReasonPhraseIsNot
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Invalid HTTP response reason phrase, did not expect "OK"
+     * @expectedExceptionMessage Did not expect response reason phrase "OK".
      */
     public function testAssertResponseReasonPhraseIsNotFailure() {
         $this->mockHandler->append(new Response());
@@ -1229,7 +1230,7 @@ BAR;
     /**
      * @covers ::assertResponseStatusLineIs
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Response status line did not match. Expected "200 Foobar", got "200 OK"
+     * @expectedExceptionMessage Expected response status line "200 Foobar", got "200 OK".
      */
     public function testAssertResponseStatusLineCanFail() {
         $this->mockHandler->append(new Response());
@@ -1249,7 +1250,7 @@ BAR;
     /**
      * @covers ::assertResponseStatusLineIsNot
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Invalid HTTP response status line. Did not expect "200 OK"
+     * @expectedExceptionMessage Did not expect response status line "200 OK".
      */
     public function testAssertResponseStatusLineIsNotFailure() {
         $this->mockHandler->append(new Response());

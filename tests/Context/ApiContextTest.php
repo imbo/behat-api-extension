@@ -355,6 +355,41 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getDataForResponseGroupFailures() {
+        return [
+            'informational' => [
+                'responseCode' => 100,
+                'actualGroup' => 'informational',
+                'expectedGroup' => 'success',
+            ],
+            'success' => [
+                'responseCode' => 200,
+                'actualGroup' => 'success',
+                'expectedGroup' => 'informational',
+            ],
+            'redirection' => [
+                'responseCode' => 300,
+                'actualGroup' => 'redirection',
+                'expectedGroup' => 'success',
+            ],
+            'client error' => [
+                'responseCode' => 400,
+                'actualGroup' => 'client error',
+                'expectedGroup' => 'success',
+            ],
+            'server error' => [
+                'responseCode' => 500,
+                'actualGroup' => 'server error',
+                'expectedGroup' => 'success',
+            ],
+        ];
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage File does not exist: "/foo/bar"
      * @covers ::addMultipartFileToRequest
@@ -621,15 +656,27 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response group "server error", got "success" (response code: 200).
+     * @dataProvider getDataForResponseGroupFailures
      * @covers ::assertResponseIs
      * @covers ::getResponseCodeGroupRange
+     * @covers ::getResponseGroup
+     *
+     * @param int $responseCode
+     * @param string $actualGroup
+     * @param string $expectedGroup
      */
-    public function testAssertResponseIsFailure() {
-        $this->mockHandler->append(new Response(200));
+    public function testAssertResponseIsFailure($responseCode, $actualGroup, $expectedGroup) {
+        $this->mockHandler->append(new Response($responseCode));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseIs('server error');
+
+        $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
+        $this->expectExceptionMessage(sprintf(
+            'Expected response group "%s", got "%s" (response code: %d).',
+            $expectedGroup,
+            $actualGroup,
+            $responseCode
+        ));
+        $this->context->assertResponseIs($expectedGroup);
     }
 
     /**

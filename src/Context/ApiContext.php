@@ -257,16 +257,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response code is :code
      */
     public function assertResponseCodeIs($code) {
-        $expected = $this->validateResponseCode($code);
-
         $this->requireResponse();
-
-        $actual = $this->response->getStatusCode();
 
         try {
             Assertion::same(
-                $actual,
-                $expected,
+                $actual = $this->response->getStatusCode(),
+                $expected = $this->validateResponseCode($code),
                 sprintf('Expected response code %d, got %d.', $expected, $actual)
             );
         } catch (AssertionFailure $e) {
@@ -284,16 +280,12 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response code is not :code
      */
     public function assertResponseCodeIsNot($code) {
-        $expected = $this->validateResponseCode($code);
-
         $this->requireResponse();
-
-        $actual = $this->response->getStatusCode();
 
         try {
             Assertion::notSame(
-                $actual,
-                $expected,
+                $actual = $this->response->getStatusCode(),
+                $this->validateResponseCode($code),
                 sprintf('Did not expect response code %d.', $actual)
             );
         } catch (AssertionFailure $e) {
@@ -333,7 +325,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseReasonPhraseIsNot($phrase) {
         try {
-            Assertion::notSame($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
+            Assertion::notSame($phrase, $this->response->getReasonPhrase(), sprintf(
                 'Did not expect response reason phrase "%s".',
                 $phrase
             ));
@@ -414,12 +406,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseIs($group) {
         $this->requireResponse();
-
-        $code = $this->response->getStatusCode();
         $range = $this->getResponseCodeGroupRange($group);
 
         try {
-            Assertion::range($code, $range['min'], $range['max']);
+            Assertion::range($code = $this->response->getStatusCode(), $range['min'], $range['max']);
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException(sprintf(
                 'Expected response group "%s", got "%s" (response code: %d).',
@@ -518,11 +508,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseHeaderIs($header, $value) {
         $this->requireResponse();
-        $actual = $this->response->getHeaderLine($header);
 
         try {
             Assertion::same(
-                $actual,
+                $actual = $this->response->getHeaderLine($header),
                 $value,
                 sprintf(
                     'Expected the "%s" response header to be "%s", got "%s".',
@@ -548,11 +537,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseHeaderMatches($header, $pattern) {
         $this->requireResponse();
-        $actual = $this->response->getHeaderLine($header);
 
         try {
             Assertion::regex(
-                $actual,
+                $actual = $this->response->getHeaderLine($header),
                 $pattern,
                 sprintf(
                     'Expected the "%s" response header to match the regular expression "%s", got "%s".',
@@ -600,12 +588,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     public function assertResponseBodyIsAnEmptyJsonArray() {
         $this->requireResponse();
 
-        $body = $this->getResponseBodyArray();
-
         try {
             Assertion::same(
                 [],
-                $body,
+                $body = $this->getResponseBodyArray(),
                 sprintf('Expected response to be an empty JSON array, got "%s".', json_encode($body, JSON_PRETTY_PRINT))
             );
         } catch (AssertionFailure $e) {
@@ -622,15 +608,14 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      *
      * @Then the response body is a JSON array of length :length
      */
-    public function assertResponseBodyJsonArrayLength($length = 0) {
+    public function assertResponseBodyJsonArrayLength($length) {
         $this->requireResponse();
-
-        $body = $this->getResponseBodyArray();
+        $length = (int) $length;
 
         try {
             Assertion::count(
-                $body,
-                (int) $length,
+                $body = $this->getResponseBodyArray(),
+                $length,
                 sprintf(
                     'Expected response to be a JSON array with %d entries, got "%s".',
                     $length,
@@ -763,8 +748,6 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseBodyContainsJson(PyStringNode $contains, ArrayContainsComparator $comparator = null) {
         $this->requireResponse();
-
-        $body = $this->getResponseBody();
         $contains = json_decode((string) $contains);
 
         try {
@@ -778,7 +761,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         }
 
         // Convert both objects to arrays
-        $body = json_decode(json_encode($body), true);
+        $body = json_decode(json_encode($this->getResponseBody()), true);
         $contains = json_decode(json_encode($contains), true);
 
         if ($comparator === null) {

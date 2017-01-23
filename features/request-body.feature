@@ -69,19 +69,3 @@ Feature: Test steps to set a request body
             1 scenario (1 passed)
             4 steps (4 passed)
             """
-
-    Scenario: Set the request body to the contents of a file that does not exist
-        Given a file named "features/givens.feature" with:
-            """
-            Feature: Set the request body to a path
-                Scenario: Use steps to set the request body
-                    Given the request body contains "some/file.txt"
-            """
-        When I run "behat features/givens.feature"
-        Then it should fail with:
-            """
-            File does not exist: "some/file.txt" (InvalidArgumentException)
-
-            1 scenario (1 failed)
-            1 step (1 failed)
-            """

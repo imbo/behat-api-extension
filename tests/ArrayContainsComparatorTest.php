@@ -113,23 +113,18 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
         return [
             'integer value' => [
                 'value' => 2,
-                'parsed' => 2,
             ],
             'float value' => [
                 'value' => 1.1,
-                'parsed' => 1.1,
             ],
             'boolean value' => [
                 'value' => true,
-                'parsed' => false,
             ],
             'array value' => [
                 'value' => [1, 2, 3],
-                'parsed' => [1, 2, 3],
             ],
             'regular string value' => [
                 'value' => 'foobar',
-                'parsed' => 'foobar',
             ],
         ];
     }
@@ -522,6 +517,10 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getPatternsAndStrings
      * @covers ::matchString
+     *
+     * @param string $pattern
+     * @param string $string
+     * @param boolean $success
      */
     public function testMatchString($pattern, $string, $success) {
         $result = $this->comparator->matchString($pattern, $string);
@@ -541,8 +540,12 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getArraysAndLength
      * @covers ::arrayLengthIs
+     *
+     * @param array $array
+     * @param int $length
+     * @param boolean $success
      */
-    public function testArrayLengthIs($array, $length, $success) {
+    public function testArrayLengthIs(array $array, $length, $success) {
         $result = $this->comparator->arrayLengthIs($array, $length);
         $this->assertSame('@length', $key = key($result));
         $this->assertSame($success, $result[$key]);
@@ -560,8 +563,12 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getArraysAndAtLeastLength
      * @covers ::arrayLengthIsAtLeast
+     *
+     * @param array $array
+     * @param int $min
+     * @param boolean $success
      */
-    public function testArrayLengthIsAtLeast($array, $min, $success) {
+    public function testArrayLengthIsAtLeast(array $array, $min, $success) {
         $result = $this->comparator->arrayLengthIsAtLeast($array, $min);
         $this->assertSame('@atLeast', $key = key($result));
         $this->assertSame($success, $result[$key]);
@@ -579,8 +586,12 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getArraysAndAtMostLength
      * @covers ::arrayLengthIsAtMost
+     *
+     * @param array $array
+     * @param int $max
+     * @param boolean $success
      */
-    public function testArrayLengthIsAtMost($array, $max, $success) {
+    public function testArrayLengthIsAtMost(array $array, $max, $success) {
         $result = $this->comparator->arrayLengthIsAtMost($array, $max);
         $this->assertSame('@atMost', $key = key($result));
         $this->assertSame($success, $result[$key]);
@@ -589,6 +600,8 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getRegularNeedleValues
      * @covers ::parseNeedleValue
+     *
+     * @param int|string|boolean|array $value
      */
     public function testParseRegularNeedleValue($value) {
         $this->assertSame($this->comparator->parseNeedleValue($value), $value);
@@ -597,6 +610,10 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getCallbackNeedleValues
      * @covers ::parseNeedleValue
+     *
+     * @param string $needle
+     * @param mixed $callbackParam
+     * @param string $methodName
      */
     public function testParseCallbackNeedleValues($needle, $callbackParam, $methodName) {
         $callback = $this->comparator->parseNeedleValue($needle);
@@ -611,6 +628,12 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
      * @dataProvider getValuesToCompare
      * @covers ::compare
      * @covers ::compareHaystackValueWithCallback
+     *
+     * @param array $haystack
+     * @param array $needle
+     * @param boolean $willFail
+     * @param null|string $exception
+     * @param null|string $exceptionMessage
      */
     public function testCompareValues(array $haystack, array $needle, $willFail = false, $exception = null, $exceptionMessage = null) {
         if ($willFail) {
@@ -712,8 +735,14 @@ class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getNumericalArrayValuesAndNeedles
      * @covers ::compare
+     *
+     * @param array $haystack
+     * @param array $needle
+     * @param boolean $willFail
+     * @param null|string $exception
+     * @param null|string $exceptionMessage
      */
-    public function testCompareWhenRootNodeIsNumericalArray($haystack, $needle, $willFail = false, $exception = null, $exceptionMessage = null) {
+    public function testCompareWhenRootNodeIsNumericalArray(array $haystack, array $needle, $willFail = false, $exception = null, $exceptionMessage = null) {
         if ($willFail) {
             $this->expectException($exception);
             $this->expectExceptionMessage($exceptionMessage);

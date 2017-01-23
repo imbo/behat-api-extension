@@ -492,6 +492,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::setRequestPath
      * @covers ::setRequestMethod
      * @covers ::sendRequest
+     *
+     * @param string $method
      */
     public function testWhenIRequestPathUsesTheCorrectHTTPMethod($method) {
         $this->mockHandler->append(new Response(200));
@@ -536,6 +538,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getResponseCodes
      * @covers ::assertResponseCodeIs
      * @covers ::validateResponseCode
+     *
+     * @param int $code
      */
     public function testAssertResponseCodeIs($code) {
         $this->mockHandler->append(new Response($code));
@@ -557,6 +561,9 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getResponseCodes
      * @covers ::assertResponseCodeIsNot
      * @covers ::validateResponseCode
+     *
+     * @param int $code
+     * @param int[] $otherCodes
      */
     public function testAssertResponseCodeIsNot($code, array $otherCodes) {
         $this->mockHandler->append(new Response($code));
@@ -597,6 +604,9 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @covers ::assertResponseIs
      * @covers ::requireResponse
      * @covers ::getResponseCodeGroupRange
+     *
+     * @param string $group
+     * @param int[] $codes
      */
     public function testAssertResponseIs($group, array $codes) {
         foreach ($codes as $code) {
@@ -610,6 +620,9 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getGroupAndResponseCodes
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
+     *
+     * @param string $group
+     * @param int[] $codes
      */
     public function testAssertResponseIsNot($group, array $codes) {
         $groups = [
@@ -742,6 +755,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getInvalidHttpResponseCodes
      * @covers ::validateResponseCode
+     *
+     * @param int $code
      */
     public function testAssertResponseCodeIsUsingAnInvalidCode($code) {
         $this->mockHandler->append(new Response(200));
@@ -908,6 +923,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
+     *
+     * @param array $body
+     * @param int $lenthToUse
+     * @param boolean $willFail
      */
     public function testAssertResponseBodyJsonArrayLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
@@ -1009,6 +1028,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getResponseBodyArraysForAtLeast
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
+     *
+     * @param array $body
+     * @param int $lengthToUse
+     * @param boolean $willFail
      */
     public function testAssertResponseBodyJsonArrayMinLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
@@ -1053,6 +1076,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getResponseBodyArraysForAtMost
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
+     *
+     * @param array $body
+     * @param int $lengthToUse
+     * @param boolean $willFail
      */
     public function testAssertResponseBodyJsonArrayMaxLength(array $body, $lengthToUse, $willFail) {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
@@ -1228,6 +1255,7 @@ BAR;
     /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseReasonPhraseIs
+     *
      * @param int $code The HTTP response code
      * @param string $phrase The HTTP response reason phrase
      */
@@ -1271,6 +1299,7 @@ BAR;
     /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseStatusLineIs
+     *
      * @param int $code The HTTP response code
      * @param string $phrase The HTTP response reason phrase
      */
@@ -1332,6 +1361,7 @@ BAR;
     /**
      * @dataProvider getRequestBodyValues
      * @covers ::setRequestBody
+     *
      * @param string|PyStringNode $data
      * @param string $expected
      */
@@ -1384,6 +1414,7 @@ BAR;
      * @dataProvider getUris
      * @covers ::setClient
      * @covers ::setRequestPath
+     *
      * @param string $baseUri
      * @param string $path
      * @param string $fullUri

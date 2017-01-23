@@ -869,8 +869,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
             $this->expectExceptionMessage(sprintf(
-                'Expected response to be a JSON array with %d entries, got "',
-                $lengthToUse
+                'Expected response body to be a JSON array with %d entr%s, got %d: "[',
+                $lengthToUse,
+                (int) $lengthToUse === 1 ? 'y' : 'ies',
+                count($body)
             ));
         }
 
@@ -890,7 +892,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response to be an empty JSON array, got "[
+     * @expectedExceptionMessage Expected response body to be an empty JSON array, got "[
      * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
@@ -968,8 +970,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
             $this->expectExceptionMessage(sprintf(
-                'Expected response to be a JSON array with at least %d entries, got "[',
-                $lengthToUse
+                'Expected response body to be a JSON array with at least %d entr%s, got %d: "[',
+                $lengthToUse,
+                (int) $lengthToUse === 1 ? 'y' : 'ies',
+                count($body)
             ));
         }
 
@@ -1010,8 +1014,10 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         if ($willFail) {
             $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
             $this->expectExceptionMessage(sprintf(
-                'Expected response to be a JSON array with at most %d entries, got "[',
-                $lengthToUse
+                'Expected response body to be a JSON array with at most %d entr%s, got %d: "[',
+                $lengthToUse,
+                (int) $lengthToUse === 1 ? 'y' : 'ies',
+                count($body)
             ));
         }
 

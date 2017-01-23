@@ -592,7 +592,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
             Assertion::same(
                 [],
                 $body = $this->getResponseBodyArray(),
-                sprintf('Expected response to be an empty JSON array, got "%s".', json_encode($body, JSON_PRETTY_PRINT))
+                sprintf('Expected response body to be an empty JSON array, got "%s".', json_encode($body, JSON_PRETTY_PRINT))
             );
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException($e->getMessage());
@@ -617,8 +617,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
                 $body = $this->getResponseBodyArray(),
                 $length,
                 sprintf(
-                    'Expected response to be a JSON array with %d entries, got "%s".',
+                    'Expected response body to be a JSON array with %d entr%s, got %d: "%s".',
                     $length,
+                    $length === 1 ? 'y' : 'ies',
+                    count($body),
                     json_encode($body, JSON_PRETTY_PRINT)
                 )
             );
@@ -644,11 +646,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         try {
             Assertion::min(
-                count($body),
+                $bodyLength = count($body),
                 $length,
                 sprintf(
-                    'Expected response to be a JSON array with at least %d entries, got "%s".',
+                    'Expected response body to be a JSON array with at least %d entr%s, got %d: "%s".',
                     $length,
+                    (int) $length === 1 ? 'y' : 'ies',
+                    $bodyLength,
                     json_encode($body, JSON_PRETTY_PRINT)
                 )
             );
@@ -674,11 +678,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         try {
             Assertion::max(
-                count($body),
+                $bodyLength = count($body),
                 $length,
                 sprintf(
-                    'Expected response to be a JSON array with at most %d entries, got "%s".',
+                    'Expected response body to be a JSON array with at most %d entr%s, got %d: "%s".',
                     $length,
+                    (int) $length === 1 ? 'y' : 'ies',
+                    $bodyLength,
                     json_encode($body, JSON_PRETTY_PRINT)
                 )
             );

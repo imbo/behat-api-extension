@@ -28,7 +28,7 @@ Feature: Setup steps can fail
         When I run "behat features/attach-multipart-file-that-does-not-exist.feature"
         Then it should fail with:
             """
-            File does not exist: /foo/bar (InvalidArgumentException)
+            File does not exist: "/foo/bar" (InvalidArgumentException)
 
             1 scenario (1 failed)
             """

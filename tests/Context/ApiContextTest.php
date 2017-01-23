@@ -356,7 +356,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage File does not exist: /foo/bar
+     * @expectedExceptionMessage File does not exist: "/foo/bar"
      * @covers ::addMultipartFileToRequest
      */
     public function testGivenIAttachAFileToTheRequestThatDoesNotExist() {

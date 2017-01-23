@@ -81,7 +81,7 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function addMultipartFileToRequest($path, $partName) {
         if (!file_exists($path)) {
-            throw new InvalidArgumentException(sprintf('File does not exist: %s', $path));
+            throw new InvalidArgumentException(sprintf('File does not exist: "%s"', $path));
         }
 
         // Create the multipart entry in the request options if it does not already exist

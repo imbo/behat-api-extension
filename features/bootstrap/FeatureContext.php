@@ -41,6 +41,7 @@ class FeatureContext implements SnippetAcceptingContext {
      * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists
      *
      * @param SuiteScope $scope
+     *
      * @BeforeSuite
      * @AfterSuite
      */
@@ -57,6 +58,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param BeforeScenarioScope $scope
      * @throws RuntimeException
+     *
      * @BeforeScenario
      */
     public function prepareScenario(BeforeScenarioScope $scope) {
@@ -79,6 +81,7 @@ class FeatureContext implements SnippetAcceptingContext {
      * @param string $filename Name of the file relative to the working dir
      * @param PyStringNode $content Content of the file
      * @param boolean $readable Whether or not the created file is readable
+     *
      * @Given a file named :filename with:
      */
     public function createFile($filename, PyStringNode $content, $readable = true) {
@@ -102,6 +105,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param string $filename Name of the file relative to the working dir
      * @param PyStringNode $content Content of the file
+     *
      * @Given a non-readable file named :filename with:
      */
     public function createNonReadableFile($filename, PyStringNode $content) {
@@ -136,6 +140,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param string $result
      * @param PyStringNode $output
+     *
      * @Then /^it should (fail|pass) with:$/
      */
     public function assertCommandResultWithOutput($result, PyStringNode $output) {
@@ -147,7 +152,8 @@ class FeatureContext implements SnippetAcceptingContext {
      * Assert command output contains a string
      *
      * @param PyStringNode $output
-     * @Then /^the output should contain:$/
+     *
+     * @Then the output should contain:
      */
     public function assertCommandOutputMatches(PyStringNode $content) {
         Assertion::contains(

@@ -75,6 +75,18 @@ Assert that the response status line does not equal ``:line``. The comparison is
 * Then the response status line is not "``200 OK``"
 * Then the response status line is not "``304 Not Modified``"
 
+Then the response status line matches ``:pattern``
+--------------------------------------------------
+
+Assert that the response status line matches the regular expression ``:pattern``. The pattern must be a valid regular expression, including delimiters, and can also include optional modifiers.
+
+**Examples:**
+
+* Then the response status line matches "``/200 ok/i``"
+* Then the response status line matches "``/200 OK/``"
+
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+
 Then the response is ``:group``
 -------------------------------
 

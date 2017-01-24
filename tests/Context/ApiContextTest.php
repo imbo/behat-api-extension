@@ -1529,4 +1529,33 @@ BAR;
         $this->context->assertResponseReasonPhraseMatches('/ok/');
     }
 
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseStatusLineMatches
+     * @covers ::requireResponse
+     */
+    public function testAssertResponseStatusLineMatchesWhenNoResponseExists() {
+        $this->context->assertResponseStatusLineMatches('/200 OK/');
+    }
+
+    /**
+     * @covers ::assertResponseStatusLineMatches
+     */
+    public function testAssertResponseStatusLineMatches() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseStatusLineMatches('/200 OK/');
+    }
+
+    /**
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Expected the response status line to match the regular expression "/200 ok/", got "200 OK".
+     * @covers ::assertResponseStatusLineMatches
+     */
+    public function testAssertResponseStatusLineMatchesWhenValueDoesNotMatch() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseStatusLineMatches('/200 ok/');
+    }
 }

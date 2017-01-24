@@ -422,6 +422,38 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the HTTP response status line matches a regular expression
+     *
+     * @param string $pattern Regular expression pattern
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the response status line matches :expression
+     */
+    public function assertResponseStatusLineMatches($pattern) {
+        $this->requireResponse();
+
+        try {
+            $actualStatusLine = sprintf(
+                '%d %s',
+                $this->response->getStatusCode(),
+                $this->response->getReasonPhrase()
+            );
+
+            Assertion::regex(
+                $actualStatusLine,
+                $pattern,
+                sprintf(
+                    'Expected the response status line to match the regular expression "%s", got "%s".',
+                    $pattern,
+                    $actualStatusLine
+                ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+    }
+
+    /**
      * Checks if the HTTP response code is in a group
      *
      * Allowed groups are:

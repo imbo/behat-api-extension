@@ -102,6 +102,20 @@ Feature: Assertion steps can fail
             Did not expect response status line "200 OK". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
             """
 
+    Scenario: Assert response status line matches failure
+        Given a file named "features/assert-response-status-line-matches.feature" with:
+            """
+            Feature: Make request and assert response status line matches
+                Scenario: Make request
+                    When I request "/"
+                    Then the response status line matches "/200 ok/"
+            """
+        When I run "behat features/assert-response-status-line-matches.feature"
+        Then it should fail with:
+            """
+            Expected the response status line to match the regular expression "/200 ok/", got "200 OK". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
+            """
+
     Scenario: Assert response group is failure
         Given a file named "features/assert-response-group.feature" with:
             """

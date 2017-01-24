@@ -43,6 +43,18 @@ Assert that the response reason phrase does not equal ``:phrase``. The compariso
 * Then the response reason phrase is not "``OK``"
 * Then the response reason phrase is not "``Bad Request``"
 
+Then the response reason phrase matches ``:pattern``
+----------------------------------------------------
+
+Assert that the response reason phrase matches the regular expression ``:pattern``. The pattern must be a valid regular expression, including delimiters, and can also include optional modifiers.
+
+**Examples:**
+
+* Then the response reason phrase matches "``/ok/i``"
+* Then the response reason phrase matches "``/OK/``"
+
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+
 Then the response status line is ``:line``
 ------------------------------------------
 

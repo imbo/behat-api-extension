@@ -6,15 +6,25 @@ use Symfony\Component\Config\Definition\Processor;
 use PHPUnit_Framework_TestCase;
 
 /**
- * @covers Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
+ * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
  */
 class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
+    /**
+     * @var BehatApiExtension
+     */
     private $extension;
 
+    /**
+     * Set up the SUT
+     */
     public function setUp() {
         $this->extension = new BehatApiExtension();
     }
 
+    /**
+     * @covers ::getConfigKey
+     * @covers ::configure
+     */
     public function testBuildsConfiguration() {
         $tree = new TreeBuilder();
         $root = $tree->root('root');

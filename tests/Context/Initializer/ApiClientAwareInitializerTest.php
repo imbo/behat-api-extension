@@ -7,9 +7,13 @@ use PHPUnit_Framework_TestCase;
 use RuntimeException;
 
 /**
- * @covers Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
+ * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
  */
 class ApiClientAwareInitializerText extends PHPUnit_Framework_TestCase {
+    /**
+     * @covers ::initializeContext
+     * @covers ::__construct
+     */
     public function testInjectsClientWhenInitializingContext() {
         // Create a socket on localhost:9999 to not have the constructor throw an exception
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -26,6 +30,9 @@ class ApiClientAwareInitializerText extends PHPUnit_Framework_TestCase {
         socket_close($socket);
     }
 
+    /**
+     * @covers ::__construct
+     */
     public function testInjectContainerThatCanNotConnectToBaseUri() {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Can not connect to localhost:9999');

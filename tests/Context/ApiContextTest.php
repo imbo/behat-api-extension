@@ -48,13 +48,39 @@ function is_readable($path) {
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
  */
 class ApiContextText extends PHPUnit_Framework_TestCase {
+    /**
+     * @var MockHandler
+     */
     private $mockHandler;
+
+    /**
+     * @var GuzzleHttp\HandlerStack
+     */
     private $handlerStack;
+
+    /**
+     * @var array
+     */
     private $historyContainer = [];
+
+    /**
+     * @var ApiContext
+     */
     private $context;
+
+    /**
+     * @var Client
+     */
     private $client;
+
+    /**
+     * @var string
+     */
     private $baseUri = 'http://localhost:9876';
 
+    /**
+     * Set up the SUT
+     */
     public function setUp() {
         $this->historyContainer = [];
 

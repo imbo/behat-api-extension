@@ -9,8 +9,14 @@ use RuntimeException;
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
  */
 class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
+    /**
+     * @var ArrayContainsComparator
+     */
     private $comparator;
 
+    /**
+     * Set up the SUT
+     */
     public function setUp() {
         $this->comparator = new ArrayContainsComparator();
     }

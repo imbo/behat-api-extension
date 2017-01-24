@@ -3,6 +3,9 @@ Send the request
 
 After setting up the request it can be sent to the server in a few different ways. Keep in mind that all configuration regarding the request must be done prior to any of the following steps, as they will actually send the request.
 
+.. contents:: Available steps
+    :local:
+
 When I request ``:path``
 ------------------------
 

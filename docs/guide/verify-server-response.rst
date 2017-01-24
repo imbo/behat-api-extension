@@ -3,6 +3,9 @@ Verify server response
 
 After a request has been sent, some steps exist that can be used to verify the response from the server.
 
+.. contents:: Available steps
+    :local:
+
 Then the response code is ``:code``
 -----------------------------------
 

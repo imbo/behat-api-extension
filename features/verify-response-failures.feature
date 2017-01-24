@@ -186,6 +186,20 @@ Feature: Assertion steps can fail
             Expected the "X-Foo" response header to be "bar", got "foo". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
             """
 
+    Scenario: Assert response header is not failure
+        Given a file named "features/assert-response-header-is-not.feature" with:
+            """
+            Feature: Make request and assert response header is not
+                Scenario: Make request
+                    When I request "/"
+                    Then the "X-Foo" response header is not "foo"
+            """
+        When I run "behat features/assert-response-header-is-not.feature"
+        Then it should fail with:
+            """
+            Did not expect the "X-Foo" response header to be "foo". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
+            """
+
     Scenario: Assert response header matches failure
         Given a file named "features/assert-response-header-matches.feature" with:
             """

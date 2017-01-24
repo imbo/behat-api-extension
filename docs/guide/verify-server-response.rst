@@ -161,6 +161,16 @@ Assert that the value of the ``:header`` response header equals ``:value``. The 
 * Then the "``Content-Length``" response header is "``15000``"
 * Then the "``X-foo``" response header is "``foo, bar``"
 
+Then the ``:header`` response header is not ``:value``
+------------------------------------------------------
+
+Assert that the value of the ``:header`` response header **does not** equal ``:value``. The value of ``:header`` is case-insensitive, but the value of ``:value`` is not.
+
+**Examples:**
+
+* Then the "``Content-Length``" response header is not "``15000``"
+* Then the "``X-foo``" response header is not "``foo, bar``"
+
 Then the ``:header`` response header matches ``:pattern``
 ---------------------------------------------------------
 

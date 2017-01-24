@@ -592,6 +592,34 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that a response header is not a value
+     *
+     * @param string $header The name of the header
+     * @param string $value The value to compare with
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the :header response header is not :value
+     */
+    public function assertResponseHeaderIsNot($header, $value) {
+        $this->requireResponse();
+
+        try {
+            Assertion::notSame(
+                $this->response->getHeaderLine($header),
+                $value,
+                sprintf(
+                    'Did not expect the "%s" response header to be "%s".',
+                    $header,
+                    $value
+                )
+            );
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+    }
+
+    /**
      * Match a response header value against a regular expression pattern
      *
      * @param string $header The name of the header

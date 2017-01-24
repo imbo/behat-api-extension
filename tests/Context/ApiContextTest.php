@@ -1558,4 +1558,34 @@ BAR;
         $this->context->requestPath('/some/path');
         $this->context->assertResponseStatusLineMatches('/200 ok/');
     }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseHeaderIsNot
+     * @covers ::requireResponse
+     */
+    public function testAssertResponseHeaderIsNotWithMissingResponseInstance() {
+        $this->context->assertResponseHeaderIsNot('header', 'value');
+    }
+
+    /**
+     * @covers ::assertResponseHeaderIsNot
+     */
+    public function testAssertResponseHeaderIsNot() {
+        $this->mockHandler->append(new Response(200, ['Content-Length' => '123']));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseHeaderIsNot('Content-Type', '456');
+    }
+
+    /**
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Did not expect the "content-type" response header to be "123".
+     * @covers ::assertResponseHeaderIsNot
+     */
+    public function testAssertResponseHeaderIsNotWithActualValue() {
+        $this->mockHandler->append(new Response(200, ['Content-Type' => '123']));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseHeaderIsNot('content-type', '123');
+    }
 }

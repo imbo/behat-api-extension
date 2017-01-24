@@ -303,6 +303,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response reason phrase is :phrase
      */
     public function assertResponseReasonPhraseIs($phrase) {
+        $this->requireResponse();
+
         try {
             Assertion::same($phrase, $actual = $this->response->getReasonPhrase(), sprintf(
                 'Expected response reason phrase "%s", got "%s".',
@@ -324,11 +326,39 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response reason phrase is not :phrase
      */
     public function assertResponseReasonPhraseIsNot($phrase) {
+        $this->requireResponse();
+
         try {
             Assertion::notSame($phrase, $this->response->getReasonPhrase(), sprintf(
                 'Did not expect response reason phrase "%s".',
                 $phrase
             ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+    }
+
+    /**
+     * Assert that the HTTP response reason phrase matches a regular expression
+     *
+     * @param string $pattern Regular expression pattern
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the response reason phrase matches :expression
+     */
+    public function assertResponseReasonPhraseMatches($pattern) {
+        $this->requireResponse();
+
+        try {
+            Assertion::regex(
+                $actual = $this->response->getReasonPhrase(),
+                $pattern,
+                sprintf(
+                    'Expected the response reason phrase to match the regular expression "%s", got "%s".',
+                    $pattern,
+                    $actual
+                ));
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException($e->getMessage());
         }
@@ -344,6 +374,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response status line is :line
      */
     public function assertResponseStatusLineIs($line) {
+        $this->requireResponse();
+
         try {
             $actualStatusLine = sprintf(
                 '%d %s',
@@ -371,6 +403,8 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * @Then the response status line is not :line
      */
     public function assertResponseStatusLineIsNot($line) {
+        $this->requireResponse();
+
         try {
             $actualStatusLine = sprintf(
                 '%d %s',

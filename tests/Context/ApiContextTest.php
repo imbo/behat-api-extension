@@ -1253,6 +1253,16 @@ BAR;
     }
 
     /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseReasonPhraseIs
+     * @covers ::requireResponse
+     */
+    public function testCanAssertResponseReasonPhraseIsWhenNoResponseExist() {
+        $this->context->assertResponseReasonPhraseIs('OK');
+    }
+
+    /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseReasonPhraseIs
      *
@@ -1297,6 +1307,16 @@ BAR;
     }
 
     /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseReasonPhraseIsNot
+     * @covers ::requireResponse
+     */
+    public function testCanAssertResponseReasonPhraseIsNotWhenNoResponseExist() {
+        $this->context->assertResponseReasonPhraseIsNot('OK');
+    }
+
+    /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseStatusLineIs
      *
@@ -1321,6 +1341,16 @@ BAR;
     }
 
     /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseStatusLineIs
+     * @covers ::requireResponse
+     */
+    public function testCanAssertResponseStatusLineIsWhenNoResponseExist() {
+        $this->context->assertResponseStatusLineIs('200 OK');
+    }
+
+    /**
      * @covers ::assertResponseStatusLineIsNot
      */
     public function testCanAssertResponseStatusLineIsNot() {
@@ -1337,6 +1367,16 @@ BAR;
     public function testAssertResponseStatusLineIsNotFailure() {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
+        $this->context->assertResponseStatusLineIsNot('200 OK');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseStatusLineIsNot
+     * @covers ::requireResponse
+     */
+    public function testCanAssertResponseStatusLineIsNotWhenNoResponseExist() {
         $this->context->assertResponseStatusLineIsNot('200 OK');
     }
 
@@ -1458,4 +1498,35 @@ BAR;
         $comparator->expects($this->once())->method('compare')->will($this->returnValue(null));
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1), $comparator);
     }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseReasonPhraseMatches
+     * @covers ::requireResponse
+     */
+    public function testAssertResponseReasonPhraseMatchesWhenNoResponseExists() {
+        $this->context->assertResponseReasonPhraseMatches('/ok/');
+    }
+
+    /**
+     * @covers ::assertResponseReasonPhraseMatches
+     */
+    public function testAssertResponseReasonPhraseMatches() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseReasonPhraseMatches('/OK/');
+    }
+
+    /**
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Expected the response reason phrase to match the regular expression "/ok/", got "OK".
+     * @covers ::assertResponseReasonPhraseMatches
+     */
+    public function testAssertResponseReasonPhraseMatchesWhenValueDoesNotMatch() {
+        $this->mockHandler->append(new Response(200));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseReasonPhraseMatches('/ok/');
+    }
+
 }

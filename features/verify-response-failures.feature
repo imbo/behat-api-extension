@@ -60,6 +60,20 @@ Feature: Assertion steps can fail
             Did not expect response reason phrase "OK". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
             """
 
+    Scenario: Assert response reason phrase matches failure
+        Given a file named "features/assert-response-reason-phrase-matches.feature" with:
+            """
+            Feature: Make request and assert response reason phrase matches
+                Scenario: Make request
+                    When I request "/"
+                    Then the response reason phrase matches "/FOOBAR/"
+            """
+        When I run "behat features/assert-response-reason-phrase-matches.feature"
+        Then it should fail with:
+            """
+            Expected the response reason phrase to match the regular expression "/FOOBAR/", got "OK". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
+            """
+
     Scenario: Assert response status line failure
         Given a file named "features/assert-response-status-line.feature" with:
             """

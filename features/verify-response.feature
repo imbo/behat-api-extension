@@ -40,29 +40,21 @@ Feature: Test Then steps
                     And the "x-foo" response header is not "bar"
                     And the "x-foo" response header matches "/FOO/i"
                     And the response body is:
-                    '''
-                    {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]}}
-                    '''
+                        '''
+                        {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]}}
+                        '''
+                    And the response body is not:
+                        '''
+                        foobar
+                        '''
                     And the response body matches:
-                    '''
-                    /"list":\[.*?\]/
-                    '''
+                        '''
+                        /"list":\[.*?\]/
+                        '''
                     And the response body contains JSON:
-                    '''
-                    {
-                        "null": null,
-                        "string": "value",
-                        "integer": 42,
-                        "float": 4.2,
-                        "boolean true": true,
-                        "boolean false": false,
-                        "list": [1, 2, 3, [1], {"foo": "bar"}],
-                        "list[0]": 1,
-                        "list[1]": 2,
-                        "list[2]": 3,
-                        "list[3]": [1],
-                        "list[4]": {"foo": "bar"},
-                        "sub": {
+                        '''
+                        {
+                            "null": null,
                             "string": "value",
                             "integer": 42,
                             "float": 4.2,
@@ -73,18 +65,30 @@ Feature: Test Then steps
                             "list[1]": 2,
                             "list[2]": 3,
                             "list[3]": [1],
-                            "list[4]": {"foo": "bar"}
+                            "list[4]": {"foo": "bar"},
+                            "sub": {
+                                "string": "value",
+                                "integer": 42,
+                                "float": 4.2,
+                                "boolean true": true,
+                                "boolean false": false,
+                                "list": [1, 2, 3, [1], {"foo": "bar"}],
+                                "list[0]": 1,
+                                "list[1]": 2,
+                                "list[2]": 3,
+                                "list[3]": [1],
+                                "list[4]": {"foo": "bar"}
+                            }
                         }
-                    }
-                    '''
+                        '''
             """
         When I run "behat features/thens.feature"
         Then it should pass with:
             """
-            ...................
+            ....................
 
             1 scenario (1 passed)
-            19 steps (19 passed)
+            20 steps (20 passed)
             """
 
     Scenario: Use Then steps to verify responses with arrays

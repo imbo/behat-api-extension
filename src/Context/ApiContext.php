@@ -813,6 +813,29 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     }
 
     /**
+     * Assert that the response body does not match some content
+     *
+     * @param PyStringNode $content The content that the response body should not match
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the response body is not:
+     */
+    public function assertResponseBodyIsNot(PyStringNode $content) {
+        $this->requireResponse();
+        $content = (string) $content;
+
+        try {
+            Assertion::notSame((string) $this->response->getBody(), $content, sprintf(
+                'Did not expect response body to be "%s".',
+                $content
+            ));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+    }
+
+    /**
      * Assert that the response body matches some content using a regular expression
      *
      * @param PyStringNode $pattern The regular expression pattern to use for the match

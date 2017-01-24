@@ -374,6 +374,27 @@ Feature: Assertion steps can fail
             Expected response body "foobar", got "response body". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
             """
 
+    Scenario: Assert response body is not failure
+        Given a file named "features/assert-response-body-is-not.feature" with:
+            """
+            Feature: Make request and assert response body is not some content
+                Scenario: Make request
+                    Given the request body is:
+                        '''
+                        response body
+                        '''
+                    When I request "/echo"
+                    Then the response body is not:
+                        '''
+                        response body
+                        '''
+            """
+        When I run "behat features/assert-response-body-is-not.feature"
+        Then it should fail with:
+            """
+            Did not expect response body to be "response body". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
+            """
+
     Scenario: Assert response body matches failure
         Given a file named "features/assert-response-body-matches.feature" with:
             """

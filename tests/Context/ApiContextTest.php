@@ -725,6 +725,36 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage The request has not been made yet, so no response object exists.
+     * @covers ::assertResponseBodyIsNot
+     * @covers ::requireResponse
+     */
+    public function testAssertResponseBodyIsNotWhenNoResponseExists() {
+        $this->context->assertResponseBodyIsNot(new PyStringNode(['some body'], 1));
+    }
+
+    /**
+     * @covers ::assertResponseBodyIsNot
+     */
+    public function testAssertResponseBodyIsNotWithMatchingBody() {
+        $this->mockHandler->append(new Response(200, [], 'response body'));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseBodyIsNot(new PyStringNode(['some other response body'], 1));
+    }
+
+    /**
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Did not expect response body to be "response body".
+     * @covers ::assertResponseBodyIsNot
+     */
+    public function testAssertResponseBodyIsNotWithNonMatchingBody() {
+        $this->mockHandler->append(new Response(200, [], 'response body'));
+        $this->context->requestPath('/some/path');
+        $this->context->assertResponseBodyIsNot(new PyStringNode(['response body'], 1));
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyMatches
      * @covers ::requireResponse
      */

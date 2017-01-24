@@ -253,6 +253,20 @@ Assert that the response body equals the text found in the ``<PyStringNode>``. T
         foo
         """
 
+Then the response body is not: ``<PyStringNode>``
+-------------------------------------------------
+
+Assert that the response body **does not** equal the value found in ``<PyStringNode>``. The comparison is case sensitive.
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Then the response body is not:
+        """
+        some value
+        """
+
 Then the response body matches: ``<PyStringNode>``
 --------------------------------------------------
 

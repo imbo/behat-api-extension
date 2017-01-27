@@ -111,6 +111,43 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Data provider: Get values and their "type"
+     *
+     * @return array[]
+     */
+    public function getValuesAndType() {
+        return [
+            // value, type, success
+            [true, 'bool', true],
+            ['true', 'bool', false],
+            [false, 'boolean', true],
+            ['false', 'boolean', false],
+            [12, 'int', true],
+            ['12', 'int', false],
+            [15, 'integer', true],
+            ['15', 'integer', false],
+            [1.12, 'float', true],
+            ['1.12', 'float', false],
+            [1.15, 'double', true],
+            ['1.15', 'double', false],
+            ['BAE', 'string', true],
+            [843, 'string', false],
+            [['array'], 'array', true],
+            ['array', 'array', false],
+            [new \stdClass(), 'object', true],
+            ['stdClass', 'object', false],
+            [null, 'null', true],
+            ['null', 'null', false],
+            ['scalar', 'scalar', true],
+            [12, 'scalar', true],
+            [1.12, 'scalar', true],
+            [['array'], 'scalar', false],
+            [new \stdClass(), 'scalar', false],
+            [null, 'scalar', false],
+        ];
+    }
+
+    /**
      * Data provider: Get regular needle values for the parseNeedleValue method
      *
      * @return array[]
@@ -161,6 +198,11 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                 'needle' => '@atMost(1)',
                 'callbackParam' => [1],
                 'methodName' => '@atMost',
+            ],
+            '@type' => [
+                'needle' => '@type(string)',
+                'callbackParam' => 'foo',
+                'methodName' => '@type',
             ],
         ];
     }
@@ -244,18 +286,32 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                 'exceptionMessage' => '"@atMost" function failed for the "foo" haystack key',
             ],
 
+            'failure for the @type callback' => [
+                'haystack' => [
+                    'foo' => 12,
+                ],
+                'needle' => [
+                    'foo' => '@type(string)',
+                ],
+                'willFail' => true,
+                'exception' => 'InvalidArgumentException',
+                'exceptionMessage' => '"@type" function failed for the "foo" haystack key',
+            ],
+
             'success for all callbacks' => [
                 'haystack' => [
                     'regular expression' => 'some string',
                     '@length' => [1],
                     '@atLeast' => [1, 2],
                     '@atMost' => [1, 2, 3],
+                    '@type' => 123,
                 ],
                 'needle' => [
                     'regular expression' => '<re>/string/</re>',
                     '@length' => '@length(1)',
                     '@atLeast' => '@atLeast(2)',
                     '@atMost' => '@atMost(3)',
+                    '@type' => '@type(int)'
                 ],
                 'willFail' => false,
             ],
@@ -405,7 +461,8 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                         [1, 2],
                         [1, 2, 3],
                         ['foo' => 'bar'],
-                        'baz'
+                        'baz',
+                        ['foo', 'bar'],
                     ],
                 ],
                 'needle' => [
@@ -419,7 +476,8 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                         [1, 2],
                         [1, 2, 3],
                         ['foo' => 'bar'],
-                        'baz'
+                        'baz',
+                        ['foo', 'bar'],
                     ],
                     'foo[0]' => 1,
                     'foo[1]' => 'bar',
@@ -431,6 +489,7 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                     'foo[7]' => '@atMost(3)',
                     'foo[8]' => ['foo' => 'bar'],
                     'foo[9]' => '<re>/baz/</re>',
+                    'foo[10]' => '@type(array)',
                 ],
                 'willFail' => false,
             ],
@@ -476,6 +535,13 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                     'length' => [1, 2, 3],
                     'atLeast' => ['foo', 'bar'],
                     'atMost' => ['foo', 'bar', 'baz'],
+                    'type string' => 'string',
+                    'type integer' => 123,
+                    'type double' => 1.23,
+                    'type array' => [1, '2', 3],
+                    'type boolean' => true,
+                    'type null' => null,
+                    'type scalar' => '123',
                     'sub' => [
                         'string' => 'value',
                         'integer' => 123,
@@ -486,6 +552,13 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                         'length' => [1, 2, 3],
                         'atLeast' => ['foo', 'bar'],
                         'atMost' => ['foo', 'bar', 'baz'],
+                        'type string' => 'string',
+                        'type integer' => 123,
+                        'type double' => 1.23,
+                        'type array' => [1, '2', 3],
+                        'type boolean' => true,
+                        'type null' => null,
+                        'type scalar' => '123',
                     ],
                 ],
                 'needle' => [
@@ -501,6 +574,13 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                     'atMost' => '@atMost(3)',
                     'atLeast[0]' => 'foo',
                     'atLeast[1]' => '<re>/bar/</re>',
+                    'type string' => '@type(string)',
+                    'type integer' => '@type(int)',
+                    'type double' => '@type(double)',
+                    'type array' => '@type(array)',
+                    'type boolean' => '@type(boolean)',
+                    'type null' => '@type(null)',
+                    'type scalar' => '@type(scalar)',
                     'sub' => [
                         'string' => 'value',
                         'integer' => 123,
@@ -513,6 +593,13 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                         'atMost' => '@atMost(3)',
                         'atLeast[0]' => 'foo',
                         'atLeast[1]' => '<re>/bar/</re>',
+                        'type string' => '@type(string)',
+                        'type integer' => '@type(int)',
+                        'type double' => '@type(double)',
+                        'type array' => '@type(array)',
+                        'type boolean' => '@type(boolean)',
+                        'type null' => '@type(null)',
+                        'type scalar' => '@type(scalar)',
                     ],
                 ],
                 'willFail' => false,
@@ -600,6 +687,29 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     public function testArrayLengthIsAtMost(array $array, $max, $success) {
         $result = $this->comparator->arrayLengthIsAtMost($array, $max);
         $this->assertSame('@atMost', $key = key($result));
+        $this->assertSame($success, $result[$key]);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessageRegExp /@type function value "fraction" is not in list: [a-z,\s]+/
+     * @covers ::valueIsFromType
+     */
+    public function testValueIsFromTypeWithInvalidType() {
+        $this->comparator->valueIsFromType('foo', 'fraction');
+    }
+
+    /**
+     * @dataProvider getValuesAndType
+     * @covers ::valueIsFromType
+     *
+     * @param mixed $value
+     * @param string $type
+     * @param boolean $success
+     */
+    public function testValueIsFromType($value, $type, $success) {
+        $result = $this->comparator->valueIsFromType($value, $type);
+        $this->assertSame('@type', $key = key($result));
         $this->assertSame($success, $result[$key]);
     }
 

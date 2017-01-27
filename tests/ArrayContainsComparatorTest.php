@@ -8,7 +8,7 @@ use RuntimeException;
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
  */
-class ArrayContainsComparatorText extends PHPUnit_Framework_TestCase {
+class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     /**
      * @var ArrayContainsComparator
      */

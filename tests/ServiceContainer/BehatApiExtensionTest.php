@@ -7,6 +7,7 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
+ * @testdox Extension
  */
 class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
     /**
@@ -25,7 +26,7 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
      * @covers ::getConfigKey
      * @covers ::configure
      */
-    public function testBuildsConfiguration() {
+    public function testCanBuildConfiguration() {
         $tree = new TreeBuilder();
         $root = $tree->root('root');
 

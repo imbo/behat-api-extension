@@ -8,8 +8,9 @@ use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
+ * @testdox Initializer for API Client aware contexts
  */
-class ApiClientAwareInitializerText extends PHPUnit_Framework_TestCase {
+class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::initializeContext
      * @covers ::__construct
@@ -31,13 +32,13 @@ class ApiClientAwareInitializerText extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Can not connect to localhost:9999
      * @covers ::__construct
      */
-    public function testInjectContainerThatCanNotConnectToBaseUri() {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Can not connect to localhost:9999');
-
-        $client = new Client(['base_uri' => 'http://localhost:9999']);
-        $initializer = new ApiClientAwareInitializer($client);
+    public function testThrowsExceptionWhenClientCanNotConnectToBaseUri() {
+        $initializer = new ApiClientAwareInitializer(
+            new Client(['base_uri' => 'http://localhost:9999'])
+        );
     }
 }

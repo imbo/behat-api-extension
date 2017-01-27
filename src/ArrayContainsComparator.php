@@ -28,7 +28,7 @@ class ArrayContainsComparator {
         // haystack array
         foreach ($needle as $key => $value) {
             // Update the key path to use in exception messages
-            $keyPath = preg_replace('/\[[\d+]\]/', '', ltrim(sprintf('%s.%s', $path, $key), '.'));
+            $keyPath = preg_replace('/\[[\d]+\]/', '', ltrim(sprintf('%s.%s', $path, $key), '.'));
 
             // Parse the value
             $value = $this->parseNeedleValue($value);
@@ -69,7 +69,7 @@ class ArrayContainsComparator {
                 }
 
                 continue;
-            } else if (preg_match('/^(.*?)\[([\d+])\]$/', $key, $match)) {
+            } else if (preg_match('/^(.*?)\[([\d]+)\]$/', $key, $match)) {
                 $key = $match[1];
                 $index = (int) $match[2];
 
@@ -249,6 +249,12 @@ class ArrayContainsComparator {
             return function($value) use ($max) {
                 return $this->arrayLengthIsAtMost($value, $max);
             };
+        } else if (preg_match('/^@type\(([a-zA-Z]+)\)$/', $value, $match)) {
+            $type = $match[1];
+
+            return function($value) use ($type) {
+                return $this->valueIsFromType($value, $type);
+            };
         }
 
         return $value;
@@ -322,5 +328,45 @@ class ArrayContainsComparator {
         }
 
         return ['@atMost' => count($array) <= $max];
+    }
+
+    /**
+     * Check that an value is from a specific type
+     *
+     * @param mixed $value The value to check
+     * @param string $type The type of the value
+     * @return array Returns an array with the key being the function name, and the value being a
+     *               boolean representing if $value is from type $type
+     * @throws InvalidArgumentException If $type is not in list of known data types
+     */
+    public function valueIsFromType($value, $type) {
+        $allowedTypes = [
+            'bool', 'boolean',
+            'int', 'integer',
+            'float', 'double',
+            'string',
+            'array',
+            'object',
+            'null',
+            'scalar'
+        ];
+
+        if (! in_array($type, $allowedTypes)) {
+            throw new InvalidArgumentException(
+                sprintf('@type function value "%s" is not in list: %s', $type, implode(',', $allowedTypes))
+            );
+        }
+
+        if ($type === 'scalar' && is_scalar($value)) {
+            return ['@type' => true];
+        }
+
+        $type = preg_replace(
+            ['/^bool$/i', '/^int$/i', '/^float$/i'],
+            ['boolean', 'integer', 'double'],
+            $type
+        );
+
+        return ['@type' => strtolower($type) === strtolower(gettype($value))];
     }
 }

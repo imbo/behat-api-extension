@@ -7,8 +7,8 @@
   </testsuites>
 
   <filter>
-    <whitelist>
-      <directory>./src/</directory>
+    <whitelist addUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">src</directory>
     </whitelist>
   </filter>
 </phpunit>

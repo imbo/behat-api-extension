@@ -892,7 +892,10 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
         }
 
         // Compare the arrays. On error this will throw an exception
-        $comparator->compare($body, $contains);
+        Assertion::true(
+            $comparator->compare($body, $contains),
+            'Comparator did not return in a correct manner. Marking assertion as failed.'
+        );
     }
 
     /**

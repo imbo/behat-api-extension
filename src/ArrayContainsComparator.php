@@ -202,6 +202,8 @@ class ArrayContainsComparator {
                 $keyPath
             ));
         }
+
+        return true;
     }
 
     /**

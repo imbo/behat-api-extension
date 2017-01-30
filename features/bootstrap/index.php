@@ -54,6 +54,15 @@ $app->match('/', function(Request $request) {
             'boolean false' => false,
             'list' => [1, 2, 3, [1], ['foo' => 'bar']],
         ],
+        'types' => [
+            'string' => 'string',
+            'integer' => 123,
+            'double' => 1.23,
+            'array' => [1, '2', 3],
+            'boolean' => true,
+            'null' => null,
+            'scalar' => '123',
+        ],
     ], 200, [
         'X-Foo' => 'foo',
     ]);

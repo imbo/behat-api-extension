@@ -41,7 +41,7 @@ Feature: Test Then steps
                     And the "x-foo" response header matches "/FOO/i"
                     And the response body is:
                         '''
-                        {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]}}
+                        {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]},"types":{"string":"string","integer":123,"double":1.23,"array":[1,"2",3],"boolean":true,"null":null,"scalar":"123"}}
                         '''
                     And the response body is not:
                         '''
@@ -78,6 +78,15 @@ Feature: Test Then steps
                                 "list[2]": 3,
                                 "list[3]": [1],
                                 "list[4]": {"foo": "bar"}
+                            },
+                            "types": {
+                                "string": "@type(string)",
+                                "integer": "@type(integer)",
+                                "double": "@type(double)",
+                                "array": "@type(array)",
+                                "boolean": "@type(boolean)",
+                                "null": "@type(null)",
+                                "scalar": "@type(scalar)"
                             }
                         }
                         '''

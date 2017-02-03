@@ -294,145 +294,289 @@ Assert that the response body matches the regular expression pattern found in ``
 Then the response body contains JSON: ``<PyStringNode>``
 --------------------------------------------------------
 
-Used to recursively match the response body against a JSON blob (used for comparing objects, not regular arrays). The following occurs when using this step:
+Used to recursively match the response body (or a subset of the response body) against a JSON blob.
 
-1. Decode the response body to a native PHP array. An exception will be thrown if the JSON is invalid.
-2. Decode the ``<PyStringNode>`` to a native PHP array. An exception will be thrown if the JSON is invalid.
-3. Loop through the ``<PyStringNode>`` array, making sure the key => value pairs are present in the response body array, in a recursive fashion.
+In addition to regular value matching some custom matching-functions also exist, for asserting value types, array lengths and so forth. There is also a regular expression type matcher that can be used to match string values.
 
-The ``<PyStringNode>`` can contain regular expressions for matching values or some specific functions for asserting lengths of arrays.
+Regular value matching
+^^^^^^^^^^^^^^^^^^^^^^
+
+Assume the following JSON response for the examples in this section:
+
+.. code-block:: json
+
+    {
+      "string": "string value",
+      "integer": 123,
+      "double": 1.23,
+      "boolean": true,
+      "null": null,
+      "object":
+      {
+        "string": "string value",
+        "integer": 123,
+        "double": 1.23,
+        "boolean": true,
+        "null": null,
+        "object":
+        {
+          "string": "string value",
+          "integer": 123,
+          "double": 1.23,
+          "boolean": true,
+          "null": null,
+        }
+      },
+      "array":
+      [
+        "string value",
+        123,
+        1.23,
+        true,
+        null,
+        {
+          "string": "string value",
+          "integer": 123,
+          "double": 1.23,
+          "boolean": true,
+          "null": null
+        }
+      ]
+    }
+
+**Example: Regular value matching of a subset of the response**
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "string": "string value",
+          "boolean": true
+        }
+        """
+
+**Example: Check values in objects**
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "object":
+          {
+            "string": "string value",
+            "object":
+            {
+              "null": null,
+              "integer": 123
+            }
+          }
+        }
+        """
+
+**Example: Check numerically indexed array contents**
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "array":
+          [
+            true,
+            "string value",
+            {
+              "integer": 123
+            }
+          ]
+        }
+        """
+
+Notice that the order of the values in the arrays does not matter. To be able to target specific indexes in an array a special syntax needs to be used. Please refer to :ref:`custom-functions-and-regular-expression-matching` for more information and examples.
+
+.. _custom-functions-and-regular-expression-matching:
+
+Custom functions and regular expression matching
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In some cases the need for more advanced matching arises. All custom functions is used in place of the string value they are validating, and because of the way JSON works, they need to be specified as strings to keep the JSON valid.
+
+**Array length**
+
+Three functions exist for asserting the length of regular numerically indexed JSON arrays, ``@length``, ``@atMost`` and ``@atLeast``. Given the following response body:
+
+.. code-block:: json
+
+    {
+      "items":
+      [
+        "foo",
+        "bar",
+        "foobar",
+        "barfoo",
+        123
+      ]
+    }
+
+one can assert the exact length using ``@length``:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {"items": "@length(5)"}
+        """
+
+or use the relative length matchers:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {"items": "@atMost(10)"}
+        """
+    And the response body contains JSON:
+        """
+        {"items": "@atLeast(3)"}
+        """
+
+**Variable type**
+
+To be able to assert the variable type of specific values, the ``@type`` function can be used. The following types can be asserted:
+
+* ``boolean`` / ``bool``
+* ``integer`` / ``int``
+* ``double`` / ``float``
+* ``string``
+* ``array``
+* ``object``
+* ``null``
+* ``scalar``
+
+Given the following response:
+
+.. code-block:: json
+
+    {
+      "boolean value": true,
+      "int value": 123,
+      "double value": 1.23,
+      "string value": "some string",
+      "array value": [1, 2, 3],
+      "object value": {"foo": "bar"},
+      "null value": null,
+      "scalar value": 3.1416
+    }
+
+the type of the values can be asserted like this:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "boolean value": "@type(boolean)",
+          "int value": "@type(integer)",
+          "double value": "@type(double)",
+          "string value": "@type(string)",
+          "array value": "@type(array)",
+          "object value": "@type(object)",
+          "null value": "@type(null)",
+          "scalar value": "@type(scalar)"
+        }
+        """
+
+The ``@type(boolean)``, ``@type(integer)`` and ``@type(double)`` functions can also be expressed using ``@type(bool)``, ``@type(int)`` and ``@type(float)`` respectively. There is no difference in the actual validation being executed.
+
+For the ``@type(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
+
+**Regular expression matching**
 
 To use regular expressions to match values, simply write the regular expression, complete with delimiters and optional modifiers, enclosed in ``<re>`` and ``</re>``. Example:
 
 .. code-block:: json
 
     {
-        "foo": "<re>/(some|expression)/i</re>",
-        "bar": {
-            "baz": "<re>/[0-9]+/</re>"
-        }
+      "foo": "<re>/(some|expression)/i</re>",
+      "bar":
+      {
+        "baz": "<re>/[0-9]+/</re>"
+      }
     }
 
-This can be used to match `scalar values <http://php.net/is_scalar>`_ only, and the value will be cast to a string before doing the match.
+This can be used to match `scalar values <http://php.net/is_scalar>`_ only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <http://php.net/pcre>`_ regarding how regular expressions work in PHP.
 
-To assert lengths of arrays, three custom functions can be used: ``@length(num)``, ``@atLeast(num)`` and ``@atMost(num)``. Consider the following response body:
+**Match specific keys in a numerically indexed array**
+
+If you need to verify an element at a specific index within a numerically indexed array, use the ``key[<index>]`` notation as the key, and not the regular field name. Consider the following response body:
 
 .. code-block:: json
 
     {
-        "items1": [1, 2, 3, 4],
-        "items2": [1, 2, 3],
-        "items3": [1, 2]
-    }
-
-To be able to verify the length of the arrays one can use the following JSON (excluding the comments which are not supported by JSON):
-
-.. code-block:: javascript
-
-    {
-        "items1": "@length(3)",  // Fails as the length is 4
-        "items2": "@atLeast(3)", // Passes as the length is 3
-        "items3": "@atMost(1)"   // Fails as the length is 2
-    }
-
-If you need to verify an element at a specific index within an array, use the ``key[<index>]`` notation as the key. Consider the following response body:
-
-.. code-block:: json
-
-    {
-        "items": [
-            "foo",
-            "bar",
-            "baz",
-            {
-                "some":
-                {
-                    "nested": "object",
-                    "foo": "bar"
-                }
-            }
-        ]
-    }
-
-If you need to verify the values, use the following JSON:
-
-.. code-block:: javascript
-
-    {
-        "items[0]": "foo",                      // Passes, string comparison
-        "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matches "bar"
-        "items[2]": "bar",                      // Fails as the value is baz
-        "items[3]":
+      "items":
+      [
+        "foo",
+        "bar",
         {
+          "some":
+          {
+            "nested": "object",
+            "foo": "bar"
+          }
+        },
+        [1, 2, 3]
+      ]
+    }
+
+If you need to verify the values, use something like the following step:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "items[0]": "foo",
+          "items[1]": "<re>/(foo|bar|baz)/</re>",
+          "items[2]":
+          {
             "some":
             {
-                "foo": "<re>/ba(r|z)/</re>"     // Passes as the expression matches "bar"
+              "foo": "<re>/ba(r|z)/</re>"
             }
-        },
-        "items[4]": "bar"                       // Throws an OutOfRangeException exception as the index does not exist
-    }
-
-If you use the index checking against something that is not a numeric array, the extension will throw an ``InvalidArgumentException`` exception.
-
-You can also assert that values exists in numerically indexed arrays. Consider the following JSON response body:
-
-.. code-block:: json
-
-    {
-        "list": [
-            1,
-            2,
-            3,
-            "four",
-            [1],
-            {
-                "foo": "bar"
-            }
-        ]
-    }
-
-To assert that one or more of the values exist, use the following:
-
-.. code-block:: json
-
-    {
-        "list": [
-            3,
-            [1],
-            {
-                "foo": "bar"
-            }
-        ]
-    }
-
-The index is not taken into consideration when comparing, it simply checks if the values specified are present in the list.
+          },
+          "items[3]": "@length(3)"
+        }
+    """
 
 If the response body contains a numerical array as the root node, you will need to use a special syntax for validation. Consider the following response body:
 
 .. code-block:: json
 
     [
-        "foo",
-        123,
-        {
-            "foo": "bar"
-        },
-        "bar",
-        [1, 2, 3]
+      "foo",
+      123,
+      {
+        "foo": "bar"
+      },
+      "bar",
+      [1, 2, 3]
     ]
 
-To validate this, use the following syntax:
+To validate this, use the following step:
 
-.. code-block:: json
+.. code-block:: gherkin
 
-    {
-        "[0]": "foo",
-        "[1]": 123,
-        "[2]": {
+    Then the response body contains JSON:
+        """
+        {
+          "[0]": "foo",
+          "[1]": 123,
+          "[2]":
+          {
             "foo": "bar"
-        },
-        "[3]": "<re>/bar/</re>",
-        "[4]": "@length(3)"
-    }
-
-This simply refers to the indexes in the root numerical array.
+          },
+          "[3]": "<re>/bar/</re>",
+          "[4]": "@length(3)"
+        }
+        """

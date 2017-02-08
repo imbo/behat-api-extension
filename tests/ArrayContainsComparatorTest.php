@@ -607,4 +607,31 @@ EXCEPTION
             ],
         ]);
     }
+
+    /**
+     * @covers ::compare
+     * @expectedException InvalidArgumentException
+     */
+    public function testThrowsExceptionOnValueMismatchWhenTargetingSpecificIndexInList() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Value mismatch for index "0" in list:
+================================================================================
+Needle
+================================================================================
+"foo"
+
+================================================================================
+Haystack
+================================================================================
+[
+    "foobar"
+]
+EXCEPTION
+        );
+        $this->comparator->compare([
+            '[0]' => 'foo',
+        ], [
+            'foobar',
+        ]);
+    }
 }

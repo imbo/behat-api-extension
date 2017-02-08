@@ -94,9 +94,13 @@ class ArrayContainsComparator {
                 if (is_array($value)) {
                     // The value is an array, do a recursive check
                     $this->compare($value, $subHaystack[$index]);
-                } else {
-                    // Regular value, compare
-                    $this->compareValues($value, $subHaystack[$index]);
+                } else if (!$this->compareValues($value, $subHaystack[$index])) {
+                    // Comparison of values failed
+                    throw new InvalidArgumentException($this->formatExceptionMessage(
+                        sprintf('Value mismatch for index "%d" in list:', $index),
+                        $value,
+                        $subHaystack
+                    ));
                 }
             } else {
                 // Use array_key_exists instead of isset as the value of the key can be null, which

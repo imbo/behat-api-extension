@@ -19,7 +19,7 @@ use RuntimeException;
 use stdClass;
 
 /**
- * API feature context that can be used to ease testing of HTTP APIs
+ * Behat feature context that can be used to simplify testing of JSON-based RESTful HTTP APIs
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
@@ -871,31 +871,27 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      */
     public function assertResponseBodyContainsJson(PyStringNode $contains, ArrayContainsComparator $comparator = null) {
         $this->requireResponse();
-        $contains = json_decode((string) $contains);
-
-        try {
-            Assertion::isInstanceOf(
-                $contains,
-                'stdClass',
-                'The supplied parameter is not a valid JSON object.'
-            );
-        } catch (AssertionFailure $e) {
-            throw new InvalidArgumentException($e->getMessage());
-        }
-
-        // Convert both objects to arrays
-        $body = json_decode(json_encode($this->getResponseBody()), true);
-        $contains = json_decode(json_encode($contains), true);
 
         if ($comparator === null) {
             $comparator = new ArrayContainsComparator();
         }
 
-        // Compare the arrays. On error this will throw an exception
-        Assertion::true(
-            $comparator->compare($body, $contains),
-            'Comparator did not return in a correct manner. Marking assertion as failed.'
-        );
+        // Decode the parameter to the step as an array and make sure it's valid JSON
+        $contains = json_decode((string) $contains, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
+        }
+
+        // Get the decoded response body and make sure it's decoded to an array
+        $body = json_decode(json_encode($this->getResponseBody()), true);
+
+        try {
+            // Compare the arrays, on error this will throw an exception
+            Assertion::true($comparator->compare($contains, $body));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException('Comparator did not return in a correct manner. Marking assertion as failed.');
+        }
     }
 
     /**

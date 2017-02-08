@@ -1727,7 +1727,6 @@ BAR;
 
     /**
      * @expectedException OutOfRangeException
-     * @expectedExceptionMessage Key is missing from the haystack: bar
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      * @group assertions
@@ -1735,6 +1734,23 @@ BAR;
     public function testAssertingThatTheResponseBodyContainsJsonCanFail() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Haystack is missing the "bar" key:
+================================================================================
+Needle
+================================================================================
+{
+    "bar": "foo"
+}
+
+================================================================================
+Haystack
+================================================================================
+{
+    "foo": "bar"
+}
+EXCEPTION
+        );
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 

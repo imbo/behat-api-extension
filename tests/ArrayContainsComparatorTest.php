@@ -7,6 +7,7 @@ use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
+ * @testdox Array contains comparator
  */
 class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     /**
@@ -22,848 +23,588 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Regular expression matching must be used with scalars.
-     * @covers ::matchString
-     */
-    public function testMatchStringWhithNonScalar() {
-        $this->comparator->matchString('/foo/', ['foo']);
-    }
-
-    /**
-     * Data provider: Get patterns, strings and results
+     * Data provider
      *
      * @return array[]
      */
-    public function getPatternsAndStrings() {
-        return [
-            'success' => [
-                'pattern' => '/foo/',
-                'string' => 'foo',
-                'success' => true,
-            ],
-            'failure' => [
-                'pattern' => '/bar/',
-                'string' => 'foo',
-                'success' => false,
-            ],
+    public function getDataForInArrayCheck() {
+        $scalarHaystack = [1, 2, 1.1, 2.2, 'foo', 'bar', true, false];
+        $haystackWithArrayElements = [
+            1, 2, 3,
+            [1, 2, 3],
+            ['foo' => 'bar', 'bar' => 'foo'],
         ];
-    }
 
-    /**
-     * Data provider: Get arrays and their lengths
-     *
-     * @return array[]
-     */
-    public function getArraysAndLength() {
         return [
-            'success' => [
-                'array' => [1, 2, 3],
-                'length' => 3,
-                'success' => true,
+            'single value in needle with scalar haystack' => [
+                'needle' => [1],
+                'haystack' => $scalarHaystack,
             ],
-            'failure' => [
-                'array' => [1, 2, 3],
-                'length' => 2,
-                'success' => false,
+            'multiple mixed values in needle with scalar haystack' => [
+                'needle' => [1, 1.1, 'foo', true],
+                'haystack' => $scalarHaystack,
             ],
-        ];
-    }
-
-    /**
-     * Data provider: Get arrays and their "at least" lengths
-     *
-     * @return array[]
-     */
-    public function getArraysAndAtLeastLength() {
-        return [
-            'success' => [
-                'array' => [1, 2, 3],
-                'min' => 3,
-                'success' => true,
+            'all scalar values from haystack present in needle' => [
+                'needle' => $scalarHaystack,
+                'haystack' => $scalarHaystack,
             ],
-            'failure' => [
-                'array' => [1, 2, 3],
-                'min' => 4,
-                'success' => false,
+            'list as needle' => [
+                'needle' => [[1, 2]],
+                'haystack' => $haystackWithArrayElements,
             ],
-        ];
-    }
-
-    /**
-     * Data provider: Get arrays and their "at most" lengths
-     *
-     * @return array[]
-     */
-    public function getArraysAndAtMostLength() {
-        return [
-            'success' => [
-                'array' => [1, 2, 3],
-                'max' => 3,
-                'success' => true,
-            ],
-            'failure' => [
-                'array' => [1, 2, 3],
-                'max' => 2,
-                'success' => false,
-            ],
-        ];
-    }
-
-    /**
-     * Data provider: Get values and their "type"
-     *
-     * @return array[]
-     */
-    public function getValuesAndType() {
-        return [
-            // value, type, success
-            [true, 'bool', true],
-            ['true', 'bool', false],
-            [false, 'boolean', true],
-            ['false', 'boolean', false],
-            [12, 'int', true],
-            ['12', 'int', false],
-            [15, 'integer', true],
-            ['15', 'integer', false],
-            [1.12, 'float', true],
-            ['1.12', 'float', false],
-            [1.15, 'double', true],
-            ['1.15', 'double', false],
-            ['BAE', 'string', true],
-            [843, 'string', false],
-            [['array'], 'array', true],
-            ['array', 'array', false],
-            [new \stdClass(), 'object', true],
-            ['stdClass', 'object', false],
-            [null, 'null', true],
-            ['null', 'null', false],
-            ['scalar', 'scalar', true],
-            [12, 'scalar', true],
-            [1.12, 'scalar', true],
-            [['array'], 'scalar', false],
-            [new \stdClass(), 'scalar', false],
-            [null, 'scalar', false],
-        ];
-    }
-
-    /**
-     * Data provider: Get regular needle values for the parseNeedleValue method
-     *
-     * @return array[]
-     */
-    public function getRegularNeedleValues() {
-        return [
-            'integer value' => [
-                'value' => 2,
-            ],
-            'float value' => [
-                'value' => 1.1,
-            ],
-            'boolean value' => [
-                'value' => true,
-            ],
-            'array value' => [
-                'value' => [1, 2, 3],
-            ],
-            'regular string value' => [
-                'value' => 'foobar',
-            ],
-        ];
-    }
-
-    /**
-     * Data provider: Get callback needle values for the parseNeedleValue method
-     *
-     * @return array[]
-     */
-    public function getCallbackNeedleValues() {
-        return [
-            'regular expression' => [
-                'needle' => '<re>/foo/</re>',
-                'callbackParam' => 'foo',
-                'methodName' => 'regular expression',
-            ],
-            '@length' => [
-                'needle' => '@length(1)',
-                'callbackParam' => [1],
-                'methodName' => '@length',
-            ],
-            '@atLeast' => [
-                'needle' => '@atLeast(1)',
-                'callbackParam' => [1],
-                'methodName' => '@atLeast',
-            ],
-            '@atMost' => [
-                'needle' => '@atMost(1)',
-                'callbackParam' => [1],
-                'methodName' => '@atMost',
-            ],
-            '@type' => [
-                'needle' => '@type(string)',
-                'callbackParam' => 'foo',
-                'methodName' => '@type',
-            ],
-        ];
-    }
-
-    /**
-     * Data provider: Get haystack and needle values to compare
-     *
-     * @return array[]
-     */
-    public function getValuesToCompare() {
-        return [
-            'missing key' => [
-                'haystack' => [
-                    'foo' => 'bar',
-                ],
+            'complex nested structure' => [
                 'needle' => [
-                    'bar' => 'foo',
-                ],
-                'willFail' => true,
-                'exception' => 'OutOfRangeException',
-                'exceptionMessage' => 'Key is missing from the haystack: bar',
-            ],
-
-            'type mismatch for regular values' => [
-                'haystack' => [
-                    'foo' => 123,
-                ],
-                'needle' => [
-                    'foo' => '123',
-                ],
-                'willFail' => true,
-                'exception' => 'UnexpectedValueException',
-                'exceptionMessage' => 'Type mismatch for haystack key "foo" (haystack type: integer, needle type: string)',
-            ],
-
-            'failure for the regular expression callback' => [
-                'haystack' => [
-                    'foo' => 'foobar',
-                ],
-                'needle' => [
-                    'foo' => '<re>/foo$/</re>',
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => '"regular expression" function failed for the "foo" haystack key',
-            ],
-
-            'failure for the @length callback' => [
-                'haystack' => [
-                    'foo' => [1, 2, 3],
-                ],
-                'needle' => [
-                    'foo' => '@length(2)',
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => '"@length" function failed for the "foo" haystack key',
-            ],
-
-            'failure for the @atLeast callback' => [
-                'haystack' => [
-                    'foo' => [1, 2, 3],
-                ],
-                'needle' => [
-                    'foo' => '@atLeast(4)',
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => '"@atLeast" function failed for the "foo" haystack key',
-            ],
-
-            'failure for the @atMost callback' => [
-                'haystack' => [
-                    'foo' => [1, 2, 3],
-                ],
-                'needle' => [
-                    'foo' => '@atMost(2)',
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => '"@atMost" function failed for the "foo" haystack key',
-            ],
-
-            'failure for the @type callback' => [
-                'haystack' => [
-                    'foo' => 12,
-                ],
-                'needle' => [
-                    'foo' => '@type(string)',
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => '"@type" function failed for the "foo" haystack key',
-            ],
-
-            'success for all callbacks' => [
-                'haystack' => [
-                    'regular expression' => 'some string',
-                    '@length' => [1],
-                    '@atLeast' => [1, 2],
-                    '@atMost' => [1, 2, 3],
-                    '@type' => 123,
-                ],
-                'needle' => [
-                    'regular expression' => '<re>/string/</re>',
-                    '@length' => '@length(1)',
-                    '@atLeast' => '@atLeast(2)',
-                    '@atMost' => '@atMost(3)',
-                    '@type' => '@type(int)'
-                ],
-                'willFail' => false,
-            ],
-
-            'scalar match with strings' => [
-                'haystack' => [
-                    'foo' => 'bar',
-                    'bar' => 'foo',
-                ],
-                'needle' => [
-                    'foo' => 'bar',
-                    'bar' => 'foo',
-                ],
-                'willFail' => false,
-            ],
-
-            'scalar mis-match with strings' => [
-                'haystack' => [
-                    'foo' => 'bar',
-                ],
-                'needle' => [
-                    'foo' => 'foo',
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Value mismatch for haystack key "foo": bar != foo',
-            ],
-
-            'scalar mis-match with integers' => [
-                'haystack' => [
-                    'foo' => 1,
-                ],
-                'needle' => [
-                    'foo' => 2,
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Value mismatch for haystack key "foo": 1 != 2',
-            ],
-
-            'mismatch for a sub-key' => [
-                'haystack' => [
-                    'foo' => [
-                        'bar' => [
-                            'baz' => 'foobar',
+                    [
+                        [
+                            2
                         ],
-                    ],
-                ],
-                'needle' => [
-                    'foo' => [
-                        'bar' => [
-                            'baz' => 'barfoo',
-                        ],
-                    ],
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Value mismatch for haystack key "foo.bar.baz": foobar != barfoo',
-            ],
-
-            'numerically indexed array that succeeds' => [
-                'haystack' => [
-                    'foo' => [1, 2, 3],
-                ],
-                'needle' => [
-                    'foo' => [1],
-                ],
-                'willFail' => false,
-            ],
-
-            'numerically indexed array that fails' => [
-                'haystack' => [
-                    'foo' => [1, 2, 3],
-                ],
-                'needle' => [
-                    'foo' => [4],
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'The value 4 is not present in the haystack array at key "foo"',
-            ],
-
-            'numerically indexed array with non-scalar value' => [
-                'haystack' => [
-                    'foo' => [[1], ['foo' => 'bar']],
-                ],
-                'needle' => [
-                    'foo' => [[1], ['foo' => 'bar']],
-                ],
-                'willFail' => false,
-            ],
-
-            'match item in array when value is not an array' => [
-                'haystack' => [
-                    'foo' => 'bar',
-                ],
-                'needle' => [
-                    'foo[0]' => 1,
-                ],
-                'willFail' => true,
-                'exception' => 'UnexpectedValueException',
-                'exceptionMessage' => 'Element at haystack key "foo" is not an array.',
-
-            ],
-
-            'match item in array with index out of range' => [
-                'haystack' => [
-                    'foo' => [
-                        'bar' => [
-                            'baz' => [1],
-                        ],
-                    ],
-                ],
-                'needle' => [
-                    'foo' => [
-                        'bar' => [
-                            'baz[1]' =>'foo',
-                        ],
-                    ],
-                ],
-                'willFail' => true,
-                'exception' => 'OutOfRangeException',
-                'exceptionMessage' => 'Index 1 does not exist in the array at haystack key "foo.bar.baz"',
-            ],
-
-            'item in array does not match' => [
-                'haystack' => [
-                    'foo' => [1],
-                ],
-                'needle' => [
-                    'foo[0]' => 2,
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Item on index 0 in array at haystack key "foo" does not match value 2',
-            ],
-
-            'match item in array' => [
-                'haystack' => [
-                    'foo' => [
-                        1,
-                        'bar',
-                        1.1,
-                        true,
-                        false,
-                        [1],
-                        [1, 2],
-                        [1, 2, 3],
-                        ['foo' => 'bar'],
-                        'baz',
-                        ['foo', 'bar'],
-                    ],
-                ],
-                'needle' => [
-                    'foo' => [
-                        1,
-                        'bar',
-                        1.1,
-                        true,
-                        false,
-                        [1],
-                        [1, 2],
-                        [1, 2, 3],
-                        ['foo' => 'bar'],
-                        'baz',
-                        ['foo', 'bar'],
-                    ],
-                    'foo[0]' => 1,
-                    'foo[1]' => 'bar',
-                    'foo[2]' => 1.1,
-                    'foo[3]' => true,
-                    'foo[4]' => false,
-                    'foo[5]' => '@length(1)',
-                    'foo[6]' => '@atLeast(2)',
-                    'foo[7]' => '@atMost(3)',
-                    'foo[8]' => ['foo' => 'bar'],
-                    'foo[9]' => '<re>/baz/</re>',
-                    'foo[10]' => '@type(array)',
-                ],
-                'willFail' => false,
-            ],
-
-            // @see https://github.com/imbo/behat-api-extension/issues/13
-            'match sub-arrays using indexes' => [
-                'haystack' => [
-                    'foo' => [
-                        'bar' => [
-                            [
-                                'foo' => 'bar',
-                                'baz' => 'bat',
-                            ],
-                            [
-                                'foo' => 'bar',
-                                'baz' => 'bat',
+                        4,
+                        [
+                            'list' => [
+                                [
+                                    [
+                                        [
+                                            'new-list' =>
+                                            [
+                                                8
+                                            ]
+                                        ]
+                                    ]
+                                ],
+                                5,
+                                [
+                                    6
+                                ],
+                                [
+                                    [
+                                        7
+                                    ]
+                                ],
                             ],
                         ],
                     ],
+                    3,
+                    4
                 ],
-                'needle' => [
-                    'foo' => [
-                        'bar[0]' => [
-                            'foo' => 'bar',
-                        ],
-                        'bar[1]' => [
-                            'baz' => 'bat',
-                        ]
-                    ]
-                ],
-                'willFail' => false,
-            ],
-
-            'MATCH ALL THE THINGS!!!' => [
-                'haystack' => [
-                    'null' => null,
-                    'string' => 'value',
-                    'integer' => 123,
-                    'float' => 1.23,
-                    'boolean true' => true,
-                    'boolean false' => true,
-                    'regular expression' => 'foobar',
-                    'length' => [1, 2, 3],
-                    'atLeast' => ['foo', 'bar'],
-                    'atMost' => ['foo', 'bar', 'baz'],
-                    'type string' => 'string',
-                    'type integer' => 123,
-                    'type double' => 1.23,
-                    'type array' => [1, '2', 3],
-                    'type boolean' => true,
-                    'type null' => null,
-                    'type scalar' => '123',
-                    'sub' => [
-                        'string' => 'value',
-                        'integer' => 123,
-                        'float' => 1.23,
-                        'boolean true' => true,
-                        'boolean false' => true,
-                        'regular expression' => 'foobar',
-                        'length' => [1, 2, 3],
-                        'atLeast' => ['foo', 'bar'],
-                        'atMost' => ['foo', 'bar', 'baz'],
-                        'type string' => 'string',
-                        'type integer' => 123,
-                        'type double' => 1.23,
-                        'type array' => [1, '2', 3],
-                        'type boolean' => true,
-                        'type null' => null,
-                        'type scalar' => '123',
-                    ],
-                ],
-                'needle' => [
-                    'null' => null,
-                    'string' => 'value',
-                    'integer' => 123,
-                    'float' => 1.23,
-                    'boolean true' => true,
-                    'boolean false' => true,
-                    'regular expression' => '<re>/foobar/</re>',
-                    'length' => '@length(3)',
-                    'atLeast' => '@atLeast(2)',
-                    'atMost' => '@atMost(3)',
-                    'atLeast[0]' => 'foo',
-                    'atLeast[1]' => '<re>/bar/</re>',
-                    'type string' => '@type(string)',
-                    'type integer' => '@type(int)',
-                    'type double' => '@type(double)',
-                    'type array' => '@type(array)',
-                    'type boolean' => '@type(boolean)',
-                    'type null' => '@type(null)',
-                    'type scalar' => '@type(scalar)',
-                    'sub' => [
-                        'string' => 'value',
-                        'integer' => 123,
-                        'float' => 1.23,
-                        'boolean true' => true,
-                        'boolean false' => true,
-                        'regular expression' => '<re>/foobar/</re>',
-                        'length' => '@length(3)',
-                        'atLeast' => '@atLeast(2)',
-                        'atMost' => '@atMost(3)',
-                        'atLeast[0]' => 'foo',
-                        'atLeast[1]' => '<re>/bar/</re>',
-                        'type string' => '@type(string)',
-                        'type integer' => '@type(int)',
-                        'type double' => '@type(double)',
-                        'type array' => '@type(array)',
-                        'type boolean' => '@type(boolean)',
-                        'type null' => '@type(null)',
-                        'type scalar' => '@type(scalar)',
-                    ],
-                ],
-                'willFail' => false,
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider getPatternsAndStrings
-     * @covers ::matchString
-     *
-     * @param string $pattern
-     * @param string $string
-     * @param boolean $success
-     */
-    public function testMatchString($pattern, $string, $success) {
-        $result = $this->comparator->matchString($pattern, $string);
-        $this->assertSame('regular expression', $key = key($result));
-        $this->assertSame($success, $result[$key]);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage @length function can only be used with arrays.
-     * @covers ::arrayLengthIs
-     */
-    public function testArrayLengthIsWithNonArray() {
-        $this->comparator->arrayLengthIs('foo', 3);
-    }
-
-    /**
-     * @dataProvider getArraysAndLength
-     * @covers ::arrayLengthIs
-     *
-     * @param array $array
-     * @param int $length
-     * @param boolean $success
-     */
-    public function testArrayLengthIs(array $array, $length, $success) {
-        $result = $this->comparator->arrayLengthIs($array, $length);
-        $this->assertSame('@length', $key = key($result));
-        $this->assertSame($success, $result[$key]);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage @atLeast function can only be used with arrays.
-     * @covers ::arrayLengthIsAtLeast
-     */
-    public function testArrayLengthIsAtLeastWithNonArray() {
-        $this->comparator->arrayLengthIsAtLeast('foo', 3);
-    }
-
-    /**
-     * @dataProvider getArraysAndAtLeastLength
-     * @covers ::arrayLengthIsAtLeast
-     *
-     * @param array $array
-     * @param int $min
-     * @param boolean $success
-     */
-    public function testArrayLengthIsAtLeast(array $array, $min, $success) {
-        $result = $this->comparator->arrayLengthIsAtLeast($array, $min);
-        $this->assertSame('@atLeast', $key = key($result));
-        $this->assertSame($success, $result[$key]);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage @atMost function can only be used with arrays.
-     * @covers ::arrayLengthIsAtMost
-     */
-    public function testArrayLengthIsAtMostWithNonArray() {
-        $this->comparator->arrayLengthIsAtMost('foo', 3);
-    }
-
-    /**
-     * @dataProvider getArraysAndAtMostLength
-     * @covers ::arrayLengthIsAtMost
-     *
-     * @param array $array
-     * @param int $max
-     * @param boolean $success
-     */
-    public function testArrayLengthIsAtMost(array $array, $max, $success) {
-        $result = $this->comparator->arrayLengthIsAtMost($array, $max);
-        $this->assertSame('@atMost', $key = key($result));
-        $this->assertSame($success, $result[$key]);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessageRegExp /@type function value "fraction" is not in list: [a-z,\s]+/
-     * @covers ::valueIsFromType
-     */
-    public function testValueIsFromTypeWithInvalidType() {
-        $this->comparator->valueIsFromType('foo', 'fraction');
-    }
-
-    /**
-     * @dataProvider getValuesAndType
-     * @covers ::valueIsFromType
-     *
-     * @param mixed $value
-     * @param string $type
-     * @param boolean $success
-     */
-    public function testValueIsFromType($value, $type, $success) {
-        $result = $this->comparator->valueIsFromType($value, $type);
-        $this->assertSame('@type', $key = key($result));
-        $this->assertSame($success, $result[$key]);
-    }
-
-    /**
-     * @dataProvider getRegularNeedleValues
-     * @covers ::parseNeedleValue
-     *
-     * @param int|string|boolean|array $value
-     */
-    public function testParseRegularNeedleValue($value) {
-        $this->assertSame($this->comparator->parseNeedleValue($value), $value);
-    }
-
-    /**
-     * @dataProvider getCallbackNeedleValues
-     * @covers ::parseNeedleValue
-     *
-     * @param string $needle
-     * @param mixed $callbackParam
-     * @param string $methodName
-     */
-    public function testParseCallbackNeedleValues($needle, $callbackParam, $methodName) {
-        $callback = $this->comparator->parseNeedleValue($needle);
-
-        $this->assertInstanceOf('Closure', $callback);
-
-        $result = $callback($callbackParam);
-        $this->assertSame($methodName, key($result));
-    }
-
-    /**
-     * @dataProvider getValuesToCompare
-     * @covers ::compare
-     * @covers ::compareHaystackValueWithCallback
-     *
-     * @param array $haystack
-     * @param array $needle
-     * @param boolean $willFail
-     * @param null|string $exception
-     * @param null|string $exceptionMessage
-     */
-    public function testCompareValues(array $haystack, array $needle, $willFail = false, $exception = null, $exceptionMessage = null) {
-        if ($willFail) {
-            $this->expectException($exception);
-            $this->expectExceptionMessage($exceptionMessage);
-        }
-
-        // This last assert will only be executed when the comparison succeeds as a failure throws
-        // an exception
-        $this->assertTrue($this->comparator->compare($haystack, $needle));
-    }
-
-    /**
-     * @covers ::compare
-     * @covers ::compareHaystackValueWithCallback
-     * @see https://github.com/imbo/behat-api-extension/issues/1
-     */
-    public function testCompareValuesWithNull() {
-        // This last assert will only be executed when the comparison succeeds as a failure throws
-        // an exception
-        $this->assertTrue($this->comparator->compare(['null' => null], ['null' => null]));
-    }
-
-    public function getNumericalArrayValuesAndNeedles() {
-        return [
-            'all checks 2' => [
-                'haystack' => [
-                    1,
-                    'foo',
-                    ['foo' => 'bar', 'bar' => 'foo'],
-                    [1, 2, 3],
-                ],
-                'needle' => [
-                    '[1]' => '<re>/foo/</re>',
-                    '[3]' => '@length(3)',
-                ],
-            ],
-            'all checks' => [
-                'haystack' => [
-                    1,
-                    'foo',
-                    ['foo' => 'bar', 'bar' => 'foo'],
-                    [1, 2, 3],
-                    [1, 2, 3, 4],
-                ],
-                'needle' => [
-                    '[0]' => 1,
-                    '[1]' => 'foo',
-                    '[2]' => [
-                        'foo' => 'bar',
-                        'bar' => '<re>/foo/</re>',
-                    ],
-                    '[3]' => [1, 2, 3],
-                    '[4]' => '@length(4)',
-                ],
-            ],
-            'undefined index' => [
-                'haystack' => [
-                    1,
-                ],
-                'needle' => [
-                    '[1]' => 1,
-                ],
-                'willFail' => true,
-                'exception' => 'OutOfRangeException',
-                'exceptionMessage' => 'Index 1 does not exist in the haystack array',
-            ],
-            'value mismatch' => [
-                'haystack' => [
-                    1,
-                ],
-                'needle' => [
-                    '[0]' => 0,
-                ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => 'Item on index 0 in array at haystack key "<root>" does not match value 0',
-            ],
-            'nested regular expression mismatch' => [
                 'haystack' => [
                     [
-                        'foo' => 'bar',
-                        'bar' => 'baz',
-                    ]
-                ],
-                'needle' => [
-                    '[0]' => [
-                        'foo' => '<re>/bar/</re>',
-                        'bar' => '<re>/foo/</re>',
+                        [
+                            1,
+                            2
+                        ],
+                        3,
+                        4,
+                        [
+                            'list' => [
+                                5,
+                                [
+                                    6,
+                                    [
+                                        7,
+                                        [
+                                            'new-list' =>
+                                            [
+                                                8
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ],
                     ],
+                    3,
+                    4
                 ],
-                'willFail' => true,
-                'exception' => 'InvalidArgumentException',
-                'exceptionMessage' => '"regular expression" function failed for the "bar" haystack key',
             ],
         ];
     }
 
     /**
-     * @dataProvider getNumericalArrayValuesAndNeedles
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getDataForCompareCheck() {
+        return [
+            'simple key value objects' => [
+                'needle' => [
+                    'string values' => 'string',
+                    'integer value' => 123,
+                    'float value' => 1.23,
+                    'boolean value' => true,
+                    'null value' => null,
+                ],
+                'haystack' => [
+                    'string values' => 'string',
+                    'integer value' => 123,
+                    'float value' => 1.23,
+                    'boolean value' => true,
+                    'null value' => null,
+                ],
+            ],
+            'nested key value objects' => [
+                'needle' => [
+                    'foo' => [
+                        'bar' => [
+                            'baz' => [
+                                'foo' => 'bar',
+                            ],
+                        ],
+                    ],
+                ],
+                'haystack' => [
+                    'foo' => [
+                        'bar' => [
+                            'baz' => [
+                                'foo' => 'bar',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getDataForSpecificKeyInListChecks() {
+        return [
+            'simple list in haystack key' => [
+                'needle' => [
+                    'key[0]' => 'index0',
+                    'key[1]' => 'index1',
+                    'key[2]' => 'index2',
+                ],
+                'haystack' => [
+                    'key' => [
+                        'index0',
+                        'index1',
+                        'index2',
+                    ],
+                ],
+            ],
+            'simple list as root node' => [
+                'needle' => [
+                    '[0]' => 'index0',
+                    '[1]' => 'index1',
+                    '[2]' => 'index2',
+                ],
+                'haystack' => [
+                    'index0',
+                    'index1',
+                    'index2',
+                ],
+            ],
+            'list in a deep structure' => [
+                'needle' => [
+                    'items[0]' => [
+                        'key' => 'item1',
+                        'sub[0]' => 1,
+                        'sub[1]' => 2,
+                    ],
+                    'items[1]' => [
+                        'key' => 'item2',
+                        'sub[0]' => 3,
+                        'sub[1]' => 4,
+                    ],
+                    'items[2]' => [
+                        'key' => 'item3',
+                        'sub[0]' => 5,
+                        'sub[1]' => 6,
+                    ],
+                ],
+                'haystack' => [
+                    'items' => [
+                        [
+                            'key' => 'item1',
+                            'sub' => [1, 2],
+                        ],
+                        [
+                            'key' => 'item2',
+                            'sub' => [3, 4],
+                        ],
+                        [
+                            'key' => 'item3',
+                            'sub' => [5, 6],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getDataForSpecificKeyInListChecksWithInvalidData() {
+        return [
+            'a string' => [
+                'needle' => [
+                    'foo[0]' => 'bar',
+                ],
+                'haystack' => [
+                    'foo' => 'bar',
+                ],
+            ],
+            'an object' => [
+                'needle' => [
+                    'foo[0]' => 'bar',
+                ],
+                'haystack' => [
+                    'foo' => [
+                        'foo' => 'bar'
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The needle is a numerically indexed array, while the haystack is not:
+     * @covers ::compare
+     */
+    public function testThrowsExceptionWhenMatchingANumericallyIndexedArrayAgainstAnAssociativeArray() {
+        $this->comparator->compare([1, 2, 3], ['foo' => 'bar']);
+    }
+
+    /**
+     * @dataProvider getDataForInArrayCheck
+     * @covers ::compare
+     * @covers ::inArray
+     * @covers ::compareValues
+     * @covers ::arrayIsList
+     * @covers ::arrayIsObject
+     *
+     * @param array $needle
+     * @param array $haystack
+     */
+    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) {
+        $this->assertTrue(
+            $this->comparator->compare($needle, $haystack),
+            'Comparator did not return in a correct manner, should return true'
+        );
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::inArray
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Haystack does not contain any list elements, needle can't be found:
+     */
+    public function testThrowsExceptionWhenNeedleValueIsAListAndHaystackDoesNotContainAnyLists() {
+        $this->comparator->compare([[1]], [1]);
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::inArray
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Haystack does not contain any object elements, needle can't be found:
+     */
+    public function testThrowsExceptionWhenNeedleValueIsAnObjectAndHaystackDoesNotContainAnyObjects() {
+        $this->comparator->compare([
+            ['foo' => 'bar']
+        ], [
+            1
+        ]);
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::inArray
+     * @expectedException InvalidArgumentException
+     */
+    public function testThrowsExceptionWhenNoValuesInTheListIsPresentInTheHaystack() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Needle is not present in the haystack:
+================================================================================
+Needle
+================================================================================
+3
+
+================================================================================
+Haystack
+================================================================================
+[
+    1,
+    2,
+    4
+]
+EXCEPTION
+        );
+        $this->comparator->compare([
+            1, 2, 3
+        ], [
+            1, 2, 4
+        ]);
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::formatExceptionMessage
+     * @expectedException InvalidArgumentException
+     */
+    public function testCanProperlyFormatExceptionMessages() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+The needle is a numerically indexed array, while the haystack is not:
+================================================================================
+Needle
+================================================================================
+[
+    1,
+    2,
+    [
+        1,
+        2
+    ]
+]
+
+================================================================================
+Haystack
+================================================================================
+{
+    "foo": "bar",
+    "bar": [
+        1,
+        2
+    ]
+}
+EXCEPTION
+        );
+        $this->comparator->compare([
+            1,
+            2,
+            [1, 2]
+        ], [
+            'foo' => 'bar',
+            'bar' => [1, 2]
+        ]);
+    }
+
+    /**
+     * @dataProvider getDataForCompareCheck
+     * @covers ::compare
+     * @covers ::compareValues
+     * @covers ::arrayIsList
+     * @covers ::arrayIsObject
+     *
+     * @param array $needle
+     * @param array $haystack
+     */
+    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) {
+        $this->assertTrue(
+            $this->comparator->compare($needle, $haystack),
+            'Comparator did not return in a correct manner, should return true'
+        );
+    }
+
+    /**
+     * @covers ::compare
+     * @expectedException OutOfRangeException
+     * @expectedExceptionMessage Haystack is missing the "bar" key:
+     */
+    public function testThrowsExceptionWhenComparingObjectsAndKeyIsMissingFromHaystack() {
+        $this->comparator->compare([
+            'foo' => [
+                'bar' => 'baz'
+            ]
+        ], [
+            'foo' => [
+                'baz' => 'bar'
+        ]]);
+    }
+
+    /**
+     * @covers ::compare
+     * @expectedException InvalidArgumentException
+     */
+    public function testThrowsExceptionWhenRegularStringKeyValueDoesNotMatch() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Value mismatch for key "foo":
+================================================================================
+Needle
+================================================================================
+{
+    "foo": "bar"
+}
+
+================================================================================
+Haystack
+================================================================================
+{
+    "foo": "baz"
+}
+EXCEPTION
+        );
+        $this->comparator->compare([
+            'foo' => 'bar'
+        ], [
+            'foo' => 'baz'
+        ]);
+    }
+
+    /**
+     * @covers ::compare
+     */
+    public function testCanRecursivelyMatchKeysInObjects() {
+        $this->assertTrue(
+            $this->comparator->compare([
+                'bar' => 'foo',
+                'baz' => [
+                    'foo' => 'bar',
+                    'baz' => [
+                        'baz' => 'foobar',
+                    ],
+                ]
+            ], [
+                'foo' => 'bar',
+                'bar' => 'foo',
+                'baz' => [
+                    'foo' => 'bar',
+                    'bar' => 'foo',
+                    'baz' => [
+                        'foo' => 'bar',
+                        'bar' => 'foo',
+                        'baz' => 'foobar',
+                    ],
+                ],
+            ]),
+            'Comparator did not return in a correct manner, should return true'
+        );
+    }
+
+    /**
+     * @covers ::compare
+     * @expectedException InvalidArgumentException
+     */
+    public function testThrowsExceptionWhenRegularStringKeyValueInDeepObjectDoesNotMatch() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Value mismatch for key "foo":
+================================================================================
+Needle
+================================================================================
+{
+    "bar": "foo",
+    "foo": "foobar"
+}
+
+================================================================================
+Haystack
+================================================================================
+{
+    "bar": "foo",
+    "foo": "foo"
+}
+EXCEPTION
+        );
+        $this->comparator->compare([
+            'foo' => [
+                'foo' => [
+                    'bar' => 'foo',
+                    'foo' => 'foobar'
+                ],
+            ],
+        ], [
+            'foo' => [
+                'foo' => [
+                    'bar' => 'foo',
+                    'foo' => 'foo'
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @dataProvider getDataForSpecificKeyInListChecks
      * @covers ::compare
      *
-     * @param array $haystack
      * @param array $needle
-     * @param boolean $willFail
-     * @param null|string $exception
-     * @param null|string $exceptionMessage
+     * @param array $haystack
      */
-    public function testCompareWhenRootNodeIsNumericalArray(array $haystack, array $needle, $willFail = false, $exception = null, $exceptionMessage = null) {
-        if ($willFail) {
-            $this->expectException($exception);
-            $this->expectExceptionMessage($exceptionMessage);
-        }
+    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) {
+        $this->assertTrue(
+            $this->comparator->compare($needle, $haystack),
+            'Comparator did not return in a correct manner, should return true'
+        );
+    }
 
-        $this->assertTrue($this->comparator->compare($haystack, $needle));
+    /**
+     * @covers ::compare
+     * @expectedException OutOfRangeException
+     */
+    public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatDoesNotExist() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Haystack is missing the "foo" key:
+================================================================================
+Needle
+================================================================================
+{
+    "foo[0]": "bar"
+}
+
+================================================================================
+Haystack
+================================================================================
+{
+    "bar": "foo"
+}
+EXCEPTION
+        );
+        $this->comparator->compare([
+            'foo[0]' => 'bar',
+        ], [
+            'bar' => 'foo',
+        ]);
+    }
+
+    /**
+     * @dataProvider getDataForSpecificKeyInListChecksWithInvalidData
+     * @covers ::compare
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The element at key "foo" in the haystack is not a list:
+     */
+    public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack) {
+        $this->comparator->compare($needle, $haystack);
+    }
+
+    /**
+     * @covers ::compare
+     * @expectedException OutOfRangeException
+     */
+    public function testThrowsExceptionWhenTargetingAListIndexThatDoesNotExist() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+The index "2" does not exist in the list:
+================================================================================
+Needle
+================================================================================
+{
+    "foo[2]": "bar"
+}
+
+================================================================================
+Haystack
+================================================================================
+{
+    "foo": [
+        "foo",
+        "bar"
+    ]
+}
+EXCEPTION
+        );
+        $this->comparator->compare([
+            'foo[2]' => 'bar'
+        ], [
+            'foo' => [
+                'foo',
+                'bar',
+            ],
+        ]);
     }
 }

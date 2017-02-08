@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension;
 
+use Imbo\BehatApiException\ArrayContainsComparator\Matcher;
 use InvalidArgumentException;
 use LengthException;
 use LogicException;
@@ -16,357 +17,238 @@ use Closure;
  */
 class ArrayContainsComparator {
     /**
-     * Recursively look over an array and make sure all the items in $needle exists
+     * Recursively loop over the $haystack array and make sure all the items in $needle exists
      *
-     * @param array $haystack The haystack array
+     * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
+     * "list" is a numerically indexed array, and an "object" is an associative array.
+     *
      * @param array $needle The needle array
-     * @param string $path The current array key "path" to use in exception messages
+     * @param array $haystack The haystack array
      * @throws Exception Throws an exception on error
+     * @return boolean
      */
-    public function compare(array $haystack, array $needle, $path = null) {
+    public function compare(array $needle, array $haystack) {
+        $needleIsList = $this->arrayIsList($needle);
+        $haystackIsList = $this->arrayIsList($haystack);
+
+        // If the needle is a numerically indexed array, the haystack needs to be one as well
+        if ($needleIsList && !$haystackIsList) {
+            throw new InvalidArgumentException($this->formatExceptionMessage(
+                'The needle is a numerically indexed array, while the haystack is not:',
+                $needle,
+                $haystack
+            ));
+        } else if ($needleIsList && $haystackIsList) {
+            // Both arrays are numerically indexed arrays
+            return $this->inArray($needle, $haystack);
+        }
+
         // Loop over all key => value pairs in the needle array and make sure they match the
         // haystack array
         foreach ($needle as $key => $value) {
-            // Update the key path to use in exception messages
-            $keyPath = preg_replace('/\[[\d]+\]/', '', ltrim(sprintf('%s.%s', $path, $key), '.'));
-
-            // Parse the value
-            $value = $this->parseNeedleValue($value);
-            $valueIsCallback = $value instanceof Closure;
-
-            // See if the key refers to an element in an array
+            // Check if the needle key refers to a specific array key in the haystack
             $match = [];
 
-            if (preg_match('/^\[(\d+)\]$/', $key, $match)) {
-                // The matcher refers to an index in a numerical array
-                $index = (int) $match[1];
+            if (preg_match('/^(?<key>.*?)\[(?<index>[\d]+)\]$/', $key, $match)) {
+                $realKey = $match['key'] ?: null;
+                $index = (int) $match['index'];
 
-                if (!isset($haystack[$index])) {
-                    throw new OutOfRangeException(sprintf(
-                        'Index %d does not exist in the haystack array',
-                        $index
+                if ($realKey && !array_key_exists($realKey, $haystack)) {
+                    // The key does not exist in the haystack
+                    throw new OutOfRangeException($this->formatExceptionMessage(
+                        sprintf(
+                            'Haystack is missing the "%s" key:',
+                            $realKey
+                        ),
+                        $needle,
+                        $haystack
                     ));
                 }
 
-                if ($valueIsCallback) {
-                    $this->compareHaystackValueWithCallback($haystack[$index], $value, $keyPath);
-                    continue;
-                }
+                // If a key has been specified, use that part of the haystack to compare against,
+                // if no key exists, simply use the haystack as-is.
+                $subHaystack = $realKey ? $haystack[$realKey] : $haystack;
 
-                if (is_array($value) && is_array($haystack[$index])) {
-                    // Recursively compare the haystack against the needle
-                    $this->compare($haystack[$index], $value);
-                    continue;
-                }
-
-                if ($value !== $haystack[$index]) {
-                    throw new InvalidArgumentException(sprintf(
-                        'Item on index %d in array at haystack key "%s" does not match value %s',
-                        $index,
-                        $keyPath ?: '<root>',
-                        $value
+                if (!is_array($subHaystack) || !$this->arrayIsList($subHaystack)) {
+                    // The sub haystack is not a list, so we can't really target indexes
+                    throw new InvalidArgumentException($this->formatExceptionMessage(
+                        sprintf(
+                            'The element at key "%s" in the haystack is not a list:',
+                            $realKey
+                        ),
+                        $needle,
+                        $haystack
+                    ));
+                } else if (!array_key_exists($index, $subHaystack)) {
+                    // The index does not exist in the haystack
+                    throw new OutOfRangeException($this->formatExceptionMessage(
+                        sprintf(
+                            'The index "%d" does not exist in the list:',
+                            $index
+                        ),
+                        $needle,
+                        $haystack
                     ));
                 }
 
-                continue;
-            } else if (preg_match('/^(.*?)\[([\d]+)\]$/', $key, $match)) {
-                $key = $match[1];
-                $index = (int) $match[2];
-
-                if (!is_array($haystack[$key])) {
-                    throw new UnexpectedValueException(sprintf(
-                        'Element at haystack key "%s" is not an array.',
-                        $keyPath
-                    ));
-                }
-
-                if (!isset($haystack[$key][$index])) {
-                    throw new OutOfRangeException(sprintf(
-                        'Index %d does not exist in the array at haystack key "%s"',
-                        $index,
-                        $keyPath
-                    ));
-                }
-
-                if ($valueIsCallback) {
-                    $this->compareHaystackValueWithCallback($haystack[$key][$index], $value, $keyPath);
-                    continue;
-                }
-
-                if (is_array($value) && is_array($haystack[$key][$index])) {
-                    // Recursively compare the haystack against the needle
-                    $this->compare($haystack[$key][$index], $value);
-                    continue;
-                }
-
-                if ($value !== $haystack[$key][$index]) {
-                    throw new InvalidArgumentException(sprintf(
-                        'Item on index %d in array at haystack key "%s" does not match value %s',
-                        $index,
-                        $keyPath,
-                        $value
-                    ));
-                }
-
-                continue;
-            }
-
-            if (!array_key_exists($key, $haystack)) {
-                throw new OutOfRangeException(sprintf(
-                    'Key is missing from the haystack: %s',
-                    $keyPath
-                ));
-            }
-
-            // Match types
-            $haystackValueType = gettype($haystack[$key]);
-            $needleValueType   = gettype($value);
-
-            if ($valueIsCallback) {
-                $this->compareHaystackValueWithCallback($haystack[$key], $value, $keyPath);
-                continue;
-            }
-
-            if ($haystackValueType !== $needleValueType) {
-                throw new UnexpectedValueException(sprintf(
-                    'Type mismatch for haystack key "%s" (haystack type: %s, needle type: %s)',
-                    $keyPath,
-                    $haystackValueType,
-                    $needleValueType
-                ));
-            }
-
-            if (is_scalar($value) || is_null($value)) {
-                if ($haystack[$key] !== $value) {
-                    throw new InvalidArgumentException(sprintf(
-                        'Value mismatch for haystack key "%s": %s != %s',
-                        $keyPath,
-                        $haystack[$key],
-                        $value
-                    ));
-                }
-
-                continue;
-            }
-
-            if (is_array($value)) {
-                if (key($value) === 0) {
-                    // Numerically indexed array. Loop over all values and see if they are in the
-                    // haystack value
-                    foreach ($value as $v) {
-                        if (!in_array($v, $haystack[$key])) {
-                            throw new InvalidArgumentException(sprintf(
-                                'The value %s is not present in the haystack array at key "%s"',
-                                $v,
-                                $keyPath
-                            ));
-                        }
-                    }
+                if (is_array($value)) {
+                    // The value is an array, do a recursive check
+                    $this->compare($value, $subHaystack[$index]);
                 } else {
-                    // Associative array, recurse
-                    $this->compare($haystack[$key], $value, $keyPath);
+                    // Regular value, compare
+                    $this->compareValues($value, $subHaystack[$index]);
+                }
+            } else {
+                // Use array_key_exists instead of isset as the value of the key can be null, which
+                // causes isset to return false
+                if (!array_key_exists($key, $haystack)) {
+                    // The key does not exist in the haystack
+                    throw new OutOfRangeException($this->formatExceptionMessage(
+                        sprintf(
+                            'Haystack is missing the "%s" key:',
+                            $key
+                        ),
+                        $needle,
+                        $haystack
+                    ));
                 }
 
-                continue;
+                if (is_array($value)) {
+                    // If the value is an array, recurse
+                    $this->compare($value, $haystack[$key]);
+                } else if (!$this->compareValues($value, $haystack[$key])) {
+                    // Comparison of values failed
+                    throw new InvalidArgumentException($this->formatExceptionMessage(
+                        sprintf('Value mismatch for key "%s":', $key),
+                        $needle,
+                        $haystack
+                    ));
+                }
             }
-
-            // @codeCoverageIgnoreStart
-            throw new LogicException(sprintf(
-                'Value has not been matched for key: %s. This should never happen, so please file an issue.',
-                $keyPath
-            ));
-            // @codeCoverageIgnoreEnd
         }
 
         return true;
     }
 
     /**
-     * Compare a hay stack value with a callback
+     * Compare a value from a needle with a value from the haystack
      *
-     * @param mixed $value The value to compare
-     * @param callable $callback The callback to use
-     * @param string $keyPath The path to the array key
-     * @throws InvalidArgumentException Throws an exception if the result from the callback is not
-     *                                  a success.
+     * @param mixed $needleValue
+     * @param mixed $haystackValue
+     * @return boolean
      */
-    private function compareHaystackValueWithCallback($value, $callback, $keyPath) {
-        $result = $callback($value);
-        $function = key($result);
-        $success = $result[$function];
-
-        if (!$success) {
-            throw new InvalidArgumentException(sprintf(
-                '"%s" function failed for the "%s" haystack key',
-                $function,
-                $keyPath
-            ));
-        }
-
-        return true;
+    protected function compareValues($needleValue, $haystackValue) {
+        return $needleValue === $haystackValue;
     }
 
     /**
-     * Parse a value from a needle to see if it represents a callback
+     * Make sure all values in the $needle array is present in the $haystack array
      *
-     * If the $value looks like any of the following patterns, callback will be returned:
-     *
-     * <re>/pattern/</re>
-     * @length(num)
-     * @atLeast(num)
-     * @atMost(num)
-     *
-     * @param mixed $value The value to parse. If the value is not a string, it will be returned as
-     *                     is.
-     * @return mixed|callback Returns the value as is, or a callback.
-     */
-    public function parseNeedleValue($value) {
-        if (!is_string($value)) {
-            return $value;
-        }
-
-        if (preg_match('|^<re>(.*?)</re>$|', $value, $match)) {
-            $pattern = $match[1]; // The actual regular expression
-
-            return function($value) use ($pattern) {
-                return $this->matchString($pattern, $value);
-            };
-        } else if (preg_match('/^@length\(([\d]+)\)$/', $value, $match)) {
-            $length = (int) $match[1]; // The length to match
-
-            return function($value) use ($length) {
-                return $this->arrayLengthIs($value, $length);
-            };
-        } else if (preg_match('/^@atLeast\(([\d]+)\)$/', $value, $match)) {
-            $min = (int) $match[1];
-
-            return function($value) use ($min) {
-                return $this->arrayLengthIsAtLeast($value, $min);
-            };
-        } else if (preg_match('/^@atMost\(([\d]+)\)$/', $value, $match)) {
-            $max = (int) $match[1];
-
-            return function($value) use ($max) {
-                return $this->arrayLengthIsAtMost($value, $max);
-            };
-        } else if (preg_match('/^@type\(([a-zA-Z]+)\)$/', $value, $match)) {
-            $type = $match[1];
-
-            return function($value) use ($type) {
-                return $this->valueIsFromType($value, $type);
-            };
-        }
-
-        return $value;
-    }
-
-    /**
-     * Match pattern against a scalar value
-     *
-     * @param string $pattern A valid regular expression pattern
-     * @param scalar $value The value to match the pattern against. If the value is not a scalar an
-     *                      InvalidArgumentException exception will be thrown. The value is cast to
-     *                      a string before the match occurs.
-     * @return array Returns an array with the key being the function name, and the value being a
-     *               boolean representing if $value matched $pattern or not.
+     * @param array $needle
+     * @param array $haystack
      * @throws InvalidArgumentException
+     * @return boolean
      */
-    public function matchString($pattern, $value) {
-        if (!is_scalar($value)) {
-            throw new InvalidArgumentException('Regular expression matching must be used with scalars.');
+    protected function inArray(array $needle, array $haystack) {
+        // Loop over all the values in the needle array, and make sure each and every one is in some
+        // way present in the haystack, in a recursive manner.
+        foreach ($needle as $value) {
+            if (is_array($value)) {
+                // If the value is an array we need to do a recursive compare / inArray check
+                if ($this->arrayIsList($value)) {
+                    $listElements = array_filter($haystack, function($element) {
+                        return is_array($element) && $this->arrayIsList($element);
+                    });
+
+                    if (empty($listElements)) {
+                        // The haystack does not contain any list elements
+                        throw new InvalidArgumentException($this->formatExceptionMessage(
+                            'Haystack does not contain any list elements, needle can\'t be found:',
+                            $value,
+                            $haystack
+                        ));
+                    }
+
+                    array_map(function ($haystack) use ($value) {
+                        return $this->inArray($value, $haystack);
+                    }, $listElements);
+                } else {
+                    $objectElements = array_filter($haystack, function($element) {
+                        return is_array($element) && $this->arrayIsObject($element);
+                    });
+
+                    if (empty($objectElements)) {
+                        // The haystack does not contain any object elements
+                        throw new InvalidArgumentException($this->formatExceptionMessage(
+                            'Haystack does not contain any object elements, needle can\'t be found:',
+                            $value,
+                            $haystack
+                        ));
+                    }
+
+                    array_map(function ($haystack) use ($value) {
+                        return $this->compare($value, $haystack);
+                    }, $objectElements);
+                }
+            } else {
+                $result = array_map(function($haystackElement) use ($value) {
+                    return $this->compareValues($value, $haystackElement);
+                }, $haystack);
+
+                if (empty(array_filter($result))) {
+                    throw new InvalidArgumentException($this->formatExceptionMessage(
+                        'Needle is not present in the haystack:',
+                        $value,
+                        $haystack
+                    ));
+                }
+            }
         }
 
-        return ['regular expression' => (boolean) preg_match($pattern, (string) $value)];
+        // All's right with the world!
+        return true;
     }
 
     /**
-     * Check that an array is of a specific length
+     * See if a PHP array is a JSON array
      *
-     * @param mixed $array The array to check
-     * @param int $length The length we want to array to be
-     * @return array Returns an array with the key being the function name, and the value being a
-     *               boolean representing if $array is of length $length or not
-     * @throws InvalidArgumentException If $array is not an array an exception will be thrown
+     * @param array $array The array to check
+     * @return boolean True if the array is a numerically indexed array
      */
-    public function arrayLengthIs($array, $length) {
-        if (!is_array($array)) {
-            throw new InvalidArgumentException('@length function can only be used with arrays.');
-        }
-
-        return ['@length' => count($array) === $length];
+    protected function arrayIsList(array $array) {
+        return json_encode($array)[0] === '[';
     }
 
     /**
-     * Check that an array is at least of a specific length
+     * See if a PHP array is a JSON object
      *
-     * @param mixed $array The array to check
-     * @param int $min The minimum length of the array
-     * @return array Returns an array with the key being the function name, and the value being a
-     *               boolean representing if $array is at least $min length of not
-     * @throws InvalidArgumentException If $array is not an array an exception will be thrown
+     * @param array $array The array to check
+     * @return boolean True if the array is an associative array
      */
-    public function arrayLengthIsAtLeast($array, $min) {
-        if (!is_array($array)) {
-            throw new InvalidArgumentException('@atLeast function can only be used with arrays.');
-        }
-
-        return ['@atLeast' => count($array) >= $min];
+    protected function arrayIsObject(array $array) {
+        return json_encode($array)[0] === '{';
     }
 
     /**
-     * Check that an array is at most of a specific length
+     * Format an exception message with needle and haystack encoded as pretty-printed JSON
      *
-     * @param mixed $array The array to check
-     * @param int $max The maximum length of the array
-     * @return array Returns an array with the key being the function name, and the value being a
-     *               boolean representing if $array is at most $max length of not
-     * @throws InvalidArgumentException If $array is not an array an exception will be thrown
+     * @param string $message
+     * @param mixed $needle
+     * @param mixed $haystack
+     * @return string
      */
-    public function arrayLengthIsAtMost($array, $max) {
-        if (!is_array($array)) {
-            throw new InvalidArgumentException('@atMost function can only be used with arrays.');
-        }
+    protected function formatExceptionMessage($message, $needle, $haystack) {
+        $line = str_repeat('=', 80);
 
-        return ['@atMost' => count($array) <= $max];
-    }
-
-    /**
-     * Check that an value is from a specific type
-     *
-     * @param mixed $value The value to check
-     * @param string $type The type of the value
-     * @return array Returns an array with the key being the function name, and the value being a
-     *               boolean representing if $value is from type $type
-     * @throws InvalidArgumentException If $type is not in list of known data types
-     */
-    public function valueIsFromType($value, $type) {
-        $allowedTypes = [
-            'bool', 'boolean',
-            'int', 'integer',
-            'float', 'double',
-            'string',
-            'array',
-            'object',
-            'null',
-            'scalar'
-        ];
-
-        if (! in_array($type, $allowedTypes)) {
-            throw new InvalidArgumentException(
-                sprintf('@type function value "%s" is not in list: %s', $type, implode(',', $allowedTypes))
-            );
-        }
-
-        if ($type === 'scalar' && is_scalar($value)) {
-            return ['@type' => true];
-        }
-
-        $type = preg_replace(
-            ['/^bool$/i', '/^int$/i', '/^float$/i'],
-            ['boolean', 'integer', 'double'],
-            $type
-        );
-
-        return ['@type' => strtolower($type) === strtolower(gettype($value))];
+        return
+            $message . PHP_EOL .
+            $line . PHP_EOL .
+            'Needle' . PHP_EOL .
+            $line . PHP_EOL .
+            json_encode($needle, JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL .
+            $line . PHP_EOL .
+            'Haystack' . PHP_EOL .
+            $line . PHP_EOL .
+            json_encode($haystack, JSON_PRETTY_PRINT);
     }
 }

@@ -12,6 +12,7 @@ use GuzzleHttp\Exception\RequestException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use RuntimeException;
+use OutOfRangeException;
 use stdClass;
 
 /**
@@ -55,7 +56,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     private $mockHandler;
 
     /**
-     * @var GuzzleHttp\HandlerStack
+     * @var HandlerStack
      */
     private $handlerStack;
 
@@ -75,6 +76,11 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     private $client;
 
     /**
+     * @var ArrayContainsComparator
+     */
+    private $comparator;
+
+    /**
      * @var string
      */
     private $baseUri = 'http://localhost:9876';
@@ -92,9 +98,11 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             'handler' => $this->handlerStack,
             'base_uri' => $this->baseUri,
         ]);
+        $this->comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
 
         $this->context = new ApiContext();
         $this->context->setClient($this->client);
+        $this->context->setArrayContainsComparator($this->comparator);
     }
 
     /**
@@ -1020,6 +1028,12 @@ BAR;
     public function testCanAssertThatTheResponseBodyContainsJson() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
         $this->context->requestPath('/some/path');
+        $this->comparator
+            ->expects($this->once())
+            ->method('compare')
+            ->with(['bar' => 'foo', 'foo' => 'bar'], ['foo' => 'bar', 'bar' => 'foo'])
+            ->will($this->returnValue(true));
+
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1));
     }
 
@@ -1727,6 +1741,7 @@ BAR;
 
     /**
      * @expectedException OutOfRangeException
+     * @expectedExceptionMessage error message
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      * @group assertions
@@ -1734,23 +1749,12 @@ BAR;
     public function testAssertingThatTheResponseBodyContainsJsonCanFail() {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->expectExceptionMessage(<<<'EXCEPTION'
-Haystack is missing the "bar" key:
-================================================================================
-Needle
-================================================================================
-{
-    "bar": "foo"
-}
+        $this->comparator
+            ->expects($this->once())
+            ->method('compare')
+            ->with(['bar' => 'foo'], ['foo' => 'bar'])
+            ->will($this->throwException(new OutOfRangeException('error message')));
 
-================================================================================
-Haystack
-================================================================================
-{
-    "foo": "bar"
-}
-EXCEPTION
-        );
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 

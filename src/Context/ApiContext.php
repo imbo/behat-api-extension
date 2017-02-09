@@ -23,7 +23,7 @@ use stdClass;
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
+class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareContext, SnippetAcceptingContext {
     /**
      * Guzzle client
      *
@@ -59,11 +59,27 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
     protected $response;
 
     /**
+     * Instance of the comparator that handles matching of JSON
+     *
+     * @var ArrayContainsComparator
+     */
+    protected $arrayContainsComparator;
+
+    /**
      * {@inheritdoc}
      */
     public function setClient(ClientInterface $client) {
         $this->client = $client;
         $this->request = new Request('GET', $client->getConfig('base_uri'));
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
+        $this->arrayContainsComparator = $comparator;
 
         return $this;
     }
@@ -863,18 +879,13 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
      * Assert that the response body contains all keys / values in the parameter
      *
      * @param PyStringNode $contains
-     * @param ArrayContainsComparator $comparator
      * @throws AssertionFailedException
      * @return void
      *
      * @Then the response body contains JSON:
      */
-    public function assertResponseBodyContainsJson(PyStringNode $contains, ArrayContainsComparator $comparator = null) {
+    public function assertResponseBodyContainsJson(PyStringNode $contains) {
         $this->requireResponse();
-
-        if ($comparator === null) {
-            $comparator = new ArrayContainsComparator();
-        }
 
         // Decode the parameter to the step as an array and make sure it's valid JSON
         $contains = json_decode((string) $contains, true);
@@ -888,9 +899,11 @@ class ApiContext implements ApiClientAwareContext, SnippetAcceptingContext {
 
         try {
             // Compare the arrays, on error this will throw an exception
-            Assertion::true($comparator->compare($contains, $body));
+            Assertion::true($this->arrayContainsComparator->compare($contains, $body));
         } catch (AssertionFailure $e) {
-            throw new AssertionFailedException('Comparator did not return in a correct manner. Marking assertion as failed.');
+            throw new AssertionFailedException(
+                'Comparator did not return in a correct manner. Marking assertion as failed.'
+            );
         }
     }
 

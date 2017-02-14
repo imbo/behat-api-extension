@@ -3,7 +3,6 @@ namespace Imbo\BehatApiExtension\Context;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Behat\Behat\Context\Context;
-use GuzzleHttp\ClientInterface;
 
 /**
  * Array contains comparator aware interface

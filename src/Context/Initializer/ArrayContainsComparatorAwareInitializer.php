@@ -28,7 +28,8 @@ class ArrayContainsComparatorAwareInitializer implements ContextInitializer {
             ->addFunction('arrayLength', new Matcher\ArrayLength())
             ->addFunction('arrayMinLength', new Matcher\ArrayMinLength())
             ->addFunction('arrayMaxLength', new Matcher\ArrayMaxLength())
-            ->addFunction('variableType', new Matcher\VariableType());
+            ->addFunction('variableType', new Matcher\VariableType())
+            ->addFunction('regExp', new Matcher\RegExp());
 
         $this->comparator = $comparator;
     }

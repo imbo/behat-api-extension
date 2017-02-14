@@ -16,13 +16,14 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
     public function testInitializerInjectsDefaultMatcherFunctions() {
         $comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
         $comparator
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(5))
             ->method('addFunction')
             ->withConsecutive(
                 ['arrayLength', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength')],
                 ['arrayMinLength', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMinLength')],
                 ['arrayMaxLength', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMaxLength')],
-                ['variableType', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType')]
+                ['variableType', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType')],
+                ['regExp', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp')]
             )
             ->will($this->returnSelf());
 
@@ -35,7 +36,7 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
     public function testInjectsComparatorWhenInitializingContext() {
         $comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
         $comparator
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(5))
             ->method('addFunction')
             ->will($this->returnSelf());
 

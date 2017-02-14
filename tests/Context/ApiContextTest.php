@@ -1021,6 +1021,7 @@ BAR;
     }
 
     /**
+     * @covers ::setArrayContainsComparator
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      * @group assertions
@@ -1754,6 +1755,26 @@ BAR;
             ->method('compare')
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
             ->will($this->throwException(new OutOfRangeException('error message')));
+
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
+    }
+
+    /**
+     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
+     * @expectedExceptionMessage Comparator did not return in a correct manner. Marking assertion as failed.
+     * @covers ::setArrayContainsComparator
+     * @covers ::assertResponseBodyContainsJson
+     * @covers ::getResponseBody
+     * @group assertions
+     */
+    public function testWillThrowExceptionWhenArrayContainsComparatorDoesNotReturnInACorrectMannerWhenCheckingTheResponseBodyForJson() {
+        $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
+        $this->context->requestPath('/some/path');
+        $this->comparator
+            ->expects($this->once())
+            ->method('compare')
+            ->with(['bar' => 'foo'], ['foo' => 'bar'])
+            ->will($this->returnValue(null));
 
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }

@@ -51,15 +51,15 @@ class ArrayMaxLengthTest extends PHPUnit_Framework_TestCase {
         return [
             [
                 'value' => 123,
-                'message' => '@arrayMaxLength function can only be used with array values, got "integer".',
+                'message' => 'Only numerically indexed arrays are supported, got "integer".',
             ],
             [
                 'value' => '123',
-                'message' => '@arrayMaxLength function can only be used with array values, got "string".',
+                'message' => 'Only numerically indexed arrays are supported, got "string".',
             ],
             [
                 'value' => ['foo' => 'bar'],
-                'message' => '@arrayMaxLength function can only be used with array values, got "object".',
+                'message' => 'Only numerically indexed arrays are supported, got "object".',
             ],
         ];
     }
@@ -74,40 +74,34 @@ class ArrayMaxLengthTest extends PHPUnit_Framework_TestCase {
             [
                 'array' => [1, 2],
                 'maxLength' => 0,
-                'message' => '@arrayMaxLength: Wrong length for array, max length is 0, the array has a length of 2.',
+                'message' => 'Expected array to have less than or equal to 0 entries, actual length: 2.',
             ],
             [
                 'array' => [1, 2, 3],
                 'maxLength' => 2,
-                'message' => '@arrayMaxLength: Wrong length for array, max length is 2, the array has a length of 3.',
+                'message' => 'Expected array to have less than or equal to 2 entries, actual length: 3.',
             ],
         ];
     }
 
     /**
      * @dataProvider getArraysAndLengths
-     * @covers ::match
+     * @covers ::__invoke
      *
      * @param array $array
      * @param int $length
      */
     public function testCanMatchMaxLengthOfArrays(array $array, $length) {
+        $matcher = $this->matcher;
         $this->assertNull(
-            $this->matcher->match($array, $length),
+            $matcher($array, $length),
             'Matcher is supposed to return null.'
         );
     }
 
     /**
-     * @covers ::getName
-     */
-    public function testReturnsCorrectName() {
-        $this->assertSame('arrayMaxLength', $this->matcher->getName());
-    }
-
-    /**
      * @dataProvider getInvalidValues
-     * @covers ::match
+     * @covers ::__invoke
      * @expectedException InvalidArgumentException
      *
      * @param mixed $value
@@ -115,12 +109,13 @@ class ArrayMaxLengthTest extends PHPUnit_Framework_TestCase {
      */
     public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray($value, $message) {
         $this->expectExceptionMessage($message);
-        $this->matcher->match($value, 123);
+        $matcher = $this->matcher;
+        $matcher($value, 123);
     }
 
     /**
      * @dataProvider getValuesThatFail
-     * @covers ::match
+     * @covers ::__invoke
      * @expectedException InvalidArgumentException
      *
      * @param array $array
@@ -129,6 +124,7 @@ class ArrayMaxLengthTest extends PHPUnit_Framework_TestCase {
      */
     public function testThrowsExceptionWhenLengthIsTooShort(array $array, $maxLength, $message) {
         $this->expectExceptionMessage($message);
-        $this->matcher->match($array, $maxLength);
+        $matcher = $this->matcher;
+        $matcher($array, $maxLength);
     }
 }

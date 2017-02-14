@@ -8,39 +8,35 @@ use InvalidArgumentException;
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ArrayMaxLength implements Matcher {
+class ArrayMaxLength {
     /**
-     * {@inheritdoc}
+     * Match the max length of an array
+     *
+     * @param array $array An array
+     * @param int $maxLength The expected maximum length of $array
+     * @throws InvalidArgumentException
+     * @return void
      */
-    public function match($value, $something) {
-        // Encode / decode to fix "objects"
-        $value = json_decode(json_encode($value));
+    public function __invoke($array, $maxLength) {
+        // Encode / decode to make sure we have a "list"
+        $array = json_decode(json_encode($array));
 
-        if (!is_array($value)) {
+        if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(
-                '@%s function can only be used with array values, got "%s".',
-                $this->getName(),
-                gettype($value)
+                'Only numerically indexed arrays are supported, got "%s".',
+                gettype($array)
             ));
         }
 
-        $maxLength = (int) $something;
-        $actualLength = count($value);
+        $maxLength = (int) $maxLength;
+        $actualLength = count($array);
 
         if ($actualLength > $maxLength) {
             throw new InvalidArgumentException(sprintf(
-                '@%s: Wrong length for array, max length is %d, the array has a length of %d.',
-                $this->getName(),
+                'Expected array to have less than or equal to %d entries, actual length: %d.',
                 $maxLength,
                 $actualLength
             ));
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName() {
-        return 'arrayMaxLength';
     }
 }

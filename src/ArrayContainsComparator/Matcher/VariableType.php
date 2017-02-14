@@ -8,7 +8,7 @@ use InvalidArgumentException;
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class VariableType implements Matcher {
+class VariableType {
     /**
      * Valid types
      *
@@ -26,44 +26,40 @@ class VariableType implements Matcher {
     ];
 
     /**
-     * {@inheritdoc}
+     * Match a variable type
+     *
+     * @param mixed $variable A variable
+     * @param string $expectedType The expected type of $variable
+     * @throws InvalidArgumentException
+     * @return void
      */
-    public function match($value, $something) {
-        $expectedType = $this->normalizeType($something);
+    public function __invoke($variable, $expectedType) {
+        $expectedType = $this->normalizeType($expectedType);
 
         if (!in_array($expectedType, $this->validTypes)) {
             throw new InvalidArgumentException(sprintf(
-                'Invalid type for the @%s matcher: "%s"',
-                $this->getName(),
+                'Unsupported variable type: "%s".',
                 $expectedType
             ));
         }
 
-        if ($expectedType === 'scalar' && is_scalar($value)) {
+        if ($expectedType === 'scalar' && is_scalar($variable)) {
             return;
         }
 
         // Encode / decode the value to easier check for objects
-        $value = json_decode(json_encode($value));
+        $variable = json_decode(json_encode($variable));
 
         // Get the actual type of the value
-        $actualType = strtolower(gettype($value));
+        $actualType = strtolower(gettype($variable));
 
         if ($expectedType !== $actualType) {
             throw new InvalidArgumentException(sprintf(
-                '@%s: Expected type "%s", got "%s".',
-                $this->getName(),
+                'Expected variable type "%s", got "%s".',
                 $expectedType,
                 $actualType
             ));
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName() {
-        return 'variableType';
     }
 
     /**

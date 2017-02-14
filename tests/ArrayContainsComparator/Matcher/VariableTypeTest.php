@@ -108,62 +108,56 @@ class VariableTypeTest extends PHPUnit_Framework_TestCase {
             [
                 'value' => 123,
                 'type' => 'string',
-                'message' => 'Expected type "string", got "integer".'
+                'message' => 'Expected variable type "string", got "integer".'
             ],
             [
                 'value' => '123',
                 'type' => 'integer',
-                'message' => 'Expected type "integer", got "string".'
+                'message' => 'Expected variable type "integer", got "string".'
             ],
             [
                 'value' => [1, 2, 3],
                 'type' => 'object',
-                'message' => 'Expected type "object", got "array".'
+                'message' => 'Expected variable type "object", got "array".'
             ],
             [
                 'value' => ['foo' => 'bar'],
                 'type' => 'array',
-                'message' => 'Expected type "array", got "object".'
+                'message' => 'Expected variable type "array", got "object".'
             ],
         ];
     }
 
     /**
      * @dataProvider getValuesAndTypes
-     * @covers ::match
+     * @covers ::__invoke
      * @covers ::normalizeType
      *
      * @param mixed $value
      * @param string $type
      */
     public function testCanMatchValuesOfType($value, $type) {
+        $matcher = $this->matcher;
         $this->assertNull(
-            $this->matcher->match($value, $type),
+            $matcher($value, $type),
             'Matcher is supposed to return null.'
         );
     }
 
     /**
-     * @covers ::getName
-     */
-    public function testReturnsCorrectName() {
-        $this->assertSame('variableType', $this->matcher->getName());
-    }
-
-    /**
-     * @covers ::match
+     * @covers ::__invoke
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid type for the @variableType matcher: "resource"
+     * @expectedExceptionMessage Unsupported variable type: "resource".
      */
     public function testThrowsExceptionWhenGivenInvalidType() {
-        $this->matcher->match('foo', 'resource');
+        $matcher = $this->matcher;
+        $matcher('foo', 'resource');
     }
 
     /**
      * @dataProvider getInvalidMatches
-     * @covers ::match
+     * @covers ::__invoke
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Expected type "%s", got "%s".
      *
      * @param mixed $value
      * @param string $type
@@ -171,6 +165,7 @@ class VariableTypeTest extends PHPUnit_Framework_TestCase {
      */
     public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, $type, $message) {
         $this->expectExceptionMessage($message);
-        $this->matcher->match($value, $type);
+        $matcher = $this->matcher;
+        $matcher($value, $type);
     }
 }

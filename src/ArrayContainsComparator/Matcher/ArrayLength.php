@@ -8,39 +8,35 @@ use InvalidArgumentException;
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class ArrayLength implements Matcher {
+class ArrayLength {
     /**
-     * {@inheritdoc}
+     * Match the exact length of an array
+     *
+     * @param array $array An array
+     * @param int $length The expected exact length of $array
+     * @throws InvalidArgumentException
+     * @return void
      */
-    public function match($value, $something) {
-        // Encode / decode to fix "objects"
-        $value = json_decode(json_encode($value));
+    public function __invoke($array, $length) {
+        // Encode / decode to make sure we have a "list"
+        $array = json_decode(json_encode($array));
 
-        if (!is_array($value)) {
+        if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(
-                '@%s function can only be used with array values, got "%s".',
-                $this->getName(),
-                gettype($value)
+                'Only numerically indexed arrays are supported, got "%s".',
+                gettype($array)
             ));
         }
 
-        $expectedLength = (int) $something;
-        $actualLength = count($value);
+        $length = (int) $length;
+        $actualLength = count($array);
 
-        if ($actualLength !== $expectedLength) {
+        if ($actualLength !== $length) {
             throw new InvalidArgumentException(sprintf(
-                '@%s: Wrong length for array, expected %d, got %d.',
-                $this->getName(),
-                $expectedLength,
+                'Expected array to have exactly %d entries, actual length: %d.',
+                $length,
                 $actualLength
             ));
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName() {
-        return 'arrayLength';
     }
 }

@@ -51,15 +51,15 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
         return [
             [
                 'value' => 123,
-                'message' => '@arrayMinLength function can only be used with array values, got "integer".',
+                'message' => 'Only numerically indexed arrays are supported, got "integer".',
             ],
             [
                 'value' => '123',
-                'message' => '@arrayMinLength function can only be used with array values, got "string".',
+                'message' => 'Only numerically indexed arrays are supported, got "string".',
             ],
             [
                 'value' => ['foo' => 'bar'],
-                'message' => '@arrayMinLength function can only be used with array values, got "object".',
+                'message' => 'Only numerically indexed arrays are supported, got "object".',
             ],
         ];
     }
@@ -74,40 +74,34 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
             [
                 'array' => [],
                 'minLength' => 2,
-                'message' => '@arrayMinLength: Wrong length for array, min length is 2, the array has a length of 0.',
+                'message' => 'Expected array to have more than or equal to 2 entries, actual length: 0.',
             ],
             [
                 'array' => [1, 2, 3],
                 'minLength' => 4,
-                'message' => '@arrayMinLength: Wrong length for array, min length is 4, the array has a length of 3.',
+                'message' => 'Expected array to have more than or equal to 4 entries, actual length: 3.',
             ],
         ];
     }
 
     /**
      * @dataProvider getArraysAndMinLengths
-     * @covers ::match
+     * @covers ::__invoke
      *
      * @param array $array
      * @param int $min
      */
     public function testCanMatchMinLengthOfArrays(array $array, $min) {
+        $matcher = $this->matcher;
         $this->assertNull(
-            $this->matcher->match($array, $min),
+            $matcher($array, $min),
             'Matcher is supposed to return null.'
         );
     }
 
     /**
-     * @covers ::getName
-     */
-    public function testReturnsCorrectName() {
-        $this->assertSame('arrayMinLength', $this->matcher->getName());
-    }
-
-    /**
      * @dataProvider getInvalidValues
-     * @covers ::match
+     * @covers ::__invoke
      * @expectedException InvalidArgumentException
      *
      * @param mixed $value
@@ -115,12 +109,13 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
      */
     public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray($value, $message) {
         $this->expectExceptionMessage($message);
-        $this->matcher->match($value, 123);
+        $matcher = $this->matcher;
+        $matcher($value, 123);
     }
 
     /**
      * @dataProvider getValuesThatFail
-     * @covers ::match
+     * @covers ::__invoke
      * @expectedException InvalidArgumentException
      *
      * @param array $array
@@ -129,6 +124,7 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
      */
     public function testThrowsExceptionWhenLengthIsTooLong(array $array, $minLength, $message) {
         $this->expectExceptionMessage($message);
-        $this->matcher->match($array, $minLength);
+        $matcher = $this->matcher;
+        $matcher($array, $minLength);
     }
 }

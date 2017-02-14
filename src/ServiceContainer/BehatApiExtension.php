@@ -106,8 +106,7 @@ class BehatApiExtension implements ExtensionInterface {
         $clientInitializerDefinition = new Definition(
             'Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer',
             [
-                new Reference(self::APICLIENT_SERVICE_ID),
-                $config['apiClient']
+                new Reference(self::APICLIENT_SERVICE_ID)
             ]
         );
         $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);

@@ -183,12 +183,13 @@ class ArrayContainsComparator {
         $match = [];
 
         // Dynamic pattern, based on the keys in the functions list
+        $functions = array_keys($this->functions);
         $pattern = sprintf(
             '/^@(?<function>%s)\((?<params>.*?)\)$/',
-            implode('|', array_keys($this->functions))
+            implode('|', $functions)
         );
 
-        if (is_string($needleValue) && preg_match($pattern, $needleValue, $match)) {
+        if (is_string($needleValue) && $functions && preg_match($pattern, $needleValue, $match)) {
             // Custom function matching
             $function = $match['function'];
             $params = $match['params'];

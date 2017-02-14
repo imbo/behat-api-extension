@@ -27,19 +27,19 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
      * @covers ::configure
      */
     public function testCanBuildConfiguration() {
-        $tree = new TreeBuilder();
-        $root = $tree->root('root');
+        $treeBuilder = new TreeBuilder();
+        $rootNode = $treeBuilder->root($this->extension->getConfigKey());
 
-        $node = $root->children()->arrayNode($this->extension->getConfigKey());
-        $this->extension->configure($node);
+        // Configure the root node builder
+        $this->extension->configure($rootNode);
 
-        $actualConfig = (new Processor())->process($root->getNode(true), []);
-        $expectedConfig = [
-            'api_extension' => [
+        // Process the configuration
+        $config = (new Processor())->process($rootNode->getNode(true), []);
+
+        $this->assertSame([
+            'apiClient' => [
                 'base_uri' => 'http://localhost:8080',
             ],
-        ];
-
-        $this->assertSame($expectedConfig, $actualConfig);
+        ], $config);
     }
 }

@@ -25,14 +25,28 @@ class BehatApiExtension implements ExtensionInterface {
      *
      * @var string
      */
-    const CLIENT_SERVICE_ID = 'api_extension.client';
+    const APICLIENT_SERVICE_ID = 'api_extension.client';
+
+    /**
+     * Service ID for the comparator
+     *
+     * @var string
+     */
+    const COMPARATOR_SERVICE_ID = 'api_extension.comparator';
+
+    /**
+     * Service ID for the client initializer
+     *
+     * @var string
+     */
+    const APICLIENT_INITIALIZER_SERVICE_ID = 'api_extension.api_client.context_initializer';
 
     /**
      * Service ID for the initializer
      *
      * @var string
      */
-    const INITIALIZER_SERVICE_ID = 'api_extension.context_initializer';
+    const COMPARATOR_INITIALIZER_SERVICE_ID = 'api_extension.comparator.context_initializer';
 
     /**
      * Config key for the extension
@@ -61,12 +75,16 @@ class BehatApiExtension implements ExtensionInterface {
      */
     public function configure(ArrayNodeDefinition $builder) {
         $builder
-            ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('base_uri')
-                    ->info('The base URI of the application you want to test')
-                    ->example('http://localhost:8080')
-                    ->defaultValue('http://localhost:8080')
+                ->arrayNode('apiClient')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('base_uri')
+                            ->isRequired()
+                            ->cannotBeEmpty()
+                            ->defaultValue('http://localhost:8080')
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
     }
@@ -76,15 +94,43 @@ class BehatApiExtension implements ExtensionInterface {
      * @codeCoverageIgnore
      */
     public function load(ContainerBuilder $container, array $config) {
-        $definition = new Definition('GuzzleHttp\Client', [$config]);
-        $container->setDefinition(self::CLIENT_SERVICE_ID, $definition);
+        // Definition for the Guzzle Client
+        $clientDefinition = new Definition(
+            'GuzzleHttp\Client',
+            [
+                $config['apiClient']
+            ]
+        );
 
-        $definition = new Definition('Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer', [
-            new Reference(self::CLIENT_SERVICE_ID),
-            $config
-        ]);
-        $definition->addTag(ContextExtension::INITIALIZER_TAG);
-        $container->setDefinition(self::INITIALIZER_SERVICE_ID, $definition);
+        // Client initializer definition
+        $clientInitializerDefinition = new Definition(
+            'Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer',
+            [
+                new Reference(self::APICLIENT_SERVICE_ID),
+                $config['apiClient']
+            ]
+        );
+        $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);
+
+        // Definition for the array contains comparator
+        $comparatorDefinition = new Definition(
+            'Imbo\BehatApiExtension\ArrayContainsComparator'
+        );
+
+        // Comparator initializer definition
+        $comparatorInitializerDefinition = new Definition(
+            'Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer',
+            [
+                new Reference(self::COMPARATOR_SERVICE_ID)
+            ]
+        );
+        $comparatorInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);
+
+        // Add all definitions to the container
+        $container->setDefinition(self::APICLIENT_SERVICE_ID, $clientDefinition);
+        $container->setDefinition(self::APICLIENT_INITIALIZER_SERVICE_ID, $clientInitializerDefinition);
+        $container->setDefinition(self::COMPARATOR_SERVICE_ID, $comparatorDefinition);
+        $container->setDefinition(self::COMPARATOR_INITIALIZER_SERVICE_ID, $comparatorInitializerDefinition);
     }
 
     /**

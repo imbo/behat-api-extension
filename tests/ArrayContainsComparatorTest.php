@@ -1,9 +1,9 @@
 <?php
 namespace Imbo\BehatApiExtension;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use PHPUnit_Framework_TestCase;
-use Closure;
-use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
@@ -265,6 +265,168 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getCustomFunctionsAndData() {
+        return [
+            '@arrayLength' => [
+                'function' => 'arrayLength',
+                'callback' => new Matcher\ArrayLength(),
+                'needle' => [
+                    'key' => '@arrayLength(3)',
+                ],
+                'haystack' => [
+                    'key' => [1, 2, 3],
+                ],
+            ],
+            '@arrayMaxLength' => [
+                'function' => 'arrayMaxLength',
+                'callback' => new Matcher\ArrayMaxLength(),
+                'needle' => [
+                    'key' => '@arrayMaxLength(3)',
+                ],
+                'haystack' => [
+                    'key' => [1, 2, 3],
+                ],
+            ],
+            '@arrayMinLength' => [
+                'function' => 'arrayMinLength',
+                'callback' => new Matcher\ArrayMinLength(),
+                'needle' => [
+                    'key' => '@arrayMinLength(3)',
+                ],
+                'haystack' => [
+                    'key' => [1, 2, 3],
+                ],
+            ],
+            '@variableType' => [
+                'function' => 'variableType',
+                'callback' => new Matcher\VariableType(),
+                'needle' => [
+                    'key' => '@variableType(array)',
+                ],
+                'haystack' => [
+                    'key' => [1, 2, 3],
+                ],
+            ],
+            '@regExp' => [
+                'function' => 'regExp',
+                'callback' => new Matcher\RegExp(),
+                'needle' => [
+                    'key' => '@regExp(/foo/i)',
+                ],
+                'haystack' => [
+                    'key' => 'FOO',
+                ],
+            ],
+            '@customFunction' => [
+                'function' => 'customFunction',
+                'callback' => function($subject, $param) {
+                    return strtoupper($subject) === $param;
+                },
+                'needle' => [
+                    'key' => '@customFunction(BAR)',
+                ],
+                'haystack' => [
+                    'key' => 'bar',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getCustomFunctionsAndDataThatWillFail() {
+        return [
+            // @arrayLength
+            [
+                'function' => 'arrayLength',
+                'callback' => new Matcher\ArrayLength(),
+                'needle' => [
+                    'key' => '@arrayLength(3)',
+                ],
+                'haystack' => [
+                    'key' => [1],
+                ],
+                'errorMessage' => 'Function "arrayLength" failed with error message: "Expected array to have exactly 3 entries, actual length: 1.".',
+            ],
+
+            // @arrayMaxLength
+            [
+                'function' => 'arrayMaxLength',
+                'callback' => new Matcher\ArrayMaxLength(),
+                'needle' => [
+                    'key' => '@arrayMaxLength(3)',
+                ],
+                'haystack' => [
+                    'key' => [1, 2, 3, 4],
+                ],
+                'errorMessage' => 'Function "arrayMaxLength" failed with error message: "Expected array to have less than or equal to 3 entries, actual length: 4."',
+            ],
+
+            // @arrayMinLength
+            [
+                'function' => 'arrayMinLength',
+                'callback' => new Matcher\ArrayMinLength(),
+                'needle' => [
+                    'key' => '@arrayMinLength(3)',
+                ],
+                'haystack' => [
+                    'key' => [1, 2],
+                ],
+                'errorMessage' => 'Function "arrayMinLength" failed with error message: "Expected array to have more than or equal to 3 entries, actual length: 2.".',
+            ],
+
+            // @variableType
+            [
+                'function' => 'variableType',
+                'callback' => new Matcher\VariableType(),
+                'needle' => [
+                    'key' => '@variableType(array)',
+                ],
+                'haystack' => [
+                    'key' => 'some string value',
+                ],
+                'errorMessage' => 'Function "variableType" failed with error message: "Expected variable type "array", got "string".".',
+            ],
+
+            // @regExp
+            [
+                'function' => 'regExp',
+                'callback' => new Matcher\RegExp(),
+                'needle' => [
+                    'key' => '@regExp(/foo/)',
+                ],
+                'haystack' => [
+                    'key' => 'FOO',
+                ],
+                'errorMessage' => 'Function "regExp" failed with error message: "Subject "FOO" did not match pattern "/foo/".".',
+            ],
+
+            // @customFunction
+            [
+                'function' => 'customFunction',
+                'callback' => function($subject, $param) {
+                    unset($subject, $params);
+                    throw new InvalidArgumentException('Some custom error message');
+                },
+                'needle' => [
+                    'key' => '@customFunction(BAR)',
+                ],
+                'haystack' => [
+                    'key' => 'foo',
+                ],
+                'errorMessage' => 'Function "customFunction" failed with error message: "Some custom error message"',
+            ],
+        ];
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The needle is a numerically indexed array, while the haystack is not:
      * @covers ::compare
@@ -451,6 +613,7 @@ EXCEPTION
 
     /**
      * @covers ::compare
+     * @covers ::compareValues
      */
     public function testCanRecursivelyMatchKeysInObjects() {
         $this->assertTrue(
@@ -523,6 +686,7 @@ EXCEPTION
     /**
      * @dataProvider getDataForSpecificKeyInListChecks
      * @covers ::compare
+     * @covers ::compareValues
      *
      * @param array $needle
      * @param array $haystack
@@ -568,6 +732,9 @@ EXCEPTION
      * @covers ::compare
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The element at key "foo" in the haystack is not a list:
+     *
+     * @param array $needle
+     * @param array $haystack
      */
     public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack) {
         $this->comparator->compare($needle, $haystack);
@@ -633,5 +800,92 @@ EXCEPTION
         ], [
             'foobar',
         ]);
+    }
+
+    /**
+     * @dataProvider getCustomFunctionsAndData
+     * @covers ::addFunction
+     * @covers ::compare
+     * @covers ::compareValues
+     *
+     * @param string $function
+     * @param callable $callback
+     * @param array $needle
+     * @param array $haystack
+     */
+    public function testCanUseBuiltInCustomFunctionMatcher($function, $callback, array $needle, array $haystack) {
+        $this->assertTrue(
+            $this->comparator
+                ->addFunction($function, $callback)
+                ->compare($needle, $haystack),
+            'Comparator did not return in a correct manner, should return true'
+        );
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::compareValues
+     * @expectedException InvalidArgumentException
+     */
+    public function testPerformsARegularStringComparisonWhenSpecifiedCustomFunctionDoesNotExist() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+Value mismatch for key "key":
+================================================================================
+Needle
+================================================================================
+{
+    "key": "@foo(123)"
+}
+
+================================================================================
+Haystack
+================================================================================
+{
+    "key": "some value"
+}
+EXCEPTION
+        );
+        $this->comparator->compare(['key' => '@foo(123)'], ['key' => 'some value']);
+    }
+
+    /**
+     * @dataProvider getCustomFunctionsAndDataThatWillFail
+     * @expectedException InvalidArgumentException
+     * @covers ::addFunction
+     * @covers ::compare
+     * @covers ::compareValues
+     *
+     * @param string $function
+     * @param callable $callback
+     * @param array $needle
+     * @param array $haystack
+     * @param string $errorMessage
+     */
+    public function testThrowsExceptionWhenCustomFunctionMatcherFails($function, $callback, array $needle, array $haystack, $errorMessage) {
+        $this->expectExceptionMessage($errorMessage);
+        $this->assertTrue(
+            $this->comparator
+                ->addFunction($function, $callback)
+                ->compare($needle, $haystack),
+            'Comparator did not return in a correct manner, should return true'
+        );
+    }
+
+    /**
+     * @covers ::addFunction
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Invalid function name: "foo|bar". Function names can not contain the pipe character.
+     */
+    public function testThrowsExceptionWhenAddingACustomFunctionWithAnInvalidName() {
+        $this->comparator->addFunction('foo|bar', function() {});
+    }
+
+    /**
+     * @covers ::addFunction
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Callback provided for function "myFunction" is not callable.
+     */
+    public function testThrowsExceptionWhenAddingAFunctionWithAnInvalidCallback() {
+        $this->comparator->addFunction('myFunction', 'myFunction');
     }
 }

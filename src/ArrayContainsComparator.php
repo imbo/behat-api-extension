@@ -1,14 +1,9 @@
 <?php
 namespace Imbo\BehatApiExtension;
 
-use Imbo\BehatApiException\ArrayContainsComparator\Matcher;
 use InvalidArgumentException;
-use LengthException;
-use LogicException;
 use OutOfRangeException;
-use RuntimeException;
-use UnexpectedValueException;
-use Closure;
+use Exception;
 
 /**
  * Comparator class used for the response body comparisons
@@ -16,6 +11,46 @@ use Closure;
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayContainsComparator {
+    /**
+     * Custom value matching functions
+     *
+     * Keys are the names of the functions, and the values represent an invokable piece of code, be
+     * it a function name or the name of an invokable class.
+     *
+     * @var array
+     */
+    protected $functions = [];
+
+    /**
+     * Add a custom matcher function
+     *
+     * If an existing function exists with the same name it will be replaced
+     *
+     * @param string $name The name of the function, for instance "length"
+     * @param callable $callback The piece of callback code
+     * @throws InvalidArgumentException Throws an exception if the callback is not callable
+     * @return self
+     */
+    public function addFunction($name, $callback) {
+        if (strpos($name, '|') !== false) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid function name: "%s". Function names can not contain the pipe character.',
+                $name
+            ));
+        }
+
+        if (!is_callable($callback)) {
+            throw new InvalidArgumentException(sprintf(
+                'Callback provided for function "%s" is not callable.',
+                $name
+            ));
+        }
+
+        $this->functions[$name] = $callback;
+
+        return $this;
+    }
+
     /**
      * Recursively loop over the $haystack array and make sure all the items in $needle exists
      *
@@ -137,11 +172,40 @@ class ArrayContainsComparator {
     /**
      * Compare a value from a needle with a value from the haystack
      *
+     * Based on the value of the needle, this method will perform a regular expression match, a
+     * custom function match, or a regular value comparison.
+     *
      * @param mixed $needleValue
      * @param mixed $haystackValue
      * @return boolean
      */
     protected function compareValues($needleValue, $haystackValue) {
+        $match = [];
+
+        // Dynamic pattern, based on the keys in the functions list
+        $pattern = sprintf(
+            '/^@(?<function>%s)\((?<params>.*?)\)$/',
+            implode('|', array_keys($this->functions))
+        );
+
+        if (is_string($needleValue) && preg_match($pattern, $needleValue, $match)) {
+            // Custom function matching
+            $function = $match['function'];
+            $params = $match['params'];
+
+            try {
+                $this->functions[$function]($haystackValue, $params);
+                return true;
+            } catch (Exception $e) {
+                throw new InvalidArgumentException(sprintf(
+                    'Function "%s" failed with error message: "%s".',
+                    $function,
+                    $e->getMessage()
+                ), $e->getCode(), $e);
+            }
+        }
+
+        // Regular value matching
         return $needleValue === $haystackValue;
     }
 

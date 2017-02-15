@@ -181,21 +181,14 @@ Feature: Test Then steps
                         "[3]": [1, 2, 3]
                     }
                     '''
-                    And the response body contains JSON:
-                    '''
-                    {
-                        "[1]": "@regExp(/foo/)",
-                        "[3]": "@arrayLength(3)"
-                    }
-                    '''
             """
         When I run "behat features/response-with-numerical-array.feature"
         Then it should pass with:
             """
-            .....
+            ....
 
             1 scenario (1 passed)
-            5 steps (5 passed)
+            4 steps (4 passed)
             """
 
     Scenario: Verify a custom response reason phrase

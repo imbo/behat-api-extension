@@ -79,15 +79,6 @@ Feature: Test Then steps
                                 "list[2]": 3,
                                 "list[3]": [1],
                                 "list[4]": {"foo": "bar"}
-                            },
-                            "types": {
-                                "string": "@variableType(string)",
-                                "integer": "@variableType(integer)",
-                                "double": "@variableType(double)",
-                                "array": "@variableType(array)",
-                                "boolean": "@variableType(boolean)",
-                                "null": "@variableType(null)",
-                                "scalar": "@variableType(scalar)"
                             }
                         }
                         '''

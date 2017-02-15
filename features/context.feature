@@ -38,7 +38,7 @@ Feature: Client aware context
             """
             Feature: API client
                 In order to call the API
-                As feature runner
+                As a feature runner
                 I need to be able to access the client
 
                 Scenario: client is set
@@ -59,7 +59,8 @@ Feature: Client aware context
             default:
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:9999
+                        apiClient:
+                            base_uri: http://localhost:9999
             """
         And a file named "features/client.feature" with:
             """

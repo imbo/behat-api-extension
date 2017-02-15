@@ -11,7 +11,8 @@ Feature: Test steps to set a request body
                     progress: ~
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:8080
+                        apiClient:
+                            base_uri: http://localhost:8080
 
                 suites:
                     default:

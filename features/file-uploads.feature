@@ -11,7 +11,8 @@ Feature: Test file uploading
                     progress: ~
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:8080
+                        apiClient:
+                            base_uri: http://localhost:8080
 
                 suites:
                     default:
@@ -32,16 +33,16 @@ Feature: Test file uploading
                         "file1": {
                             "name": "behat.yml",
                             "type": "text/yaml",
-                            "tmp_name": "<re>/.*/</re>",
+                            "tmp_name": "@regExp(/.*/)",
                             "error": 0,
-                            "size": "<re>/[0-9]+/</re>"
+                            "size": "@regExp(/[0-9]+/)"
                         },
                         "file2": {
                             "name": "attach-files.feature",
                             "type": "",
-                            "tmp_name": "<re>/.*/</re>",
+                            "tmp_name": "@regExp(/.*/)",
                             "error": 0,
-                            "size": "<re>/[0-9]+/</re>"
+                            "size": "@regExp(/[0-9]+/)"
                         }
                     }
                     '''

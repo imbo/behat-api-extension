@@ -11,7 +11,8 @@ Feature: Test Then steps
                     progress: ~
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:8080
+                        apiClient:
+                            base_uri: http://localhost:8080
 
                 suites:
                     default:
@@ -80,13 +81,13 @@ Feature: Test Then steps
                                 "list[4]": {"foo": "bar"}
                             },
                             "types": {
-                                "string": "@type(string)",
-                                "integer": "@type(integer)",
-                                "double": "@type(double)",
-                                "array": "@type(array)",
-                                "boolean": "@type(boolean)",
-                                "null": "@type(null)",
-                                "scalar": "@type(scalar)"
+                                "string": "@variableType(string)",
+                                "integer": "@variableType(integer)",
+                                "double": "@variableType(double)",
+                                "array": "@variableType(array)",
+                                "boolean": "@variableType(boolean)",
+                                "null": "@variableType(null)",
+                                "scalar": "@variableType(scalar)"
                             }
                         }
                         '''
@@ -192,8 +193,8 @@ Feature: Test Then steps
                     And the response body contains JSON:
                     '''
                     {
-                        "[1]": "<re>/foo/</re>",
-                        "[3]": "@length(3)"
+                        "[1]": "@regExp(/foo/)",
+                        "[3]": "@arrayLength(3)"
                     }
                     '''
             """

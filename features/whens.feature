@@ -11,7 +11,8 @@ Feature: Test When steps
                     progress: ~
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:8080
+                        apiClient:
+                            base_uri: http://localhost:8080
 
                 suites:
                     default:

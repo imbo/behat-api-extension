@@ -11,7 +11,8 @@ Feature: Test form-data handling
                     progress: ~
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:8080
+                        apiClient:
+                            base_uri: http://localhost:8080
 
                 suites:
                     default:
@@ -36,7 +37,7 @@ Feature: Test form-data handling
                             "foo": "bar",
                             "bar": ["foo", "bar"]
                         },
-                        "_FILES": "@length(0)"
+                        "_FILES": "@arrayLength(0)"
                     }
                     '''
 
@@ -73,9 +74,9 @@ Feature: Test form-data handling
                             "file": {
                                 "name": "behat.yml",
                                 "type": "text/yaml",
-                                "tmp_name": "<re>/.*/</re>",
+                                "tmp_name": "@regExp(/.*/)",
                                 "error": 0,
-                                "size": "<re>/[0-9]+/</re>"
+                                "size": "@regExp(/[0-9]+/)"
                             }
                         }
                     }

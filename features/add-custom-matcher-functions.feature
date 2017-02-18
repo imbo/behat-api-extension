@@ -7,22 +7,11 @@ Feature: Custom function addition
         Given a file named "features/bootstrap/FeatureContext.php" with:
             """
             <?php
-            use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
+            use Imbo\BehatApiExtension\Context\ApiContext;
             use Imbo\BehatApiExtension\ArrayContainsComparator;
             use Assert\Assertion;
 
-            class FeatureContext implements ArrayContainsComparatorAwareContext {
-                /**
-                 * @var ArrayContainsComparator
-                 */
-                private $comparator;
-
-                /**
-                 * Set the comparator
-                 *
-                 * @param ArrayContainsComparator $comparator
-                 * @return self
-                 */
+            class FeatureContext extends ApiContext {
                 public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
                     $comparator->addFunction('valueIs', function($actual, $expected) {
                         if ($actual !== $expected) {
@@ -33,8 +22,8 @@ Feature: Custom function addition
                             ));
                         }
                     });
-                    $this->comparator = $comparator;
-                    return $this;
+
+                    return parent::setArrayContainsComparator($comparator);
                 }
 
                 /**
@@ -45,7 +34,7 @@ Feature: Custom function addition
                     $haystack = ['value' => $actual];
 
                     Assertion::true(
-                        $this->comparator->compare($needle, $haystack)
+                        $this->arrayContainsComparator->compare($needle, $haystack)
                     );
                 }
             }

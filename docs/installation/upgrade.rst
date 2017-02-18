@@ -10,6 +10,38 @@ Migrating from v1.x to v2.x
     :local:
     :depth: 1
 
+Configuration change
+^^^^^^^^^^^^^^^^^^^^
+
+In ``v1`` the extension only had a single configuration option, which was ``base_uri``. This is still the only option in ``v2``, but it has been added to an ``apiClient`` key.
+
+**v1 behat.yml**
+
+.. code-block:: yaml
+
+    default:
+        suites:
+            default:
+                # ...
+
+        extensions:
+            Imbo\BehatApiExtension:
+                base_uri: http://localhost:8080
+
+**v2 behat.yml**
+
+.. code-block:: yaml
+
+    default:
+        suites:
+            default:
+                # ...
+
+        extensions:
+            Imbo\BehatApiExtension:
+                apiClient:
+                    base_uri: http://localhost:8080
+
 Renamed public methods
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -54,7 +86,7 @@ Some methods have also been removed (as the result of removed steps):
 Updated steps
 ^^^^^^^^^^^^^
 
-``v1.*`` contained several ``When`` steps that could configure the request as well as sending it, in the same step. These steps has been removed in ``v2.0.0``, and the extension now requires you to configure all aspects of the request using the ``Given`` steps prior to issuing one of the few ``When`` steps.
+``v1`` contained several ``When`` steps that could configure the request as well as sending it, in the same step. These steps has been removed in ``v2.0.0``, and the extension now requires you to configure all aspects of the request using the ``Given`` steps prior to issuing one of the few ``When`` steps.
 
 .. contents:: Removed / updated steps
     :local:
@@ -243,8 +275,8 @@ Slight change that adds "JSON" in the step text for clarification:
 
     Then the response body is a JSON array with a length of at most 5
 
-Then the response body contains JSON: ``<PyStringNode>``
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Then the response body contains: ``<PyStringNode>``
+"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Slight change that adds "JSON" in the step text for clarification:
 
@@ -265,6 +297,22 @@ Slight change that adds "JSON" in the step text for clarification:
         """
         {"some": "value"}
         """
+
+Functions names for the JSON matcher
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When recursively checking a JSON response body, some custom functions exist that is represented as the value in a key / value pair. Below is a table of all available functions in ``v1`` along with the updated names used in ``v2``:
+
+======================  ========================
+``v1`` function         ``v2`` function
+======================  ========================
+``@length(num)``        ``@arrayLength(num)``
+``@atLeast(num)``       ``@arrayMinLength(num)``
+``@atMost(num)``        ``@arrayMaxLength(num)``
+``<re>/pattern/</re>``  ``@regExp(/pattern/)``
+======================  ========================
+
+``v2`` have also added more such functions, refer to the :ref:`custom-matcher-functions-and-targeting` section for a complete list.
 
 Exceptions
 ^^^^^^^^^^

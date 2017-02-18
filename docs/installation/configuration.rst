@@ -15,8 +15,8 @@ After you have installed the extension you need to activate it in your ``behat.y
 
 The following configuration options are available for the extension:
 
-============  ======  =====================  =======================================
-Key           Type    Default value          Description
-============  ======  =====================  =======================================
-``base_uri``  string  http://localhost:8080  Base URI of the application under test.
-============  ======  =====================  =======================================
+======================  ======  =====================  =======================================
+Key                     Type    Default value          Description
+======================  ======  =====================  =======================================
+``apiClient.base_uri``  string  http://localhost:8080  Base URI of the application under test.
+======================  ======  =====================  =======================================

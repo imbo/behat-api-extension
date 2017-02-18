@@ -291,6 +291,8 @@ Assert that the response body matches the regular expression pattern found in ``
         /foo/
         """
 
+.. _then-the-response-body-contains-json:
+
 Then the response body contains JSON: ``<PyStringNode>``
 --------------------------------------------------------
 
@@ -324,7 +326,7 @@ Assume the following JSON response for the examples in this section:
           "integer": 123,
           "double": 1.23,
           "boolean": true,
-          "null": null,
+          "null": null
         }
       },
       "array":
@@ -393,18 +395,18 @@ Assume the following JSON response for the examples in this section:
         }
         """
 
-Notice that the order of the values in the arrays does not matter. To be able to target specific indexes in an array a special syntax needs to be used. Please refer to :ref:`custom-functions-and-regular-expression-matching` for more information and examples.
+Notice that the order of the values in the arrays does not matter. To be able to target specific indexes in an array a special syntax needs to be used. Please refer to :ref:`custom-matcher-functions-and-targeting` for more information and examples.
 
-.. _custom-functions-and-regular-expression-matching:
+.. _custom-matcher-functions-and-targeting:
 
-Custom functions and regular expression matching
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Custom matcher functions and targeting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In some cases the need for more advanced matching arises. All custom functions is used in place of the string value they are validating, and because of the way JSON works, they need to be specified as strings to keep the JSON valid.
 
 **Array length**
 
-Three functions exist for asserting the length of regular numerically indexed JSON arrays, ``@length``, ``@atMost`` and ``@atLeast``. Given the following response body:
+Three functions exist for asserting the length of regular numerically indexed JSON arrays, ``@arrayLength``, ``@arrayMaxLength`` and ``@arrayMinLength``. Given the following response body:
 
 .. code-block:: json
 
@@ -419,13 +421,13 @@ Three functions exist for asserting the length of regular numerically indexed JS
       ]
     }
 
-one can assert the exact length using ``@length``:
+one can assert the exact length using ``@arrayLength``:
 
 .. code-block:: gherkin
 
     Then the response body contains JSON:
         """
-        {"items": "@length(5)"}
+        {"items": "@arrayLength(5)"}
         """
 
 or use the relative length matchers:
@@ -434,16 +436,16 @@ or use the relative length matchers:
 
     Then the response body contains JSON:
         """
-        {"items": "@atMost(10)"}
+        {"items": "@arrayMaxLength(10)"}
         """
     And the response body contains JSON:
         """
-        {"items": "@atLeast(3)"}
+        {"items": "@arrayMinLength(3)"}
         """
 
 **Variable type**
 
-To be able to assert the variable type of specific values, the ``@type`` function can be used. The following types can be asserted:
+To be able to assert the variable type of specific values, the ``@variableType`` function can be used. The following types can be asserted:
 
 * ``boolean`` / ``bool``
 * ``integer`` / ``int``
@@ -476,36 +478,39 @@ the type of the values can be asserted like this:
     Then the response body contains JSON:
         """
         {
-          "boolean value": "@type(boolean)",
-          "int value": "@type(integer)",
-          "double value": "@type(double)",
-          "string value": "@type(string)",
-          "array value": "@type(array)",
-          "object value": "@type(object)",
-          "null value": "@type(null)",
-          "scalar value": "@type(scalar)"
+          "boolean value": "@variableType(boolean)",
+          "int value": "@variableType(integer)",
+          "double value": "@variableType(double)",
+          "string value": "@variableType(string)",
+          "array value": "@variableType(array)",
+          "object value": "@variableType(object)",
+          "null value": "@variableType(null)",
+          "scalar value": "@variableType(scalar)"
         }
         """
 
-The ``@type(boolean)``, ``@type(integer)`` and ``@type(double)`` functions can also be expressed using ``@type(bool)``, ``@type(int)`` and ``@type(float)`` respectively. There is no difference in the actual validation being executed.
+The ``boolean``, ``integer`` and ``double`` functions can also be expressed using ``bool``, ``int`` and ``float`` respectively. There is no difference in the actual validation being executed.
 
-For the ``@type(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
+For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
 
 **Regular expression matching**
 
-To use regular expressions to match values, simply write the regular expression, complete with delimiters and optional modifiers, enclosed in ``<re>`` and ``</re>``. Example:
+To use regular expressions to match values, the ``@regExp`` function exists, that takes a regular expression as an argument, complete with delimiters and optional modifiers. Example:
 
-.. code-block:: json
+.. code-block:: gherkin
 
-    {
-      "foo": "<re>/(some|expression)/i</re>",
-      "bar":
-      {
-        "baz": "<re>/[0-9]+/</re>"
-      }
-    }
+    Then the response body contains JSON:
+        """
+        {
+          "foo": "@regExp(/(some|expression)/i)",
+          "bar":
+          {
+            "baz": "@regExp(/[0-9]+/)"
+          }
+        }
+        """
 
-This can be used to match `scalar values <http://php.net/is_scalar>`_ only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <http://php.net/pcre>`_ regarding how regular expressions work in PHP.
+This can be used to match variables of type ``string``, ``integer`` and ``float``/``double`` only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <http://php.net/pcre>`_ regarding how regular expressions work in PHP.
 
 **Match specific keys in a numerically indexed array**
 
@@ -537,17 +542,17 @@ If you need to verify the values, use something like the following step:
         """
         {
           "items[0]": "foo",
-          "items[1]": "<re>/(foo|bar|baz)/</re>",
+          "items[1]": "@regExp(/(foo|bar|baz)/)",
           "items[2]":
           {
             "some":
             {
-              "foo": "<re>/ba(r|z)/</re>"
+              "foo": "@regExp(/ba(r|z)/)"
             }
           },
-          "items[3]": "@length(3)"
+          "items[3]": "@arrayLength(3)"
         }
-    """
+        """
 
 If the response body contains a numerical array as the root node, you will need to use a special syntax for validation. Consider the following response body:
 
@@ -576,7 +581,7 @@ To validate this, use the following step:
           {
             "foo": "bar"
           },
-          "[3]": "<re>/bar/</re>",
-          "[4]": "@length(3)"
+          "[3]": "@regExp(/bar/)",
+          "[4]": "@arrayLength(3)"
         }
         """

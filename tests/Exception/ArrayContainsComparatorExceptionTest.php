@@ -9,44 +9,82 @@ use PHPUnit_Framework_TestCase;
  */
 class ArrayContainsComparatorExceptionTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var ArrayContainsComparatorException
+     * Data provider
+     *
+     * @return array[]
      */
-    private $exception;
+    public function getExceptionData() {
+        return [
+            'with no needle / haystack' => [
+                'message' => $someMessage = 'some message',
+                'needle' => [],
+                'haystack' => [],
+                'progress' => [],
+                'formattedMessage' => <<<MESSAGE
+{$someMessage}
 
-    /**
-     * Set up the SUT
-     */
-    public function setUp() {
-        $this->exception = new ArrayContainsComparatorException();
+================================================================================
+= Needle =======================================================================
+================================================================================
+[]
+
+================================================================================
+= Haystack =====================================================================
+================================================================================
+[]
+
+================================================================================
+= Progress =====================================================================
+================================================================================
+[]
+MESSAGE
+            ],
+            'with needle / haystack / progress' => [
+                'message' => $someMessage = 'some message',
+                'needle' => $needle = ['needle' => 'value'],
+                'haystack' => $haystack = ['haystack' => 'value'],
+                'progress' => $progress = ['progress' => 'value'],
+                'formattedMessage' => <<<MESSAGE
+{$someMessage}
+
+================================================================================
+= Needle =======================================================================
+================================================================================
+{
+    "needle": "value"
+}
+
+================================================================================
+= Haystack =====================================================================
+================================================================================
+{
+    "haystack": "value"
+}
+
+================================================================================
+= Progress =====================================================================
+================================================================================
+{
+    "progress": "value"
+}
+MESSAGE
+            ],
+        ];
     }
 
     /**
-     * @covers ::setNeedle
-     * @covers ::getNeedle
+     * @dataProvider getExceptionData
+     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
+     * @covers ::__construct
+     *
+     * @param string $message
+     * @param array $needle
+     * @param array $haystack
+     * @param array $progress
+     * @param string $formattedMessage
      */
-    public function testCanSetAndGetNeedle() {
-        $this->assertSame([], $this->exception->getNeedle());
-        $this->assertSame($this->exception, $this->exception->setNeedle(['key' => 'value']));
-        $this->assertSame(['key' => 'value'], $this->exception->getNeedle());
-    }
-
-    /**
-     * @covers ::setHaystack
-     * @covers ::getHaystack
-     */
-    public function testCanSetAndGetHaystack() {
-        $this->assertSame([], $this->exception->getHaystack());
-        $this->assertSame($this->exception, $this->exception->setHaystack(['key' => 'value']));
-        $this->assertSame(['key' => 'value'], $this->exception->getHaystack());
-    }
-
-    /**
-     * @covers ::setProgress
-     * @covers ::getProgress
-     */
-    public function testCanSetAndGetProgress() {
-        $this->assertSame([], $this->exception->getProgress());
-        $this->assertSame($this->exception, $this->exception->setProgress(['key' => 'value']));
-        $this->assertSame(['key' => 'value'], $this->exception->getProgress());
+    public function testCanProperlyFormatErrorMessages($message, array $needle, array $haystack, array $progress, $formattedMessage) {
+        $this->expectExceptionMessage($formattedMessage);
+        throw new ArrayContainsComparatorException($message, 0, null, $needle, $haystack, $progress);
     }
 }

@@ -10,77 +10,43 @@ use Exception;
  */
 class ArrayContainsComparatorException extends AssertionFailedException {
     /**
-     * @var array
-     */
-    private $needle = [];
-
-    /**
-     * @var array
-     */
-    private $haystack = [];
-
-    /**
-     * @var array
-     */
-    private $progress = [];
-
-    /**
-     * Set the needle
+     * Class constructor
      *
-     * @param array $needle
-     * @return self
+     * @param string $message Exception message
+     * @param int $code Exception code
+     * @param Exception $previous Previous exception in the stack
+     * @param array $needle The needle in the comparison
+     * @param array $haystack The haystack in the comparison
+     * @param array $progress The progress of the comparison
      */
-    public function setNeedle(array $needle) {
-        $this->needle = $needle;
-        return $this;
-    }
+    public function __construct($message, $code = 0, Exception $previous = null, array $needle = [], array $haystack = [], array $progress = []) {
+        // Reusable line of ='s
+        $line = str_repeat('=', 80);
 
-    /**
-     * Get the needle
-     *
-     * @return array
-     */
-    public function getNeedle() {
-        return $this->needle;
-    }
+        // Format the error message
+        $message .= PHP_EOL . PHP_EOL . sprintf(<<<MESSAGE
+================================================================================
+= Needle =======================================================================
+================================================================================
+%s
 
-    /**
-     * Set the haystack
-     *
-     * @param array $haystack
-     * @return self
-     */
-    public function setHaystack(array $haystack) {
-        $this->haystack = $haystack;
-        return $this;
-    }
+================================================================================
+= Haystack =====================================================================
+================================================================================
+%s
 
-    /**
-     * Get the haystack
-     *
-     * @return array
-     */
-    public function getHaystack() {
-        return $this->haystack;
-    }
+================================================================================
+= Progress =====================================================================
+================================================================================
+%s
 
-    /**
-     * Set the progress
-     *
-     * @param array $progress
-     * @return self
-     */
-    public function setProgress(array $progress) {
-        $this->progress = $progress;
-        return $this;
-    }
+MESSAGE
+            ,
+                json_encode($needle, JSON_PRETTY_PRINT),
+                json_encode($haystack, JSON_PRETTY_PRINT),
+                json_encode($progress, JSON_PRETTY_PRINT)
+        );
 
-    /**
-     * Get the progress
-     *
-     * @return array
-     */
-    public function getProgress() {
-        return $this->progress;
+        parent::__construct($message, $code, $previous);
     }
 }

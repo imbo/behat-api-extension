@@ -1,8 +1,8 @@
 <?php
 namespace Imbo\BehatApiExtension;
 
+use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use InvalidArgumentException;
-use OutOfRangeException;
 use Exception;
 
 /**
@@ -32,13 +32,6 @@ class ArrayContainsComparator {
      * @return self
      */
     public function addFunction($name, $callback) {
-        if (strpos($name, '|') !== false) {
-            throw new InvalidArgumentException(sprintf(
-                'Invalid function name: "%s". Function names can not contain the pipe character.',
-                $name
-            ));
-        }
-
         if (!is_callable($callback)) {
             throw new InvalidArgumentException(sprintf(
                 'Callback provided for function "%s" is not callable.',
@@ -59,7 +52,7 @@ class ArrayContainsComparator {
      *
      * @param array $needle The needle array
      * @param array $haystack The haystack array
-     * @throws Exception Throws an exception on error
+     * @throws ArrayContainsComparatorException Throws an exception on error
      * @return boolean
      */
     public function compare(array $needle, array $haystack) {
@@ -68,11 +61,10 @@ class ArrayContainsComparator {
 
         // If the needle is a numerically indexed array, the haystack needs to be one as well
         if ($needleIsList && !$haystackIsList) {
-            throw new InvalidArgumentException($this->formatExceptionMessage(
-                'The needle is a numerically indexed array, while the haystack is not:',
-                $needle,
-                $haystack
-            ));
+            throw new ArrayContainsComparatorException(
+                'The needle is a list, while the haystack is not.', 0, null,
+                $needle, $haystack
+            );
         } else if ($needleIsList && $haystackIsList) {
             // Both arrays are numerically indexed arrays
             return $this->inArray($needle, $haystack);
@@ -90,14 +82,10 @@ class ArrayContainsComparator {
 
                 if ($realKey && !array_key_exists($realKey, $haystack)) {
                     // The key does not exist in the haystack
-                    throw new OutOfRangeException($this->formatExceptionMessage(
-                        sprintf(
-                            'Haystack is missing the "%s" key:',
-                            $realKey
-                        ),
-                        $needle,
-                        $haystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        sprintf('Haystack object is missing the "%s" key.', $realKey), 0, null,
+                        $needle, $haystack
+                    );
                 }
 
                 // If a key has been specified, use that part of the haystack to compare against,
@@ -106,24 +94,16 @@ class ArrayContainsComparator {
 
                 if (!is_array($subHaystack) || !$this->arrayIsList($subHaystack)) {
                     // The sub haystack is not a list, so we can't really target indexes
-                    throw new InvalidArgumentException($this->formatExceptionMessage(
-                        sprintf(
-                            'The element at key "%s" in the haystack is not a list:',
-                            $realKey
-                        ),
-                        $needle,
-                        $haystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        sprintf('The element at key "%s" in the haystack object is not a list.', $realKey), 0, null,
+                        $needle, $haystack
+                    );
                 } else if (!array_key_exists($index, $subHaystack)) {
                     // The index does not exist in the haystack
-                    throw new OutOfRangeException($this->formatExceptionMessage(
-                        sprintf(
-                            'The index "%d" does not exist in the list:',
-                            $index
-                        ),
-                        $needle,
-                        $haystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        sprintf('The index "%d" does not exist in the haystack list.', $index), 0, null,
+                        $needle, $haystack
+                    );
                 }
 
                 if (is_array($value)) {
@@ -131,25 +111,20 @@ class ArrayContainsComparator {
                     $this->compare($value, $subHaystack[$index]);
                 } else if (!$this->compareValues($value, $subHaystack[$index])) {
                     // Comparison of values failed
-                    throw new InvalidArgumentException($this->formatExceptionMessage(
-                        sprintf('Value mismatch for index "%d" in list:', $index),
-                        $value,
-                        $subHaystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        sprintf('Value mismatch for index "%d" in haystack list.', $index), 0, null,
+                        $value, $subHaystack[$index]
+                    );
                 }
             } else {
                 // Use array_key_exists instead of isset as the value of the key can be null, which
                 // causes isset to return false
                 if (!array_key_exists($key, $haystack)) {
                     // The key does not exist in the haystack
-                    throw new OutOfRangeException($this->formatExceptionMessage(
-                        sprintf(
-                            'Haystack is missing the "%s" key:',
-                            $key
-                        ),
-                        $needle,
-                        $haystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        sprintf('Haystack object is missing the "%s" key.', $key), 0, null,
+                        $needle, $haystack
+                    );
                 }
 
                 if (is_array($value)) {
@@ -157,11 +132,10 @@ class ArrayContainsComparator {
                     $this->compare($value, $haystack[$key]);
                 } else if (!$this->compareValues($value, $haystack[$key])) {
                     // Comparison of values failed
-                    throw new InvalidArgumentException($this->formatExceptionMessage(
-                        sprintf('Value mismatch for key "%s":', $key),
-                        $needle,
-                        $haystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        sprintf('Value mismatch for key "%s" in haystack object.', $key), 0, null,
+                        $needle, $haystack
+                    );
                 }
             }
         }
@@ -172,18 +146,23 @@ class ArrayContainsComparator {
     /**
      * Compare a value from a needle with a value from the haystack
      *
-     * Based on the value of the needle, this method will perform a regular expression match, a
-     * custom function match, or a regular value comparison.
+     * Based on the value of the needle, this method will perform a regular value comparison, or a
+     * custom function match.
      *
      * @param mixed $needleValue
      * @param mixed $haystackValue
+     * @throws ArrayContainsComparatorException
      * @return boolean
      */
     protected function compareValues($needleValue, $haystackValue) {
         $match = [];
 
+        // List of available function names
+        $functions = array_map(function($value) {
+            return preg_quote($value, '/');
+        }, array_keys($this->functions));
+
         // Dynamic pattern, based on the keys in the functions list
-        $functions = array_keys($this->functions);
         $pattern = sprintf(
             '/^@(?<function>%s)\((?<params>.*?)\)$/',
             implode('|', $functions)
@@ -198,11 +177,14 @@ class ArrayContainsComparator {
                 $this->functions[$function]($haystackValue, $params);
                 return true;
             } catch (Exception $e) {
-                throw new InvalidArgumentException(sprintf(
-                    'Function "%s" failed with error message: "%s".',
-                    $function,
-                    $e->getMessage()
-                ), $e->getCode(), $e);
+                throw new ArrayContainsComparatorException(
+                    sprintf(
+                        'Function "%s" failed with error message: "%s".',
+                        $function,
+                        $e->getMessage()
+                    ), 0, $e,
+                    $needleValue, $haystackValue
+                );
             }
         }
 
@@ -215,7 +197,7 @@ class ArrayContainsComparator {
      *
      * @param array $needle
      * @param array $haystack
-     * @throws InvalidArgumentException
+     * @throws ArrayContainsComparatorException
      * @return boolean
      */
     protected function inArray(array $needle, array $haystack) {
@@ -231,11 +213,10 @@ class ArrayContainsComparator {
 
                     if (empty($listElements)) {
                         // The haystack does not contain any list elements
-                        throw new InvalidArgumentException($this->formatExceptionMessage(
-                            'Haystack does not contain any list elements, needle can\'t be found:',
-                            $value,
-                            $haystack
-                        ));
+                        throw new ArrayContainsComparatorException(
+                            'Haystack does not contain any list elements, needle can\'t be found.', 0, null,
+                            $value, $haystack
+                        );
                     }
 
                     array_map(function ($haystack) use ($value) {
@@ -248,15 +229,14 @@ class ArrayContainsComparator {
 
                     if (empty($objectElements)) {
                         // The haystack does not contain any object elements
-                        throw new InvalidArgumentException($this->formatExceptionMessage(
-                            'Haystack does not contain any object elements, needle can\'t be found:',
-                            $value,
-                            $haystack
-                        ));
+                        throw new ArrayContainsComparatorException(
+                            'Haystack does not contain any object elements, needle can\'t be found.', 0, null,
+                            $value, $haystack
+                        );
                     }
 
                     array_map(function ($haystack) use ($value) {
-                        return $this->compare($value, $haystack);
+                        $this->compare($value, $haystack);
                     }, $objectElements);
                 }
             } else {
@@ -265,11 +245,10 @@ class ArrayContainsComparator {
                 }, $haystack);
 
                 if (empty(array_filter($result))) {
-                    throw new InvalidArgumentException($this->formatExceptionMessage(
-                        'Needle is not present in the haystack:',
-                        $value,
-                        $haystack
-                    ));
+                    throw new ArrayContainsComparatorException(
+                        'Needle is not present in the haystack.', 0, null,
+                        $value, $haystack
+                    );
                 }
             }
         }
@@ -296,28 +275,5 @@ class ArrayContainsComparator {
      */
     protected function arrayIsObject(array $array) {
         return json_encode($array)[0] === '{';
-    }
-
-    /**
-     * Format an exception message with needle and haystack encoded as pretty-printed JSON
-     *
-     * @param string $message
-     * @param mixed $needle
-     * @param mixed $haystack
-     * @return string
-     */
-    protected function formatExceptionMessage($message, $needle, $haystack) {
-        $line = str_repeat('=', 80);
-
-        return
-            $message . PHP_EOL .
-            $line . PHP_EOL .
-            'Needle' . PHP_EOL .
-            $line . PHP_EOL .
-            json_encode($needle, JSON_PRETTY_PRINT) . PHP_EOL . PHP_EOL .
-            $line . PHP_EOL .
-            'Haystack' . PHP_EOL .
-            $line . PHP_EOL .
-            json_encode($haystack, JSON_PRETTY_PRINT);
     }
 }

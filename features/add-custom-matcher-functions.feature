@@ -90,5 +90,5 @@ Feature: Custom function addition
         When I run "behat features/test-custom-function-failure.feature"
         Then it should fail with:
             """
-            Function "valueIs" failed with error message: "Expected "expected", got "actual".". (InvalidArgumentException)
+            Function "valueIs" failed with error message: "Expected "expected", got "actual".".
             """

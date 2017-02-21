@@ -41,7 +41,7 @@ Feature: Test built in matcher functions failures
         When I run "behat features/array-length-failure.feature"
         Then it should fail with:
             """
-            Function "arrayLength" failed with error message: "Expected array to have exactly 2 entries, actual length: 3.". (InvalidArgumentException)
+            Function "arrayLength" failed with error message: "Expected array to have exactly 2 entries, actual length: 3.".
             """
 
     Scenario: Assert that @arrayMaxLength can fail
@@ -66,7 +66,7 @@ Feature: Test built in matcher functions failures
         When I run "behat features/array-max-length-failure.feature"
         Then it should fail with:
             """
-            Function "arrayMaxLength" failed with error message: "Expected array to have less than or equal to 2 entries, actual length: 3.". (InvalidArgumentException)
+            Function "arrayMaxLength" failed with error message: "Expected array to have less than or equal to 2 entries, actual length: 3.".
             """
 
     Scenario: Assert that @arrayMinLength can fail
@@ -91,7 +91,7 @@ Feature: Test built in matcher functions failures
         When I run "behat features/array-min-length-failure.feature"
         Then it should fail with:
             """
-            Function "arrayMinLength" failed with error message: "Expected array to have more than or equal to 4 entries, actual length: 3.". (InvalidArgumentException)
+            Function "arrayMinLength" failed with error message: "Expected array to have more than or equal to 4 entries, actual length: 3.".
             """
 
     Scenario: Assert that @variableType can fail
@@ -116,7 +116,7 @@ Feature: Test built in matcher functions failures
         When I run "behat features/variable-type-failure.feature"
         Then it should fail with:
             """
-            Function "variableType" failed with error message: "Expected variable type "string", got "array".". (InvalidArgumentException)
+            Function "variableType" failed with error message: "Expected variable type "string", got "array".".
             """
 
     Scenario: Assert that @regExp can fail
@@ -141,5 +141,5 @@ Feature: Test built in matcher functions failures
         When I run "behat features/reg-exp-failure.feature"
         Then it should fail with:
             """
-            Function "regExp" failed with error message: "Subject "value" did not match pattern "/foo/".". (InvalidArgumentException)
+            Function "regExp" failed with error message: "Subject "value" did not match pattern "/foo/".".
             """

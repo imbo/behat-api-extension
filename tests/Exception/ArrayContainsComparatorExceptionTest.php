@@ -19,7 +19,6 @@ class ArrayContainsComparatorExceptionTest extends PHPUnit_Framework_TestCase {
                 'message' => $someMessage = 'some message',
                 'needle' => [],
                 'haystack' => [],
-                'progress' => [],
                 'formattedMessage' => <<<MESSAGE
 {$someMessage}
 
@@ -32,18 +31,12 @@ class ArrayContainsComparatorExceptionTest extends PHPUnit_Framework_TestCase {
 = Haystack =====================================================================
 ================================================================================
 []
-
-================================================================================
-= Progress =====================================================================
-================================================================================
-[]
 MESSAGE
             ],
-            'with needle / haystack / progress' => [
+            'with needle and haystack' => [
                 'message' => $someMessage = 'some message',
                 'needle' => $needle = ['needle' => 'value'],
                 'haystack' => $haystack = ['haystack' => 'value'],
-                'progress' => $progress = ['progress' => 'value'],
                 'formattedMessage' => <<<MESSAGE
 {$someMessage}
 
@@ -60,13 +53,6 @@ MESSAGE
 {
     "haystack": "value"
 }
-
-================================================================================
-= Progress =====================================================================
-================================================================================
-{
-    "progress": "value"
-}
 MESSAGE
             ],
         ];
@@ -80,11 +66,10 @@ MESSAGE
      * @param string $message
      * @param array $needle
      * @param array $haystack
-     * @param array $progress
      * @param string $formattedMessage
      */
-    public function testCanProperlyFormatErrorMessages($message, array $needle, array $haystack, array $progress, $formattedMessage) {
+    public function testCanProperlyFormatErrorMessages($message, array $needle, array $haystack, $formattedMessage) {
         $this->expectExceptionMessage($formattedMessage);
-        throw new ArrayContainsComparatorException($message, 0, null, $needle, $haystack, $progress);
+        throw new ArrayContainsComparatorException($message, 0, null, $needle, $haystack);
     }
 }

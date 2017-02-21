@@ -15,11 +15,10 @@ class ArrayContainsComparatorException extends AssertionFailedException {
      * @param string $message Exception message
      * @param int $code Exception code
      * @param Exception $previous Previous exception in the stack
-     * @param array $needle The needle in the comparison
-     * @param array $haystack The haystack in the comparison
-     * @param array $progress The progress of the comparison
+     * @param mixed $needle The needle in the comparison
+     * @param mixed $haystack The haystack in the comparison
      */
-    public function __construct($message, $code = 0, Exception $previous = null, array $needle = [], array $haystack = [], array $progress = []) {
+    public function __construct($message, $code = 0, Exception $previous = null, $needle = null, $haystack = null) {
         // Reusable line of ='s
         $line = str_repeat('=', 80);
 
@@ -35,16 +34,10 @@ class ArrayContainsComparatorException extends AssertionFailedException {
 ================================================================================
 %s
 
-================================================================================
-= Progress =====================================================================
-================================================================================
-%s
-
 MESSAGE
             ,
                 json_encode($needle, JSON_PRETTY_PRINT),
-                json_encode($haystack, JSON_PRETTY_PRINT),
-                json_encode($progress, JSON_PRETTY_PRINT)
+                json_encode($haystack, JSON_PRETTY_PRINT)
         );
 
         parent::__construct($message, $code, $previous);

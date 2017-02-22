@@ -203,51 +203,81 @@ class ArrayContainsComparator {
     protected function inArray(array $needle, array $haystack) {
         // Loop over all the values in the needle array, and make sure each and every one is in some
         // way present in the haystack, in a recursive manner.
-        foreach ($needle as $value) {
-            if (is_array($value)) {
+        foreach ($needle as $needleValue) {
+            if (is_array($needleValue)) {
                 // If the value is an array we need to do a recursive compare / inArray check
-                if ($this->arrayIsList($value)) {
-                    $listElements = array_filter($haystack, function($element) {
+                if ($this->arrayIsList($needleValue)) {
+                    // The needle value is a list, so we only want to compare it to lists in the
+                    // haystack
+                    $listElementsInHaystack = array_filter($haystack, function($element) {
                         return is_array($element) && $this->arrayIsList($element);
                     });
 
-                    if (empty($listElements)) {
-                        // The haystack does not contain any list elements
+                    if (empty($listElementsInHaystack)) {
                         throw new ArrayContainsComparatorException(
                             'Haystack does not contain any list elements, needle can\'t be found.', 0, null,
-                            $value, $haystack
+                            $needleValue, $haystack
                         );
                     }
 
-                    array_map(function ($haystack) use ($value) {
-                        return $this->inArray($value, $haystack);
-                    }, $listElements);
+                    $result = array_filter($listElementsInHaystack, function ($haystackListElement) use ($needleValue) {
+                        try {
+                            return $this->inArray($needleValue, $haystackListElement);
+                        } catch (ArrayContainsComparatorException $e) {
+                            // If any error occurs, swallow it and return false to mark this as a
+                            // failure
+                            return false;
+                        }
+                    });
+
+                    // Result is empty, which means the needle was not found in the haystack
+                    if (empty($result)) {
+                        throw new ArrayContainsComparatorException(
+                            'The list in needle was not found in the list elements in the haystack.', 0, null,
+                            $needleValue, $haystack
+                        );
+                    }
                 } else {
-                    $objectElements = array_filter($haystack, function($element) {
+                    // The needle value is an object, so we only want to compare it to objects in
+                    // the haystack
+                    $objectElementsInHaystack = array_filter($haystack, function($element) {
                         return is_array($element) && $this->arrayIsObject($element);
                     });
 
-                    if (empty($objectElements)) {
-                        // The haystack does not contain any object elements
+                    if (empty($objectElementsInHaystack)) {
                         throw new ArrayContainsComparatorException(
                             'Haystack does not contain any object elements, needle can\'t be found.', 0, null,
-                            $value, $haystack
+                            $needleValue, $haystack
                         );
                     }
 
-                    array_map(function ($haystack) use ($value) {
-                        $this->compare($value, $haystack);
-                    }, $objectElements);
+                    $result = array_filter($objectElementsInHaystack, function ($haystackObjectElement) use ($needleValue) {
+                        try {
+                            return $this->compare($needleValue, $haystackObjectElement);
+                        } catch (ArrayContainsComparatorException $e) {
+                            // If any error occurs, swallow it and return false to mark this as a
+                            // failure
+                            return false;
+                        }
+                    });
+
+                    // Result is empty, which means the needle was not found in the haystack
+                    if (empty($result)) {
+                        throw new ArrayContainsComparatorException(
+                            'The object in needle was not found in the object elements in the haystack.', 0, null,
+                            $needleValue, $haystack
+                        );
+                    }
                 }
             } else {
-                $result = array_map(function($haystackElement) use ($value) {
-                    return $this->compareValues($value, $haystackElement);
+                $result = array_map(function($haystackElement) use ($needleValue) {
+                    return $this->compareValues($needleValue, $haystackElement);
                 }, $haystack);
 
                 if (empty(array_filter($result))) {
                     throw new ArrayContainsComparatorException(
                         'Needle is not present in the haystack.', 0, null,
-                        $value, $haystack
+                        $needleValue, $haystack
                     );
                 }
             }

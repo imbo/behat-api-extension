@@ -31,7 +31,8 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
         $scalarHaystack = [1, 2, 1.1, 2.2, 'foo', 'bar', true, false];
         $haystackWithArrayElements = [
             1, 2, 3,
-            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
             ['foo' => 'bar', 'bar' => 'foo'],
         ];
 
@@ -48,8 +49,8 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                 'needle' => $scalarHaystack,
                 'haystack' => $scalarHaystack,
             ],
-            'list as needle' => [
-                'needle' => [[1, 2]],
+            'lists as needles' => [
+                'needle' => [[4, 6], [8, 9]],
                 'haystack' => $haystackWithArrayElements,
             ],
             'complex nested structure' => [
@@ -114,6 +115,55 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
                     ],
                     3,
                     4
+                ],
+            ],
+            'lists with elements in random order' => [
+                'needle' => [
+                    3, 2, 1,
+                ],
+                'haystack' => [
+                    1, 2, 3
+                ],
+            ],
+            'objects in random order' => [
+                'needle' => [
+                    [
+                        'id' => 2,
+                    ],
+                    [
+                        'id' => 1,
+                        'gameId' => 1,
+                        'someKey' => 1,
+                    ],
+                    [
+                        'someKey' => 4,
+                    ],
+                    [
+                        'gameId' => 3,
+                        'someKey' => 3,
+                    ],
+                ],
+                'haystack' => [
+                    [
+                        'id' => 1,
+                        'gameId' => 1,
+                        'someKey' => 1,
+                    ],
+                    [
+                        'id' => 2,
+                        'gameId' => 2,
+                        'someKey' => 2,
+                    ],
+                    [
+                        'id' => 3,
+                        'gameId' => 3,
+                        'someKey' => 3,
+                    ],
+                    [
+                        'id' => 4,
+                        'gameId' => 4,
+                        'someKey' => 4,
+                    ],
                 ],
             ],
         ];
@@ -555,14 +605,18 @@ Haystack does not contain any object elements, needle can't be found.
 = Haystack =====================================================================
 ================================================================================
 [
-    1
+    [
+        1,
+        2,
+        3
+    ]
 ]
 EXCEPTION
         );
         $this->comparator->compare([
-            ['foo' => 'bar']
+            ['foo' => 'bar'],
         ], [
-            1
+            [1, 2, 3],
         ]);
     }
 
@@ -571,29 +625,108 @@ EXCEPTION
      * @covers ::inArray
      * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenNoValuesInTheListIsPresentInTheHaystack() {
+    public function testThrowsExceptionWhenHaystackListIsMissingValuesFromNeedleList() {
         $this->expectExceptionMessage(<<<'EXCEPTION'
-Needle is not present in the haystack.
+The list in needle was not found in the list elements in the haystack.
 
 ================================================================================
 = Needle =======================================================================
 ================================================================================
-3
+[
+    1,
+    3
+]
 
 ================================================================================
 = Haystack =====================================================================
 ================================================================================
 [
-    1,
-    2,
-    4
+    [
+        1,
+        2
+    ],
+    [
+        3,
+        4
+    ],
+    [
+        5,
+        6
+    ]
 ]
 EXCEPTION
         );
         $this->comparator->compare([
-            1, 2, 3
+            [1, 3]
         ], [
-            1, 2, 4
+            [1, 2],
+            [3, 4],
+            [5, 6],
+        ]);
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::inArray
+     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
+     */
+    public function testThrowsExceptionWhenHaystackObjectIsMissingValuesFromNeedleObject() {
+        $this->expectExceptionMessage(<<<'EXCEPTION'
+The object in needle was not found in the object elements in the haystack.
+
+================================================================================
+= Needle =======================================================================
+================================================================================
+{
+    "id": 2,
+    "gameId": 3
+}
+
+================================================================================
+= Haystack =====================================================================
+================================================================================
+[
+    {
+        "id": 1,
+        "gameId": 1,
+        "value": 1
+    },
+    {
+        "id": 2,
+        "gameId": 2,
+        "value": 2
+    },
+    {
+        "id": 3,
+        "gameId": 3,
+        "value": 3
+    }
+]
+EXCEPTION
+        );
+        $this->comparator->compare([
+            [
+                'id' => 1,
+                'gameId' => 1,
+            ],
+            [
+                'id' => 2,
+                'gameId' => 3,
+            ],
+        ], [
+            [
+                'id' => 1,
+                'gameId' => 1,
+                'value' => 1,
+            ], [
+                'id' => 2,
+                'gameId' => 2,
+                'value' => 2,
+            ], [
+                'id' => 3,
+                'gameId' => 3,
+                'value' => 3,
+            ]
         ]);
     }
 
@@ -882,7 +1015,7 @@ EXCEPTION
      * @param array $needle
      * @param array $haystack
      */
-    public function testCanUseBuiltInCustomFunctionMatcher($function, $callback, array $needle, array $haystack) {
+    public function testCanUseCustomFunctionMatcher($function, $callback, array $needle, array $haystack) {
         $this->assertTrue(
             $this->comparator
                 ->addFunction($function, $callback)
@@ -896,7 +1029,7 @@ EXCEPTION
      * @covers ::compareValues
      * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testPerformsARegularStringComparisonWhenSpecifiedCustomFunctionDoesNotExist() {
+    public function testPerformsARegularStringComparisonWhenSpecifiedCustomFunctionMatcherDoesNotExist() {
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Value mismatch for key "key" in haystack object.
 
@@ -951,5 +1084,63 @@ EXCEPTION
      */
     public function testThrowsExceptionWhenAddingAFunctionWithAnInvalidCallback() {
         $this->comparator->addFunction('myFunction', 'myFunction');
+    }
+
+    /**
+     * @covers ::compare
+     * @covers ::inArray
+     */
+    public function testSupportsInArrayCheckWhenListsAreInADeepStructure() {
+        $needle = [
+            'foo' => [
+                'bar' => 'baz',
+                'listOfLists' => [
+                    [1],
+                    [1, 2],
+                    [1, 2, 3],
+                    [1, 2, 3, 4],
+                    [1, 3, 4],
+                    [1, 4],
+                    [
+                        'key1' => 1,
+                    ],
+                    [
+                        'key1' => 1,
+                        'key2' => 2,
+                    ],
+                    [
+                        'key1' => 1,
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                    [
+                        'key1' => 1,
+                        'key3' => 3,
+                    ]
+                ],
+            ],
+        ];
+        $haystack = [
+            'foo' => [
+                'bar' => 'baz',
+                'listOfLists' => [
+                    [1, 2, 3],
+                    [1, 2, 3, 4],
+                    [
+                        'key1' => 1,
+                    ],
+                    [
+                        'key1' => 1,
+                        'key2' => 2,
+                    ],
+                    [
+                        'key1' => 1,
+                        'key2' => 2,
+                        'key3' => 3,
+                    ],
+                ],
+            ],
+        ];
+        $this->comparator->compare($needle, $haystack);
     }
 }

@@ -4,6 +4,7 @@ Verify server response
 After a request has been sent, some steps exist that can be used to verify the response from the server.
 
 .. contents:: Available steps
+    :depth: 2
     :local:
 
 Then the response code is ``:code``
@@ -404,7 +405,11 @@ Custom matcher functions and targeting
 
 In some cases the need for more advanced matching arises. All custom functions is used in place of the string value they are validating, and because of the way JSON works, they need to be specified as strings to keep the JSON valid.
 
-**Array length**
+.. contents::
+    :local:
+
+Array length - ``@arrayLength`` / ``@arrayMaxLength`` / ``@arrayMinLength``
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Three functions exist for asserting the length of regular numerically indexed JSON arrays, ``@arrayLength``, ``@arrayMaxLength`` and ``@arrayMinLength``. Given the following response body:
 
@@ -443,7 +448,8 @@ or use the relative length matchers:
         {"items": "@arrayMinLength(3)"}
         """
 
-**Variable type**
+Variable type - ``@variableType``
+"""""""""""""""""""""""""""""""""
 
 To be able to assert the variable type of specific values, the ``@variableType`` function can be used. The following types can be asserted:
 
@@ -493,7 +499,8 @@ The ``boolean``, ``integer`` and ``double`` functions can also be expressed usin
 
 For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
 
-**Regular expression matching**
+Regular expression matching - ``@regExp``
+"""""""""""""""""""""""""""""""""""""""""
 
 To use regular expressions to match values, the ``@regExp`` function exists, that takes a regular expression as an argument, complete with delimiters and optional modifiers. Example:
 
@@ -512,7 +519,8 @@ To use regular expressions to match values, the ``@regExp`` function exists, tha
 
 This can be used to match variables of type ``string``, ``integer`` and ``float``/``double`` only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <http://php.net/pcre>`_ regarding how regular expressions work in PHP.
 
-**Match specific keys in a numerically indexed array**
+Match specific keys in a numerically indexed array - ``<key>[<index>]``
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 If you need to verify an element at a specific index within a numerically indexed array, use the ``key[<index>]`` notation as the key, and not the regular field name. Consider the following response body:
 
@@ -583,5 +591,39 @@ To validate this, use the following step:
           },
           "[3]": "@regExp(/bar/)",
           "[4]": "@arrayLength(3)"
+        }
+        """
+
+Numeric comparison - ``@gt`` / ``@lt``
+""""""""""""""""""""""""""""""""""""""
+
+To verify that a numeric value is greater than or less than a value, the ``@gt`` and ``@lt`` functions can be used respectively. Given the following response body:
+
+.. code-block:: json
+
+    {
+      "some-int": 123,
+      "some-double": 1.23,
+      "some-string": "123"
+    }
+
+one can compare the numeric values using:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "some-int": "@gt(120)",
+          "some-double": "@gt(1.20)",
+          "some-string": "@gt(120)"
+        }
+        """
+    And the response body contains JSON:
+        """
+        {
+          "some-int": "@lt(125)",
+          "some-double": "@lt(1.25)",
+          "some-string": "@lt(125)"
         }
         """

@@ -143,3 +143,53 @@ Feature: Test built in matcher functions failures
             """
             Function "regExp" failed with error message: "Subject "value" did not match pattern "/foo/".".
             """
+
+    Scenario: Assert that @gt can fail
+        Given a file named "features/greater-than-failure.feature" with:
+            """
+            Feature: Verify failure
+                Scenario: Use custom matcher function
+                    Given the request body is:
+                        '''
+                        {
+                            "number": 123
+                        }
+                        '''
+                    When I request "/echo?json" using HTTP POST
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "number": "@gt(456)"
+                        }
+                        '''
+            """
+        When I run "behat features/greater-than-failure.feature"
+        Then it should fail with:
+            """
+            Function "gt" failed with error message: ""123" is not greater than "456".
+            """
+
+    Scenario: Assert that @lt can fail
+        Given a file named "features/less-than-failure.feature" with:
+            """
+            Feature: Verify failure
+                Scenario: Use custom matcher function
+                    Given the request body is:
+                        '''
+                        {
+                            "number": 123
+                        }
+                        '''
+                    When I request "/echo?json" using HTTP POST
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "number": "@lt(120)"
+                        }
+                        '''
+            """
+        When I run "behat features/less-than-failure.feature"
+        Then it should fail with:
+            """
+            Function "lt" failed with error message: ""123" is not less than "120".
+            """

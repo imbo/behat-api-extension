@@ -37,7 +37,8 @@ Feature: Test built in matcher functions
                                 "boolean": true,
                                 "null": null,
                                 "scalar": "some string"
-                            }
+                            },
+                            "number": 123
                         }
                         '''
                     When I request "/echo?json" using HTTP POST
@@ -48,21 +49,21 @@ Feature: Test built in matcher functions
                             "list": "@arrayLength(3)"
                         }
                         '''
-                    Then the response body contains JSON:
+                    And the response body contains JSON:
                         '''
                         {
                             "emptyList": "@arrayMinLength(0)",
                             "list": "@arrayMinLength(2)"
                         }
                         '''
-                    Then the response body contains JSON:
+                    And the response body contains JSON:
                         '''
                         {
                             "emptyList": "@arrayMaxLength(0)",
                             "list": "@arrayMaxLength(4)"
                         }
                         '''
-                    Then the response body contains JSON:
+                    And the response body contains JSON:
                         '''
                         {
                             "types": {
@@ -76,7 +77,7 @@ Feature: Test built in matcher functions
                             }
                         }
                         '''
-                    Then the response body contains JSON:
+                    And the response body contains JSON:
                         '''
                         {
                             "types": {
@@ -86,12 +87,24 @@ Feature: Test built in matcher functions
                             }
                         }
                         '''
+                    And the response body contains JSON:
+                        '''
+                        {
+                            "number": "@gt(120)"
+                        }
+                        '''
+                    And the response body contains JSON:
+                        '''
+                        {
+                            "number": "@lt(125)"
+                        }
+                        '''
             """
         When I run "behat features/custom-matcher-functions.feature"
         Then it should pass with:
             """
-            .......
+            .........
 
             1 scenario (1 passed)
-            7 steps (7 passed)
+            9 steps (9 passed)
             """

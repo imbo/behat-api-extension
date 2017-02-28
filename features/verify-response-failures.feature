@@ -162,7 +162,7 @@ Feature: Assertion steps can fail
     Scenario: Assert response header exists does not exist failure
         Given a file named "features/assert-response-header-does-not-exist.feature" with:
             """
-            Feature: Make request and assert response header does not exists
+            Feature: Make request and assert response header does not exist
                 Scenario: Make request
                     When I request "/"
                     Then the "X-Foo" response header does not exist

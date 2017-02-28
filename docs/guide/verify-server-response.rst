@@ -145,8 +145,8 @@ Assert that the ``:header`` response header exists. The value of ``:header`` is 
 * Then the "``Vary``" response header exists
 * Then the "``content-length``" response header exists
 
-Then the ``:header`` response header does not exists
-----------------------------------------------------
+Then the ``:header`` response header does not exist
+---------------------------------------------------
 
 Assert that the ``:header`` response header does not exist. The value of ``:header`` is case-insensitive.
 

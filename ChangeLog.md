@@ -3,13 +3,14 @@ Changelog for Behat API Extension
 
 v2.0.0
 ------
-__N/A__
+__2017-04-01__
 
 * Removed and updated some steps and public methods (refer to [the docs](https://behat-api-extension.readthedocs.io) regarding upgrading)
 * Added more steps (refer to [the guide](https://behat-api-extension.readthedocs.io) to see all available steps)
 
 Other changes:
 
+* #43: Matcher functions for greater than and less than
 * #36: Improved documentation: https://behat-api-extension.readthedocs.io
 * #29: New step: Assert response status line
 * #19: New steps: Set request body to a string or a file before sending the request

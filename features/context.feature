@@ -38,7 +38,7 @@ Feature: Client aware context
             """
             Feature: API client
                 In order to call the API
-                As feature runner
+                As a feature runner
                 I need to be able to access the client
 
                 Scenario: client is set
@@ -59,7 +59,8 @@ Feature: Client aware context
             default:
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:9999
+                        apiClient:
+                            base_uri: http://localhost:9999
             """
         And a file named "features/client.feature" with:
             """
@@ -74,6 +75,5 @@ Feature: Client aware context
         When I run "behat -f progress features/client.feature"
         Then it should fail with:
             """
-            [RuntimeException]
-              Can not connect to localhost:9999
+            Invalid configuration for path "testwork.api_extension.apiClient.base_uri": Can't connect to base_uri: "http://localhost:9999".
             """

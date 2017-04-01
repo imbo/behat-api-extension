@@ -1,59 +1,122 @@
 Verify server response
 ======================
 
-After a request has been sent, some steps exist that can be used to verify the response from the server. All steps that matches response content assumes JSON-data in the response body unless noted otherwise.
+After a request has been sent, some steps exist that can be used to verify the response from the server.
 
-Then the response code is (not) ``:code``
------------------------------------------
+.. contents:: Available steps
+    :depth: 2
+    :local:
 
-Match the response code to ``:code``. If the optional ``not`` is added, the response should **not** match the response code.
+Then the response code is ``:code``
+-----------------------------------
+
+Asserts that the response code equals ``:code``.
 
 **Examples:**
 
-=====================================  =========  ===============  ===============  ===============
-Step                                   ``:code``  Matches ``200``  Matches ``304``  Matches ``404``
-=====================================  =========  ===============  ===============  ===============
-Then the response code is ``200``      ``200``    Yes              No               No
-Then the response code is ``404``      ``404``    No               No               Yes
-Then the response code is not ``304``  ``304``    Yes              No               Yes
-=====================================  =========  ===============  ===============  ===============
+* Then the response code is ``200``
+* Then the response code is ``404``
+
+Then the response code is not ``:code``
+---------------------------------------
+
+Asserts that the response code **does not** equal ``:code``.
+
+**Examples:**
+
+* Then the response code is not ``200``
+* Then the response code is not ``404``
 
 Then the response reason phrase is ``:phrase``
 ----------------------------------------------
 
-Match the response reason phrase to ``:phrase``.
-
-*Assume that these steps match a response with "200 OK" as a status line.*
+Assert that the response reason phrase equals ``:phrase``. The comparison is case sensitive.
 
 **Examples:**
 
-===========================================  ===========  ============
-Step                                         ``:phrase``  Test passes?
-===========================================  ===========  ============
-Then the response reason phrase is "``OK``"  ``OK``       Yes
-Then the response reason phrase is "``ok``"  ``ok``       No
-===========================================  ===========  ============
+* Then the response reason phrase is "``OK``"
+* Then the response reason phrase is "``Bad Request``"
+
+Then the response reason phrase is not ``:phrase``
+--------------------------------------------------
+
+Assert that the response reason phrase does not equal ``:phrase``. The comparison is case sensitive.
+
+**Examples:**
+
+* Then the response reason phrase is not "``OK``"
+* Then the response reason phrase is not "``Bad Request``"
+
+Then the response reason phrase matches ``:pattern``
+----------------------------------------------------
+
+Assert that the response reason phrase matches the regular expression ``:pattern``. The pattern must be a valid regular expression, including delimiters, and can also include optional modifiers.
+
+**Examples:**
+
+* Then the response reason phrase matches "``/ok/i``"
+* Then the response reason phrase matches "``/OK/``"
+
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
 
 Then the response status line is ``:line``
 ------------------------------------------
 
-Match the response status line to ``:line``.
-
-*Assume that these steps match a response with "200 OK" as a status line.*
+Assert that the response status line equals ``:line``. The comparison is case sensitive.
 
 **Examples:**
 
-=============================================  ==========  ============
-Step                                           ``:line``   Test passes?
-=============================================  ==========  ============
-Then the response status line is "``200``"     ``200``     No
-Then the response status line is "``200 OK``"  ``200 OK``  Yes
-=============================================  ==========  ============
+* Then the response status line is "``200 OK``"
+* Then the response status line is "``304 Not Modified``"
 
-Then the response is (not) ``:group``
--------------------------------------
+Then the response status line is not ``:line``
+----------------------------------------------
 
-Match the response code to a group. If the optional ``not`` is added, the response should **not** be in the specified group.
+Assert that the response status line does not equal ``:line``. The comparison is case sensitive.
+
+**Examples:**
+
+* Then the response status line is not "``200 OK``"
+* Then the response status line is not "``304 Not Modified``"
+
+Then the response status line matches ``:pattern``
+--------------------------------------------------
+
+Assert that the response status line matches the regular expression ``:pattern``. The pattern must be a valid regular expression, including delimiters, and can also include optional modifiers.
+
+**Examples:**
+
+* Then the response status line matches "``/200 ok/i``"
+* Then the response status line matches "``/200 OK/``"
+
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+
+Then the response is ``:group``
+-------------------------------
+
+Asserts that the response is in ``:group``.
+
+Allowed groups and their response code ranges are:
+
+=================  ===================
+Group              Response code range
+=================  ===================
+``informational``  100 to 199
+``success``        200 to 299
+``redirection``    300 to 399
+``client error``   400 to 499
+``server error``   500 to 599
+=================  ===================
+
+**Examples:**
+
+* Then the response is "``informational``"
+* Then the response is "``client error``"
+
+Then the response is not ``:group``
+-----------------------------------
+
+Assert that the response is not in ``:group``.
 
 Allowed groups and their ranges are:
 
@@ -69,109 +132,114 @@ Group              Response code range
 
 **Examples:**
 
-===========================================  =================  ================================
-Step                                         ``:group``         Response code range that matches
-===========================================  =================  ================================
-Then the response is "``informational``"     ``informational``  100 to 199
-Then the response is "``client error``"      ``client error``   400 to 499
-Then the response is not "``client error``"  ``client error``   100 to 399 and 500 to 599
-===========================================  =================  ================================
+* Then the response is not "``informational``"
+* Then the response is not "``client error``"
 
-Then the ``:header`` response header (does not) exist(s)
---------------------------------------------------------
+Then the ``:header`` response header exists
+-------------------------------------------
 
-This step can be used to assert that the ``:header`` response header exists, or not (if used with the optional ``does not`` part). The value of ``:header`` is case-insensitive.
+Assert that the ``:header`` response header exists. The value of ``:header`` is case-insensitive.
 
 **Examples:**
 
-*Assume that these response headers exist in the following examples:*
+* Then the "``Vary``" response header exists
+* Then the "``content-length``" response header exists
 
-* *Content-Length: 186*
+Then the ``:header`` response header does not exist
+---------------------------------------------------
 
-============================================================  ==================  ============
-Step                                                          ``:header``         Test passes?
-============================================================  ==================  ============
-Then the "``Vary``" response header exists                    ``Vary``            No
-Then the "``vary``" response header does not exist            ``vary``            Yes
-Then the "``Content-Length``" response header exists          ``Content-Length``  Yes
-Then the "``content-length``" response header does not exist  ``content-length``  No
-============================================================  ==================  ============
-
-Then the ``:header`` response header is|matches ``:value``
-----------------------------------------------------------
-
-This step can be used to verify the value of one or more response headers.
-
-The step supports two different comparison modes, ``is`` and ``matches``. ``is`` will compare the values using string comparison, and when ``matches`` is used, the ``:value`` must be a valid regular expression, complete with delimiters and optional modifiers.
+Assert that the ``:header`` response header does not exist. The value of ``:header`` is case-insensitive.
 
 **Examples:**
 
-*Assume that these response headers exist in the following examples:*
+* Then the "``Vary``" response header does not exist
+* Then the "``content-length``" response header does not exist
 
-* *Content-Length: 14327*
-* *X-Foo: foo, bar*
+Then the ``:header`` response header is ``:value``
+--------------------------------------------------
 
-====================================================================  ==================  =================  ==================  ==============
-Step                                                                  ``:header``         ``:value``         Mode                Matches header
-====================================================================  ==================  =================  ==================  ==============
-Then the "``Content-Length``" response header is "``15000``"          ``Content-Length``  ``15000``          Comparison          No
-Then the "``content-length``" response header matches "``/[0-9]+/``"  ``content-length``  ``/[0-9]+/``       Regular expression  Yes
-Then the "``x-foo``" response header matches "``/(FOO|BAR)/i``"       ``x-foo``           ``/(FOO|BAR)/i``   Regular expression  Yes
-Then the "``X-FOO``" response header matches "``/^(foo|bar)$/``"      ``X-FOO``           ``/^(foo|bar)$/``  Regular expression  No
-Then the "``X-foo``" response header is "``foo, bar``"                ``X-foo``           ``foo, bar``       Comparison          Yes
-====================================================================  ==================  =================  ==================  ==============
+Assert that the value of the ``:header`` response header equals ``:value``. The value of ``:header`` is case-insensitive, but the value of ``:value`` is not.
 
-For more information regarding regular expressions and the usage of modifiers, `refer to the manual <http://php.net/pcre>`_.
+**Examples:**
+
+* Then the "``Content-Length``" response header is "``15000``"
+* Then the "``X-foo``" response header is "``foo, bar``"
+
+Then the ``:header`` response header is not ``:value``
+------------------------------------------------------
+
+Assert that the value of the ``:header`` response header **does not** equal ``:value``. The value of ``:header`` is case-insensitive, but the value of ``:value`` is not.
+
+**Examples:**
+
+* Then the "``Content-Length``" response header is not "``15000``"
+* Then the "``X-foo``" response header is not "``foo, bar``"
+
+Then the ``:header`` response header matches ``:pattern``
+---------------------------------------------------------
+
+Assert that the value of the ``:header`` response header matches the regular expression ``:pattern``. The pattern must be a valid regular expression, including delimiters, and can also include optional modifiers. The value of ``:header`` is case-insensitive.
+
+**Examples:**
+
+* Then the "``content-length``" response header matches "``/[0-9]+/``"
+* Then the "``x-foo``" response header matches "``/(FOO|BAR)/i``"
+* Then the "``X-FOO``" response header matches "``/^(foo|bar)$/``"
+
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+
+Then the response body is an empty JSON object
+----------------------------------------------
+
+Assert that the response body is an empty JSON object (``{}``).
+
+Then the response body is an empty JSON array
+---------------------------------------------
+
+Assert that the response body is an empty JSON array (``[]``).
 
 .. _then-the-response-body-is-an-array-of-length:
 
-Then the response body is an array of length ``:length``
---------------------------------------------------------
+Then the response body is a JSON array of length ``:length``
+------------------------------------------------------------
 
-This step can be used to verify the exact length of a JSON array in the response body.
-
-**Examples:**
-
-*Assume that for the examples below, the response body is ``[1, 2, 3]``.*
-
-==================================================  ===========  ============
-Step                                                ``:length``  Test passes?
-==================================================  ===========  ============
-Then the response body is an array of length ``1``  ``1``        No
-Then the response body is an array of length ``3``  ``3``        Yes
-==================================================  ===========  ============
-
-If the response body does not contain a JSON array, an ``InvalidArgumentException`` exception will be thrown.
-
-Then the response body is an empty array
-----------------------------------------
-
-This is an alias of :ref:`Then the response body is an array of length 0 <then-the-response-body-is-an-array-of-length>`.
-
-Then the response body is an array with a length of at least|most ``:length``
------------------------------------------------------------------------------
-
-This step can be used to verify the length of an array, without having to be exact.
+Assert that the length of the JSON array in the response body equals ``:length``.
 
 **Examples:**
 
-*Assume that for the examples below, the response body is [1, 2, 3, 4, 5].*
+* Then the response body is an array of length ``1``
+* Then the response body is an array of length ``3``
 
-==================================================================  ===========  ============
-Step                                                                ``:length``  Test passes?
-==================================================================  ===========  ============
-Then the response body is an array with a length of at most ``4``   ``4``        No
-Then the response body is an array with a length of at least ``4``  ``4``        Yes
-Then the response body is an array with a length of at most ``5``   ``5``        Yes
-Then the response body is an array with a length of at least ``5``  ``5``        Yes
-Then the response body is an array with a length of at most ``6``   ``6``        Yes
-Then the response body is an array with a length of at least ``6``  ``6``        No
-==================================================================  ===========  ============
+If the response body does not contain a JSON array, the test will fail.
+
+Then the response body is a JSON array with a length of at least ``:length``
+----------------------------------------------------------------------------
+
+Assert that the length of the JSON array in the response body has a length of at least ``:length``.
+
+**Examples:**
+
+* Then the response body is an array with a length of at least ``4``
+* Then the response body is an array with a length of at least ``5``
+
+If the response body does not contain a JSON array, the test will fail.
+
+Then the response body is a JSON array with a length of at most ``:length``
+---------------------------------------------------------------------------
+
+Assert that the length of the JSON array in the response body has a length of at most ``:length``.
+
+**Examples:**
+
+* Then the response body is an array with a length of at most ``4``
+* Then the response body is an array with a length of at most ``5``
+
+If the response body does not contain a JSON array, the test will fail.
 
 Then the response body is: ``<PyStringNode>``
 ---------------------------------------------
 
-Compare the response body to the text found in the ``<PyStringNode>`` using string comparison.
+Assert that the response body equals the text found in the ``<PyStringNode>``. The comparison is case-sensitive.
 
 **Examples:**
 
@@ -189,10 +257,24 @@ Compare the response body to the text found in the ``<PyStringNode>`` using stri
         foo
         """
 
+Then the response body is not: ``<PyStringNode>``
+-------------------------------------------------
+
+Assert that the response body **does not** equal the value found in ``<PyStringNode>``. The comparison is case sensitive.
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Then the response body is not:
+        """
+        some value
+        """
+
 Then the response body matches: ``<PyStringNode>``
 --------------------------------------------------
 
-Match the response body to the regular expression found in the content of ``<PyStringNode>``. The expression must be a valid regular expression, including delimiters and optional modifiers.
+Assert that the response body matches the regular expression pattern found in ``<PyStringNode>``. The expression must be a valid regular expression, including delimiters and optional modifiers.
 
 **Examples:**
 
@@ -210,148 +292,338 @@ Match the response body to the regular expression found in the content of ``<PyS
         /foo/
         """
 
-Then the response body contains: ``<PyStringNode>``
----------------------------------------------------
+.. _then-the-response-body-contains-json:
 
-Used to recursively match the response body against a JSON blob (used for comparing objects, not regular arrays). The following occurs when using this step:
+Then the response body contains JSON: ``<PyStringNode>``
+--------------------------------------------------------
 
-1. Decode the response body to a native PHP array. An exception will be thrown if the JSON is invalid.
-2. Decode the ``<PyStringNode>`` to a native PHP array. An exception will be thrown if the JSON is invalid.
-3. Loop through the ``<PyStringNode>`` array, making sure the key => value pairs are present in the response body array, in a recursive fashion.
+Used to recursively match the response body (or a subset of the response body) against a JSON blob.
 
-The ``<PyStringNode>`` can contain regular expressions for matching values or some specific functions for asserting lengths of arrays.
+In addition to regular value matching some custom matching-functions also exist, for asserting value types, array lengths and so forth. There is also a regular expression type matcher that can be used to match string values.
 
-To use regular expressions to match values, simply write the regular expression, complete with delimiters and optional modifiers, enclosed in ``<re>`` and ``</re>``. Example:
+Regular value matching
+^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: json
-
-    {
-        "foo": "<re>/(some|expression)/i</re>",
-        "bar": {
-            "baz": "<re>/[0-9]+/</re>"
-        }
-    }
-
-This can be used to match `scalar values <http://php.net/is_scalar>`_ only, and the value will be cast to a string before doing the match.
-
-To assert lengths of arrays, three custom functions can be used: ``@length(num)``, ``@atLeast(num)`` and ``@atMost(num)``. Consider the following response body:
+Assume the following JSON response for the examples in this section:
 
 .. code-block:: json
 
     {
-        "items1": [1, 2, 3, 4],
-        "items2": [1, 2, 3],
-        "items3": [1, 2]
-    }
-
-To be able to verify the length of the arrays one can use the following JSON (excluding the comments which are not supported by JSON):
-
-.. code-block:: javascript
-
-    {
-        "items1": "@length(3)",  // Fails as the length is 4
-        "items2": "@atLeast(3)", // Passes as the length is 3
-        "items3": "@atMost(1)"   // Fails as the length is 2
-    }
-
-If you need to verify an element at a specific index within an array, use the ``key[<index>]`` notation as the key. Consider the following response body:
-
-.. code-block:: json
-
-    {
-        "items": [
-            "foo",
-            "bar",
-            "baz",
-            {
-                "some":
-                {
-                    "nested": "object",
-                    "foo": "bar"
-                }
-            }
-        ]
-    }
-
-If you need to verify the values, use the following JSON:
-
-.. code-block:: javascript
-
-    {
-        "items[0]": "foo",                      // Passes, string comparison
-        "items[1]": "<re>/(foo|bar|baz)/</re>", // Passes as the expression matches "bar"
-        "items[2]": "bar",                      // Fails as the value is baz
-        "items[3]":
+      "string": "string value",
+      "integer": 123,
+      "double": 1.23,
+      "boolean": true,
+      "null": null,
+      "object":
+      {
+        "string": "string value",
+        "integer": 123,
+        "double": 1.23,
+        "boolean": true,
+        "null": null,
+        "object":
         {
+          "string": "string value",
+          "integer": 123,
+          "double": 1.23,
+          "boolean": true,
+          "null": null
+        }
+      },
+      "array":
+      [
+        "string value",
+        123,
+        1.23,
+        true,
+        null,
+        {
+          "string": "string value",
+          "integer": 123,
+          "double": 1.23,
+          "boolean": true,
+          "null": null
+        }
+      ]
+    }
+
+**Example: Regular value matching of a subset of the response**
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "string": "string value",
+          "boolean": true
+        }
+        """
+
+**Example: Check values in objects**
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "object":
+          {
+            "string": "string value",
+            "object":
+            {
+              "null": null,
+              "integer": 123
+            }
+          }
+        }
+        """
+
+**Example: Check numerically indexed array contents**
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "array":
+          [
+            true,
+            "string value",
+            {
+              "integer": 123
+            }
+          ]
+        }
+        """
+
+Notice that the order of the values in the arrays does not matter. To be able to target specific indexes in an array a special syntax needs to be used. Please refer to :ref:`custom-matcher-functions-and-targeting` for more information and examples.
+
+.. _custom-matcher-functions-and-targeting:
+
+Custom matcher functions and targeting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In some cases the need for more advanced matching arises. All custom functions is used in place of the string value they are validating, and because of the way JSON works, they need to be specified as strings to keep the JSON valid.
+
+.. contents::
+    :local:
+
+Array length - ``@arrayLength`` / ``@arrayMaxLength`` / ``@arrayMinLength``
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Three functions exist for asserting the length of regular numerically indexed JSON arrays, ``@arrayLength``, ``@arrayMaxLength`` and ``@arrayMinLength``. Given the following response body:
+
+.. code-block:: json
+
+    {
+      "items":
+      [
+        "foo",
+        "bar",
+        "foobar",
+        "barfoo",
+        123
+      ]
+    }
+
+one can assert the exact length using ``@arrayLength``:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {"items": "@arrayLength(5)"}
+        """
+
+or use the relative length matchers:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {"items": "@arrayMaxLength(10)"}
+        """
+    And the response body contains JSON:
+        """
+        {"items": "@arrayMinLength(3)"}
+        """
+
+Variable type - ``@variableType``
+"""""""""""""""""""""""""""""""""
+
+To be able to assert the variable type of specific values, the ``@variableType`` function can be used. The following types can be asserted:
+
+* ``boolean`` / ``bool``
+* ``integer`` / ``int``
+* ``double`` / ``float``
+* ``string``
+* ``array``
+* ``object``
+* ``null``
+* ``scalar``
+
+Given the following response:
+
+.. code-block:: json
+
+    {
+      "boolean value": true,
+      "int value": 123,
+      "double value": 1.23,
+      "string value": "some string",
+      "array value": [1, 2, 3],
+      "object value": {"foo": "bar"},
+      "null value": null,
+      "scalar value": 3.1416
+    }
+
+the type of the values can be asserted like this:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "boolean value": "@variableType(boolean)",
+          "int value": "@variableType(integer)",
+          "double value": "@variableType(double)",
+          "string value": "@variableType(string)",
+          "array value": "@variableType(array)",
+          "object value": "@variableType(object)",
+          "null value": "@variableType(null)",
+          "scalar value": "@variableType(scalar)"
+        }
+        """
+
+The ``boolean``, ``integer`` and ``double`` functions can also be expressed using ``bool``, ``int`` and ``float`` respectively. There is no difference in the actual validation being executed.
+
+For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
+
+Regular expression matching - ``@regExp``
+"""""""""""""""""""""""""""""""""""""""""
+
+To use regular expressions to match values, the ``@regExp`` function exists, that takes a regular expression as an argument, complete with delimiters and optional modifiers. Example:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "foo": "@regExp(/(some|expression)/i)",
+          "bar":
+          {
+            "baz": "@regExp(/[0-9]+/)"
+          }
+        }
+        """
+
+This can be used to match variables of type ``string``, ``integer`` and ``float``/``double`` only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <http://php.net/pcre>`_ regarding how regular expressions work in PHP.
+
+Match specific keys in a numerically indexed array - ``<key>[<index>]``
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+If you need to verify an element at a specific index within a numerically indexed array, use the ``key[<index>]`` notation as the key, and not the regular field name. Consider the following response body:
+
+.. code-block:: json
+
+    {
+      "items":
+      [
+        "foo",
+        "bar",
+        {
+          "some":
+          {
+            "nested": "object",
+            "foo": "bar"
+          }
+        },
+        [1, 2, 3]
+      ]
+    }
+
+If you need to verify the values, use something like the following step:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "items[0]": "foo",
+          "items[1]": "@regExp(/(foo|bar|baz)/)",
+          "items[2]":
+          {
             "some":
             {
-                "foo": "<re>/ba(r|z)/</re>"     // Passes as the expression matches "bar"
+              "foo": "@regExp(/ba(r|z)/)"
             }
-        },
-        "items[4]": "bar"                       // Throws an OutOfRangeException exception as the index does not exist
-    }
-
-If you use the index checking against something that is not a numeric array, the extension will throw an ``InvalidArgumentException`` exception.
-
-You can also assert that values exists in numerically indexed arrays. Consider the following JSON response body:
-
-.. code-block:: json
-
-    {
-        "list": [
-            1,
-            2,
-            3,
-            "four",
-            [1],
-            {
-                "foo": "bar"
-            }
-        ]
-    }
-
-To assert that one or more of the values exist, use the following:
-
-.. code-block:: json
-
-    {
-        "list": [
-            3,
-            [1],
-            {
-                "foo": "bar"
-            }
-        ]
-    }
-
-The index is not taken into consideration when comparing, it simply checks if the values specified are present in the list.
+          },
+          "items[3]": "@arrayLength(3)"
+        }
+        """
 
 If the response body contains a numerical array as the root node, you will need to use a special syntax for validation. Consider the following response body:
 
 .. code-block:: json
 
     [
-        "foo",
-        123,
-        {
-            "foo": "bar"
-        },
-        "bar",
-        [1, 2, 3]
+      "foo",
+      123,
+      {
+        "foo": "bar"
+      },
+      "bar",
+      [1, 2, 3]
     ]
 
-To validate this, use the following syntax:
+To validate this, use the following step:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "[0]": "foo",
+          "[1]": 123,
+          "[2]":
+          {
+            "foo": "bar"
+          },
+          "[3]": "@regExp(/bar/)",
+          "[4]": "@arrayLength(3)"
+        }
+        """
+
+Numeric comparison - ``@gt`` / ``@lt``
+""""""""""""""""""""""""""""""""""""""
+
+To verify that a numeric value is greater than or less than a value, the ``@gt`` and ``@lt`` functions can be used respectively. Given the following response body:
 
 .. code-block:: json
 
     {
-        "[0]": "foo",
-        "[1]": 123,
-        "[2]": {
-            "foo": "bar"
-        },
-        "[3]": "<re>/bar/</re>",
-        "[4]": "@length(3)"
+      "some-int": 123,
+      "some-double": 1.23,
+      "some-string": "123"
     }
 
-This simply refers to the indexes in the root numerical array.
+one can compare the numeric values using:
+
+.. code-block:: gherkin
+
+    Then the response body contains JSON:
+        """
+        {
+          "some-int": "@gt(120)",
+          "some-double": "@gt(1.20)",
+          "some-string": "@gt(120)"
+        }
+        """
+    And the response body contains JSON:
+        """
+        {
+          "some-int": "@lt(125)",
+          "some-double": "@lt(1.25)",
+          "some-string": "@lt(125)"
+        }
+        """

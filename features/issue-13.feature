@@ -11,7 +11,8 @@ Feature: Fix issue #13
                     progress: ~
                 extensions:
                     Imbo\BehatApiExtension:
-                        base_uri: http://localhost:8080
+                        apiClient:
+                            base_uri: http://localhost:8080
 
                 suites:
                     default:
@@ -25,7 +26,7 @@ Feature: Fix issue #13
                 Scenario: Check the value for a sub-array
                     When I request "/issue-13"
                     Then the response code is 200
-                    And the response body contains:
+                    And the response body contains JSON:
                         '''
                         {
                             "customer": {

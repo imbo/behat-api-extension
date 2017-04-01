@@ -7,30 +7,25 @@ use PHPUnit_Framework_TestCase;
 use RuntimeException;
 
 /**
- * @covers Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
+ * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
+ * @testdox Initializer for API Client aware contexts
  */
-class ApiClientAwareInitializerText extends PHPUnit_Framework_TestCase {
+class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
+    /**
+     * @covers ::initializeContext
+     * @covers ::__construct
+     */
     public function testInjectsClientWhenInitializingContext() {
-        // Create a socket on localhost:9999 to not have the constructor throw an exception
-        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        socket_bind($socket, 'localhost', 9999);
-        socket_listen($socket);
-
-        $client = new Client(['base_uri' => 'http://localhost:9999']);
+        $baseUri = 'http://localhost:8080';
         $context = $this->createMock('Imbo\BehatApiExtension\Context\ApiClientAwareContext');
-        $context->expects($this->once())->method('setClient')->with($client);
-        $initializer = new ApiClientAwareInitializer($client);
+        $context
+            ->expects($this->once())
+            ->method('setClient')
+            ->with($this->callback(function($client) use ($baseUri) {
+                return (string) $client->getConfig('base_uri') === $baseUri;
+            }));
+
+        $initializer = new ApiClientAwareInitializer($baseUri);
         $initializer->initializeContext($context);
-
-        // Close the socket
-        socket_close($socket);
-    }
-
-    public function testInjectContainerThatCanNotConnectToBaseUri() {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Can not connect to localhost:9999');
-
-        $client = new Client(['base_uri' => 'http://localhost:9999']);
-        $initializer = new ApiClientAwareInitializer($client);
     }
 }

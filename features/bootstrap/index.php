@@ -54,6 +54,15 @@ $app->match('/', function(Request $request) {
             'boolean false' => false,
             'list' => [1, 2, 3, [1], ['foo' => 'bar']],
         ],
+        'types' => [
+            'string' => 'string',
+            'integer' => 123,
+            'double' => 1.23,
+            'array' => [1, '2', 3],
+            'boolean' => true,
+            'null' => null,
+            'scalar' => '123',
+        ],
     ], 200, [
         'X-Foo' => 'foo',
     ]);
@@ -159,6 +168,27 @@ $app->get('/customReasonPhrase', function(Application $app) {
         isset($_GET['code']) ? $_GET['code'] : 200,
         isset($_GET['phrase']) ? $_GET['phrase'] : null
     );
+});
+
+/**
+ * Return a response with an empty array
+ */
+$app->get('/emptyArray', function(Application $app) {
+    return new JsonResponse([]);
+});
+
+/**
+ * Return a response with an empty object
+ */
+$app->get('/emptyObject', function(Application $app) {
+    return new JsonResponse(new stdClass());
+});
+
+/**
+ * Return a response with 403 Forbidden
+ */
+$app->get('/403', function(Application $app) {
+    return (new Response())->setStatusCode(403);
 });
 
 // Run the application

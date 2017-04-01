@@ -41,6 +41,7 @@ class FeatureContext implements SnippetAcceptingContext {
      * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists
      *
      * @param SuiteScope $scope
+     *
      * @BeforeSuite
      * @AfterSuite
      */
@@ -57,6 +58,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param BeforeScenarioScope $scope
      * @throws RuntimeException
+     *
      * @BeforeScenario
      */
     public function prepareScenario(BeforeScenarioScope $scope) {
@@ -78,9 +80,11 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param string $filename Name of the file relative to the working dir
      * @param PyStringNode $content Content of the file
-     * @Given /^a file named "([^"]*)" with:$/
+     * @param boolean $readable Whether or not the created file is readable
+     *
+     * @Given a file named :filename with:
      */
-    public function createFile($filename, PyStringNode $content) {
+    public function createFile($filename, PyStringNode $content, $readable = true) {
         $filename = rtrim($this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
         $path = dirname($filename);
         $content = str_replace("'''", '"""', (string) $content);
@@ -90,6 +94,22 @@ class FeatureContext implements SnippetAcceptingContext {
         }
 
         file_put_contents($filename, $content);
+
+        if (!$readable) {
+            chmod($filename, 0000);
+        }
+    }
+
+    /**
+     * Creates a non-readable file with specified name and content in the current working dir
+     *
+     * @param string $filename Name of the file relative to the working dir
+     * @param PyStringNode $content Content of the file
+     *
+     * @Given a non-readable file named :filename with:
+     */
+    public function createNonReadableFile($filename, PyStringNode $content) {
+        $this->createFile($filename, $content, false);
     }
 
     /**
@@ -120,6 +140,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param string $result
      * @param PyStringNode $output
+     *
      * @Then /^it should (fail|pass) with:$/
      */
     public function assertCommandResultWithOutput($result, PyStringNode $output) {
@@ -131,7 +152,8 @@ class FeatureContext implements SnippetAcceptingContext {
      * Assert command output contains a string
      *
      * @param PyStringNode $output
-     * @Then /^the output should contain:$/
+     *
+     * @Then the output should contain:
      */
     public function assertCommandOutputMatches(PyStringNode $content) {
         Assertion::contains(
@@ -148,18 +170,24 @@ class FeatureContext implements SnippetAcceptingContext {
      * @Then /^it should (fail|pass)$/
      */
     public function assertCommandResult($result) {
-        $callback = $result === 'fail' ? 'notEq' : 'eq';
         $exitCode = $this->getExitCode();
 
-        Assertion::$callback(
-            0,
-            $exitCode,
-            sprintf(
-                'Invalid exit code, expected 0, got %d. Command output: %s',
+        if ($result === 'fail') {
+            $callback = 'notEq';
+            $errorMessage = sprintf(
+                'Invalid exit code, did not expect 0. Command output: %s',
+                $this->getOutput()
+            );
+        } else {
+            $callback = 'eq';
+            $errorMessage = sprintf(
+                'Expected exit code 0, got %d. Command output: %s',
                 $exitCode,
                 $this->getOutput()
-            )
-        );
+            );
+        }
+
+        Assertion::$callback(0, $exitCode, $errorMessage);
     }
 
     /**

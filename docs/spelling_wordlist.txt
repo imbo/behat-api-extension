@@ -4,3 +4,4 @@ guzzlehttp
 beberlei
 URI
 multipart
+namespaced

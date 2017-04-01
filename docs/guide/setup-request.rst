@@ -43,7 +43,7 @@ Given I am authenticating as "``foo``" with password "``bar``"  ``foo``        `
 Given the ``:header`` request header is ``:value``
 --------------------------------------------------
 
-Set the ``:header`` request header to ``:value``. Can be repeated to set multiple headers or to set the same header multiple times.
+Set the ``:header`` request header to ``:value``. Can be repeated to set multiple headers. When repeated with the same ``:header`` the last value will be used.
 
 Trying to force specific headers to have certain values combined with other steps that ends up modifying request headers (for instance attaching files) can lead to undefined behavior.
 
@@ -55,6 +55,19 @@ Step                                                             ``:header``    
 Given the "``User-Agent``" request header is "``test/1.0``"      ``User-Agent``  ``test/1.0``
 Given the "``Accept``" request header is "``application/json``"  ``Accept``      ``application/json``
 ===============================================================  ==============  ====================
+
+Given the ``:header`` request header contains ``:value``
+--------------------------------------------------------
+
+Add ``:value`` to the ``:header`` request header. Can be repeated to set multiple headers. When repeated with the same ``:header`` the header will be converted to an array.
+
+**Examples:**
+
+=======================================================  ===========  ==========
+Step                                                     ``:header``  ``:value``
+=======================================================  ===========  ==========
+Given the "``X-Foo``" request header contains "``Bar``"  ``X-Foo``    ``Bar``
+=======================================================  ===========  ==========
 
 Given the following form parameters are set: ``<TableNode>``
 ------------------------------------------------------------
@@ -73,18 +86,21 @@ The first row in the table must contain two values: ``name`` and ``value``. The 
 
 This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
 
-Given the request body is ``:string``
--------------------------------------
+Given the request body is: ``<PyStringNode>``
+---------------------------------------------
 
-Set the request body to ``:string``.
+Set the request body to a string represented by the contents of the ``<PyStringNode>``.
 
 **Examples:**
 
-============================================  ================
-Step                                          ``:string``
-============================================  ================
-Given the request body is "``some content``"  ``some content``
-============================================  ================
+.. code-block:: gherkin
+
+    Given the request body is:
+        """
+        {
+            "some": "data"
+        }
+        """
 
 Given the request body contains ``:path``
 -----------------------------------------

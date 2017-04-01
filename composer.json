@@ -41,11 +41,6 @@
       "Imbo\\BehatApiExtension\\": "tests/"
     }
   },
-  "extra": {
-    "branch-alias": {
-      "dev-develop": "1.0-dev"
-    }
-  },
   "scripts": {
     "clean": "rm -rf build",
     "lint": "for file in `git ls-files '*php'`; do php -l $file; done",

@@ -8,7 +8,7 @@ This Behat extension provides an easy way to test JSON-based API's in [Behat 3](
 
 ## Installation / Configuration / Documentation
 
-End-user docs can be found [here](http://behat-api-extension.readthedocs.io/en/latest/).
+End-user docs can be found [here](https://behat-api-extension.readthedocs.io/).
 
 ## Copyright / License
 

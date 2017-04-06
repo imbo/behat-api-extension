@@ -92,10 +92,16 @@ $app->post('/files', function(Request $request) {
 });
 
 /**
- * Return information about $_POST and $_FILES vars
+ * Return information about the request
  */
-$app->post('/formData', function(Request $request) {
-    return new JsonResponse(['_POST' => $_POST, '_FILES' => $_FILES]);
+$app->match('/requestInfo', function(Request $request) {
+    return new JsonResponse([
+        '_GET' => $_GET,
+        '_POST' => $_POST,
+        '_FILES' => $_FILES,
+        '_SERVER' => $_SERVER,
+        'requestBody' => $request->getContent(),
+    ]);
 });
 
 /**

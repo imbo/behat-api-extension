@@ -5,7 +5,7 @@ v2.0.1
 ------
 __N/A__
 
-* #48: Allow HTTP PATCH (and other HTTP method) with form parameters (@Tartare2240)
+* #48: Allow HTTP PATCH (and other HTTP methods) with form parameters
 
 v2.0.0
 ------

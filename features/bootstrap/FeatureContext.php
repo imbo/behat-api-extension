@@ -172,18 +172,23 @@ class FeatureContext implements SnippetAcceptingContext {
     public function assertCommandResult($result) {
         $exitCode = $this->getExitCode();
 
+        // Escape % as the callback will pass this value to sprintf() if the assertion fails, and
+        // sprintf might complain about too few arguments as the output might contain stuff like %s
+        // or %d.
+        $output = str_replace('%', '%%', $this->getOutput());
+
         if ($result === 'fail') {
             $callback = 'notEq';
             $errorMessage = sprintf(
                 'Invalid exit code, did not expect 0. Command output: %s',
-                $this->getOutput()
+                $output
             );
         } else {
             $callback = 'eq';
             $errorMessage = sprintf(
                 'Expected exit code 0, got %d. Command output: %s',
                 $exitCode,
-                $this->getOutput()
+                $output
             );
         }
 

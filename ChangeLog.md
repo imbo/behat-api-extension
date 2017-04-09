@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v2.0.1
+------
+__N/A__
+
+* #48: Allow HTTP PATCH (and other HTTP methods) with form parameters
+
 v2.0.0
 ------
 __2017-04-01__

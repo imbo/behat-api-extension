@@ -66,6 +66,13 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     protected $arrayContainsComparator;
 
     /**
+     * Does HTTP method has been manually set
+     *
+     * @var bool
+     */
+    protected $httpMethodSpecified = false;
+
+    /**
      * {@inheritdoc}
      */
     public function setClient(ClientInterface $client) {
@@ -256,11 +263,14 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @When I request :path
      * @When I request :path using HTTP :method
      */
-    public function requestPath($path, $method = 'GET') {
-        return $this
-            ->setRequestPath($path)
-            ->setRequestMethod($method)
-            ->sendRequest();
+    public function requestPath($path, $method = null) {
+        $this->setRequestPath($path);
+
+        if (null !== $method) {
+            $this->setRequestMethod($method);
+        }
+
+        return $this->sendRequest();
     }
 
     /**
@@ -914,7 +924,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function sendRequest() {
-        if (!empty($this->requestOptions['form_params'])) {
+        if (!empty($this->requestOptions['form_params']) && !$this->httpMethodSpecified) {
             $this->setRequestMethod('POST');
         }
 
@@ -1076,6 +1086,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected function setRequestMethod($method) {
         $this->request = $this->request->withMethod($method);
+        $this->httpMethodSpecified = true;
 
         return $this;
     }

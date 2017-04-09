@@ -82,9 +82,11 @@ This step can be used to set form parameters (as if the request is a ``<form>`` 
         | bar  | foo   |
         | bar  | bar   |
 
-The first row in the table must contain two values: ``name`` and ``value``. The rows that follows are the fields / values you want to send. This step sets the HTTP method to ``POST`` and the ``Content-Type`` request header to ``application/x-www-form-urlencoded``, unless the step is combined with :ref:`given-i-attach-path-to-the-request-as-partname`, in which case the ``Content-Type`` request header will be set to ``multipart/form-data`` and all the specified fields will be sent as parts in the multipart request.
+The first row in the table must contain two values: ``name`` and ``value``. The rows that follows are the fields / values you want to send. This step sets the HTTP method to ``POST`` by default and the ``Content-Type`` request header to ``application/x-www-form-urlencoded``, unless the step is combined with :ref:`given-i-attach-path-to-the-request-as-partname`, in which case the ``Content-Type`` request header will be set to ``multipart/form-data`` and all the specified fields will be sent as parts in the multipart request.
 
 This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
+
+To use a different HTTP method, simply specify the wanted method in the :ref:`when-i-request-path-using-http-method` step.
 
 Given the request body is: ``<PyStringNode>``
 ---------------------------------------------

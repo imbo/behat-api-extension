@@ -118,6 +118,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             ['method' => 'HEAD'],
             ['method' => 'OPTIONS'],
             ['method' => 'DELETE'],
+            ['method' => 'PATCH'],
         ];
     }
 
@@ -551,6 +552,48 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $request = $this->historyContainer[0]['request'];
 
         $this->assertSame('POST', $request->getMethod());
+        $this->assertSame('application/x-www-form-urlencoded', $request->getHeaderLine('Content-Type'));
+        $this->assertSame(37, (int) $request->getHeaderLine('Content-Length'));
+        $this->assertSame('foo=bar&bar%5B0%5D=foo&bar%5B1%5D=bar', (string) $request->getBody());
+    }
+
+    /**
+     * Data provider
+     *
+     * @return array[]
+     */
+    public function getHttpMethodsForFormParametersTest() {
+        return [
+            ['httpMethod' => 'PUT'],
+            ['httpMethod' => 'POST'],
+            ['httpMethod' => 'PATCH'],
+            ['httpMethod' => 'DELETE'],
+        ];
+    }
+
+    /**
+     * @dataProvider getHttpMethodsForFormParametersTest
+     * @covers ::setRequestFormParams
+     * @covers ::sendRequest
+     * @group setup
+     *
+     * @param string $httpMethod The HTTP method
+     */
+    public function testCanSetFormParametersInTheRequestWithCustomMethod($httpMethod) {
+        $this->mockHandler->append(new Response(200));
+        $this->assertSame($this->context, $this->context->setRequestFormParams(new TableNode([
+            ['name', 'value'],
+            ['foo', 'bar'],
+            ['bar', 'foo'],
+            ['bar', 'bar'],
+        ])));
+        $this->context->requestPath('/some/path', $httpMethod);
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+
+        $this->assertSame($httpMethod, $request->getMethod());
         $this->assertSame('application/x-www-form-urlencoded', $request->getHeaderLine('Content-Type'));
         $this->assertSame(37, (int) $request->getHeaderLine('Content-Length'));
         $this->assertSame('foo=bar&bar%5B0%5D=foo&bar%5B1%5D=bar', (string) $request->getBody());

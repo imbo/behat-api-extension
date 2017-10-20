@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Firebase\JWT\JWT;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
@@ -914,6 +915,37 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new AssertionFailedException(
                 'Comparator did not return in a correct manner. Marking assertion as failed.'
             );
+        }
+    }
+
+    /**
+     * Assert that the field in the response body contains a valid JWT
+     *
+     * @param string $field
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the JSON response body field :field contains a JWT with:
+     */
+    public function assertJsonFieldContainsValidJWT($field, PyStringNode $contains) {
+        $this->requireResponse();
+
+        // Decode the parameter to the step as an array and make sure it's valid JSON
+        $contains = json_decode((string) $contains, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
+        }
+
+        // Get the decoded response body and make sure it's decoded to an array
+        $body = json_decode(json_encode($this->getResponseBody()), true);
+        $secret = $contains['secret'];
+        $responseJwt = (array) JWT::decode($body[$field], $secret, ['HS256']);
+
+        try {
+            Assertion::true($this->arrayContainsComparator->compare($contains['claims'], $responseJwt));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
         }
     }
 

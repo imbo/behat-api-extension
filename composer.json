@@ -1,8 +1,8 @@
 {
-  "name": "imbo/behat-api-extension",
+  "name": "zwartpet/behat-api-extension",
   "type": "library",
   "description": "API extension for Behat",
-  "keywords": ["behat", "testing", "api", "REST", "http"],
+  "keywords": ["behat", "testing", "api", "REST", "Oauth2", "http"],
   "homepage": "https://github.com/imbo/behat-api-extension",
   "license": "MIT",
   "authors": [{
@@ -23,12 +23,14 @@
     "php": ">=5.6",
     "behat/behat": "^3.0",
     "guzzlehttp/guzzle": "^6.0",
-    "beberlei/assert": "^2.1"
+    "beberlei/assert": "^2.1",
+    "kleijnweb/jwt-bundle": "^1.0"
   },
   "require-dev": {
     "silex/silex": "^2.0",
     "symfony/security": "^3.1",
     "symfony/process": "^3.1",
+    "doctrine/instantiator": "1.0.*",
     "phpunit/phpunit": "^5.5"
   },
   "autoload": {

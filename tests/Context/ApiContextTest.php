@@ -1007,6 +1007,16 @@ BAR;
     }
 
     /**
+     * @covers ::assertJsonFieldContainsValidJWT
+     * @group assertions
+     */
+    public function testCanAssertThatTheResponseFieldContainsAJWT() {
+        $this->mockHandler->append(new Response(200, [], json_encode(['access_token' => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmb29AYmFyLmNvbSIsImlzcyI6InNvbWUgaXNzdWVyIn0.bxgm7YCZ9J-0UF84BqaDIpyxxN-Fo_-xdR3ufYvomj0"])));
+        $this->context->requestPath('/some/path');
+        $this->context->assertJsonFieldContainsValidJWT('access_token', new PyStringNode(['{"headers":{"alg":"HS256","typ":"JWT"},"claims":{"sub":"foo@bar.com","iss":"some issuer"},"secret":"secret"}'], 1));
+    }
+
+    /**
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray

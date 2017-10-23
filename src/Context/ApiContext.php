@@ -12,6 +12,11 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
+use KleijnWeb\JwtBundle\Jwt\JwtToken;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signature;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Token;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
@@ -914,6 +919,38 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new AssertionFailedException(
                 'Comparator did not return in a correct manner. Marking assertion as failed.'
             );
+        }
+    }
+
+    /**
+     * Assert that the field in the response body contains a valid JWT
+     *
+     * @param string $field
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the JSON response body field :field contains a JWT with:
+     */
+    public function assertJsonFieldContainsValidJWT(string $field, PyStringNode $contains) {
+        $this->requireResponse();
+
+        // Decode the parameter to the step as an array and make sure it's valid JSON
+        $contains = json_decode((string) $contains, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
+        }
+
+        // Get the decoded response body and make sure it's decoded to an array
+        $body = json_decode(json_encode($this->getResponseBody()), true);
+        $responseJwt = new JwtToken($body[$field]);
+        $expectedJwt = new JwtToken($contains);
+
+        try {
+            Assertion::true($this->arrayContainsComparator->compare($expectedJwt->getHeader(), $responseJwt->getHeader()));
+            Assertion::true($this->arrayContainsComparator->compare($expectedJwt->getClaims(), $responseJwt->getClaims()));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
         }
     }
 

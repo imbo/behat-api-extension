@@ -24,7 +24,7 @@
     "behat/behat": "^3.0",
     "guzzlehttp/guzzle": "^6.0",
     "beberlei/assert": "^2.1",
-    "kleijnweb/jwt-bundle": "^1.0"
+    "firebase/php-jwt": "^5.0"
   },
   "require-dev": {
     "silex/silex": "^2.0",

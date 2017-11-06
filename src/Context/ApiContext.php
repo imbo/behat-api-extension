@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Firebase\JWT\JWT;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
@@ -12,11 +13,6 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
-use KleijnWeb\JwtBundle\Jwt\JwtToken;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signature;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Token;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
@@ -943,12 +939,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         // Get the decoded response body and make sure it's decoded to an array
         $body = json_decode(json_encode($this->getResponseBody()), true);
-        $responseJwt = new JwtToken($body[$field]);
-        $expectedJwt = new JwtToken($contains);
+        $secret = $contains['secret'];
+        $expectedJwt = JWT::encode($contains['claims'], $secret, 'HS256', 'test', $contains['header']);
 
         try {
-            Assertion::true($this->arrayContainsComparator->compare($expectedJwt->getHeader(), $responseJwt->getHeader()));
-            Assertion::true($this->arrayContainsComparator->compare($expectedJwt->getClaims(), $responseJwt->getClaims()));
+            Assertion::eq($expectedJwt, $body[$field]);
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException($e->getMessage());
         }

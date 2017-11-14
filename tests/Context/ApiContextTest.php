@@ -1905,4 +1905,28 @@ BAR;
         $this->context->requestPath('/some/path');
         $this->context->assertResponseBodyContainsJson(new PyStringNode(["{'foo':'bar'}"], 1));
     }
+
+    /**
+     * @covers ::requestPath
+     * @see https://github.com/imbo/behat-api-extension/issues/51
+     */
+    public function testUsesHttpGetByDefaultWhenRequesting() {
+        $this->mockHandler->append(new Response(200), new Response(200));
+
+        $this->context->requestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path');
+
+        $this->assertSame(2, count($this->historyContainer));
+
+        $this->assertSame(
+            'POST',
+            $this->historyContainer[0]['request']->getMethod(),
+            'Expected first request to use HTTP POST'
+        );
+        $this->assertSame(
+            'GET',
+            $this->historyContainer[1]['request']->getMethod(),
+            'Expected second request to use HTTP GET (default)'
+        );
+    }
 }

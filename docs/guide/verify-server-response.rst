@@ -398,32 +398,6 @@ Assume the following JSON response for the examples in this section:
 
 Notice that the order of the values in the arrays does not matter. To be able to target specific indexes in an array a special syntax needs to be used. Please refer to :ref:`custom-matcher-functions-and-targeting` for more information and examples.
 
-.. _then-the-JSON-response-body-field-contain-a-JWT-with:
-
-Then the JSON response body field ``:field`` contains a JWT with: ``<PyStringNode>``
---------------------------------------------------------
-
-Used to validate a JWT token in a JSON respone body
-
-**Example: Match header and claims with a specific secret**
-
-.. code-block:: gherkin
-
-    Then the JSON response body field "``access_token``" contains a JWT with:
-        """
-        {
-          "header": {
-            "alg": "HS256",
-            "typ": "JWT"
-          },
-          "claims": {
-            "sub": "some subject",
-            "iss": "some issuer"
-          },
-          "secret": "some secret"
-        }
-        """
-
 .. _custom-matcher-functions-and-targeting:
 
 Custom matcher functions and targeting
@@ -653,3 +627,30 @@ one can compare the numeric values using:
           "some-string": "@lt(125)"
         }
         """
+
+.. _then-the-JSON-response-body-field-contains-a-JWT-with:
+
+Then the JSON response body field ``:field`` contains a JWT with: ``<PyStringNode>``
+------------------------------------------------------------------------------------
+
+Used to validate a `JWT <https://jwt.io/>`_ token in a JSON response body.
+
+**Example: Match header and claims with a specific secret**
+
+.. code-block:: gherkin
+
+    Then the JSON response body field "access_token" contains a JWT with:
+        """
+        {
+          "header": {
+            "alg": "HS256",
+            "typ": "JWT"
+          },
+          "claims": {
+            "sub": "some subject",
+            "iss": "some issuer"
+          },
+          "secret": "some secret"
+        }
+        """
+

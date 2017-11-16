@@ -1908,6 +1908,7 @@ BAR;
 
     /**
      * @covers ::requestPath
+     * @covers ::setRequestMethod
      * @see https://github.com/imbo/behat-api-extension/issues/51
      */
     public function testUsesHttpGetByDefaultWhenRequesting() {

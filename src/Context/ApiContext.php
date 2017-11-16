@@ -294,7 +294,9 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     public function requestPath($path, $method = null) {
         $this->setRequestPath($path);
 
-        if (null !== $method) {
+        if (null === $method) {
+            $this->setRequestMethod('GET', false);
+        } else {
             $this->setRequestMethod($method);
         }
 
@@ -1106,11 +1108,14 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Update the HTTP method of the request
      *
      * @param string $method The HTTP method
+     * @param boolean $force Force the HTTP method. If set to false the method set CAN be
+     *                       overridden (this occurs for instance when adding form parameters to the
+     *                       request, and not specifying HTTP POST for the request)
      * @return self
      */
-    protected function setRequestMethod($method) {
+    protected function setRequestMethod($method, $force = true) {
         $this->request = $this->request->withMethod($method);
-        $this->httpMethodSpecified = true;
+        $this->httpMethodSpecified = $force;
 
         return $this;
     }

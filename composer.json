@@ -46,6 +46,7 @@
     "clean": "rm -rf build",
     "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
     "test-phpunit": "vendor/bin/phpunit",
+    "test-phpunit-coverage": "vendor/bin/phpunit --coverage-html build/coverage",
     "test-behat": "vendor/bin/behat --strict",
     "test": [
       "@test-phpunit",

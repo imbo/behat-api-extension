@@ -478,3 +478,37 @@ Feature: Test examples from the docs
             1 scenario (1 passed)
             4 steps (4 passed)
             """
+
+    Scenario:
+        Given a file named "features/example.feature" with:
+            """
+            Feature:
+                Scenario:
+                    Given the response body contains a JWT identified by "my JWT", signed with "secret":
+                        '''
+                        {
+                          "user": "Some user"
+                        }
+                        '''
+                    And the request body is:
+                        '''
+                        {
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiU29tZSB1c2VyIn0.DsGGNmDD-PBnwMLiQxeSHDGmKBSdP0lSmWuaiwSxfQE"
+                        }
+                        '''
+                    When I request "/echo" using HTTP POST
+                    Then the response body contains JSON:
+                        '''
+                        {
+                          "value": "@jwt(my JWT)"
+                        }
+                        '''
+            """
+        When I run "behat features/example.feature"
+        Then it should pass with:
+            """
+            ....
+
+            1 scenario (1 passed)
+            4 steps (4 passed)
+            """

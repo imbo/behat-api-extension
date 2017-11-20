@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT;
 use PHPUnit_Framework_TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -722,6 +723,51 @@ BAR;
     }
 
     /**
+     * @covers ::addJwtToken
+     * @covers ::jsonDecode
+     * @group setup
+     */
+    public function testCanAddJwtTokensToTheJwtMatcher() {
+        $name = 'some name';
+        $payload = ['some' => 'data'];
+        $secret = 'secret';
+
+        $matcher = $this->createMock(JWT::class);
+        $matcher
+            ->expects($this->once())
+            ->method('addToken')
+            ->with($name, $payload, $secret);
+
+        $this->comparator
+            ->expects($this->once())
+            ->method('getMatcherFunction')
+            ->with('jwt')
+            ->willReturn($matcher);
+
+        $this->assertSame(
+            $this->context,
+            $this->context->addJwtToken($name, $secret, new PyStringNode(['{"some":"data"}'], 1)),
+            'Expected method to return own instance'
+        );
+    }
+
+    /**
+     * @covers ::addJwtToken
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt
+     * @group setup
+     */
+    public function testThrowsExceptionWhenTryingToAddJwtTokenWhenThereIsNoMatcherFunctionRegistered() {
+        $this->comparator
+            ->expects($this->once())
+            ->method('getMatcherFunction')
+            ->with('jwt')
+            ->willReturn(null);
+
+        $this->context->addJwtToken('name', 'secret', new PyStringNode(['{"some":"data"}'], 1));
+    }
+
+    /**
      * @dataProvider getHttpMethods
      * @covers ::requestPath
      * @covers ::setRequestPath
@@ -1007,21 +1053,6 @@ BAR;
     }
 
     /**
-     * @covers ::assertJsonFieldContainsValidJWT
-     * @group assertions
-     */
-    public function testCanAssertThatTheResponseFieldContainsAJWT() {
-        $this->mockHandler->append(new Response(200, [], json_encode(['access_token' => "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRlc3QifQ.eyJzdWIiOiJmb29AYmFyLmNvbSIsImlzcyI6InNvbWUgaXNzdWVyIn0.ZlHxUiLh3E133S5aE0F5OhVZjbyQJftG-WQnrRpxnMo"])));
-        $this->comparator
-            ->expects($this->once())
-            ->method('compare')
-            ->with(['sub' => 'foo@bar.com', 'iss' => 'some issuer'], ['sub' => 'foo@bar.com', 'iss' => 'some issuer'])
-            ->will($this->returnValue(true));
-        $this->context->requestPath('/some/path');
-        $this->context->assertJsonFieldContainsValidJWT('access_token', new PyStringNode(['{"header":{"alg":"HS256","typ":"JWT","kid":"test"},"claims":{"sub":"foo@bar.com","iss":"some issuer"},"secret":"secret"}'], 1));
-    }
-
-    /**
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
@@ -1082,6 +1113,7 @@ BAR;
      * @covers ::setArrayContainsComparator
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
+     * @covers ::jsonDecode
      * @group assertions
      */
     public function testCanAssertThatTheResponseBodyContainsJson() {
@@ -1865,6 +1897,7 @@ BAR;
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The supplied parameter is not a valid JSON object.
      * @covers ::assertResponseBodyContainsJson
+     * @covers ::jsonDecode
      * @group assertions
      */
     public function testThrowsExceptionWhenAssertingThatTheBodyContainsJsonAndTheParameterFromTheTestIsInvalid() {

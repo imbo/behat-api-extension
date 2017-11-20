@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
 use Firebase\JWT\JWT;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
@@ -252,6 +253,32 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         return $this
             ->setRequestHeader('Content-Type', mime_content_type($path))
             ->setRequestBody(fopen($path, 'r'));
+    }
+
+    /**
+     * Add a JWT token to the matcher
+     *
+     * @param string $name String identifying the token
+     * @param string $secret The secret used to sign the token
+     * @param PyStringNode $payload The payload for the JWT
+     * @throws RuntimeException
+     * @return self
+     *
+     * @Given the response body contains a JWT identified by :name, signed with :secret:
+     */
+    public function addJwtToken($name, $secret, PyStringNode $payload) {
+        $jwtMatcher = $this->arrayContainsComparator->getMatcherFunction('jwt');
+
+        if (!($jwtMatcher instanceof JwtMatcher)) {
+            throw new RuntimeException(sprintf(
+                'Matcher registered for the @jwt() matcher function must be an instance of %s',
+                JwtMatcher::class
+            ));
+        }
+
+        $jwtMatcher->addToken($name, $this->jsonDecode((string) $payload), $secret);
+
+        return $this;
     }
 
     /**
@@ -899,11 +926,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $this->requireResponse();
 
         // Decode the parameter to the step as an array and make sure it's valid JSON
-        $contains = json_decode((string) $contains, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
-        }
+        $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
         $body = json_decode(json_encode($this->getResponseBody()), true);
@@ -915,33 +938,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new AssertionFailedException(
                 'Comparator did not return in a correct manner. Marking assertion as failed.'
             );
-        }
-    }
-
-    /**
-     * Assert that the field in the response body contains a valid JWT
-     *
-     * @param string $field
-     * @throws AssertionFailedException
-     * @return void
-     *
-     * @Then the JSON response body field :field contains a JWT with:
-     */
-    public function assertJsonFieldContainsValidJWT($field, PyStringNode $contains) {
-        $this->requireResponse();
-
-        // Decode the parameter to the step as an array and make sure it's valid JSON
-        $contains = $this->jsonDecode((string) $contains);
-
-        // Get the decoded response body and make sure it's decoded to an array
-        $body = json_decode(json_encode($this->getResponseBody()), true);
-        $secret = $contains['secret'];
-        $responseJwt = (array) JWT::decode($body[$field], $secret, ['HS256']);
-
-        try {
-            Assertion::true($this->arrayContainsComparator->compare($contains['claims'], $responseJwt));
-        } catch (AssertionFailure $e) {
-            throw new AssertionFailedException($e->getMessage());
         }
     }
 

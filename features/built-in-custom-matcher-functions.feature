@@ -24,7 +24,19 @@ Feature: Test built in matcher functions
             """
             Feature: Verify response with matcher functions
                 Scenario: Use custom matcher functions
-                    Given the request body is:
+                    Given the response body contains a JWT identified by "my first jwt", signed with "secret":
+                        '''
+                        {
+                            "foo": "bar"
+                        }
+                        '''
+                    And the response body contains a JWT identified by "my second jwt", signed with "secret":
+                        '''
+                        {
+                            "bar": "foo"
+                        }
+                        '''
+                    And the request body is:
                         '''
                         {
                             "emptyList": [],
@@ -38,7 +50,11 @@ Feature: Test built in matcher functions
                                 "null": null,
                                 "scalar": "some string"
                             },
-                            "number": 123
+                            "number": 123,
+                            "jwts": [
+                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA",
+                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJiYXIiOiJmb28ifQ.iGIMsZebMkO_0_xs1SpQVf7lRB6da72b6xu3RyqOIc8"
+                            ]
                         }
                         '''
                     When I request "/echo?json" using HTTP POST
@@ -99,12 +115,24 @@ Feature: Test built in matcher functions
                             "number": "@lt(125)"
                         }
                         '''
+                    And the response body contains JSON:
+                        '''
+                        {
+                            "jwts[0]": "@jwt(my first jwt)"
+                        }
+                        '''
+                    And the response body contains JSON:
+                        '''
+                        {
+                            "jwts[1]": "@jwt(my second jwt)"
+                        }
+                        '''
             """
         When I run "behat features/custom-matcher-functions.feature"
         Then it should pass with:
             """
-            .........
+            .............
 
             1 scenario (1 passed)
-            9 steps (9 passed)
+            13 steps (13 passed)
             """

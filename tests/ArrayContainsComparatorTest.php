@@ -1143,4 +1143,25 @@ EXCEPTION
         ];
         $this->comparator->compare($needle, $haystack);
     }
+
+    /**
+     * @covers ::getMatcherFunction
+     */
+    public function testCanReturnRegisteredMatcherFunction() {
+        $this->comparator->addFunction('function', $function = function() {});
+        $this->assertSame(
+            $function,
+            $this->comparator->getMatcherFunction('function'),
+            'Incorrect matcher function returned'
+        );
+    }
+
+    /**
+     * @covers ::getMatcherFunction
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage No matcher function registered for "function".
+     */
+    public function testThrowsExceptionWhenGettingFunctionThatDoesNotExist() {
+        $this->comparator->getMatcherFunction('function');
+    }
 }

@@ -16,7 +16,7 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
     public function testInitializerInjectsDefaultMatcherFunctions() {
         $comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
         $comparator
-            ->expects($this->exactly(7))
+            ->expects($this->exactly(8))
             ->method('addFunction')
             ->withConsecutive(
                 ['arrayLength', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength')],
@@ -25,7 +25,8 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
                 ['variableType', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType')],
                 ['regExp', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp')],
                 ['gt', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\GreaterThan')],
-                ['lt', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\LessThan')]
+                ['lt', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\LessThan')],
+                ['jwt', $this->isInstanceOf('Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT')]
             )
             ->will($this->returnSelf());
 
@@ -38,7 +39,7 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
     public function testInjectsComparatorWhenInitializingContext() {
         $comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
         $comparator
-            ->expects($this->exactly(7))
+            ->expects($this->exactly(8))
             ->method('addFunction')
             ->will($this->returnSelf());
 
@@ -48,5 +49,4 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
         $initializer = new ArrayContainsComparatorAwareInitializer($comparator);
         $initializer->initializeContext($context);
     }
-
 }

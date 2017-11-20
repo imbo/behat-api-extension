@@ -45,6 +45,23 @@ class ArrayContainsComparator {
     }
 
     /**
+     * Get a matcher function by name
+     *
+     * @param string $name The name of the matcher function
+     * @return mixed
+     */
+    public function getMatcherFunction($name) {
+        if (!isset($this->functions[$name])) {
+            throw new InvalidArgumentException(sprintf(
+                'No matcher function registered for "%s".',
+                $name
+            ));
+        }
+
+        return $this->functions[$name];
+    }
+
+    /**
      * Recursively loop over the $haystack array and make sure all the items in $needle exists
      *
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A

@@ -628,29 +628,39 @@ one can compare the numeric values using:
         }
         """
 
-.. _then-the-JSON-response-body-field-contains-a-JWT-with:
+.. _jwt-custom-matcher:
 
-Then the JSON response body field ``:field`` contains a JWT with: ``<PyStringNode>``
-------------------------------------------------------------------------------------
+JWT token matching - ``@jwt``
+"""""""""""""""""""""""""""""
 
-Used to validate a `JWT <https://jwt.io/>`_ token in a JSON response body.
+To verify a JWT in the response body the ``@jwt()`` custom matcher function can be used. The argument it takes is the name of a JWT token registered with the :ref:`given-the-response-body-contains-a-jwt` step earlier in the scenario.
 
-**Example: Match header and claims with a specific secret**
+Given the following response body:
+
+.. code-block:: json
+
+    {
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiU29tZSB1c2VyIn0.DsGGNmDD-PBnwMLiQxeSHDGmKBSdP0lSmWuaiwSxfQE"
+    }
+
+one can validate the JWT using a combination of two steps:
 
 .. code-block:: gherkin
 
-    Then the JSON response body field "access_token" contains a JWT with:
+    # Register the JWT
+    Given the response body contains a JWT identified by "my JWT", signed with "secret":
         """
         {
-          "header": {
-            "alg": "HS256",
-            "typ": "JWT"
-          },
-          "claims": {
-            "sub": "some subject",
-            "iss": "some issuer"
-          },
-          "secret": "some secret"
+            "user": "Some user"
         }
         """
 
+    # Other steps ...
+
+    # After the request has been made, one can match the JWT in the response
+    And the response body contains JSON:
+        """
+        {
+          "value": "@jwt(my JWT)"
+        }
+        """

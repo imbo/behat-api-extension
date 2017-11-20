@@ -931,11 +931,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $this->requireResponse();
 
         // Decode the parameter to the step as an array and make sure it's valid JSON
-        $contains = json_decode((string) $contains, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
-        }
+        $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
         $body = json_decode(json_encode($this->getResponseBody()), true);
@@ -1153,5 +1149,25 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         }
 
         return $body;
+    }
+
+    /**
+     * Convert some variable to a JSON-array
+     *
+     * @param string $value The value to decode
+     * @param string $errorMessage Optional error message
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    protected function jsonDecode($value, $errorMessage = null) {
+        $decoded = json_decode($value, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException(
+                $errorMessage ?: 'The supplied parameter is not a valid JSON object.'
+            );
+        }
+
+        return $decoded;
     }
 }

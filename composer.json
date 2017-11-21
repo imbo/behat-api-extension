@@ -52,7 +52,7 @@
       "@test-phpunit",
       "@test-behat"
     ],
-    "start-server": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &",
+    "dev": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1",
     "docs": [
       "cd docs; make spelling",
       "cd docs; make html"

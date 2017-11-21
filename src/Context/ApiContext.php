@@ -72,7 +72,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @var bool
      */
-    protected $httpMethodSpecified = false;
+    protected $forceHttpMethod = false;
 
     /**
      * {@inheritdoc}
@@ -950,7 +950,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function sendRequest() {
-        if (!empty($this->requestOptions['form_params']) && !$this->httpMethodSpecified) {
+        if (!empty($this->requestOptions['form_params']) && !$this->forceHttpMethod) {
             $this->setRequestMethod('POST');
         }
 
@@ -1115,7 +1115,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected function setRequestMethod($method, $force = true) {
         $this->request = $this->request->withMethod($method);
-        $this->httpMethodSpecified = $force;
+        $this->forceHttpMethod = $force;
 
         return $this;
     }

@@ -1,6 +1,8 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
+use Firebase\JWT\JWT;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
@@ -251,6 +253,32 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         return $this
             ->setRequestHeader('Content-Type', mime_content_type($path))
             ->setRequestBody(fopen($path, 'r'));
+    }
+
+    /**
+     * Add a JWT token to the matcher
+     *
+     * @param string $name String identifying the token
+     * @param string $secret The secret used to sign the token
+     * @param PyStringNode $payload The payload for the JWT
+     * @throws RuntimeException
+     * @return self
+     *
+     * @Given the response body contains a JWT identified by :name, signed with :secret:
+     */
+    public function addJwtToken($name, $secret, PyStringNode $payload) {
+        $jwtMatcher = $this->arrayContainsComparator->getMatcherFunction('jwt');
+
+        if (!($jwtMatcher instanceof JwtMatcher)) {
+            throw new RuntimeException(sprintf(
+                'Matcher registered for the @jwt() matcher function must be an instance of %s',
+                JwtMatcher::class
+            ));
+        }
+
+        $jwtMatcher->addToken($name, $this->jsonDecode((string) $payload), $secret);
+
+        return $this;
     }
 
     /**
@@ -898,11 +926,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $this->requireResponse();
 
         // Decode the parameter to the step as an array and make sure it's valid JSON
-        $contains = json_decode((string) $contains, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new InvalidArgumentException('The supplied parameter is not a valid JSON object.');
-        }
+        $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
         $body = json_decode(json_encode($this->getResponseBody()), true);
@@ -1121,5 +1145,25 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         }
 
         return $body;
+    }
+
+    /**
+     * Convert some variable to a JSON-array
+     *
+     * @param string $value The value to decode
+     * @param string $errorMessage Optional error message
+     * @throws InvalidArgumentException
+     * @return array
+     */
+    protected function jsonDecode($value, $errorMessage = null) {
+        $decoded = json_decode($value, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new InvalidArgumentException(
+                $errorMessage ?: 'The supplied parameter is not a valid JSON object.'
+            );
+        }
+
+        return $decoded;
     }
 }

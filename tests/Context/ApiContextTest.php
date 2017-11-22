@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT;
 use PHPUnit_Framework_TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -722,6 +723,51 @@ BAR;
     }
 
     /**
+     * @covers ::addJwtToken
+     * @covers ::jsonDecode
+     * @group setup
+     */
+    public function testCanAddJwtTokensToTheJwtMatcher() {
+        $name = 'some name';
+        $payload = ['some' => 'data'];
+        $secret = 'secret';
+
+        $matcher = $this->createMock(JWT::class);
+        $matcher
+            ->expects($this->once())
+            ->method('addToken')
+            ->with($name, $payload, $secret);
+
+        $this->comparator
+            ->expects($this->once())
+            ->method('getMatcherFunction')
+            ->with('jwt')
+            ->willReturn($matcher);
+
+        $this->assertSame(
+            $this->context,
+            $this->context->addJwtToken($name, $secret, new PyStringNode(['{"some":"data"}'], 1)),
+            'Expected method to return own instance'
+        );
+    }
+
+    /**
+     * @covers ::addJwtToken
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt
+     * @group setup
+     */
+    public function testThrowsExceptionWhenTryingToAddJwtTokenWhenThereIsNoMatcherFunctionRegistered() {
+        $this->comparator
+            ->expects($this->once())
+            ->method('getMatcherFunction')
+            ->with('jwt')
+            ->willReturn(null);
+
+        $this->context->addJwtToken('name', 'secret', new PyStringNode(['{"some":"data"}'], 1));
+    }
+
+    /**
      * @dataProvider getHttpMethods
      * @covers ::requestPath
      * @covers ::setRequestPath
@@ -1067,6 +1113,7 @@ BAR;
      * @covers ::setArrayContainsComparator
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
+     * @covers ::jsonDecode
      * @group assertions
      */
     public function testCanAssertThatTheResponseBodyContainsJson() {
@@ -1850,6 +1897,7 @@ BAR;
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The supplied parameter is not a valid JSON object.
      * @covers ::assertResponseBodyContainsJson
+     * @covers ::jsonDecode
      * @group assertions
      */
     public function testThrowsExceptionWhenAssertingThatTheBodyContainsJsonAndTheParameterFromTheTestIsInvalid() {

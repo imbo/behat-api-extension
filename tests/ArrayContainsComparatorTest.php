@@ -407,6 +407,16 @@ EXCEPTION
                     'key' => 'FOO',
                 ],
             ],
+            '@jwt' => [
+                'function' => 'jwt',
+                'callback' => (new Matcher\JWT())->addToken('my jwt', ['some' => 'data'], 'secret', 'HS256'),
+                'needle' => [
+                    'key' => '@jwt(my jwt)',
+                ],
+                'haystack' => [
+                    'key' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoiZGF0YSJ9.g1aG08iQyPPwCTJHCxRrkKoYmLiHbBNdarcBQkCPMG4',
+                ],
+            ],
             '@customFunction' => [
                 'function' => 'customFunction',
                 'callback' => function($subject, $param) {
@@ -1142,5 +1152,26 @@ EXCEPTION
             ],
         ];
         $this->comparator->compare($needle, $haystack);
+    }
+
+    /**
+     * @covers ::getMatcherFunction
+     */
+    public function testCanReturnRegisteredMatcherFunction() {
+        $this->comparator->addFunction('function', $function = function() {});
+        $this->assertSame(
+            $function,
+            $this->comparator->getMatcherFunction('function'),
+            'Incorrect matcher function returned'
+        );
+    }
+
+    /**
+     * @covers ::getMatcherFunction
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage No matcher function registered for "function".
+     */
+    public function testThrowsExceptionWhenGettingFunctionThatDoesNotExist() {
+        $this->comparator->getMatcherFunction('function');
     }
 }

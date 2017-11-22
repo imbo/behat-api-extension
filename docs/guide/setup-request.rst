@@ -118,3 +118,23 @@ Given the request body contains "``/path/to/file``"  ``/path/to/file``
 ===================================================  =================
 
 The step will figure out the mime type of the file (using `mime_content_type <http://php.net/mime_content_type>`_) and set the ``Content-Type`` request header as well. If you wish to override the mime type you can use the :ref:`given-the-header-request-header-is-value` step **after** setting the request body.
+
+.. _given-the-response-body-contains-a-jwt:
+
+Given the response body contains a JWT identified by ``:name``, signed with ``:secret``: ``<PyStringNode>``
+-----------------------------------------------------------------------------------------------------------
+
+This step can be used to prepare the `JWT <https://jwt.io/>`_ custom matcher function with data that it is going to match on. If the response contains JWTs these can be registered with this step, then matched with the :ref:`then-the-response-body-contains-json` step after the response has been received. The ``<PyStringNode>`` represents the payload of the JWT:
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Given the response body contains a JWT identified by "my JWT", signed with "some secret":
+        """
+        {
+            "some": "data"
+        }
+        """
+
+The above step would register a JWT which can be matched with ``@jwt(my JWT)`` using the :ref:`@jwt() <jwt-custom-matcher>` custom matcher function.

@@ -627,3 +627,40 @@ one can compare the numeric values using:
           "some-string": "@lt(125)"
         }
         """
+
+.. _jwt-custom-matcher:
+
+JWT token matching - ``@jwt``
+"""""""""""""""""""""""""""""
+
+To verify a JWT in the response body the ``@jwt()`` custom matcher function can be used. The argument it takes is the name of a JWT token registered with the :ref:`given-the-response-body-contains-a-jwt` step earlier in the scenario.
+
+Given the following response body:
+
+.. code-block:: json
+
+    {
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiU29tZSB1c2VyIn0.DsGGNmDD-PBnwMLiQxeSHDGmKBSdP0lSmWuaiwSxfQE"
+    }
+
+one can validate the JWT using a combination of two steps:
+
+.. code-block:: gherkin
+
+    # Register the JWT
+    Given the response body contains a JWT identified by "my JWT", signed with "secret":
+        """
+        {
+            "user": "Some user"
+        }
+        """
+
+    # Other steps ...
+
+    # After the request has been made, one can match the JWT in the response
+    And the response body contains JSON:
+        """
+        {
+          "value": "@jwt(my JWT)"
+        }
+        """

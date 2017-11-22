@@ -46,12 +46,13 @@
     "clean": "rm -rf build",
     "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
     "test-phpunit": "vendor/bin/phpunit",
+    "test-phpunit-coverage": "vendor/bin/phpunit --coverage-html build/coverage",
     "test-behat": "vendor/bin/behat --strict",
     "test": [
       "@test-phpunit",
       "@test-behat"
     ],
-    "start-server": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &",
+    "dev": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1",
     "docs": [
       "cd docs; make spelling",
       "cd docs; make html"

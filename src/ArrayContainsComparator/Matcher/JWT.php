@@ -54,10 +54,12 @@ class JWT {
 
         $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], ['HS256', 'HS384', 'HS512']);
 
-        if ($result !== $token['payload']) {
-            throw new InvalidArgumentException(sprintf(
-                'JWT mismatch.'
-            ));
+        foreach ($token['payload'] as $key => $value) {
+            if (!array_key_exists($key, $result) || $result[$key] !== $value) {
+                throw new InvalidArgumentException(sprintf(
+                    'JWT mismatch.'
+                ));
+            }
         }
     }
 }

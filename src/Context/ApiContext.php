@@ -72,7 +72,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @var bool
      */
-    protected $httpMethodSpecified = false;
+    protected $forceHttpMethod = false;
 
     /**
      * {@inheritdoc}
@@ -294,7 +294,9 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     public function requestPath($path, $method = null) {
         $this->setRequestPath($path);
 
-        if (null !== $method) {
+        if (null === $method) {
+            $this->setRequestMethod('GET', false);
+        } else {
             $this->setRequestMethod($method);
         }
 
@@ -948,7 +950,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function sendRequest() {
-        if (!empty($this->requestOptions['form_params']) && !$this->httpMethodSpecified) {
+        if (!empty($this->requestOptions['form_params']) && !$this->forceHttpMethod) {
             $this->setRequestMethod('POST');
         }
 
@@ -1106,11 +1108,14 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Update the HTTP method of the request
      *
      * @param string $method The HTTP method
+     * @param boolean $force Force the HTTP method. If set to false the method set CAN be
+     *                       overridden (this occurs for instance when adding form parameters to the
+     *                       request, and not specifying HTTP POST for the request)
      * @return self
      */
-    protected function setRequestMethod($method) {
+    protected function setRequestMethod($method, $force = true) {
         $this->request = $this->request->withMethod($method);
-        $this->httpMethodSpecified = true;
+        $this->forceHttpMethod = $force;
 
         return $this;
     }

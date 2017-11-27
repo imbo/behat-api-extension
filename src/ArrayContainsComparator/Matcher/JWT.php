@@ -1,8 +1,10 @@
 <?php
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
+use Assert\Assertion;
 use Firebase;
 use InvalidArgumentException;
+use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
 
 /**
  * Match a JWT token
@@ -11,11 +13,24 @@ use InvalidArgumentException;
  */
 class JWT {
     /**
+     * @var Comparator
+     */
+    private $comparator;
+
+    /**
      * JWT tokens present in the response body
      *
      * @var array
      */
     private $jwtTokens = [];
+
+    /**
+     * @param Comparator $comparator
+     */
+    public function __construct(Comparator $comparator)
+    {
+        $this->comparator = $comparator;
+    }
 
     /**
      * Add a JWT token that can be matched
@@ -50,16 +65,13 @@ class JWT {
             ));
         }
 
-        $token = $this->jwtTokens[$name];
-
+        $token  = $this->jwtTokens[$name];
         $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], ['HS256', 'HS384', 'HS512']);
 
-        foreach ($token['payload'] as $key => $value) {
-            if (!array_key_exists($key, $result) || $result[$key] !== $value) {
-                throw new InvalidArgumentException(sprintf(
-                    'JWT mismatch.'
-                ));
-            }
+        if (!$this->comparator->compare($token['payload'], $result)) {
+            throw new InvalidArgumentException(sprintf(
+                'JWT mismatch.'
+            ));
         }
     }
 }

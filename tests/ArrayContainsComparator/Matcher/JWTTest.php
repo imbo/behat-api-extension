@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -17,7 +18,7 @@ class JWTTest extends PHPUnit_Framework_TestCase {
      * Set up matcher instance
      */
     public function setup() {
-        $this->matcher = new JWT();
+        $this->matcher = new JWT(new ArrayContainsComparator());
     }
 
     /**
@@ -59,8 +60,8 @@ class JWTTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage JWT mismatch.
+     * @expectedException \Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
+     * @expectedExceptionMessage Haystack object is missing the "some" key.
      * @covers ::addToken
      * @covers ::__invoke
      */

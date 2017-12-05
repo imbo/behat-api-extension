@@ -133,8 +133,9 @@ This step can be used to prepare the `JWT <https://jwt.io/>`_ custom matcher fun
     Given the response body contains a JWT identified by "my JWT", signed with "some secret":
         """
         {
-            "some": "data"
+            "some": "data",
+            "value": "@regExp(/(some|expression)/i)"
         }
         """
 
-The above step would register a JWT which can be matched with ``@jwt(my JWT)`` using the :ref:`@jwt() <jwt-custom-matcher>` custom matcher function.
+The above step would register a JWT which can be matched with ``@jwt(my JWT)`` using the :ref:`@jwt() <jwt-custom-matcher>` custom matcher function. The way the payload is matched is similar to matching a JSON response body, as explained in the :ref:`then-the-response-body-contains-json` section, which means :ref:`custom matcher functions <custom-matcher-functions-and-targeting>` can be used, as seen in the example above.

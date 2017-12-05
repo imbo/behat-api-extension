@@ -13,6 +13,8 @@ use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
  */
 class JWT {
     /**
+     * Comparator for the array
+     *
      * @var Comparator
      */
     private $comparator;
@@ -25,10 +27,22 @@ class JWT {
     private $jwtTokens = [];
 
     /**
+     * Allowed algorithms for the JWT decoder
+     *
+     * @var string[]
+     */
+    protected $allowedAlgorithms = [
+        'HS256',
+        'HS384',
+        'HS512',
+    ];
+
+    /**
+     * Class constructor
+     *
      * @param Comparator $comparator
      */
-    public function __construct(Comparator $comparator)
-    {
+    public function __construct(Comparator $comparator) {
         $this->comparator = $comparator;
     }
 
@@ -59,19 +73,14 @@ class JWT {
      */
     public function __invoke($jwt, $name) {
         if (!isset($this->jwtTokens[$name])) {
-            throw new InvalidArgumentException(sprintf(
-                'No JWT registered for "%s".',
-                $name
-            ));
+            throw new InvalidArgumentException(sprintf('No JWT registered for "%s".', $name));
         }
 
         $token  = $this->jwtTokens[$name];
-        $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], ['HS256', 'HS384', 'HS512']);
+        $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], $this->allowedAlgorithms);
 
         if (!$this->comparator->compare($token['payload'], $result)) {
-            throw new InvalidArgumentException(sprintf(
-                'JWT mismatch.'
-            ));
+            throw new InvalidArgumentException('JWT mismatch.');
         }
     }
 }

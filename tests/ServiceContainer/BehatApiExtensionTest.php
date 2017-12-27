@@ -45,26 +45,6 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::configure
-     * @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage Invalid configuration for path "api_extension.apiClient.base_uri": Can't connect to base_uri: "http://localhost:123".
-     */
-    public function testThrowsExceptionWhenBuildingConfigurationAndBaseUriIsNotConnectable() {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root($this->extension->getConfigKey());
-
-        $this->extension->configure($rootNode);
-
-        (new Processor())->process($rootNode->getNode(true), [
-            'api_extension' => [
-                'apiClient' => [
-                    'base_uri' => 'http://localhost:123',
-                ],
-            ],
-        ]);
-    }
-
-    /**
-     * @covers ::configure
      */
     public function testCanOverrideDefaultValuesWhenBuildingConfiguration() {
         $treeBuilder = new TreeBuilder();

@@ -8,8 +8,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use GuzzleHttp\ClientInterface;
-use InvalidArgumentException;
 
 /**
  * Behat API extension
@@ -78,35 +76,8 @@ class BehatApiExtension implements ExtensionInterface {
                             ->isRequired()
                             ->cannotBeEmpty()
                             ->defaultValue('http://localhost:8080')
-                            ->validate()
-                            ->ifTrue(function($uri) {
-                                $parts = parse_url($uri);
-                                $host = $parts['host'];
-                                $port = isset($parts['port']) ? $parts['port'] : ($parts['scheme'] === 'https' ? 443 : 80);
-
-                                set_error_handler(function() { return true; });
-                                $resource = fsockopen($host, $port);
-                                restore_error_handler();
-
-                                if ($resource === false) {
-                                    // Can't connect, return true to mark as failure
-                                    return true;
-                                }
-
-                                // Connection successful, close connection and return false to mark
-                                // as success
-                                fclose($resource);
-
-                                return false;
-                            })
-                                ->then(function($uri) {
-                                    throw new InvalidArgumentException(sprintf('Can\'t connect to base_uri: "%s".', $uri));
-                                })
-                            ->end()
                         ->end()
-                    ->end()
-                ->end()
-            ->end();
+                    ->end();
     }
 
     /**

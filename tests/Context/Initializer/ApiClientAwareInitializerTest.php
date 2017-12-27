@@ -13,6 +13,20 @@ use RuntimeException;
 class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::initializeContext
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Can't connect to base_uri: "http://localhost:123".
+     */
+    public function testThrowsExceptionWhenBaseUriIsNotConnectable() {
+
+        $baseUri = 'http://localhost:123';
+        $context = $this->createMock('Imbo\BehatApiExtension\Context\ApiClientAwareContext');
+
+        $initializer = new ApiClientAwareInitializer(['base_uri' => $baseUri]);
+        $initializer->initializeContext($context);
+    }
+
+    /**
+     * @covers ::initializeContext
      * @covers ::__construct
      */
     public function testInjectsClientWhenInitializingContext() {

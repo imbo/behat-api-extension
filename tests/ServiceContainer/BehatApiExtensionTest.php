@@ -95,17 +95,21 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
         socket_listen($sock);
 
         $baseUri = sprintf('http://localhost:%d', $port);
+        $verifySSL = false;
         $config = (new Processor())->process($rootNode->getNode(true), [
             'api_extension' => [
                 'apiClient' => [
                     'base_uri' => $baseUri,
+                    'verify_ssl' => $verifySSL,
                 ],
+                
             ],
         ]);
 
         $this->assertSame([
             'apiClient' => [
                 'base_uri' => $baseUri,
+                'verify_ssl' => $verifySSL,
             ],
         ], $config);
 

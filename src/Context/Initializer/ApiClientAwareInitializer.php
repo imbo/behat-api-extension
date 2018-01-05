@@ -18,6 +18,10 @@ class ApiClientAwareInitializer implements ContextInitializer {
      * @var string
      */
     private $baseUri;
+    /**
+     * @var bool Verify SSL certificates
+     */
+    private $verifySSL = false;
 
     /**
      * Class constructor
@@ -37,7 +41,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
      */
     public function initializeContext(Context $context) {
         if ($context instanceof ApiClientAwareContext) {
-            $context->setClient(new Client(['base_uri' => $this->baseUri]));
+            $context->setClient(new Client(['base_uri' => $this->baseUri, 'verify' => $this->verifySSL]));
         }
     }
 }

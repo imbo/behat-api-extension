@@ -73,6 +73,9 @@ class BehatApiExtension implements ExtensionInterface {
                 ->arrayNode('apiClient')
                     ->addDefaultsIfNotSet()
                     ->children()
+                        ->scalarNode('verify_ssl')
+                            ->defaultFalse()
+                        ->end()
                         ->scalarNode('base_uri')
                             ->isRequired()
                             ->cannotBeEmpty()
@@ -117,7 +120,8 @@ class BehatApiExtension implements ExtensionInterface {
         $clientInitializerDefinition = new Definition(
             'Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer',
             [
-                $config['apiClient']['base_uri']
+                $config['apiClient']['base_uri'],
+                $config['apiClient']['verify_ssl'],
             ]
         );
         $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);

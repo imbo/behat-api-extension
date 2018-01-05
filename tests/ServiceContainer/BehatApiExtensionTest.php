@@ -39,6 +39,7 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
         $this->assertSame([
             'apiClient' => [
                 'base_uri' => 'http://localhost:8080',
+                'verify_ssl' => false
             ],
         ], $config);
     }

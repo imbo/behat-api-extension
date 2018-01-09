@@ -1,6 +1,8 @@
 <?php
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator;
+use Imbo\BehatApiExtension\ArrayContainsComparator\Exception\ArrayContainsComparatorException;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -17,7 +19,7 @@ class JWTTest extends PHPUnit_Framework_TestCase {
      * Set up matcher instance
      */
     public function setup() {
-        $this->matcher = new JWT();
+        $this->matcher = new JWT(new ArrayContainsComparator());
     }
 
     /**
@@ -59,8 +61,8 @@ class JWTTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage JWT mismatch.
+     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
+     * @expectedExceptionMessage Haystack object is missing the "some" key.
      * @covers ::addToken
      * @covers ::__invoke
      */
@@ -86,6 +88,32 @@ class JWTTest extends PHPUnit_Framework_TestCase {
         $matcher(
             $jwt,
             $name
+        );
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage JWT mismatch.
+     * @covers ::__construct
+     * @covers ::__invoke
+     */
+    public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess() {
+        $comparator = $this->createConfiguredMock(ArrayContainsComparator::class, [
+            'compare' => false,
+        ]);
+        $matcher = (new JWT($comparator))->addToken(
+            'token',
+            [
+                'sub' => '1234567890',
+                'name' => 'John Doe',
+                'admin' => true,
+            ],
+            'secret'
+        );
+
+        $matcher(
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
+            'token'
         );
     }
 }

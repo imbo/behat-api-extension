@@ -409,7 +409,7 @@ EXCEPTION
             ],
             '@jwt' => [
                 'function' => 'jwt',
-                'callback' => (new Matcher\JWT())->addToken('my jwt', ['some' => 'data'], 'secret', 'HS256'),
+                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], 'secret', 'HS256'),
                 'needle' => [
                     'key' => '@jwt(my jwt)',
                 ],

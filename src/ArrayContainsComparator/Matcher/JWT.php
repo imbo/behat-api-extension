@@ -1,8 +1,10 @@
 <?php
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
+use Assert\Assertion;
 use Firebase;
 use InvalidArgumentException;
+use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
 
 /**
  * Match a JWT token
@@ -11,11 +13,38 @@ use InvalidArgumentException;
  */
 class JWT {
     /**
+     * Comparator for the array
+     *
+     * @var Comparator
+     */
+    private $comparator;
+
+    /**
      * JWT tokens present in the response body
      *
      * @var array
      */
     private $jwtTokens = [];
+
+    /**
+     * Allowed algorithms for the JWT decoder
+     *
+     * @var string[]
+     */
+    protected $allowedAlgorithms = [
+        'HS256',
+        'HS384',
+        'HS512',
+    ];
+
+    /**
+     * Class constructor
+     *
+     * @param Comparator $comparator
+     */
+    public function __construct(Comparator $comparator) {
+        $this->comparator = $comparator;
+    }
 
     /**
      * Add a JWT token that can be matched
@@ -44,20 +73,14 @@ class JWT {
      */
     public function __invoke($jwt, $name) {
         if (!isset($this->jwtTokens[$name])) {
-            throw new InvalidArgumentException(sprintf(
-                'No JWT registered for "%s".',
-                $name
-            ));
+            throw new InvalidArgumentException(sprintf('No JWT registered for "%s".', $name));
         }
 
-        $token = $this->jwtTokens[$name];
+        $token  = $this->jwtTokens[$name];
+        $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], $this->allowedAlgorithms);
 
-        $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], ['HS256', 'HS384', 'HS512']);
-
-        if ($result !== $token['payload']) {
-            throw new InvalidArgumentException(sprintf(
-                'JWT mismatch.'
-            ));
+        if (!$this->comparator->compare($token['payload'], $result)) {
+            throw new InvalidArgumentException('JWT mismatch.');
         }
     }
 }

@@ -32,7 +32,7 @@ class ArrayContainsComparatorAwareInitializer implements ContextInitializer {
             ->addFunction('regExp', new Matcher\RegExp())
             ->addFunction('gt', new Matcher\GreaterThan())
             ->addFunction('lt', new Matcher\LessThan())
-            ->addFunction('jwt', new Matcher\JWT());
+            ->addFunction('jwt', new Matcher\JWT($comparator));
 
         $this->comparator = $comparator;
     }

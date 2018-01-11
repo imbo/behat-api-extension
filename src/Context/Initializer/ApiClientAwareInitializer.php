@@ -15,17 +15,17 @@ use GuzzleHttp\Client;
  */
 class ApiClientAwareInitializer implements ContextInitializer {
     /**
-     * @var string
+     * @var array Guzzle client configuration array
      */
-    private $baseUri;
+    private $guzzleConfig = [];
 
     /**
      * Class constructor
      *
-     * @param string $baseUri
+     * @param array $guzzleConfig Guzzle client configuration array
      */
-    public function __construct($baseUri) {
-        $this->baseUri = $baseUri;
+    public function __construct(array $guzzleConfig) {
+        $this->guzzleConfig = $guzzleConfig;
     }
 
     /**
@@ -37,7 +37,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
      */
     public function initializeContext(Context $context) {
         if ($context instanceof ApiClientAwareContext) {
-            $context->setClient(new Client(['base_uri' => $this->baseUri]));
+            $context->setClient(new Client($this->guzzleConfig));
         }
     }
 }

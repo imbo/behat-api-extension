@@ -25,7 +25,7 @@ class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
                 return (string) $client->getConfig('base_uri') === $baseUri;
             }));
 
-        $initializer = new ApiClientAwareInitializer($baseUri);
+        $initializer = new ApiClientAwareInitializer(['base_uri' => $baseUri]);
         $initializer->initializeContext($context);
     }
 }

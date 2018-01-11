@@ -100,10 +100,8 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
         $config = (new Processor())->process($rootNode->getNode(true), [
             'api_extension' => [
                 'apiClient' => [
-                    'base_uri' => $baseUri,
-                    'verify_ssl' => $verifySSL,
+                    'base_uri' => $baseUri
                 ],
-                
             ],
         ]);
 

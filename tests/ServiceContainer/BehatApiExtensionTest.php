@@ -38,7 +38,7 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertSame([
             'apiClient' => [
-                'base_uri' => 'http://localhost:8080'
+                'base_uri' => 'http://localhost:8080',
             ],
         ], $config);
     }
@@ -98,14 +98,14 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
         $config = (new Processor())->process($rootNode->getNode(true), [
             'api_extension' => [
                 'apiClient' => [
-                    'base_uri' => $baseUri
+                    'base_uri' => $baseUri,
                 ],
             ],
         ]);
 
         $this->assertSame([
             'apiClient' => [
-                'base_uri' => $baseUri
+                'base_uri' => $baseUri,
             ],
         ], $config);
 

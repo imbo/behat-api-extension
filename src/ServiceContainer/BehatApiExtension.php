@@ -72,6 +72,7 @@ class BehatApiExtension implements ExtensionInterface {
             ->children()
                 ->arrayNode('apiClient')
                     ->addDefaultsIfNotSet()
+                    ->ignoreExtraKeys(false)
                     ->children()
                         ->scalarNode('base_uri')
                             ->isRequired()

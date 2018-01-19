@@ -72,6 +72,7 @@ class BehatApiExtension implements ExtensionInterface {
             ->children()
                 ->arrayNode('apiClient')
                     ->addDefaultsIfNotSet()
+                    ->ignoreExtraKeys(false)
                     ->children()
                         ->scalarNode('base_uri')
                             ->isRequired()
@@ -117,7 +118,7 @@ class BehatApiExtension implements ExtensionInterface {
         $clientInitializerDefinition = new Definition(
             'Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer',
             [
-                $config['apiClient']['base_uri']
+                $config['apiClient']
             ]
         );
         $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);

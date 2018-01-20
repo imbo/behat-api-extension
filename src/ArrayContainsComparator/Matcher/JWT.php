@@ -1,7 +1,6 @@
 <?php
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use Assert\Assertion;
 use Firebase;
 use InvalidArgumentException;
 use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;

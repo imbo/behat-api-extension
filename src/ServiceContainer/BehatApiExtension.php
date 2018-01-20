@@ -1,6 +1,9 @@
 <?php
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
+use Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer;
+use Imbo\BehatApiExtension\ArrayContainsComparator;
+use Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer;
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
@@ -87,7 +90,7 @@ class BehatApiExtension implements ExtensionInterface {
     public function load(ContainerBuilder $container, array $config) {
         // Client initializer definition
         $clientInitializerDefinition = new Definition(
-            'Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer',
+            ApiClientAwareInitializer::class,
             [
                 $config['apiClient']
             ]
@@ -95,13 +98,11 @@ class BehatApiExtension implements ExtensionInterface {
         $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);
 
         // Definition for the array contains comparator
-        $comparatorDefinition = new Definition(
-            'Imbo\BehatApiExtension\ArrayContainsComparator'
-        );
+        $comparatorDefinition = new Definition(ArrayContainsComparator::class);
 
         // Comparator initializer definition
         $comparatorInitializerDefinition = new Definition(
-            'Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer',
+            ArrayContainsComparatorAwareInitializer::class,
             [
                 new Reference(self::COMPARATOR_SERVICE_ID)
             ]

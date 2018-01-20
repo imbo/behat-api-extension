@@ -5,3 +5,4 @@ beberlei
 URI
 multipart
 namespaced
+connectable

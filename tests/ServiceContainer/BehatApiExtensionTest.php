@@ -53,28 +53,7 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
         // Configure the root node builder
         $this->extension->configure($rootNode);
 
-        // Set up a socket for the test case, try all ports between 8000 and 8079. If no ports are
-        // available the test case will be marked as skipped
-        set_error_handler(function() { return true; });
-        $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-
-        for ($port = 8000; $port < 8079; $port++) {
-            if ($result = socket_bind($sock, 'localhost', $port)) {
-                break;
-            }
-        }
-
-        restore_error_handler();
-
-        if (!$result) {
-            // No port was available
-            $this->markTestSkipped('Could not create a socket, skipping test for now.');
-        }
-
-        // Listen for connections
-        socket_listen($sock);
-
-        $baseUri = sprintf('http://localhost:%d', $port);
+        $baseUri = 'http://localhost:8888';
         $config = (new Processor())->process($rootNode->getNode(true), [
             'api_extension' => [
                 'apiClient' => [
@@ -88,8 +67,5 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
                 'base_uri' => $baseUri,
             ],
         ], $config);
-
-        // Close socket used in test case
-        socket_close($sock);
     }
 }

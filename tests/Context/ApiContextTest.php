@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
+use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT;
 use PHPUnit_Framework_TestCase;
 use GuzzleHttp\Client;
@@ -99,7 +100,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
             'handler' => $this->handlerStack,
             'base_uri' => $this->baseUri,
         ]);
-        $this->comparator = $this->createMock('Imbo\BehatApiExtension\ArrayContainsComparator');
+        $this->comparator = $this->createMock(ArrayContainsComparator::class);
 
         $this->context = new ApiContext();
         $this->context->setClient($this->client);

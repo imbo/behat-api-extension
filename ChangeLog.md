@@ -1,6 +1,22 @@
 Changelog for Behat API Extension
 =================================
 
+v2.1.0
+------
+__2018-01-20__
+
+* #67: Pass in entire array in the `apiClient` part of the configuration to the Guzzle Client instead of specifying specific configuration options (@vitalyiegorov)
+* #64: Move connectability validation of the `base_uri` option so that `behat --help` (amongst others) can be executed without validating the configuration (@oxkhar)
+* #54: Added support for JWT matching using the `@jwt()` custom matcher function, which uses the [firebase/php-jwt](https://packagist.org/packages/firebase/php-jwt) package (@Zwartpet)
+
+Bug fixes:
+
+* #57: Use HTTP GET when no method is specified
+
+Other changes:
+
+- #56: Grammar fix (@FabianPiconeDev)
+
 v2.0.1
 ------
 __2017-04-09__

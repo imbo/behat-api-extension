@@ -1,6 +1,9 @@
 <?php
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
+use Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer;
+use Imbo\BehatApiExtension\ArrayContainsComparator;
+use Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer;
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
@@ -8,8 +11,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use GuzzleHttp\ClientInterface;
-use InvalidArgumentException;
 
 /**
  * Behat API extension
@@ -78,35 +79,8 @@ class BehatApiExtension implements ExtensionInterface {
                             ->isRequired()
                             ->cannotBeEmpty()
                             ->defaultValue('http://localhost:8080')
-                            ->validate()
-                            ->ifTrue(function($uri) {
-                                $parts = parse_url($uri);
-                                $host = $parts['host'];
-                                $port = isset($parts['port']) ? $parts['port'] : ($parts['scheme'] === 'https' ? 443 : 80);
-
-                                set_error_handler(function() { return true; });
-                                $resource = fsockopen($host, $port);
-                                restore_error_handler();
-
-                                if ($resource === false) {
-                                    // Can't connect, return true to mark as failure
-                                    return true;
-                                }
-
-                                // Connection successful, close connection and return false to mark
-                                // as success
-                                fclose($resource);
-
-                                return false;
-                            })
-                                ->then(function($uri) {
-                                    throw new InvalidArgumentException(sprintf('Can\'t connect to base_uri: "%s".', $uri));
-                                })
-                            ->end()
                         ->end()
-                    ->end()
-                ->end()
-            ->end();
+                    ->end();
     }
 
     /**
@@ -116,7 +90,7 @@ class BehatApiExtension implements ExtensionInterface {
     public function load(ContainerBuilder $container, array $config) {
         // Client initializer definition
         $clientInitializerDefinition = new Definition(
-            'Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer',
+            ApiClientAwareInitializer::class,
             [
                 $config['apiClient']
             ]
@@ -124,13 +98,11 @@ class BehatApiExtension implements ExtensionInterface {
         $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);
 
         // Definition for the array contains comparator
-        $comparatorDefinition = new Definition(
-            'Imbo\BehatApiExtension\ArrayContainsComparator'
-        );
+        $comparatorDefinition = new Definition(ArrayContainsComparator::class);
 
         // Comparator initializer definition
         $comparatorInitializerDefinition = new Definition(
-            'Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer',
+            ArrayContainsComparatorAwareInitializer::class,
             [
                 new Reference(self::COMPARATOR_SERVICE_ID)
             ]

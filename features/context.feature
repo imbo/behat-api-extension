@@ -75,5 +75,5 @@ Feature: Client aware context
         When I run "behat -f progress features/client.feature"
         Then it should fail with:
             """
-            Invalid configuration for path "testwork.api_extension.apiClient.base_uri": Can't connect to base_uri: "http://localhost:9999".
+            Can't connect to base_uri: "http://localhost:9999".
             """

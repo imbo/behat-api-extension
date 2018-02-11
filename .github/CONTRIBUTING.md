@@ -6,13 +6,13 @@ If you want to contribute to the Behat API Extension please follow the following
 
 Behat API Extension has both [Behat](http://docs.behat.org/) and [PHPUnit](https://phpunit.de/) tests, and when adding new features or fixing bugs you are required to add relevant test cases.
 
-The Behat tests requires a web server hosting the `features/bootstrap/index.php` script. A quick and easy alternative is to use PHP's built in web server:
+The Behat tests requires a web server hosting the `features/bootstrap/index.php` script. A quick and easy alternative is to use PHPs built in web server:
 
-    composer start-server
+    composer run dev --timeout=0
 
 which is a composer script that simply runs:
 
-    php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &
+    php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1
 
 After this has been started you can execute the test suites by running:
 
@@ -22,6 +22,14 @@ If you want to run the suites separately they can be executed like this:
 
     ./vendor/bin/behat --strict
     ./vendor/bin/phpunit
+
+## Documentation
+
+The extension uses [Sphinx](http://www.sphinx-doc.org/en/stable/) for documentation, and all end-user documentation resides in the `docs` directory. To generate the current documentation after checking out your fork simply run the `docs` composer script:
+
+    composer run docs
+
+from the project root directory. If the command fails you are most likely missing packages not installable by Composer. Install missing packages and re-run the command to generate docs.
 
 ## Reporting bugs
 
@@ -41,6 +49,8 @@ public function testSomething
     // ...
 }
 ```
+
+Please also specify which commit that resolves the bug by adding `Resolves #<issue number>` to the commit message.
 
 ## Coding standards
 

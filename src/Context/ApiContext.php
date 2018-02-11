@@ -1097,9 +1097,15 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function setRequestPath($path) {
+        $baseUri = $this->client->getConfig('base_uri');
+
         // Resolve the path with the base_uri set in the client
-        $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
-        $this->request = $this->request->withUri($uri);
+        $uri = Psr7\Uri::resolve(
+            $baseUri,
+            Psr7\uri_for($baseUri->getPath() . ltrim($path, '/'))
+        );
+
+        $this->request = $this->request->withUri($uri,false);
 
         return $this;
     }

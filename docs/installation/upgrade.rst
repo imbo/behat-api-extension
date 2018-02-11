@@ -13,7 +13,7 @@ Migrating from v1.x to v2.x
 Configuration change
 ^^^^^^^^^^^^^^^^^^^^
 
-In ``v1`` the extension only had a single configuration option, which was ``base_uri``. This is still the only option in ``v2``, but it has been added to an ``apiClient`` key.
+In ``v1`` the extension only had a single configuration option, which was ``base_uri``. This is still an option in ``v2``, but it has been added to an ``apiClient`` key.
 
 **v1 behat.yml**
 

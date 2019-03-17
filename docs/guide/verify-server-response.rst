@@ -207,8 +207,8 @@ Assert that the length of the JSON array in the response body equals ``:length``
 
 **Examples:**
 
-* Then the response body is an array of length ``1``
-* Then the response body is an array of length ``3``
+* Then the response body is a JSON array of length ``1``
+* Then the response body is a JSON array of length ``3``
 
 If the response body does not contain a JSON array, the test will fail.
 
@@ -219,8 +219,8 @@ Assert that the length of the JSON array in the response body has a length of at
 
 **Examples:**
 
-* Then the response body is an array with a length of at least ``4``
-* Then the response body is an array with a length of at least ``5``
+* Then the response body is a JSON array with a length of at least ``4``
+* Then the response body is a JSON array with a length of at least ``5``
 
 If the response body does not contain a JSON array, the test will fail.
 
@@ -231,8 +231,8 @@ Assert that the length of the JSON array in the response body has a length of at
 
 **Examples:**
 
-* Then the response body is an array with a length of at most ``4``
-* Then the response body is an array with a length of at most ``5``
+* Then the response body is a JSON array with a length of at most ``4``
+* Then the response body is a JSON array with a length of at most ``5``
 
 If the response body does not contain a JSON array, the test will fail.
 

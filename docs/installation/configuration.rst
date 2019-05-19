@@ -8,7 +8,12 @@ After you have installed the extension you need to activate it in your Behat con
     default:
         suites:
             default:
-                # ...
+                contexts:
+                    - Imbo\BehatApiExtension\Context\ApiContext
+                    # other contexts like...
+                    #- FeatureContext:
+                    #   kernel: '@kernel'
+
 
         extensions:
             Imbo\BehatApiExtension: ~

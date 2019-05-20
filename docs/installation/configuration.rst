@@ -45,3 +45,5 @@ Example of a configuration file with several configuration entries:
                     verify: false
 
 Refer to the `Guzzle documentation <http://docs.guzzlephp.org/en/stable/>`_ for available configuration options for the Guzzle client.
+
+You cant set `contexts` in config file if your `FeatrureContext` extends `ApiContext`. Docs of extending is avaliable  [there](https://behat-api-extension.readthedocs.io/en/latest/guide/extending-the-extension.html)

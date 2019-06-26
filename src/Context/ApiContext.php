@@ -205,6 +205,27 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
+     * Set multipart form parameters
+     *
+     * @param TableNode $table Table with name / value pairs
+     * @return self
+     *
+     * @Given the following multipart are set:
+     */
+    public function setRequestMultipart(TableNode $table) {
+        if (!isset($this->requestOptions['multipart'])) {
+            $this->requestOptions['multipart'] = [];
+        }
+        foreach ($table as $row) {
+            $this->requestOptions['multipart'][] = [
+                  'name' => $row['name'],
+                  'contents' => $row['value'],
+              ];
+        }
+        return $this;
+    }
+
+    /**
      * Set the request body to a string
      *
      * @param resource|string|PyStringNode $string The content to set as the request body

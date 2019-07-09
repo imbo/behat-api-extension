@@ -1144,7 +1144,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @throws InvalidArgumentException
      * @return array
      */
-    protected function getResponseBodyArray() {
+    public function getResponseBodyArray() {
         if (!is_array($body = $this->getResponseBody())) {
             throw new InvalidArgumentException('The response body does not contain a valid JSON array.');
         }

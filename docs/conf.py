@@ -30,10 +30,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-if on_rtd:
-    extensions = ['sphinxcontrib.phpdomain']
-else:
-    extensions = ['sphinxcontrib.phpdomain', 'sphinxcontrib.spelling']
+extensions = ['sphinxcontrib.phpdomain']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -261,9 +258,6 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
-
-spelling_word_list_filename='spelling_wordlist.txt'
-spelling_show_suggestions=True
 
 # Allow php syntax highlighting without prepending <?php
 from sphinx.highlighting import lexers

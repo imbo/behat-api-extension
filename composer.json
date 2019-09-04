@@ -53,9 +53,6 @@
       "@test-behat"
     ],
     "dev": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1",
-    "docs": [
-      "cd docs; make spelling",
-      "cd docs; make html"
-    ]
+    "docs": "cd docs; make html"
   }
 }

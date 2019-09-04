@@ -25,6 +25,25 @@ Given I attach "``features/some.feature``" to the request as "``feature``"  ``fe
 
 This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
 
+Given the following multipart form parameters are set: ``<TableNode>``
+----------------------------------------------------------------------
+
+This step can be used to set form parameters (as if the request is a ``<form>`` being submitted). A table node must be used to specify which fields / values to send:
+
+.. code-block:: gherkin
+
+    Given the following multipart form parameters are set:
+        | name | value |
+        | foo  | bar   |
+        | bar  | foo   |
+        | bar  | bar   |
+
+The first row in the table must contain two values: ``name`` and ``value``. The rows that follows are the fields / values you want to send. This step sets the HTTP method to ``POST`` by default and the ``Content-Type`` request header to ``multipart/form-data``.
+
+This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
+
+To use a different HTTP method, simply specify the wanted method in the :ref:`when-i-request-path-using-http-method` step.
+
 Given I am authenticating as ``:username`` with password ``:password``
 ----------------------------------------------------------------------
 

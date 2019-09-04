@@ -2,7 +2,6 @@
 namespace Imbo\BehatApiExtension\Context;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
-use Firebase\JWT\JWT;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;

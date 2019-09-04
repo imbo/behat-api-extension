@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v2.2.0
+------
+__2019-04-04__
+
+* [#78](https://github.com/imbo/behat-api-extension/pull/78): Added new step for sending multipart form data ([@miteshmap](https://github.com/miteshmap))
+
 v2.1.0
 ------
 __2018-01-20__

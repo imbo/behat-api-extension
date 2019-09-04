@@ -1,30 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength
  */
-class ArrayLengthTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var ArrayLength
-     */
+class ArrayLengthTest extends TestCase {
     private $matcher;
 
-    /**
-     * Set up matcher instance
-     */
-    public function setup() {
+    public function setup() : void {
         $this->matcher = new ArrayLength();
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getArraysAndLengths() {
+    public function getArraysAndLengths() : array {
         return [
             [
                 'list' => [],
@@ -41,12 +31,7 @@ class ArrayLengthTest extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getInvalidValues() {
+    public function getInvalidValues() : array {
         return [
             [
                 'value' => 123,
@@ -63,12 +48,7 @@ class ArrayLengthTest extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getValuesThatFail() {
+    public function getValuesThatFail() : array {
         return [
             [
                 'array' => [1, 2],
@@ -86,11 +66,8 @@ class ArrayLengthTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getArraysAndLengths
      * @covers ::__invoke
-     *
-     * @param array $array
-     * @param int $length
      */
-    public function testCanMatchLengthOfArrays(array $array, $length) {
+    public function testCanMatchLengthOfArrays(array $array, int $length) : void {
         $matcher = $this->matcher;
 
         $this->assertNull(
@@ -102,12 +79,9 @@ class ArrayLengthTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getInvalidValues
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     *
-     * @param mixed $value
-     * @param string $message
      */
-    public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray($value, $message) {
+    public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray($value, string $message) : void {
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
         $matcher($value, 123);
@@ -116,13 +90,9 @@ class ArrayLengthTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getValuesThatFail
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     *
-     * @param array $array
-     * @param int $length
-     * @param string $message
      */
-    public function testThrowsExceptionWhenLengthIsNotCorrect(array $array, $length, $message) {
+    public function testThrowsExceptionWhenLengthIsNotCorrect(array $array, int $length, string $message) : void {
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
         $matcher($array, $length);

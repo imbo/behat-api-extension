@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Exception;
 
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;

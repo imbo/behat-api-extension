@@ -1,22 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 use GuzzleHttp\Client;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
  */
-class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
+class ApiClientAwareInitializerTest extends TestCase {
     /**
      * @covers ::initializeContext
      * @covers ::validateConnection
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Can't connect to base_uri: "http://localhost:123".
      */
-    public function testThrowsExceptionWhenBaseUriIsNotConnectable() {
+    public function testThrowsExceptionWhenBaseUriIsNotConnectable() : void {
         $initializer = new ApiClientAwareInitializer(['base_uri' => 'http://localhost:123']);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Can\'t connect to base_uri: "http://localhost:123".');
         $initializer->initializeContext($this->createMock(ApiClientAwareContext::class));
     }
 
@@ -25,7 +26,7 @@ class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
      * @covers ::validateConnection
      * @covers ::__construct
      */
-    public function testInjectsClientWhenInitializingContext() {
+    public function testInjectsClientWhenInitializingContext() : void {
         // Set up a socket for the test case, try all ports between 8000 and 8079. If no ports are
         // available the test case will be marked as skipped. This is to get past the base URI
         // validation

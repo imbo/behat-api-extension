@@ -13,7 +13,6 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Exception\RequestException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use RuntimeException;
 use OutOfRangeException;
 use stdClass;
 

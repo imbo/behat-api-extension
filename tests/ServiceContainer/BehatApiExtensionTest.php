@@ -3,21 +3,15 @@ namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
  */
-class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var BehatApiExtension
-     */
+class BehatApiExtensionTest extends TestCase {
     private $extension;
 
-    /**
-     * Set up the SUT
-     */
-    public function setUp() {
+    public function setUp() : void {
         $this->extension = new BehatApiExtension();
     }
 
@@ -25,7 +19,7 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
      * @covers ::getConfigKey
      * @covers ::configure
      */
-    public function testCanBuildConfiguration() {
+    public function testCanBuildConfiguration() : void {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root($this->extension->getConfigKey());
 
@@ -45,7 +39,7 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::configure
      */
-    public function testCanOverrideDefaultValuesWhenBuildingConfiguration() {
+    public function testCanOverrideDefaultValuesWhenBuildingConfiguration() : void {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root($this->extension->getConfigKey());
 

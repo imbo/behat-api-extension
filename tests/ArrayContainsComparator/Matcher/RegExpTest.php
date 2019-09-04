@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp
- * @testdox Regular expression pattern matcher
  */
 class RegExpTest extends PHPUnit_Framework_TestCase {
     /**

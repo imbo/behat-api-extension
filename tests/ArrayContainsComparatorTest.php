@@ -7,7 +7,6 @@ use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
- * @testdox Array contains comparator
  */
 class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     /**

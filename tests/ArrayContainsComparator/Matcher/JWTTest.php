@@ -7,7 +7,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT
- * @testdox JWT matcher
  */
 class JWTTest extends PHPUnit_Framework_TestCase {
     /**

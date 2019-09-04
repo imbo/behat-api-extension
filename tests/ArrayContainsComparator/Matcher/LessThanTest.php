@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\LessThan
- * @testdox Numeric less than matcher
  */
 class LessThanTest extends PHPUnit_Framework_TestCase {
     /**

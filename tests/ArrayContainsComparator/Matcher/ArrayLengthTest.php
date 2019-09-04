@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength
- * @testdox Array length matcher
  */
 class ArrayLengthTest extends PHPUnit_Framework_TestCase {
     /**

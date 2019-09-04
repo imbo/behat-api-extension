@@ -7,7 +7,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
- * @testdox Extension
  */
 class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
     /**

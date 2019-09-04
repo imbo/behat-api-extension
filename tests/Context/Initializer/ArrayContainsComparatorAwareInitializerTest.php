@@ -8,7 +8,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer
- * @testdox Initializer for array contains comparator aware contexts
  */
 class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_TestCase {
     /**

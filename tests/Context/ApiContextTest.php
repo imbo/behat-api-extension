@@ -48,7 +48,6 @@ function is_readable($path) {
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
- * @testdox Main extension context setup / request / assertions
  */
 class ApiContextText extends PHPUnit_Framework_TestCase {
     /**

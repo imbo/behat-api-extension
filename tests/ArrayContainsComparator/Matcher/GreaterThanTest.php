@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\GreaterThan
- * @testdox Numeric greater than matcher
  */
 class GreaterThanTest extends PHPUnit_Framework_TestCase {
     /**

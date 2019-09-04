@@ -1,18 +1,14 @@
 <?php
 namespace Imbo\BehatApiExtension\Exception;
 
-use PHPUnit_Framework_TestCase;
+use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
  */
-class ArrayContainsComparatorExceptionTest extends PHPUnit_Framework_TestCase {
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getExceptionData() {
+class ArrayContainsComparatorExceptionTest extends TestCase {
+    public function getExceptionData() : array {
         return [
             'with no needle / haystack' => [
                 'message' => $someMessage = 'some message',
@@ -34,8 +30,8 @@ MESSAGE
             ],
             'with needle and haystack' => [
                 'message' => $someMessage = 'some message',
-                'needle' => $needle = ['needle' => 'value'],
-                'haystack' => $haystack = ['haystack' => 'value'],
+                'needle' => ['needle' => 'value'],
+                'haystack' => ['haystack' => 'value'],
                 'formattedMessage' => <<<MESSAGE
 {$someMessage}
 
@@ -59,15 +55,10 @@ MESSAGE
 
     /**
      * @dataProvider getExceptionData
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      * @covers ::__construct
-     *
-     * @param string $message
-     * @param array $needle
-     * @param array $haystack
-     * @param string $formattedMessage
      */
-    public function testCanProperlyFormatErrorMessages($message, array $needle, array $haystack, $formattedMessage) {
+    public function testCanProperlyFormatErrorMessages(string $message, array $needle, array $haystack, string $formattedMessage) : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage($formattedMessage);
         throw new ArrayContainsComparatorException($message, 0, null, $needle, $haystack);
     }

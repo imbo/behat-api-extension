@@ -4,3 +4,4 @@ server.log
 phpunit.xml
 docs/_build
 .idea
+.phpunit.result.cache

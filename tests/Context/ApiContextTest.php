@@ -502,6 +502,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::addMultipartFileToRequest
+     * @covers ::addMultipartPart
      * @group setup
      */
     public function testCanAddMultipleMultipartFilesToTheRequest() {
@@ -531,6 +532,30 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
                 $contents
             );
         }
+    }
+
+    /**
+     * @covers ::setRequestMultipartFormParams
+     * @covers ::addMultipartPart
+     * @group setup
+     */
+    public function testCanAddMultipartFormDataParametersToTheRequest() {
+        $this->mockHandler->append(new Response(200));
+        $this->assertSame($this->context, $this->context->setRequestMultipartFormParams(new TableNode([
+            ['name', 'value'],
+            ['foo', 'bar'],
+            ['bar', 'foo'],
+            ['bar', 'bar'],
+        ])));
+
+        $this->context->requestPath('/some/path', 'POST');
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+        $boundary = $request->getBody()->getBoundary();
+
+        $this->assertSame(sprintf('multipart/form-data; boundary=%s', $boundary), $request->getHeaderLine('Content-Type'));
     }
 
     /**

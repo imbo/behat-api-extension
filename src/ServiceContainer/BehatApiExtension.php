@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer;
@@ -18,8 +18,6 @@ use Symfony\Component\DependencyInjection\Reference;
  * This extension provides a series of steps that can be used to easily test API's. The ApiContext
  * class also exposes the client, request and response objects so custom steps using the underlying
  * client can be implemented.
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class BehatApiExtension implements ExtensionInterface {
     /**
@@ -50,25 +48,16 @@ class BehatApiExtension implements ExtensionInterface {
      */
     const CONFIG_KEY = 'api_extension';
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigKey() {
+    public function getConfigKey() : string {
         return self::CONFIG_KEY;
     }
 
     /**
-     * {@inheritdoc}
      * @codeCoverageIgnore
      */
-    public function initialize(ExtensionManager $extensionManager) {
-        // Not used
-    }
+    public function initialize(ExtensionManager $extensionManager) : void {}
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configure(ArrayNodeDefinition $builder) {
+    public function configure(ArrayNodeDefinition $builder) : void {
         $builder
             ->children()
                 ->arrayNode('apiClient')
@@ -84,11 +73,9 @@ class BehatApiExtension implements ExtensionInterface {
     }
 
     /**
-     * {@inheritdoc}
      * @codeCoverageIgnore
      */
-    public function load(ContainerBuilder $container, array $config) {
-        // Client initializer definition
+    public function load(ContainerBuilder $container, array $config) : void {
         $clientInitializerDefinition = new Definition(
             ApiClientAwareInitializer::class,
             [
@@ -96,11 +83,7 @@ class BehatApiExtension implements ExtensionInterface {
             ]
         );
         $clientInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);
-
-        // Definition for the array contains comparator
         $comparatorDefinition = new Definition(ArrayContainsComparator::class);
-
-        // Comparator initializer definition
         $comparatorInitializerDefinition = new Definition(
             ArrayContainsComparatorAwareInitializer::class,
             [
@@ -109,17 +92,13 @@ class BehatApiExtension implements ExtensionInterface {
         );
         $comparatorInitializerDefinition->addTag(ContextExtension::INITIALIZER_TAG);
 
-        // Add all definitions to the container
         $container->setDefinition(self::APICLIENT_INITIALIZER_SERVICE_ID, $clientInitializerDefinition);
         $container->setDefinition(self::COMPARATOR_SERVICE_ID, $comparatorDefinition);
         $container->setDefinition(self::COMPARATOR_INITIALIZER_SERVICE_ID, $comparatorInitializerDefinition);
     }
 
     /**
-     * {@inheritdoc}
      * @codeCoverageIgnore
      */
-    public function process(ContainerBuilder $container) {
-
-    }
+    public function process(ContainerBuilder $container) : void {}
 }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension;
 
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
@@ -7,8 +7,6 @@ use Exception;
 
 /**
  * Comparator class used for the response body comparisons
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayContainsComparator {
     /**

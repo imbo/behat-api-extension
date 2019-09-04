@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
@@ -21,8 +21,6 @@ use stdClass;
 
 /**
  * Behat feature context that can be used to simplify testing of JSON-based RESTful HTTP APIs
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareContext, SnippetAcceptingContext {
     /**
@@ -73,9 +71,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected $forceHttpMethod = false;
 
-    /**
-     * {@inheritdoc}
-     */
     public function setClient(ClientInterface $client) {
         $this->client = $client;
         $this->request = new Request('GET', $client->getConfig('base_uri'));
@@ -83,9 +78,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
         $this->arrayContainsComparator = $comparator;
 

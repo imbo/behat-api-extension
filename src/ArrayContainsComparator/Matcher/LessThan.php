@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Check if a numeric value is less than another value
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class LessThan {
     /**
@@ -15,9 +13,8 @@ class LessThan {
      * @param numeric $number A variable
      * @param numeric $max The max value of $number
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($number, $max) {
+    public function __invoke($number, $max) : void {
         if (!is_numeric($number)) {
             throw new InvalidArgumentException(sprintf(
                 '"%s" is not numeric.',

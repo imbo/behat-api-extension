@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Match a string against a regular expression pattern
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class RegExp {
     /**
@@ -15,9 +13,8 @@ class RegExp {
      * @param string|int|float $subject A string, integer or floating point value
      * @param string $pattern A valid regular expression pattern
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($subject, $pattern) {
+    public function __invoke($subject, string $pattern) : void {
         if (!in_array(gettype($subject), ['string', 'integer', 'double'])) {
             throw new InvalidArgumentException(sprintf(
                 'Regular expression matching can only be applied to strings, integers or doubles, got "%s".',
@@ -26,7 +23,6 @@ class RegExp {
         }
 
         $subject = (string) $subject;
-        $pattern = (string) $pattern;
 
         if (!preg_match($pattern, $subject)) {
             throw new InvalidArgumentException(sprintf(

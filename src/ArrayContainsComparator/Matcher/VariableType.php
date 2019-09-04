@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Match the type of a value
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class VariableType {
     /**
@@ -31,9 +29,8 @@ class VariableType {
      * @param mixed $variable A variable
      * @param string $expectedType The expected type of $variable
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($variable, $expectedType) {
+    public function __invoke($variable, string $expectedType) : void {
         $expectedType = $this->normalizeType($expectedType);
 
         if (!in_array($expectedType, $this->validTypes)) {

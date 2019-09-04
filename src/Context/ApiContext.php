@@ -109,17 +109,44 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new InvalidArgumentException(sprintf('File does not exist: "%s"', $path));
         }
 
-        // Create the multipart entry in the request options if it does not already exist
+        return $this->addMultipartPart([
+            'name' => $partName,
+            'contents' => fopen($path, 'r'),
+            'filename' => basename($path),
+        ]);
+    }
+
+    /**
+     * Add an element to the multipart array
+     *
+     * @param array $part The part to add
+     * @return self
+     */
+    private function addMultipartPart($part) {
         if (!isset($this->requestOptions['multipart'])) {
             $this->requestOptions['multipart'] = [];
         }
 
-        // Add an entry to the multipart array
-        $this->requestOptions['multipart'][] = [
-            'name' => $partName,
-            'contents' => fopen($path, 'r'),
-            'filename' => basename($path),
-        ];
+        $this->requestOptions['multipart'][] = $part;
+
+        return $this;
+    }
+
+    /**
+     * Add multipart form parameters to the request
+     *
+     * @param TableNode $table Table with name / value pairs
+     * @return self
+     *
+     * @Given the following multipart form parameters are set:
+     */
+    public function setRequestMultipartFormParams(TableNode $table) {
+        foreach ($table as $row) {
+            $this->addMultipartPart([
+                'name' => $row['name'],
+                'contents' => $row['value'],
+            ]);
+        }
 
         return $this;
     }
@@ -201,27 +228,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             }
         }
 
-        return $this;
-    }
-
-    /**
-     * Set multipart form parameters
-     *
-     * @param TableNode $table Table with name / value pairs
-     * @return self
-     *
-     * @Given the following multipart are set:
-     */
-    public function setRequestMultipart(TableNode $table) {
-        if (!isset($this->requestOptions['multipart'])) {
-            $this->requestOptions['multipart'] = [];
-        }
-        foreach ($table as $row) {
-            $this->requestOptions['multipart'][] = [
-                  'name' => $row['name'],
-                  'contents' => $row['value'],
-              ];
-        }
         return $this;
     }
 

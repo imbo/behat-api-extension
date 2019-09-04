@@ -129,3 +129,36 @@ Feature: Test form-data handling
             1 scenario (1 passed)
             4 steps (4 passed)
             """
+
+    Scenario: Attach multipart form data
+        Given a file named "features/multipart-form-data.feature" with:
+            """
+            Feature: Set up the request
+                Scenario: Verify form data
+                    Given the following multipart form parameters are set:
+                    | name     | value    |
+                    | username | admin    |
+                    | password | password |
+                    When I request "/requestInfo" using HTTP "POST"
+                    Then the response body contains JSON:
+                    '''
+                    {
+                        "_POST": {
+                            "username": "admin",
+                            "password": "password"
+                        },
+                        "_SERVER": {
+                            "CONTENT_TYPE": "@regExp(/^multipart\\/form-data;/)"
+                        }
+                    }
+                    '''
+
+            """
+        When I run "behat features/multipart-form-data.feature"
+        Then it should pass with:
+            """
+            ...
+
+            1 scenario (1 passed)
+            3 steps (3 passed)
+            """

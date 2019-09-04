@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT;
-use PHPUnit_Framework_TestCase;
+use Imbo\BehatApiExtension\Exception\AssertionFailedException;
+use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -13,17 +14,16 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Exception\RequestException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use InvalidArgumentException;
+use RuntimeException;
 use OutOfRangeException;
 use stdClass;
 
 /**
  * Namespaced version of file_exists that returns true for a fixed filename. All other paths are
  * checked by the global file_exists function.
- *
- * @param string $path
- * @return boolean
  */
-function file_exists($path) {
+function file_exists(string $path) : bool {
     if ($path === '/non/readable/file') {
         return true;
     }
@@ -34,11 +34,8 @@ function file_exists($path) {
 /**
  * Namespaced version of is_readable that returns false for a fixed filename. All other paths are
  * checked by the global is_readable function.
- *
- * @param string $path
- * @return boolean
  */
-function is_readable($path) {
+function is_readable(string $path) : bool {
     if ($path === '/none/readable/file') {
         return false;
     }
@@ -49,46 +46,16 @@ function is_readable($path) {
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
  */
-class ApiContextText extends PHPUnit_Framework_TestCase {
-    /**
-     * @var MockHandler
-     */
+class ApiContextText extends TestCase {
     private $mockHandler;
-
-    /**
-     * @var HandlerStack
-     */
     private $handlerStack;
-
-    /**
-     * @var array
-     */
     private $historyContainer = [];
-
-    /**
-     * @var ApiContext
-     */
     private $context;
-
-    /**
-     * @var Client
-     */
     private $client;
-
-    /**
-     * @var ArrayContainsComparator
-     */
     private $comparator;
-
-    /**
-     * @var string
-     */
     private $baseUri = 'http://localhost:9876';
 
-    /**
-     * Set up the SUT
-     */
-    public function setUp() {
+    public function setUp() : void {
         $this->historyContainer = [];
 
         $this->mockHandler = new MockHandler();
@@ -105,12 +72,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->context->setArrayContainsComparator($this->comparator);
     }
 
-    /**
-     * Data provider: Get HTTP methods
-     *
-     * @return array[]
-     */
-    public function getHttpMethods() {
+    public function getHttpMethods() : array {
         return [
             ['method' => 'GET'],
             ['method' => 'PUT'],
@@ -122,12 +84,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider: Get files and mime types
-     *
-     * @return array[]
-     */
-    public function getFilesAndMimeTypes() {
+    public function getFilesAndMimeTypes() : array {
         return [
             [
                 'filePath'         => __FILE__,
@@ -143,13 +100,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider: Get a a response code, along with an array of other response codes that the
-     *                first parameter does not match
-     *
-     * @return array[]
-     */
-    public function getResponseCodes() {
+    public function getResponseCodes() : array {
         return [
             [
                 'code' => 200,
@@ -170,12 +121,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider: Get response codes and groups
-     *
-     * @return array[]
-     */
-    public function getGroupAndResponseCodes() {
+    public function getGroupAndResponseCodes() : array {
         return [
             [
                 'group' => 'informational',
@@ -200,25 +146,14 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider: Return invalid HTTP response codes
-     *
-     * @return array[]
-     */
-    public function getInvalidHttpResponseCodes() {
+    public function getInvalidHttpResponseCodes() : array {
         return [
             [99],
             [600],
         ];
     }
 
-    /**
-     * Data provider: Get response body arrays, the length to use in the check, and whether or not
-     *                the test should fail
-     *
-     * @return array[]
-     */
-    public function getResponseBodyArrays() {
+    public function getResponseBodyArrays() : array {
         return [
             [
                 'body' => [1, 2, 3],
@@ -243,13 +178,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider: Get response body arrays that will be used for testing that the length is at
-     *                least a given length
-     *
-     * @return array[]
-     */
-    public function getResponseBodyArraysForAtLeast() {
+    public function getResponseBodyArraysForAtLeast() : array {
         return [
             [
                 'body' => [1, 2, 3],
@@ -270,13 +199,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider: Get response body arrays that will be used for testing that the length is at
-     *                most a given length
-     *
-     * @return array[]
-     */
-    public function getResponseBodyArraysForAtMost() {
+    public function getResponseBodyArraysForAtMost() : array {
         return [
             [
                 'body' => [1, 2, 3],
@@ -297,12 +220,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return []
-     */
-    public function getResponseCodesAndReasonPhrases() {
+    public function getResponseCodesAndReasonPhrases() : array {
         return [
             200 => [
                 'code' => 200,
@@ -323,12 +241,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getUris() {
+    public function getUris() : array {
         return [
             // The first six sets are from http://docs.guzzlephp.org/en/latest/quickstart.html (2016-12-12)
             [
@@ -387,12 +300,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getDataForResponseGroupFailures() {
+    public function getDataForResponseGroupFailures() : array {
         return [
             [
                 'responseCode' => 100,
@@ -422,12 +330,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getRequestBodyValues() {
+    public function getRequestBodyValues() : array {
         return [
             [
                 'data' => 'some string',
@@ -442,9 +345,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::setRequestHeader
-     * @group setup
      */
-    public function testCanSetRequestHeaders() {
+    public function testCanSetRequestHeaders() : void {
         $this->mockHandler->append(new Response(200));
 
         $this->assertSame($this->context, $this->context
@@ -462,9 +364,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::addRequestHeader
-     * @group setup
      */
-    public function testCanAddRequestHeaders() {
+    public function testCanAddRequestHeaders() : void {
         $this->mockHandler->append(new Response(200));
 
         $this->assertSame($this->context, $this->context
@@ -482,9 +383,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::setBasicAuth
-     * @group setup
      */
-    public function testSupportBasicHttpAuthentication() {
+    public function testSupportBasicHttpAuthentication() : void {
         $this->mockHandler->append(new Response(200));
 
         $username = 'user';
@@ -502,9 +402,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::addMultipartFileToRequest
      * @covers ::addMultipartPart
-     * @group setup
      */
-    public function testCanAddMultipleMultipartFilesToTheRequest() {
+    public function testCanAddMultipleMultipartFilesToTheRequest() : void {
         $this->mockHandler->append(new Response(200));
         $files = [
             'file1' => __FILE__,
@@ -526,7 +425,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $contents = $request->getBody()->getContents();
 
         foreach ($files as $path) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 file_get_contents($path),
                 $contents
             );
@@ -536,9 +435,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::setRequestMultipartFormParams
      * @covers ::addMultipartPart
-     * @group setup
      */
-    public function testCanAddMultipartFormDataParametersToTheRequest() {
+    public function testCanAddMultipartFormDataParametersToTheRequest() : void {
         $this->mockHandler->append(new Response(200));
         $this->assertSame($this->context, $this->context->setRequestMultipartFormParams(new TableNode([
             ['name', 'value'],
@@ -560,9 +458,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::setRequestFormParams
      * @covers ::sendRequest
-     * @group setup
      */
-    public function testCanSetFormParametersInTheRequest() {
+    public function testCanSetFormParametersInTheRequest() : void {
         $this->mockHandler->append(new Response(200));
         $this->assertSame($this->context, $this->context->setRequestFormParams(new TableNode([
             ['name', 'value'],
@@ -582,12 +479,7 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
         $this->assertSame('foo=bar&bar%5B0%5D=foo&bar%5B1%5D=bar', (string) $request->getBody());
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getHttpMethodsForFormParametersTest() {
+    public function getHttpMethodsForFormParametersTest() : array {
         return [
             ['httpMethod' => 'PUT'],
             ['httpMethod' => 'POST'],
@@ -600,11 +492,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
      * @dataProvider getHttpMethodsForFormParametersTest
      * @covers ::setRequestFormParams
      * @covers ::sendRequest
-     * @group setup
-     *
-     * @param string $httpMethod The HTTP method
      */
-    public function testCanSetFormParametersInTheRequestWithCustomMethod($httpMethod) {
+    public function testCanSetFormParametersInTheRequestWithCustomMethod(string $httpMethod) : void {
         $this->mockHandler->append(new Response(200));
         $this->assertSame($this->context, $this->context->setRequestFormParams(new TableNode([
             ['name', 'value'],
@@ -626,9 +515,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::sendRequest
-     * @group setup
      */
-    public function testCanSetFormParametersAndAttachAFileInTheSameMultipartRequest() {
+    public function testCanSetFormParametersAndAttachAFileInTheSameMultipartRequest() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->setRequestFormParams(new TableNode([
             ['name', 'value'],
@@ -649,8 +537,8 @@ class ApiContextText extends PHPUnit_Framework_TestCase {
 
         $contents = $request->getBody()->getContents();
 
-        $this->assertContains('Content-Disposition: form-data; name="file"; filename="ApiContextTest.php"', $contents);
-        $this->assertContains(file_get_contents(__FILE__), $contents);
+        $this->assertStringContainsString('Content-Disposition: form-data; name="file"; filename="ApiContextTest.php"', $contents);
+        $this->assertStringContainsString(file_get_contents(__FILE__), $contents);
 
         $foo = <<<FOO
 Content-Disposition: form-data; name="foo"
@@ -671,27 +559,25 @@ Content-Length: 3
 
 bar
 BAR;
-        $this->assertContains($foo, $contents);
-        $this->assertContains($bar0, $contents);
-        $this->assertContains($bar1, $contents);
+        $this->assertStringContainsString($foo, $contents);
+        $this->assertStringContainsString($bar0, $contents);
+        $this->assertStringContainsString($bar1, $contents);
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage File does not exist: "/foo/bar"
      * @covers ::addMultipartFileToRequest
-     * @group setup
      */
-    public function testThrowsExceptionWhenAddingNonExistingFileAsMultipartPartToTheRequest() {
+    public function testThrowsExceptionWhenAddingNonExistingFileAsMultipartPartToTheRequest() : void {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('File does not exist: "/foo/bar"');
         $this->context->addMultipartFileToRequest('/foo/bar', 'foo');
     }
 
     /**
      * @covers ::setRequestBodyToFileResource
      * @covers ::setRequestBody
-     * @group setup
      */
-    public function testCanSetRequestBodyToAFile() {
+    public function testCanSetRequestBodyToAFile() : void {
         $this->mockHandler->append(new Response());
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
         $this->context->requestPath('/some/path', 'POST');
@@ -705,12 +591,8 @@ BAR;
     /**
      * @dataProvider getRequestBodyValues
      * @covers ::setRequestBody
-     * @group setup
-     *
-     * @param string|PyStringNode $data
-     * @param string $expected
      */
-    public function testCanSetRequestBodyToAString($data, $expected) {
+    public function testCanSetRequestBodyToAString($data, string $expected) : void {
         $this->mockHandler->append(new Response());
         $this->context->setRequestBody($data);
         $this->context->requestPath('/some/path', 'POST');
@@ -724,13 +606,8 @@ BAR;
      * @dataProvider getUris
      * @covers ::setClient
      * @covers ::setRequestPath
-     * @group setup
-     *
-     * @param string $baseUri
-     * @param string $path
-     * @param string $fullUri
      */
-    public function testResolvesFilePathsCorrectlyWhenAttachingFilesToTheRequestBody($baseUri, $path, $fullUri) {
+    public function testResolvesFilePathsCorrectlyWhenAttachingFilesToTheRequestBody(string $baseUri, string $path, string $fullUri) : void {
         // Set a new client with the given base_uri (and not the one used in setUp())
         $this->assertSame($this->context, $this->context->setClient(new Client([
             'handler' => $this->handlerStack,
@@ -749,9 +626,8 @@ BAR;
     /**
      * @covers ::addJwtToken
      * @covers ::jsonDecode
-     * @group setup
      */
-    public function testCanAddJwtTokensToTheJwtMatcher() {
+    public function testCanAddJwtTokensToTheJwtMatcher() : void {
         $name = 'some name';
         $payload = ['some' => 'data'];
         $secret = 'secret';
@@ -777,16 +653,16 @@ BAR;
 
     /**
      * @covers ::addJwtToken
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt
-     * @group setup
      */
-    public function testThrowsExceptionWhenTryingToAddJwtTokenWhenThereIsNoMatcherFunctionRegistered() {
+    public function testThrowsExceptionWhenTryingToAddJwtTokenWhenThereIsNoMatcherFunctionRegistered() : void {
         $this->comparator
             ->expects($this->once())
             ->method('getMatcherFunction')
             ->with('jwt')
             ->willReturn(null);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt');
 
         $this->context->addJwtToken('name', 'secret', new PyStringNode(['{"some":"data"}'], 1));
     }
@@ -797,11 +673,8 @@ BAR;
      * @covers ::setRequestPath
      * @covers ::setRequestMethod
      * @covers ::sendRequest
-     * @group request
-     *
-     * @param string $method
      */
-    public function testCanMakeRequestsUsingDifferentHttpMethods($method) {
+    public function testCanMakeRequestsUsingDifferentHttpMethods(string $method) : void {
         $this->mockHandler->append(new Response(200));
         $this->assertSame($this->context, $this->context->requestPath('/some/path', $method));
 
@@ -815,9 +688,8 @@ BAR;
      * @covers ::setRequestPath
      * @covers ::setRequestBody
      * @covers ::sendRequest
-     * @group request
      */
-    public function testCanMakeRequestsWithQueryStringInThePath() {
+    public function testCanMakeRequestsWithQueryStringInThePath() : void {
         $this->mockHandler->append(new Response(200));
         $this->assertSame(
             $this->context,
@@ -835,28 +707,21 @@ BAR;
      * @dataProvider getResponseCodes
      * @covers ::assertResponseCodeIs
      * @covers ::validateResponseCode
-     * @group assertions
-     *
-     * @param int $code
      */
-    public function testCanAssertWhatTheResponseCodeIs($code) {
+    public function testCanAssertWhatTheResponseCodeIs(int $code) : void {
         $this->mockHandler->append(new Response($code));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseCodeIs($code);
+        $this->assertNull($this->context->assertResponseCodeIs($code));
     }
 
     /**
      * @covers ::assertResponseCodeIsNot
      * @covers ::validateResponseCode
-     * @group assertions
-     *
-     * @param int $code
-     * @param int[] $otherCodes
      */
-    public function testCanAssertWhatTheResponseCodeIsNot() {
+    public function testCanAssertWhatTheResponseCodeIsNot() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseCodeIsNot(201);
+        $this->assertNull($this->context->assertResponseCodeIsNot(201));
     }
 
     /**
@@ -864,16 +729,12 @@ BAR;
      * @covers ::assertResponseIs
      * @covers ::requireResponse
      * @covers ::getResponseCodeGroupRange
-     * @group assertions
-     *
-     * @param string $group
-     * @param int[] $codes
      */
-    public function testCanAssertWhichGroupTheResponseIsIn($group, array $codes) {
+    public function testCanAssertWhichGroupTheResponseIsIn(string $group, array $codes) : void {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
             $this->context->requestPath('/some/path');
-            $this->context->assertResponseIs($group);
+            $this->assertNull($this->context->assertResponseIs($group));
         }
     }
 
@@ -881,12 +742,8 @@ BAR;
      * @dataProvider getGroupAndResponseCodes
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
-     * @group assertions
-     *
-     * @param string $group
-     * @param int[] $codes
      */
-    public function testCanAssertWhichGroupTheResponseIsNotIn($group, array $codes) {
+    public function testCanAssertWhichGroupTheResponseIsNotIn(string $group, array $codes) : void {
         $groups = [
             'informational',
             'success',
@@ -899,9 +756,9 @@ BAR;
             $this->mockHandler->append(new Response($code));
             $this->context->requestPath('/some/path');
 
-            foreach (array_filter($groups, function($g) use ($group) { return $g !== $group; }) as $g) {
+            foreach (array_filter($groups, function(string $g) use ($group) : bool { return $g !== $group; }) as $g) {
                 // Assert that the response is not in any of the other groups
-                $this->context->assertResponseIsNot($g);
+                $this->assertNull($this->context->assertResponseIsNot($g));
             }
         }
     }
@@ -909,184 +766,157 @@ BAR;
     /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseReasonPhraseIs
-     * @group assertions
-     *
-     * @param int $code The HTTP response code
-     * @param string $phrase The HTTP response reason phrase
      */
-    public function testCanAssertWhatTheResponseReasonPhraseIs($code, $phrase) {
+    public function testCanAssertWhatTheResponseReasonPhraseIs(int $code, string $phrase) : void {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseReasonPhraseIs($phrase);
+        $this->assertNull($this->context->assertResponseReasonPhraseIs($phrase));
     }
 
     /**
      * @covers ::assertResponseReasonPhraseIsNot
-     * @group assertions
      */
-    public function testCanAssertWhatTheResponseReasonPhraseIsNot() {
+    public function testCanAssertWhatTheResponseReasonPhraseIsNot() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseReasonPhraseIsNot('Not Modified');
+        $this->assertNull($this->context->assertResponseReasonPhraseIsNot('Not Modified'));
     }
 
     /**
      * @covers ::assertResponseReasonPhraseMatches
-     * @group assertions
      */
-    public function testCanAssertThatTheResponseReasonPhraseMatchesAnExpression() {
+    public function testCanAssertThatTheResponseReasonPhraseMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseReasonPhraseMatches('/OK/');
+        $this->assertNull($this->context->assertResponseReasonPhraseMatches('/OK/'));
     }
 
     /**
      * @dataProvider getResponseCodesAndReasonPhrases
      * @covers ::assertResponseStatusLineIs
-     * @group assertions
-     *
-     * @param int $code The HTTP response code
-     * @param string $phrase The HTTP response reason phrase
      */
-    public function testCanAssertWhatTheResponseStatusLineIs($code, $phrase) {
+    public function testCanAssertWhatTheResponseStatusLineIs(int $code, string $phrase) : void {
         $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseStatusLineIs(sprintf('%d %s', $code, $phrase));
+        $this->assertNull($this->context->assertResponseStatusLineIs(sprintf('%d %s', $code, $phrase)));
     }
 
     /**
      * @covers ::assertResponseStatusLineIsNot
-     * @group assertions
      */
-    public function testCanAssertWhatTheResponseStatusLineIsNot() {
+    public function testCanAssertWhatTheResponseStatusLineIsNot() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseStatusLineIsNot('304 Not Modified');
+        $this->assertNull($this->context->assertResponseStatusLineIsNot('304 Not Modified'));
     }
 
     /**
      * @covers ::assertResponseStatusLineMatches
-     * @group assertions
      */
-    public function testCanAssertThatTheResponseStatusLineMatchesAnExpression() {
+    public function testCanAssertThatTheResponseStatusLineMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseStatusLineMatches('/200 OK/');
+        $this->assertNull($this->context->assertResponseStatusLineMatches('/200 OK/'));
     }
 
     /**
      * @covers ::assertResponseHeaderExists
-     * @group assertions
      */
-    public function testCanAssertThatAResponseHeaderExists() {
+    public function testCanAssertThatAResponseHeaderExists() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseHeaderExists('Content-Type');
+        $this->assertNull($this->context->assertResponseHeaderExists('Content-Type'));
     }
 
     /**
      * @covers ::assertResponseHeaderDoesNotExist
-     * @group assertions
      */
-    public function testCanAssertThatAResponseHeaderDoesNotExist() {
+    public function testCanAssertThatAResponseHeaderDoesNotExist() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseHeaderDoesNotExist('Content-Type');
+        $this->assertNull($this->context->assertResponseHeaderDoesNotExist('Content-Type'));
     }
 
     /**
      * @covers ::assertResponseHeaderIs
-     * @group assertions
      */
-    public function testCanAssertWhatAResponseHeaderIs() {
+    public function testCanAssertWhatAResponseHeaderIs() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseHeaderIs('Content-Type', 'application/json');
+        $this->assertNull($this->context->assertResponseHeaderIs('Content-Type', 'application/json'));
     }
 
     /**
      * @covers ::assertResponseHeaderIsNot
-     * @group assertions
      */
-    public function testCanAssertWhatAResponseHeaderIsNot() {
+    public function testCanAssertWhatAResponseHeaderIsNot() : void {
         $this->mockHandler->append(new Response(200, ['Content-Length' => '123']));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseHeaderIsNot('Content-Type', '456');
+        $this->assertNull($this->context->assertResponseHeaderIsNot('Content-Type', '456'));
     }
 
     /**
      * @covers ::assertResponseHeaderMatches
-     * @group assertions
      */
-    public function testCanAssertThatAResponseHeaderMatchesAnExpression() {
+    public function testCanAssertThatAResponseHeaderMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#');
+        $this->assertNull($this->context->assertResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#'));
     }
 
     /**
      * @covers ::assertResponseBodyIs
-     * @group assertions
      */
-    public function testCanAssertWhatTheResponseBodyIs() {
+    public function testCanAssertWhatTheResponseBodyIs() : void {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyIs(new PyStringNode(['response body'], 1));
+        $this->assertNull($this->context->assertResponseBodyIs(new PyStringNode(['response body'], 1)));
     }
 
     /**
      * @covers ::assertResponseBodyIsNot
-     * @group assertions
      */
-    public function testCanAssertWhatTheResponseBodyIsNot() {
+    public function testCanAssertWhatTheResponseBodyIsNot() : void {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyIsNot(new PyStringNode(['some other response body'], 1));
+        $this->assertNull($this->context->assertResponseBodyIsNot(new PyStringNode(['some other response body'], 1)));
     }
 
     /**
      * @covers ::assertResponseBodyMatches
-     * @group assertions
      */
-    public function testCanAssertThatTheResponseBodyMatchesAnExpression() {
+    public function testCanAssertThatTheResponseBodyMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1));
+        $this->assertNull($this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1)));
     }
 
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testCanAssertThatTheResponseIsAnEmptyArray() {
+    public function testCanAssertThatTheResponseIsAnEmptyArray() : void {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyIsAnEmptyJsonArray();
+        $this->assertNull($this->context->assertResponseBodyIsAnEmptyJsonArray());
     }
 
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
-     * @group assertions
      */
-    public function testCanAssertThatTheResponseIsAnEmptyObject() {
+    public function testCanAssertThatTheResponseIsAnEmptyObject() : void {
         $this->mockHandler->append(new Response(200, [], json_encode(new stdClass())));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyIsAnEmptyJsonObject();
+        $this->assertNull($this->context->assertResponseBodyIsAnEmptyJsonObject());
     }
 
     /**
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
-     * @group assertions
-     *
-     * @param array $body
-     * @param int $lenthToUse
-     * @param boolean $willFail
      */
-    public function testCanAssertThatTheArrayInTheResponseBodyHasACertainLength(array $body, $lengthToUse, $willFail) {
+    public function testCanAssertThatTheArrayInTheResponseBodyHasACertainLength(array $body, int $lengthToUse, bool $willFail) : void {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->requestPath('/some/path');
 
@@ -1100,37 +930,29 @@ BAR;
             ));
         }
 
-        $this->context->assertResponseBodyJsonArrayLength($lengthToUse);
+        $this->assertNull($this->context->assertResponseBodyJsonArrayLength($lengthToUse));
     }
 
     /**
      * @dataProvider getResponseBodyArraysForAtLeast
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
-     * @group assertions
-     *
-     * @param array $body
-     * @param int $min
      */
-    public function testCanAssertTheMinLengthOfAnArrayInTheResponseBody(array $body, $min) {
+    public function testCanAssertTheMinLengthOfAnArrayInTheResponseBody(array $body, int $min) : void {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyJsonArrayMinLength($min);
+        $this->assertNull($this->context->assertResponseBodyJsonArrayMinLength($min));
     }
 
     /**
      * @dataProvider getResponseBodyArraysForAtMost
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
-     * @group assertions
-     *
-     * @param array $body
-     * @param int $max
      */
-    public function testCanAssertTheMaxLengthOfAnArrayInTheResponseBody(array $body, $max) {
+    public function testCanAssertTheMaxLengthOfAnArrayInTheResponseBody(array $body, int $max) : void {
         $this->mockHandler->append(new Response(200, [], json_encode($body)));
         $this->context->requestPath('/some/path');
-        $this->context->assertResponseBodyJsonArrayMaxLength($max);
+        $this->assertNull($this->context->assertResponseBodyJsonArrayMaxLength($max));
     }
 
     /**
@@ -1138,9 +960,8 @@ BAR;
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
      * @covers ::jsonDecode
-     * @group assertions
      */
-    public function testCanAssertThatTheResponseBodyContainsJson() {
+    public function testCanAssertThatTheResponseBodyContainsJson() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
         $this->context->requestPath('/some/path');
         $this->comparator
@@ -1154,59 +975,54 @@ BAR;
 
     /**
      * @see https://github.com/imbo/behat-api-extension/issues/7
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage It's not allowed to set a request body when using multipart/form-data or form parameters.
      * @covers ::setRequestBody
-     * @group setup
      */
-    public function testThrowsExceptionWhenTryingToCombineARequestBodyWithMultipartOrFormData() {
+    public function testThrowsExceptionWhenTryingToCombineARequestBodyWithMultipartOrFormData() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->addMultipartFileToRequest(__FILE__, 'file');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('It\'s not allowed to set a request body when using multipart/form-data or form parameters.');
         $this->context->setRequestBody('some body');
     }
 
     /**
      * @covers ::setRequestBodyToFileResource
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage File does not exist: "/foo/bar"
-     * @group setup
      */
-    public function testThrowsExceptionWhenAttachingANonExistingFileToTheRequestBody() {
+    public function testThrowsExceptionWhenAttachingANonExistingFileToTheRequestBody() : void {
         $this->mockHandler->append(new Response());
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('File does not exist: "/foo/bar"');
         $this->context->setRequestBodyToFileResource('/foo/bar');
     }
 
     /**
      * @covers ::setRequestBodyToFileResource
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage File is not readable: "/non/readable/file"
-     * @group setup
      */
-    public function testThrowsExceptionWhenAttachingANonReadableFileToTheRequestBody() {
+    public function testThrowsExceptionWhenAttachingANonReadableFileToTheRequestBody() : void {
         $this->mockHandler->append(new Response());
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('File is not readable: "/non/readable/file"');
         $this->context->setRequestBodyToFileResource('/non/readable/file');
     }
 
     /**
-     * @expectedException GuzzleHttp\Exception\RequestException
-     * @expectedExceptionMessage error
      * @covers ::sendRequest
-     * @group request
      */
-    public function testThrowsExceptionWhenTheRequestCanNotBeSent() {
+    public function testThrowsExceptionWhenTheRequestCanNotBeSent() : void {
         $this->mockHandler->append(new RequestException('error', new Request('GET', 'path')));
+        $this->expectException(RequestException::class);
+        $this->expectExceptionMessage('error');
         $this->context->requestPath('path');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response code 400, got 200
      * @covers ::assertResponseCodeIs
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseCodeIsCanFail() {
+    public function testAssertingWhatTheResponseCodeIsCanFail() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response code 400, got 200');
         $this->context->assertResponseCodeIs(400);
     }
 
@@ -1214,40 +1030,35 @@ BAR;
      * @dataProvider getInvalidHttpResponseCodes
      * @covers ::assertResponseCodeIs
      * @covers ::validateResponseCode
-     * @group assertions
-     *
-     * @param int $code
      */
-    public function testThrowsExceptionWhenSpecifyingAnInvalidCodeWhenAssertingWhatTheResponseCodeIs($code) {
+    public function testThrowsExceptionWhenSpecifyingAnInvalidCodeWhenAssertingWhatTheResponseCodeIs(int $code) : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
 
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
 
         $this->context->assertResponseCodeIs($code);
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseCodeIs
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseCodeIsWhenNoResponseExists() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseCodeIsWhenNoResponseExists() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseCodeIs(200);
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Did not expect response code 200
      * @covers ::assertResponseCodeIsNot
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseCodeIsNotCanFail() {
+    public function testAssertingWhatTheResponseCodeIsNotCanFail() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Did not expect response code 200');
         $this->context->assertResponseCodeIsNot(200);
     }
 
@@ -1255,28 +1066,24 @@ BAR;
      * @dataProvider getInvalidHttpResponseCodes
      * @covers ::assertResponseCodeIsNot
      * @covers ::validateResponseCode
-     * @group assertions
-     *
-     * @param int $code
      */
-    public function testThrowsExceptionWhenSpecifyingAnInvalidCodeWhenAssertingWhatTheResponseCodeIsNot($code) {
+    public function testThrowsExceptionWhenSpecifyingAnInvalidCodeWhenAssertingWhatTheResponseCodeIsNot(int $code) : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
 
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(sprintf('Response code must be between 100 and 599, got %d.', $code));
 
         $this->context->assertResponseCodeIsNot($code);
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseCodeIsNot
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseCodeIsNotWhenNoResponseExists() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseCodeIsNotWhenNoResponseExists() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseCodeIsNot(200);
     }
 
@@ -1285,17 +1092,12 @@ BAR;
      * @covers ::assertResponseIs
      * @covers ::getResponseCodeGroupRange
      * @covers ::getResponseGroup
-     * @group assertions
-     *
-     * @param int $responseCode
-     * @param string $actualGroup
-     * @param string $expectedGroup
      */
-    public function testAssertingThatTheResponseIsInAGroupCanFail($responseCode, $actualGroup, $expectedGroup) {
+    public function testAssertingThatTheResponseIsInAGroupCanFail(int $responseCode, string $actualGroup, string $expectedGroup) : void {
         $this->mockHandler->append(new Response($responseCode));
         $this->context->requestPath('/some/path');
 
-        $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
+        $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage(sprintf(
             'Expected response group "%s", got "%s" (response code: %d).',
             $expectedGroup,
@@ -1306,562 +1108,514 @@ BAR;
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseIs
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhichGroupTheResponseIsInWhenNoResponseExists() {
+    public function testThrowsExceptionWhenAssertingWhichGroupTheResponseIsInWhenNoResponseExists() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseIs('success');
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid response code group: foobar
      * @covers ::assertResponseIs
      * @covers ::getResponseCodeGroupRange
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseIsInAnInvalidGroup() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseIsInAnInvalidGroup() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid response code group: foobar');
         $this->context->assertResponseIs('foobar');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Did not expect response to be in the "success" group (response code: 200).
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
-     * @group assertions
      */
-    public function testAssertingThatTheResponseIsNotInAGroupCanFail() {
+    public function testAssertingThatTheResponseIsNotInAGroupCanFail() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Did not expect response to be in the "success" group (response code: 200).');
         $this->context->assertResponseIsNot('success');
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Invalid response code group: foobar
      * @covers ::assertResponseIsNot
      * @covers ::getResponseCodeGroupRange
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseIsNotInAnInvalidGroup() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseIsNotInAnInvalidGroup() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid response code group: foobar');
         $this->context->assertResponseIsNot('foobar');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseIsNot
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhichGroupTheResponseIsNotInWhenNoResponseExists() {
+    public function testThrowsExceptionWhenAssertingWhichGroupTheResponseIsNotInWhenNoResponseExists() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseIsNot('success');
     }
 
     /**
      * @covers ::assertResponseReasonPhraseIs
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response reason phrase "ok", got "OK".
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseReasonPhraseIsCanFail() {
+    public function testAssertingWhatTheResponseReasonPhraseIsCanFail() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response reason phrase "ok", got "OK".');
         $this->context->assertResponseReasonPhraseIs('ok');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseReasonPhraseIs
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseReasonPhraseIsWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseReasonPhraseIsWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseReasonPhraseIs('OK');
     }
 
     /**
      * @covers ::assertResponseReasonPhraseIsNot
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Did not expect response reason phrase "OK".
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseReasonPhraseIsNotCanFail() {
+    public function testAssertingWhatTheResponseReasonPhraseIsNotCanFail() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Did not expect response reason phrase "OK".');
         $this->context->assertResponseReasonPhraseIsNot('OK');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseReasonPhraseIsNot
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseReasonPhraseIsNotWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseReasonPhraseIsNotWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseReasonPhraseIsNot('OK');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected the response reason phrase to match the regular expression "/ok/", got "OK".
      * @covers ::assertResponseReasonPhraseMatches
-     * @group assertions
      */
-    public function testAssertingThatTheResponseReasonPhraseMatchesAnExpressionCanFail() {
+    public function testAssertingThatTheResponseReasonPhraseMatchesAnExpressionCanFail() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected the response reason phrase to match the regular expression "/ok/", got "OK".');
         $this->context->assertResponseReasonPhraseMatches('/ok/');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseReasonPhraseMatches
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseReasonPhraseMatchesAnExpressionWhenThereIsNoResponse() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseReasonPhraseMatchesAnExpressionWhenThereIsNoResponse() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseReasonPhraseMatches('/ok/');
     }
 
     /**
      * @covers ::assertResponseStatusLineIs
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response status line "200 Foobar", got "200 OK".
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseStatusLineIsCanFail() {
+    public function testAssertingWhatTheResponseStatusLineIsCanFail() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response status line "200 Foobar", got "200 OK".');
         $this->context->assertResponseStatusLineIs('200 Foobar');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseStatusLineIs
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseStatusLineIsWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseStatusLineIsWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseStatusLineIs('200 OK');
     }
 
     /**
      * @covers ::assertResponseStatusLineIsNot
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Did not expect response status line "200 OK".
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseStatusLineIsNotCanFail() {
+    public function testAssertingWhatTheResponseStatusLineIsNotCanFail() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Did not expect response status line "200 OK".');
         $this->context->assertResponseStatusLineIsNot('200 OK');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseStatusLineIsNot
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseStatusLineIsNotWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseStatusLineIsNotWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseStatusLineIsNot('200 OK');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected the response status line to match the regular expression "/200 ok/", got "200 OK".
      * @covers ::assertResponseStatusLineMatches
-     * @group assertions
      */
-    public function testAssertingThatTheResponseStatusLineMatchesAnExpressionCanFail() {
+    public function testAssertingThatTheResponseStatusLineMatchesAnExpressionCanFail() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected the response status line to match the regular expression "/200 ok/", got "200 OK".');
         $this->context->assertResponseStatusLineMatches('/200 ok/');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseStatusLineMatches
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseStatusLineMatchesAnExpressionWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseStatusLineMatchesAnExpressionWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseStatusLineMatches('/200 OK/');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage The "Content-Type" response header does not exist
      * @covers ::assertResponseHeaderExists
-     * @group assertions
      */
-    public function testAssertingThatAResponseHeaderExistsCanFail() {
+    public function testAssertingThatAResponseHeaderExistsCanFail() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('The "Content-Type" response header does not exist.');
         $this->context->assertResponseHeaderExists('Content-Type');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseHeaderExists
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatAResponseHeaderExistWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingThatAResponseHeaderExistWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseHeaderExists('Connection');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage The "Content-Type" response header should not exist
      * @covers ::assertResponseHeaderDoesNotExist
-     * @group assertions
      */
-    public function testAssertingThatAResponseHeaderDoesNotExistCanFail() {
+    public function testAssertingThatAResponseHeaderDoesNotExistCanFail() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('The "Content-Type" response header should not exist.');
         $this->context->assertResponseHeaderDoesNotExist('Content-Type');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseHeaderDoesNotExist
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatAResponseHeaderDoesNotExistWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingThatAResponseHeaderDoesNotExistWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseHeaderDoesNotExist('Connection');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected the "Content-Type" response header to be "application/xml", got "application/json".
      * @covers ::assertResponseHeaderIs
-     * @group assertions
      */
-    public function testAssertingWhatAResponseHeaderIsCanFail() {
+    public function testAssertingWhatAResponseHeaderIsCanFail() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected the "Content-Type" response header to be "application/xml", got "application/json".');
         $this->context->assertResponseHeaderIs('Content-Type', 'application/xml');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseHeaderIs
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatAResponseHeaderIsWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatAResponseHeaderIsWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseHeaderIs('Connection', 'close');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Did not expect the "content-type" response header to be "123".
      * @covers ::assertResponseHeaderIsNot
-     * @group assertions
      */
-    public function testAssertingWhatAResponseHeaderIsNotCanFail() {
+    public function testAssertingWhatAResponseHeaderIsNotCanFail() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => '123']));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Did not expect the "content-type" response header to be "123".');
         $this->context->assertResponseHeaderIsNot('content-type', '123');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseHeaderIsNot
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatAResponseHeaderIsNotWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatAResponseHeaderIsNotWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseHeaderIsNot('header', 'value');
     }
+
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected the "Content-Type" response header to match the regular expression "#^application/xml$#", got "application/json".
      * @covers ::assertResponseHeaderMatches
-     * @group assertions
      */
-    public function testAssertingThatAResponseHeaderMatchesAnExpressionCanFail() {
+    public function testAssertingThatAResponseHeaderMatchesAnExpressionCanFail() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected the "Content-Type" response header to match the regular expression "#^application/xml$#", got "application/json".');
         $this->context->assertResponseHeaderMatches('Content-Type', '#^application/xml$#');
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseHeaderMatches
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatAResponseHeaderMatchesAnExpressionWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingThatAResponseHeaderMatchesAnExpressionWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseHeaderMatches('Connection', 'close');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body "foo", got "response body".
      * @covers ::assertResponseBodyIs
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseBodyIsCanFail() {
+    public function testAssertingWhatTheResponseBodyIsCanFail() : void {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body "foo", got "response body".');
         $this->context->assertResponseBodyIs(new PyStringNode(['foo'], 1));
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyIs
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseBodyIsWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseBodyIsWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyIs(new PyStringNode(['some body'], 1));
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Did not expect response body to be "response body".
      * @covers ::assertResponseBodyIsNot
-     * @group assertions
      */
-    public function testAssertingWhatTheResponseBodyIsNotCanFail() {
+    public function testAssertingWhatTheResponseBodyIsNotCanFail() : void {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Did not expect response body to be "response body".');
         $this->context->assertResponseBodyIsNot(new PyStringNode(['response body'], 1));
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyIsNot
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingWhatTheResponseBodyIsNotWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingWhatTheResponseBodyIsNotWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyIsNot(new PyStringNode(['some body'], 1));
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to match regular expression "/^{"FOO": "BAR"}$/", got "{"foo":"bar"}".
      * @covers ::assertResponseBodyMatches
-     * @group assertions
      */
-    public function testAssertingThatTheResponseBodyMatchesAnExpressionCanFail() {
+    public function testAssertingThatTheResponseBodyMatchesAnExpressionCanFail() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to match regular expression "/^{"FOO": "BAR"}$/", got "{"foo":"bar"}".');
         $this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": "BAR"}$/'], 1));
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyMatches
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseBodyMatchesAnExpressionWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseBodyMatchesAnExpressionWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyMatches(new PyStringNode(['/foo/'], 1));
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to be an empty JSON array, got "[
      * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testAssertingThatTheResponseIsAnEmptyArrayCanFail() {
+    public function testAssertingThatTheResponseIsAnEmptyArrayCanFail() : void {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be an empty JSON array, got "[');
         $this->context->assertResponseBodyIsAnEmptyJsonArray();
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain a valid JSON array / object.
      * @covers ::assertResponseBodyIsAnEmptyJsonArray
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyArrayWhenTheBodyDoesNotContainAnArray() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyArrayWhenTheBodyDoesNotContainAnArray() : void {
         $this->mockHandler->append(new Response(200, [], 123));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The response body does not contain a valid JSON array / object.');
         $this->context->assertResponseBodyIsAnEmptyJsonArray();
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to be an empty JSON object, got "{
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
-     * @group assertions
      */
-    public function testAssertingThatTheResponseIsAnEmptyObjectCanFail() {
+    public function testAssertingThatTheResponseIsAnEmptyObjectCanFail() : void {
         $object = new stdClass();
         $object->foo = 'bar';
         $this->mockHandler->append(new Response(200, [], json_encode($object)));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be an empty JSON object, got "{');
         $this->context->assertResponseBodyIsAnEmptyJsonObject();
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to be a JSON object.
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyObjectWhenTheBodyDoesNotContainAnObject() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyObjectWhenTheBodyDoesNotContainAnObject() : void {
         $this->mockHandler->append(new Response(200, [], json_encode([])));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be a JSON object.');
         $this->context->assertResponseBodyIsAnEmptyJsonObject();
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to be a JSON array with 2 entries, got 3: "[
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testAssertingThatTheResponseBodyIsAJsonArrayWithACertainLengthCanFail() {
+    public function testAssertingThatTheResponseBodyIsAJsonArrayWithACertainLengthCanFail() : void {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be a JSON array with 2 entries, got 3: "[');
         $this->context->assertResponseBodyJsonArrayLength(2);
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingTheLengthOfAJsonArrayInTheResponseBodyWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingTheLengthOfAJsonArrayInTheResponseBodyWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyJsonArrayLength(5);
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingTheLengthOfAJsonArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() {
+    public function testThrowsExceptionWhenAssertingTheLengthOfAJsonArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() : void {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The response body does not contain a valid JSON array.');
         $this->context->assertResponseBodyJsonArrayLength(0);
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to be a JSON array with at least 4 entries, got 3: "[
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testAssertingThatTheResponseBodyContainsAJsonArrayWithAMinimumLengthCanFail() {
+    public function testAssertingThatTheResponseBodyContainsAJsonArrayWithAMinimumLengthCanFail() : void {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be a JSON array with at least 4 entries, got 3: "[');
         $this->context->assertResponseBodyJsonArrayMinLength(4);
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingTheMinimumLengthOfAnArrayInTheResponseBodyWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingTheMinimumLengthOfAnArrayInTheResponseBodyWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyJsonArrayMinLength(5);
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingTheMinimumLengthOfAnArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() {
+    public function testThrowsExceptionWhenAssertingTheMinimumLengthOfAnArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() : void {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The response body does not contain a valid JSON array.');
         $this->context->assertResponseBodyJsonArrayMinLength(2);
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Expected response body to be a JSON array with at most 2 entries, got 3: "[
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testAssertingThatTheResponseBodyContainsAJsonArrayWithAMaximumLengthCanFail() {
+    public function testAssertingThatTheResponseBodyContainsAJsonArrayWithAMaximumLengthCanFail() : void {
         $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be a JSON array with at most 2 entries, got 3: "[');
         $this->context->assertResponseBodyJsonArrayMaxLength(2);
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingTheMaximumLengthOfAnArrayInTheResponseBodyWhenNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingTheMaximumLengthOfAnArrayInTheResponseBodyWhenNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyJsonArrayMaxLength(5);
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain a valid JSON array.
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingTheMaximumLengthOfAnArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() {
+    public function testThrowsExceptionWhenAssertingTheMaximumLengthOfAnArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() : void {
         $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The response body does not contain a valid JSON array.');
         $this->context->assertResponseBodyJsonArrayMaxLength(2);
     }
 
     /**
-     * @expectedException OutOfRangeException
-     * @expectedExceptionMessage error message
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testAssertingThatTheResponseBodyContainsJsonCanFail() {
+    public function testAssertingThatTheResponseBodyContainsJsonCanFail() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
         $this->comparator
@@ -1870,18 +1624,17 @@ BAR;
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
             ->will($this->throwException(new OutOfRangeException('error message')));
 
+        $this->expectException(OutOfRangeException::class);
+        $this->expectExceptionMessage('error message');
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\AssertionFailedException
-     * @expectedExceptionMessage Comparator did not return in a correct manner. Marking assertion as failed.
      * @covers ::setArrayContainsComparator
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testWillThrowExceptionWhenArrayContainsComparatorDoesNotReturnInACorrectMannerWhenCheckingTheResponseBodyForJson() {
+    public function testWillThrowExceptionWhenArrayContainsComparatorDoesNotReturnInACorrectMannerWhenCheckingTheResponseBodyForJson() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
         $this->comparator
@@ -1890,43 +1643,42 @@ BAR;
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
             ->will($this->returnValue(null));
 
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Comparator did not return in a correct manner. Marking assertion as failed.');
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage The request has not been made yet, so no response object exists.
      * @covers ::assertResponseBodyContainsJson
      * @covers ::requireResponse
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseContainsJsonAndNoResponseExist() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseContainsJsonAndNoResponseExist() : void {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"foo":"bar"}'], 1));
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The response body does not contain valid JSON data.
      * @covers ::assertResponseBodyContainsJson
      * @covers ::getResponseBody
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheResponseContainsJsonAndTheResponseContainsInvalidData() {
+    public function testThrowsExceptionWhenAssertingThatTheResponseContainsJsonAndTheResponseContainsInvalidData() : void {
         $this->mockHandler->append(new Response(200, [], "{'foo':'bar'}"));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The response body does not contain valid JSON data.');
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"foo":"bar"}'], 1));
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The supplied parameter is not a valid JSON object.
      * @covers ::assertResponseBodyContainsJson
      * @covers ::jsonDecode
-     * @group assertions
      */
-    public function testThrowsExceptionWhenAssertingThatTheBodyContainsJsonAndTheParameterFromTheTestIsInvalid() {
+    public function testThrowsExceptionWhenAssertingThatTheBodyContainsJsonAndTheParameterFromTheTestIsInvalid() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The supplied parameter is not a valid JSON object.');
         $this->context->assertResponseBodyContainsJson(new PyStringNode(["{'foo':'bar'}"], 1));
     }
 
@@ -1935,7 +1687,7 @@ BAR;
      * @covers ::setRequestMethod
      * @see https://github.com/imbo/behat-api-extension/issues/51
      */
-    public function testUsesHttpGetByDefaultWhenRequesting() {
+    public function testUsesHttpGetByDefaultWhenRequesting() : void {
         $this->mockHandler->append(new Response(200), new Response(200));
 
         $this->context->requestPath('/some/path', 'POST');

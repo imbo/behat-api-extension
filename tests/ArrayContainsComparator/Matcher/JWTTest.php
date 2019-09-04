@@ -1,32 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator;
-use Imbo\BehatApiExtension\ArrayContainsComparator\Exception\ArrayContainsComparatorException;
-use PHPUnit_Framework_TestCase;
+use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
+use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT
  */
-class JWTTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var JWT
-     */
+class JWTTest extends TestCase {
     private $matcher;
 
-    /**
-     * Set up matcher instance
-     */
-    public function setup() {
+    public function setUp() : void {
         $this->matcher = new JWT(new ArrayContainsComparator());
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getJwt() {
+    public function getJwt() : array {
         return [
             [
                 'jwt' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
@@ -50,23 +40,23 @@ class JWTTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage No JWT registered for "some name".
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenMatchingAgainstJwtThatDoesNotExist() {
+    public function testThrowsExceptionWhenMatchingAgainstJwtThatDoesNotExist() : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('No JWT registered for "some name".');
         $matcher('some jwt', 'some name');
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
-     * @expectedExceptionMessage Haystack object is missing the "some" key.
      * @covers ::addToken
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenJwtDoesNotMatch() {
+    public function testThrowsExceptionWhenJwtDoesNotMatch() : void {
         $matcher = $this->matcher->addToken('some name', ['some' => 'data'], 'secret', 'HS256');
+        $this->expectException(ArrayContainsComparatorException::class);
+        $this->expectExceptionMessage('Haystack object is missing the "some" key.');
         $matcher(
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
             'some name'
@@ -76,27 +66,20 @@ class JWTTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::__invoke
      * @dataProvider getJwt
-     *
-     * @param string $jwt
-     * @param string $name
-     * @param array $payload
-     * @param string $secret
      */
-    public function testCanMatchJwt($jwt, $name, array $payload, $secret) {
+    public function testCanMatchJwt(string $jwt, string $name, array $payload, string $secret) : void {
         $matcher = $this->matcher->addToken($name, $payload, $secret);
-        $matcher(
+        $this->assertNull($matcher(
             $jwt,
             $name
-        );
+        ));
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage JWT mismatch.
      * @covers ::__construct
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess() {
+    public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess() : void {
         $comparator = $this->createConfiguredMock(ArrayContainsComparator::class, [
             'compare' => false,
         ]);
@@ -109,7 +92,8 @@ class JWTTest extends PHPUnit_Framework_TestCase {
             ],
             'secret'
         );
-
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('JWT mismatch.');
         $matcher(
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
             'token'

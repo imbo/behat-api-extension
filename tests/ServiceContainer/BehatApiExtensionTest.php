@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;

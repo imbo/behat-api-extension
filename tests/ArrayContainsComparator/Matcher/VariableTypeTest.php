@@ -1,30 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType
  */
-class VariableTypeTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var VariableType
-     */
+class VariableTypeTest extends TestCase {
     private $matcher;
 
-    /**
-     * Set up matcher instance
-     */
-    public function setup() {
+    public function setUp() : void {
         $this->matcher = new VariableType();
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getValuesAndTypes() {
+    public function getValuesAndTypes() : array {
         return [
             'int' => [
                 'value' => 1,
@@ -97,12 +87,7 @@ class VariableTypeTest extends PHPUnit_Framework_TestCase {
         ];
     }
 
-    /**
-     * Data provider
-     *
-     * @return array[]
-     */
-    public function getInvalidMatches() {
+    public function getInvalidMatches() : array {
         return [
             [
                 'value' => 123,
@@ -131,11 +116,8 @@ class VariableTypeTest extends PHPUnit_Framework_TestCase {
      * @dataProvider getValuesAndTypes
      * @covers ::__invoke
      * @covers ::normalizeType
-     *
-     * @param mixed $value
-     * @param string $type
      */
-    public function testCanMatchValuesOfType($value, $type) {
+    public function testCanMatchValuesOfType($value, string $type) : void {
         $matcher = $this->matcher;
         $this->assertNull(
             $matcher($value, $type),
@@ -145,26 +127,22 @@ class VariableTypeTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Unsupported variable type: "resource".
      */
-    public function testThrowsExceptionWhenGivenInvalidType() {
+    public function testThrowsExceptionWhenGivenInvalidType() : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported variable type: "resource".');
         $matcher('foo', 'resource');
     }
 
     /**
      * @dataProvider getInvalidMatches
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     *
-     * @param mixed $value
-     * @param string $type
-     * @param string $message
      */
-    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, $type, $message) {
-        $this->expectExceptionMessage($message);
+    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, string $type, string $message) : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($message);
         $matcher($value, $type);
     }
 }

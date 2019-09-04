@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
- * @testdox Array contains comparator exception
  */
 class ArrayContainsComparatorExceptionTest extends PHPUnit_Framework_TestCase {
     /**

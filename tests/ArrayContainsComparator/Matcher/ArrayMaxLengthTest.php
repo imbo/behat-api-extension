@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMaxLength
- * @testdox Array max length matcher
  */
 class ArrayMaxLengthTest extends PHPUnit_Framework_TestCase {
     /**

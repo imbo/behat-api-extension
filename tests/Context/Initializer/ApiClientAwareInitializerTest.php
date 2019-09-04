@@ -7,7 +7,6 @@ use PHPUnit_Framework_TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
- * @testdox Initializer for API Client aware contexts
  */
 class ApiClientAwareInitializerTest extends PHPUnit_Framework_TestCase {
     /**

@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Check if the length of an array is at least a given length
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayMinLength {
     /**
@@ -15,9 +13,8 @@ class ArrayMinLength {
      * @param array $array An array
      * @param int $minLength The expected minimum length of $array
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($array, $minLength) {
+    public function __invoke($array, $minLength) : void {
         // Encode / decode to make sure we have a "list"
         $array = json_decode(json_encode($array));
 

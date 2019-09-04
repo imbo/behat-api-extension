@@ -1,8 +1,0 @@
-Behat
-behat
-guzzlehttp
-beberlei
-URI
-multipart
-namespaced
-connectable

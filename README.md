@@ -10,6 +10,6 @@ End-user docs can be found [here](https://behat-api-extension.readthedocs.io/).
 
 ## Copyright / License
 
-Copyright (c) 2016-2018, Christer Edvartsen <cogo@starzinger.net>
+Copyright (c) 2016-2019, Christer Edvartsen <cogo@starzinger.net>
 
 Licensed under the MIT License

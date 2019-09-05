@@ -59,7 +59,7 @@ Feature: Test steps to set a request body
                     '''
                     some file
                     '''
-                    And the "Content-Type" response header is "text/plain; charset=UTF-8"
+                    And the "Content-Type" response header is "text/plain;charset=UTF-8"
 
             """
         When I run "behat features/givens.feature"

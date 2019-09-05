@@ -27,10 +27,12 @@
     "firebase/php-jwt": "^5.0"
   },
   "require-dev": {
-    "silex/silex": "^2.3",
     "symfony/security": "^4.3",
     "symfony/process": "^4.3",
-    "phpunit/phpunit": "^8.3"
+    "phpunit/phpunit": "^8.3",
+    "slim/slim": "^4.2",
+    "slim/psr7": "^0.5.0",
+    "tuupola/slim-basic-auth": "^3.2"
   },
   "autoload": {
     "psr-4": {

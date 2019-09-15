@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v2.2.1
+------
+__2019-09-15__
+
+* [#74](https://github.com/imbo/behat-api-extension/pull/74): Docs fix ([@adambro](https://github.com/adambro))
+
 v2.2.0
 ------
 __2019-04-04__
@@ -21,7 +27,7 @@ Bug fixes:
 
 Other changes:
 
-- [#56](https://github.com/imbo/behat-api-extension/pull/56): Grammar fix ([@FabianPiconeDev](https://github.com/FabianPiconeDev))
+* [#56](https://github.com/imbo/behat-api-extension/pull/56): Grammar fix ([@FabianPiconeDev](https://github.com/FabianPiconeDev))
 
 v2.0.1
 ------

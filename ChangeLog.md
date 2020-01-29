@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v3.0.0
+------
+__N/A__
+
+* [#81](https://github.com/imbo/behat-api-extension/pull/81): Require PHP >= 7.2
+
 v2.3.1
 ------
 __2020-01-29__

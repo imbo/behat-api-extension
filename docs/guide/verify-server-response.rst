@@ -461,6 +461,7 @@ To be able to assert the variable type of specific values, the ``@variableType``
 * ``object``
 * ``null``
 * ``scalar``
+* ``any``
 
 Given the following response:
 
@@ -497,7 +498,7 @@ the type of the values can be asserted like this:
 
 The ``boolean``, ``integer`` and ``double`` functions can also be expressed using ``bool``, ``int`` and ``float`` respectively. There is no difference in the actual validation being executed.
 
-For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
+For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar. When using ``@variableType(any)`` all values will be accepted, including ``null``.
 
 Regular expression matching - ``@regExp``
 """""""""""""""""""""""""""""""""""""""""

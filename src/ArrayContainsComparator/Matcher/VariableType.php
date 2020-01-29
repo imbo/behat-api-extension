@@ -23,6 +23,7 @@ class VariableType {
         'object',
         'null',
         'scalar',
+        'any',
     ];
 
     /**
@@ -43,7 +44,10 @@ class VariableType {
             ));
         }
 
-        if ($expectedType === 'scalar' && is_scalar($variable)) {
+        if (
+            $expectedType === 'any' ||
+            ($expectedType === 'scalar' && is_scalar($variable))
+        ) {
             return;
         }
 

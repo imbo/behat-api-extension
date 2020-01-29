@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v2.3.1
+------
+__2020-01-29__
+
+* Minor docs fix and bumped copyright year
+
 v2.3.0
 ------
 __2020-01-29__

@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v2.3.0
+------
+__2020-01-29__
+
+* [#84](https://github.com/imbo/behat-api-extension/pull/84): Added support for `any` and multiple variable types with the `@variableType` matcher
+
 v2.2.1
 ------
 __2019-09-15__

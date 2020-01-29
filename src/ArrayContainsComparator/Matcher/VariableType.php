@@ -32,7 +32,7 @@ class VariableType {
      * @throws InvalidArgumentException
      */
     public function __invoke($variable, string $expectedTypes) : void {
-        $expectedType = $this->normalizeType($expectedType);
+        $expectedTypes = $this->normalizeTypes($expectedTypes);
 
         foreach ($expectedTypes as $expectedType) {
             if (!in_array($expectedType, $this->validTypes)) {

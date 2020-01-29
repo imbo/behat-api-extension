@@ -67,9 +67,7 @@ class BehatApiExtension implements ExtensionInterface {
                         ->scalarNode('base_uri')
                             ->isRequired()
                             ->cannotBeEmpty()
-                            ->defaultValue('http://localhost:8080')
-                        ->end()
-                    ->end();
+                            ->defaultValue('http://localhost:8080');
     }
 
     /**

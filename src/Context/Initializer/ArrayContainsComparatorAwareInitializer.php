@@ -11,6 +11,9 @@ use Behat\Behat\Context\Initializer\ContextInitializer;
  * Array contains comparator context aware initializer
  */
 class ArrayContainsComparatorAwareInitializer implements ContextInitializer {
+    /**
+     * @var Comparator
+     */
     private $comparator;
 
     public function __construct(Comparator $comparator) {

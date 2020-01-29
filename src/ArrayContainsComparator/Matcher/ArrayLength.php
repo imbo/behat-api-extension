@@ -16,7 +16,7 @@ class ArrayLength {
      */
     public function __invoke($array, $length) : void {
         // Encode / decode to make sure we have a "list"
-        $array = json_decode(json_encode($array));
+        $array = json_decode((string) json_encode($array));
 
         if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(

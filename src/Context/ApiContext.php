@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context;
 
-use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT as JwtMatcher;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
@@ -53,7 +53,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * The response object will be set once the request has been made.
      *
-     * @var ResponseInterface
+     * @var ?ResponseInterface
      */
     protected $response;
 
@@ -70,6 +70,13 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @var bool
      */
     protected $forceHttpMethod = false;
+
+    /**
+     * Request / response history for the Guzzle Client
+     *
+     * @var array
+     */
+    protected $clientHistory = [];
 
     public function setClient(ClientInterface $client) {
         $this->client = $client;
@@ -239,6 +246,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             );
         }
 
+        if ($string instanceof PyStringNode) {
+            $string = (string) $string;
+        }
+
         $this->request = $this->request->withBody(Psr7\stream_for($string));
 
         return $this;
@@ -253,7 +264,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * mime type of the file.
      *
      * @param string $path Path to a file
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException|RuntimeException
      * @return self
      *
      * @Given the request body contains :path
@@ -267,10 +278,16 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new InvalidArgumentException(sprintf('File is not readable: "%s"', $path));
         }
 
+        $fp = fopen($path, 'r');
+
+        if (false === $fp) {
+            throw new RuntimeException(sprintf('Unable to open file at path: %s', $path));
+        }
+
         // Set the Content-Type request header and the request body
         return $this
-            ->setRequestHeader('Content-Type', mime_content_type($path))
-            ->setRequestBody(fopen($path, 'r'));
+            ->setRequestHeader('Content-Type', (string) mime_content_type($path))
+            ->setRequestBody($fp);
     }
 
     /**
@@ -547,9 +564,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     public function assertResponseIs($group) {
         $this->requireResponse();
         $range = $this->getResponseCodeGroupRange($group);
+        $code = $this->response->getStatusCode();
 
         try {
-            Assertion::range($code = $this->response->getStatusCode(), $range['min'], $range['max']);
+            Assertion::range($code, $range['min'], $range['max']);
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException(sprintf(
                 'Expected response group "%s", got "%s" (response code: %d).',
@@ -949,7 +967,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
-        $body = json_decode(json_encode($this->getResponseBody()), true);
+        $body = json_decode((string) json_encode($this->getResponseBody()), true);
 
         try {
             // Compare the arrays, on error this will throw an exception
@@ -1021,7 +1039,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @throws RuntimeException
      */
-    protected function requireResponse() {
+    protected function requireResponse() : void {
         if (!$this->response) {
             throw new RuntimeException('The request has not been made yet, so no response object exists.');
         }
@@ -1163,7 +1181,9 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return array
      */
     protected function getResponseBodyArray() {
-        if (!is_array($body = $this->getResponseBody())) {
+        $body = $this->getResponseBody();
+
+        if (!is_array($body)) {
             throw new InvalidArgumentException('The response body does not contain a valid JSON array.');
         }
 

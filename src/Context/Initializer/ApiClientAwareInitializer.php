@@ -41,9 +41,10 @@ class ApiClientAwareInitializer implements ContextInitializer {
     }
 
     private function validateConnection(string $baseUri) : bool {
+        /** @var string[] */
         $parts = parse_url($baseUri);
         $host = $parts['host'];
-        $port = isset($parts['port']) ? $parts['port'] : ($parts['scheme'] === 'https' ? 443 : 80);
+        $port = isset($parts['port']) ? (int) $parts['port'] : ($parts['scheme'] === 'https' ? 443 : 80);
 
         set_error_handler(function () : bool {
             return true;

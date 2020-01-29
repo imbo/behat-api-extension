@@ -6,12 +6,12 @@ After you have installed the extension you need to activate it in your Behat con
 .. code-block:: yaml
 
     default:
-        suites:
-            default:
-                # ...
+      suites:
+        default:
+          # ...
 
-        extensions:
-            Imbo\BehatApiExtension: ~
+      extensions:
+        Imbo\BehatApiExtension: ~
 
 The following configuration options are required for the extension to work as expected:
 
@@ -28,15 +28,15 @@ Example of a configuration file with several configuration entries:
 .. code-block:: yaml
 
     default:
-        suites:
-            default:
-                # ...
+      suites:
+        default:
+          # ...
 
-        extensions:
-            Imbo\BehatApiExtension:
-                apiClient:
-                    base_uri: http://localhost:8080
-                    timeout: 5.0
-                    verify: false
+      extensions:
+        Imbo\BehatApiExtension:
+          apiClient:
+            base_uri: http://localhost:8080
+            timeout: 5.0
+            verify: false
 
 Refer to the `Guzzle documentation <http://docs.guzzlephp.org/en/stable/>`_ for available configuration options for the Guzzle client.

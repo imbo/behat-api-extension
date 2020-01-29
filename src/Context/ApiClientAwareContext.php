@@ -10,6 +10,8 @@ use GuzzleHttp\ClientInterface;
 interface ApiClientAwareContext extends Context {
     /**
      * Set the Guzzle client and create a pristine request instance
+     *
+     * @return self
      */
     function setClient(ClientInterface $client);
 }

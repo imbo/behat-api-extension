@@ -54,7 +54,7 @@
       "@test:phpunit",
       "@test:behat"
     ],
-    "sa": "vendir/bin/phpstan analyse -l 7 src",
+    "sa": "vendor/bin/phpstan analyse -l 7 src",
     "ci": [
       "@lint",
       "@sa",

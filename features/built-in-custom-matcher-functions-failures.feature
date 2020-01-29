@@ -119,6 +119,31 @@ Feature: Test built in matcher functions failures
             Function "variableType" failed with error message: "Expected variable type "string", got "array".".
             """
 
+    Scenario: Assert that @variableType with multiple types can fail
+        Given a file named "features/variable-type-multiple-types-failure.feature" with:
+            """
+            Feature: Verify failure
+                Scenario: Use custom matcher function
+                    Given the request body is:
+                        '''
+                        {
+                            "list": [1, 2, 3]
+                        }
+                        '''
+                    When I request "/echo?json" using HTTP POST
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "list": "@variableType(string|int|double|object|null)"
+                        }
+                        '''
+            """
+        When I run "behat features/variable-type-multiple-types-failure.feature"
+        Then it should fail with:
+            """
+            Function "variableType" failed with error message: "Expected variable type "string|integer|double|object|null", got "array".".
+            """
+
     Scenario: Assert that @regExp can fail
         Given a file named "features/reg-exp-failure.feature" with:
             """

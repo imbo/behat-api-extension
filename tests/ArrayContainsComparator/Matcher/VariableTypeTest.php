@@ -84,6 +84,30 @@ class VariableTypeTest extends TestCase {
                 'value' => ['foo' => 'bar'],
                 'type' => 'object',
             ],
+            'boolean (any)' => [
+                'value' => true,
+                'type' => 'any',
+            ],
+            'integer (any)' => [
+                'value' => 123,
+                'type' => 'any',
+            ],
+            'double (any)' => [
+                'value' => 1.1,
+                'type' => 'any',
+            ],
+            'string (any)' => [
+                'value' => 'some string',
+                'type' => 'any',
+            ],
+            'array (any)' => [
+                'value' => [1, 2, 3],
+                'type' => 'any',
+            ],
+            'object (any)' => [
+                'value' => ['foo' => 'bar'],
+                'type' => 'any',
+            ],
         ];
     }
 

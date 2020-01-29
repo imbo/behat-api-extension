@@ -151,7 +151,7 @@ class VariableTypeTest extends TestCase {
     /**
      * @dataProvider getValuesAndTypes
      * @covers ::__invoke
-     * @covers ::normalizeType
+     * @covers ::normalizeTypes
      */
     public function testCanMatchValuesOfType($value, string $type) : void {
         $matcher = $this->matcher;

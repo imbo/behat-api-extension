@@ -28,23 +28,22 @@ class VariableType {
      * Match a variable type
      *
      * @param mixed $variable A variable
-     * @param string $expectedType The expected type of $variable
+     * @param string $expectedTypes The expected types of $variable, separated by |
      * @throws InvalidArgumentException
      */
-    public function __invoke($variable, string $expectedType) : void {
+    public function __invoke($variable, string $expectedTypes) : void {
         $expectedType = $this->normalizeType($expectedType);
 
-        if (!in_array($expectedType, $this->validTypes)) {
-            throw new InvalidArgumentException(sprintf(
-                'Unsupported variable type: "%s".',
-                $expectedType
-            ));
+        foreach ($expectedTypes as $expectedType) {
+            if (!in_array($expectedType, $this->validTypes)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Unsupported variable type: "%s".',
+                    $expectedType
+                ));
+            }
         }
 
-        if (
-            $expectedType === 'any' ||
-            ($expectedType === 'scalar' && is_scalar($variable))
-        ) {
+        if (in_array('any', $expectedTypes)) {
             return;
         }
 
@@ -54,26 +53,37 @@ class VariableType {
         // Get the actual type of the value
         $actualType = strtolower(gettype($variable));
 
-        if ($expectedType !== $actualType) {
-            throw new InvalidArgumentException(sprintf(
-                'Expected variable type "%s", got "%s".',
-                $expectedType,
-                $actualType
-            ));
+        foreach ($expectedTypes as $expectedType) {
+            if (
+                ($expectedType === 'scalar' && is_scalar($variable)) ||
+                $expectedType === $actualType
+            ) {
+                return;
+            }
         }
+
+        throw new InvalidArgumentException(sprintf(
+            'Expected variable type "%s", got "%s".',
+            join('|', $expectedTypes),
+            $actualType
+        ));
     }
 
     /**
      * Normalize the type
      *
-     * @param string $type The type from the scenario
-     * @return string Returns a normalized type
+     * @param string $types The types from the scenario
+     * @return string[] Returns an array of normalized types
      */
-    protected function normalizeType($type) {
-        return strtolower(preg_replace(
+    protected function normalizeTypes(string $types) : array {
+        $types = array_map(function(string $type) : string {
+            return trim(strtolower($type));
+        }, explode('|', $types));
+
+        return preg_replace(
             ['/^bool$/i', '/^int$/i', '/^float$/i'],
             ['boolean', 'integer', 'double'],
-            $type
-        ));
+            $types
+        );
     }
 }

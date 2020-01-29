@@ -119,6 +119,18 @@ class VariableTypeTest extends PHPUnit_Framework_TestCase {
                 'value' => ['foo' => 'bar'],
                 'type' => 'any',
             ],
+            'int (multiple)' => [
+                'value' => 1,
+                'type' => 'string|array|integer',
+            ],
+            'integer (multiple)' => [
+                'value' => 1,
+                'type' => 'int|bool|double',
+            ],
+            'string (multiple)' => [
+                'value' => 'some string',
+                'type' => 'integer | bool | array | string', // spaces are intentional
+            ],
         ];
     }
 

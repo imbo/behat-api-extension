@@ -10,8 +10,8 @@ class LessThan {
     /**
      * Match a numeric value
      *
-     * @param numeric $number A variable
-     * @param numeric $max The max value of $number
+     * @param mixed $number A variable
+     * @param mixed $max The max value of $number
      * @throws InvalidArgumentException
      */
     public function __invoke($number, $max) : void {

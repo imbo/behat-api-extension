@@ -7,6 +7,15 @@ use Exception;
  * Array contains comparator exception
  */
 class ArrayContainsComparatorException extends AssertionFailedException {
+    /**
+     * Class constructor
+     *
+     * @param string $message
+     * @param int $code
+     * @param Exception $previous
+     * @param mixed $needle
+     * @param mixed $haystack
+     */
     public function __construct(string $message, int $code = 0, Exception $previous = null, $needle = null, $haystack = null) {
         // Reusable line of ='s
         $line = str_repeat('=', 80);

@@ -20,9 +20,10 @@ before_script:
   - composer install --prefer-dist
 
 script:
-  - composer lint
+  - composer run lint
+  - composer run sa
   - php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &
-  - composer test
+  - composer run test
 
 after_failure:
   - echo "Tests failed - httpd log follows"

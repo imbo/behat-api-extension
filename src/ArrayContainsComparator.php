@@ -143,6 +143,9 @@ class ArrayContainsComparator {
      *
      * Based on the value of the needle, this method will perform a regular value comparison, or a
      * custom function match.
+     *
+     * @param mixed $needleValue
+     * @param mixed $haystackValue
      */
     protected function compareValues($needleValue, $haystackValue) : bool {
         $match = [];
@@ -276,13 +279,17 @@ class ArrayContainsComparator {
      * See if a PHP array is a JSON array
      */
     protected function arrayIsList(array $array) : bool {
-        return json_encode($array)[0] === '[';
+        $encoded = json_encode($array);
+
+        return false !== $encoded && $encoded[0] === '[';
     }
 
     /**
      * See if a PHP array is a JSON object
      */
     protected function arrayIsObject(array $array) : bool {
-        return json_encode($array)[0] === '{';
+        $encoded = json_encode($array);
+
+        return false !== $encoded && $encoded[0] === '{';
     }
 }

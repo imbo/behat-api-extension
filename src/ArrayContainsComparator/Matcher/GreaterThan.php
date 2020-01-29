@@ -10,8 +10,8 @@ class GreaterThan {
     /**
      * Match a numeric value
      *
-     * @param numeric $number A variable
-     * @param numeric $min The minimum value of $number
+     * @param mixed $number A variable
+     * @param mixed $min The minimum value of $number
      * @throws InvalidArgumentException
      */
     public function __invoke($number, $min) : void {

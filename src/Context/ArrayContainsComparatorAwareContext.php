@@ -10,6 +10,8 @@ use Behat\Behat\Context\Context;
 interface ArrayContainsComparatorAwareContext extends Context {
     /**
      * Set the instance of the array contains comparator
+     *
+     * @return self
      */
     function setArrayContainsComparator(ArrayContainsComparator $comparator);
 }

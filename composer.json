@@ -31,7 +31,8 @@
     "phpunit/phpunit": "^8.5",
     "slim/slim": "^4.4",
     "slim/psr7": "^1.0",
-    "tuupola/slim-basic-auth": "^3.2"
+    "tuupola/slim-basic-auth": "^3.2",
+    "phpstan/phpstan": "^0.12.8"
   },
   "autoload": {
     "psr-4": {
@@ -46,12 +47,18 @@
   "scripts": {
     "clean": "rm -rf build",
     "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
-    "test-phpunit": "vendor/bin/phpunit",
-    "test-phpunit-coverage": "vendor/bin/phpunit --coverage-html build/coverage",
-    "test-behat": "vendor/bin/behat --strict",
+    "test:phpunit": "vendor/bin/phpunit",
+    "test:phpunit:coverage": "vendor/bin/phpunit --coverage-html build/coverage",
+    "test:behat": "vendor/bin/behat --strict",
     "test": [
-      "@test-phpunit",
-      "@test-behat"
+      "@test:phpunit",
+      "@test:behat"
+    ],
+    "sa": "vendir/bin/phpstan analyse -l 7 src",
+    "ci": [
+      "@lint",
+      "@sa",
+      "@test"
     ],
     "dev": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1",
     "docs": "cd docs; make html"

@@ -662,7 +662,7 @@ BAR;
             ->willReturn('json_encode');
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt');
+        $this->expectExceptionMessage('Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT');
 
         $this->context->addJwtToken('name', 'secret', new PyStringNode(['{"some":"data"}'], 1));
     }

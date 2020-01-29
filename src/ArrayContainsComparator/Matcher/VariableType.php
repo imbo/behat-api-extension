@@ -48,7 +48,7 @@ class VariableType {
         }
 
         // Encode / decode the value to easier check for objects
-        $variable = json_decode(json_encode($variable));
+        $variable = json_decode((string) json_encode($variable));
 
         // Get the actual type of the value
         $actualType = strtolower(gettype($variable));

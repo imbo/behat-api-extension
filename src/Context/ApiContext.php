@@ -278,11 +278,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new InvalidArgumentException(sprintf('File is not readable: "%s"', $path));
         }
 
+        /** @var resource */
         $fp = fopen($path, 'r');
-
-        if (false === $fp) {
-            throw new RuntimeException(sprintf('Unable to open file at path: %s', $path));
-        }
 
         // Set the Content-Type request header and the request body
         return $this

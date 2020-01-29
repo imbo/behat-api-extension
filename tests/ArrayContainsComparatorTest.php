@@ -1029,15 +1029,6 @@ EXCEPTION
     }
 
     /**
-     * @covers ::addFunction
-     */
-    public function testThrowsExceptionWhenAddingAFunctionWithAnInvalidCallback() : void {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Callback provided for function "myFunction" is not callable.');
-        $this->comparator->addFunction('myFunction', 'myFunction');
-    }
-
-    /**
      * @covers ::compare
      * @covers ::inArray
      */

@@ -659,7 +659,7 @@ BAR;
             ->expects($this->once())
             ->method('getMatcherFunction')
             ->with('jwt')
-            ->willReturn(null);
+            ->willReturn('json_encode');
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt');
@@ -1641,7 +1641,7 @@ BAR;
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
-            ->will($this->returnValue(null));
+            ->will($this->returnValue(false));
 
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Comparator did not return in a correct manner. Marking assertion as failed.');

@@ -23,20 +23,8 @@ class ArrayContainsComparator {
      * Add a custom matcher function
      *
      * If an existing function exists with the same name it will be replaced
-     *
-     * @param string $name The name of the function, for instance "length"
-     * @param callable $callback The piece of callback code
-     * @throws InvalidArgumentException Throws an exception if the callback is not callable
-     * @return self
      */
-    public function addFunction($name, $callback) {
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException(sprintf(
-                'Callback provided for function "%s" is not callable.',
-                $name
-            ));
-        }
-
+    public function addFunction(string $name, callable $callback) : self {
         $this->functions[$name] = $callback;
 
         return $this;
@@ -44,11 +32,8 @@ class ArrayContainsComparator {
 
     /**
      * Get a matcher function by name
-     *
-     * @param string $name The name of the matcher function
-     * @return mixed
      */
-    public function getMatcherFunction($name) {
+    public function getMatcherFunction(string $name) : callable {
         if (!isset($this->functions[$name])) {
             throw new InvalidArgumentException(sprintf(
                 'No matcher function registered for "%s".',
@@ -64,13 +49,8 @@ class ArrayContainsComparator {
      *
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
      * "list" is a numerically indexed array, and an "object" is an associative array.
-     *
-     * @param array $needle The needle array
-     * @param array $haystack The haystack array
-     * @throws ArrayContainsComparatorException Throws an exception on error
-     * @return boolean
      */
-    public function compare(array $needle, array $haystack) {
+    public function compare(array $needle, array $haystack) : bool {
         $needleIsList = $this->arrayIsList($needle);
         $haystackIsList = $this->arrayIsList($haystack);
 
@@ -163,13 +143,8 @@ class ArrayContainsComparator {
      *
      * Based on the value of the needle, this method will perform a regular value comparison, or a
      * custom function match.
-     *
-     * @param mixed $needleValue
-     * @param mixed $haystackValue
-     * @throws ArrayContainsComparatorException
-     * @return boolean
      */
-    protected function compareValues($needleValue, $haystackValue) {
+    protected function compareValues($needleValue, $haystackValue) : bool {
         $match = [];
 
         // List of available function names
@@ -209,13 +184,8 @@ class ArrayContainsComparator {
 
     /**
      * Make sure all values in the $needle array is present in the $haystack array
-     *
-     * @param array $needle
-     * @param array $haystack
-     * @throws ArrayContainsComparatorException
-     * @return boolean
      */
-    protected function inArray(array $needle, array $haystack) {
+    protected function inArray(array $needle, array $haystack) : bool {
         // Loop over all the values in the needle array, and make sure each and every one is in some
         // way present in the haystack, in a recursive manner.
         foreach ($needle as $needleValue) {
@@ -304,21 +274,15 @@ class ArrayContainsComparator {
 
     /**
      * See if a PHP array is a JSON array
-     *
-     * @param array $array The array to check
-     * @return boolean True if the array is a numerically indexed array
      */
-    protected function arrayIsList(array $array) {
+    protected function arrayIsList(array $array) : bool {
         return json_encode($array)[0] === '[';
     }
 
     /**
      * See if a PHP array is a JSON object
-     *
-     * @param array $array The array to check
-     * @return boolean True if the array is an associative array
      */
-    protected function arrayIsObject(array $array) {
+    protected function arrayIsObject(array $array) : bool {
         return json_encode($array)[0] === '{';
     }
 }

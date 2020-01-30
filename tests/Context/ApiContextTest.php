@@ -734,7 +734,7 @@ BAR;
         );
         $this->assertSame(
             $this->context,
-            $this->context->requestPath('/some/path')
+            $this->context->requestPath('/some/path?wut=wat')
         );
 
         $this->assertSame(1, count($this->historyContainer));

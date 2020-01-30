@@ -314,6 +314,44 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
+     * Add a query parameter to the upcoming request
+     *
+     * @param string $name The name of the parameter
+     * @param string|TableNode $value The value to add
+     * @return self
+     *
+     * @Given the query parameter :name is :value
+     * @Given the query parameter :name is:
+     */
+    public function setQueryStringParameter($name, $value) {
+        if ($value instanceof TableNode) {
+            $value = array_map(function(array $row) : string {
+                return $row['value'];
+            }, $value->getHash());
+        }
+
+        $this->requestOptions['query'][$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set multiple query parameters for the upcoming request
+     *
+     * @param TableNode $params The values to set
+     * @return self
+     *
+     * @Given the following query parameters are set:
+     */
+    public function setQueryStringParameters(TableNode $params) {
+        foreach ($params as $row) {
+            $this->requestOptions['query'][$row['name']] = $row['value'];
+        }
+
+        return $this;
+    }
+
+    /**
      * Request a path
      *
      * @param string $path The path to request

@@ -704,6 +704,47 @@ BAR;
     }
 
     /**
+     * @covers ::setQueryStringParameter
+     * @covers ::setQueryStringParameters
+     */
+    public function testCanSetQueryStringParameters() : void {
+        $this->mockHandler->append(new Response(200));
+        $this->assertSame(
+            $this->context,
+            $this->context
+                ->setQueryStringParameter('p1', 'v1')
+                ->setQueryStringParameter('p2', 'v2')
+                ->setQueryStringParameter('p3', 'v3')
+                ->setQueryStringParameter('p4', 'v4')
+                ->setQueryStringParameter('p4', 'v5')
+                ->setQueryStringParameter('p1', new TableNode([
+                    ['value'],
+                    ['v6'],
+                    ['v7'],
+                ]))
+                ->setQueryStringParameter('p2', new TableNode([
+                    ['value'],
+                    ['v8'],
+                ]))
+                ->setQueryStringParameters(new TableNode([
+                    ['name', 'value'],
+                    ['p3', 'v9'],
+                    ['p5', 'v10'],
+                ]))
+        );
+        $this->assertSame(
+            $this->context,
+            $this->context->requestPath('/some/path')
+        );
+
+        $this->assertSame(1, count($this->historyContainer));
+
+        $request = $this->historyContainer[0]['request'];
+
+        $this->assertSame('p1%5B0%5D=v6&p1%5B1%5D=v7&p2%5B0%5D=v8&p3=v9&p4=v5&p5=v10', $request->getUri()->getQuery());
+    }
+
+    /**
      * @dataProvider getResponseCodes
      * @covers ::assertResponseCodeIs
      * @covers ::validateResponseCode

@@ -5,6 +5,7 @@ v3.0.0
 ------
 __N/A__
 
+* [#85](https://github.com/imbo/behat-api-extension/pull/85): Add support for manipulating query parameters using steps
 * [#81](https://github.com/imbo/behat-api-extension/pull/81): Require PHP >= 7.2
 
 v2.3.1

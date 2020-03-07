@@ -11,8 +11,17 @@ Feature: Custom function addition
             use Imbo\BehatApiExtension\ArrayContainsComparator;
             use Assert\Assertion;
 
+            class MyMatcher {
+                public function __invoke($value) {
+                    if (!is_string($value)) {
+                        throw new InvalidArgumentException('Want string yo');
+                    }
+                }
+            }
+
             class FeatureContext extends ApiContext {
                 public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
+                    $comparator->addFunction('myMatcher', new MyMatcher());
                     $comparator->addFunction('valueIs', function($actual, $expected) {
                         if ($actual !== $expected) {
                             throw new InvalidArgumentException(sprintf(
@@ -92,3 +101,71 @@ Feature: Custom function addition
             """
             Function "valueIs" failed with error message: "Expected "expected", got "actual".".
             """
+
+    @myMatcher
+    Scenario: Custom myMatcher class passes
+        Given a file named "behat.yml" with:
+            """
+            default:
+                formatters:
+                    progress: ~
+                extensions:
+                    Imbo\BehatApiExtension: ~
+            """
+        And a file named "features/test-custom-matcher-class.feature" with:
+            """
+            Feature: Custom matcher function
+                In order to use a custom matcher function
+                As a feature runner
+                I need to be able to expose the function
+
+                Scenario: Call step that invokes custom matcher function
+                    When I request "/"
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "string": "@myMatcher()"
+                        }
+                        '''
+            """
+        When I run "behat features/test-custom-matcher-class.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """
+
+    @myMatcher
+    Scenario: Custom myMatcher class fails
+        Given a file named "behat.yml" with:
+            """
+            default:
+                formatters:
+                    progress: ~
+                extensions:
+                    Imbo\BehatApiExtension: ~
+            """
+        And a file named "features/test-custom-matcher-class-fails.feature" with:
+            """
+            Feature: Custom matcher function
+                In order to use a custom matcher function
+                As a feature runner
+                I need to be able to expose the function
+
+                Scenario: Call step that invokes custom matcher function
+                    When I request "/"
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "integer": "@myMatcher()"
+                        }
+                        '''
+            """
+        When I run "behat features/test-custom-matcher-class-fails.feature"
+        Then it should fail with:
+            """
+            Want string yo
+            """
+

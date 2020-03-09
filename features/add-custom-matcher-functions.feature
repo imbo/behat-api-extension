@@ -138,6 +138,43 @@ Feature: Custom function addition
             """
 
     @myMatcher
+    Scenario: Custom myMatcher class passes when used in list
+        Given a file named "behat.yml" with:
+            """
+            default:
+                formatters:
+                    progress: ~
+                extensions:
+                    Imbo\BehatApiExtension: ~
+            """
+        And a file named "features/test-custom-matcher-class-in-list.feature" with:
+            """
+            Feature: Custom matcher function
+                In order to use a custom matcher function
+                As a feature runner
+                I need to be able to expose the function
+
+                Scenario: Call step that invokes custom matcher function
+                    When I request "/list"
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "[0]": {
+                                "string": "@myMatcher()"
+                            }
+                        }
+                        '''
+            """
+        When I run "behat features/test-custom-matcher-class-in-list.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """
+
+    @myMatcher
     Scenario: Custom myMatcher class fails
         Given a file named "behat.yml" with:
             """
@@ -164,6 +201,40 @@ Feature: Custom function addition
                         '''
             """
         When I run "behat features/test-custom-matcher-class-fails.feature"
+        Then it should fail with:
+            """
+            Want string yo
+            """
+
+    @myMatcher
+    Scenario: Custom myMatcher class fails when used with list
+        Given a file named "behat.yml" with:
+            """
+            default:
+                formatters:
+                    progress: ~
+                extensions:
+                    Imbo\BehatApiExtension: ~
+            """
+        And a file named "features/test-custom-matcher-class-fails-in-list.feature" with:
+            """
+            Feature: Custom matcher function
+                In order to use a custom matcher function
+                As a feature runner
+                I need to be able to expose the function
+
+                Scenario: Call step that invokes custom matcher function
+                    When I request "/list"
+                    Then the response body contains JSON:
+                        '''
+                        {
+                            "[0]": {
+                                "integer": "@myMatcher()"
+                            }
+                        }
+                        '''
+            """
+        When I run "behat features/test-custom-matcher-class-fails-in-list.feature"
         Then it should fail with:
             """
             Want string yo

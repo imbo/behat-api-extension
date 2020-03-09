@@ -27,7 +27,7 @@ jobs:
         run: composer install --prefer-dist --no-suggest --no-ansi --no-progress -o
 
       - name: Start dev server
-        run: composer run dev --timeout=0
+        run: composer run dev --timeout=0 &
 
       - name: Run tests
         run: composer run test

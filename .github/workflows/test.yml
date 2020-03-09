@@ -26,8 +26,11 @@ jobs:
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-suggest --no-ansi --no-progress -o
 
-      - name: Run unit tests using PHPUnit
-        run: composer run test:phpunit
+      - name: Start dev server
+        run: composer run dev --timeout=0
+
+      - name: Run tests
+        run: composer run test
 
       - name: Run static code analysis
         run: composer run sa

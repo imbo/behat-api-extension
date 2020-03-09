@@ -102,7 +102,6 @@ Feature: Custom function addition
             Function "valueIs" failed with error message: "Expected "expected", got "actual".".
             """
 
-    @myMatcher
     Scenario: Custom myMatcher class passes
         Given a file named "behat.yml" with:
             """
@@ -137,7 +136,6 @@ Feature: Custom function addition
             2 steps (2 passed)
             """
 
-    @myMatcher
     Scenario: Custom myMatcher class passes when used in list
         Given a file named "behat.yml" with:
             """
@@ -174,7 +172,6 @@ Feature: Custom function addition
             2 steps (2 passed)
             """
 
-    @myMatcher
     Scenario: Custom myMatcher class fails
         Given a file named "behat.yml" with:
             """
@@ -206,7 +203,6 @@ Feature: Custom function addition
             Want string yo
             """
 
-    @myMatcher
     Scenario: Custom myMatcher class fails when used with list
         Given a file named "behat.yml" with:
             """

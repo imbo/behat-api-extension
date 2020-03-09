@@ -54,6 +54,21 @@ $app->any('/', function(Request $request, Response $response) : Response {
 });
 
 /**
+ * List with objects
+ */
+$app->any('/list', function(Request $request, Response $response) : Response {
+    $response->getBody()->write(json_encode([
+        [
+            'integer' => 123,
+            'string' => 'value',
+        ]
+    ]));
+
+    return $response
+        ->withHeader('Content-Type', 'application/json');
+});
+
+/**
  * Echo the request body
  */
 $app->any('/echo', function(Request $request, Response $response) : Response {

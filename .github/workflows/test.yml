@@ -3,9 +3,22 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Validate, lint and test
+    strategy:
+      matrix:
+        php: ['7.2', '7.3', '7.4']
+    name: Validate, lint and test on PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Debug PHP version
+        run: |
+            php -i
+            php -m
 
       - name: Validate composer files
         run: composer validate --strict

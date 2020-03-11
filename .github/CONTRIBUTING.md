@@ -2,7 +2,7 @@
 
 If you want to contribute to the Behat API Extension please follow the following guidelines.
 
-## Running tests
+## Running tests and static analysis
 
 Behat API Extension has both [Behat](http://docs.behat.org/) and [PHPUnit](https://phpunit.de/) tests, and when adding new features or fixing bugs you are required to add relevant test cases.
 
@@ -22,6 +22,14 @@ If you want to run the suites separately they can be executed like this:
 
     ./vendor/bin/behat --strict
     ./vendor/bin/phpunit
+
+PHPStan is used for static code analysis, and a composer script has been added to run this tool:
+
+    composer run sa
+
+You can also run both test suites along with the static analysis with a single composer script:
+
+    composer run ci
 
 ## Documentation
 

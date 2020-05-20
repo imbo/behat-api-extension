@@ -789,7 +789,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         try {
             Assertion::isInstanceOf($body, 'stdClass', 'Expected response body to be a JSON object.');
-            Assertion::same('{}', $encoded = json_encode($body, JSON_PRETTY_PRINT), sprintf(
+            Assertion::same('{}', $encoded = str_replace('%', '%%', json_encode($body, JSON_PRETTY_PRINT)), sprintf(
                 'Expected response body to be an empty JSON object, got "%s".',
                 $encoded
             ));
@@ -813,7 +813,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             Assertion::same(
                 [],
                 $body = $this->getResponseBodyArray(),
-                sprintf('Expected response body to be an empty JSON array, got "%s".', json_encode($body, JSON_PRETTY_PRINT))
+                sprintf('Expected response body to be an empty JSON array, got "%s".', str_replace('%', '%%', json_encode($body, JSON_PRETTY_PRINT)))
             );
         } catch (AssertionFailure $e) {
             throw new AssertionFailedException($e->getMessage());
@@ -842,7 +842,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                     $length,
                     $length === 1 ? 'y' : 'ies',
                     count($body),
-                    json_encode($body, JSON_PRETTY_PRINT)
+                    str_replace('%', '%%', json_encode($body, JSON_PRETTY_PRINT))
                 )
             );
         } catch (AssertionFailure $e) {
@@ -874,7 +874,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                     $length,
                     (int) $length === 1 ? 'y' : 'ies',
                     $bodyLength,
-                    json_encode($body, JSON_PRETTY_PRINT)
+                    str_replace('%', '%%', json_encode($body, JSON_PRETTY_PRINT))
                 )
             );
         } catch (AssertionFailure $e) {
@@ -906,7 +906,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                     $length,
                     (int) $length === 1 ? 'y' : 'ies',
                     $bodyLength,
-                    json_encode($body, JSON_PRETTY_PRINT)
+                    str_replace('%', '%%', json_encode($body, JSON_PRETTY_PRINT))
                 )
             );
         } catch (AssertionFailure $e) {

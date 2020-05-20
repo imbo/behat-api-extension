@@ -165,6 +165,46 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
+     * Send OAuth request and set 'Authorization' header.
+     *
+     * @param string $username The username to authenticate with.
+     * @param string $password The password to authenticate with.
+     * @param string $scope    The scope to authenticate in.
+     *
+     * @return self
+     *
+     * @Given I oauth with :username and :password in scope :scope
+     */
+    public function oauthInScope($username, $password, $scope) {
+        $oauthConfig = $this->client->getConfig('oauth');
+
+        $this->requestOptions['form_params'] = [
+            "grant_type" => 'password',
+            "username" => $username,
+            "password" => $password,
+            "scope" => $scope,
+            "client_id" => $oauthConfig['client_id'],
+            "client_secret" => $oauthConfig['client_secret'],
+        ];
+
+        $this->addRequestHeader(
+            'Content-Type',
+            'application/x-www-form-urlencoded'
+        );
+        $this->setRequestPath($oauthConfig['url']);
+        $this->setRequestMethod('POST');
+        $this->sendRequest();
+
+        unset($this->requestOptions['form_params']);
+
+        if (200 === $this->response->getStatusCode()) {
+            $this->addRequestHeader('Authorization', 'Bearer ' . $this->getResponseBody()->access_token);
+        }
+
+        return $this;
+    }
+
+    /**
      * Set a HTTP request header
      *
      * If the header already exists it will be overwritten

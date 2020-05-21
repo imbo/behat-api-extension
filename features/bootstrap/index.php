@@ -133,6 +133,40 @@ $app->any('/basicAuth', function(Request $request, Response $response) use ($app
 });
 
 /**
+ * Return fake access token.
+ */
+$app->any('/oauth/token', function(Request $request, Response $response) use ($app) {
+    $body = $request->getParsedBody();
+
+    if ('foo' === $body['username'] && 'bar' === $body['password']) {
+        $response->getBody()->write(json_encode([
+            'access_token' => 'fake_access_token',
+        ]));
+    } else {
+        $response = $response->withStatus(401);
+    }
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+/**
+ * Return secured resource if Authorization header is valid.
+ */
+$app->any('/securedWithOAuth', function(Request $request, Response $response) use ($app) {
+    if ('Bearer fake_access_token' === $request->getHeaderLine('Authorization')) {
+        $response->getBody()->write(json_encode([
+            'users' => [
+                'foo' => 'bar',
+            ]
+        ]));
+    } else {
+        $response = $response->withStatus(401);
+    }
+
+    return $response->withHeader('Content-Type', 'application/json');
+});
+
+/**
  * Return a client error
  */
 $app->any('/clientError', function(Request $request, Response $response) : Response {

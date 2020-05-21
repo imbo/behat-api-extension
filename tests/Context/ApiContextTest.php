@@ -46,7 +46,7 @@ function is_readable(string $path) : bool {
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
  */
-class ApiContextText extends TestCase {
+class ApiContextTest extends TestCase {
     private $mockHandler;
     private $handlerStack;
     private $historyContainer = [];

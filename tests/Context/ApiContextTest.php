@@ -64,6 +64,11 @@ class ApiContextText extends TestCase {
         $this->client = new Client([
             'handler' => $this->handlerStack,
             'base_uri' => $this->baseUri,
+            'oauth' => [
+                'url' => '/oauth/token',
+                'client_id' => '',
+                'client_secret' => '',
+            ],
         ]);
         $this->comparator = $this->createMock(ArrayContainsComparator::class);
 
@@ -397,6 +402,35 @@ class ApiContextText extends TestCase {
 
         $request = $this->historyContainer[0]['request'];
         $this->assertSame('Basic dXNlcjpwYXNz', $request->getHeaderLine('authorization'));
+    }
+
+    /**
+     * @covers ::oauthInScope
+     */
+    public function testSupportOAuth() : void {
+        $responseMock = $this->prophesize(Response::class);
+        $responseMock->getStatusCode()
+            ->shouldBeCalledTimes(3)
+            ->willReturn(200);
+        $responseMock->getBody()
+            ->shouldBeCalledTimes(1)
+            ->willReturn('{"access_token": "fake_access_token"}');
+        $this->mockHandler->append($responseMock->reveal());
+        $this->mockHandler->append(new Response(200));
+
+        $username = 'user';
+        $password = 'pass';
+        $scope    = 'scope';
+
+        // Create authentication request and set Authorization header.
+        $this->assertSame($this->context, $this->context->oauthInScope($username, $password, $scope));
+        $this->assertCount(1, $this->historyContainer);
+
+        // Create new request with Authorization header.
+        $this->context->requestPath('/some/path', 'POST');
+        $this->assertCount(2, $this->historyContainer);
+        $request = $this->historyContainer[1]['request'];
+        $this->assertSame('Bearer fake_access_token', $request->getHeaderLine('authorization'));
     }
 
     /**

@@ -27,7 +27,7 @@ Feature: Test auth steps
         Given a file named "features/auth-success.feature" with:
             """
             Feature: Set up the request
-                Scenario: Specity auth
+                Scenario: Specify auth
                     Given I am authenticating as "foo" with password "bar"
                     When I request "/basicAuth"
                     Then the response body contains JSON:
@@ -52,7 +52,7 @@ Feature: Test auth steps
         Given a file named "features/auth-no-success.feature" with:
             """
             Feature: Set up the request
-                Scenario: Specity auth
+                Scenario: Specify auth
                     Given I am authenticating as "foo" with password "foobar"
                     When I request "/basicAuth"
                     Then the response code is 401
@@ -72,7 +72,7 @@ Feature: Test auth steps
         Given a file named "features/oauth-success.feature" with:
             """
             Feature: Set up the request
-                Scenario: Specity auth
+                Scenario: Specify auth
                     Given I oauth with "foo" and "bar" in scope "baz"
                     When I request "/securedWithOAuth"
                     Then the response code is 200
@@ -80,7 +80,7 @@ Feature: Test auth steps
                     '''
                     {
                         "users": {
-                        "foo": "bar"
+                            "foo": "bar"
                         }
                     }
                     '''
@@ -100,7 +100,7 @@ Feature: Test auth steps
         Given a file named "features/oauth-no-success.feature" with:
             """
             Feature: Set up the request
-                Scenario: Specity auth
+                Scenario: Specify auth
                     Given I oauth with "invalid" and "invalid" in scope "bar"
                     When I request "/securedWithOAuth"
                     Then the response code is 401

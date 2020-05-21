@@ -57,6 +57,47 @@ Step                                                            ``:username``  `
 Given I am authenticating as "``foo``" with password "``bar``"  ``foo``        ``bar``
 ==============================================================  =============  =============
 
+Given I oauth with ``:username`` and ``:password`` in scope ``:scope``
+----------------------------------------------------------------------
+
+**Examples:**
+
+To use OAuth, you need to configure your client:
+
+.. code-block:: yaml
+
+    default:
+      suites:
+        default:
+          # ...
+
+      extensions:
+        Imbo\BehatApiExtension:
+          apiClient:
+            # ...
+            oauth:
+              url: /oauth/token
+              client_id: ''
+              client_secret: ''
+
+This authentication method requires the following configuration parameters:
+
+=================================  ======  ========================
+Key                                Type    Description
+=================================  ======  ========================
+``apiClient.oauth.url``            string  OAuth client URL
+``apiClient.oauth.client_id``      string  OAuth client ID
+``apiClient.oauth.client_secret``  string  OAuth client Secret Key
+=================================  ======  ========================
+
+After that, you can use this step to set up OAuth for the next request:
+
+==============================================================  =============  =============  =============
+Step                                                            ``:username``  ``:password``  ``:scope``
+==============================================================  =============  =============  =============
+Given I oauth with "``foo``" and "``bar``" in scope "``baz``"   ``foo``        ``bar``        ``baz``
+==============================================================  =============  =============  =============
+
 .. _given-the-header-request-header-is-value:
 
 Given the ``:header`` request header is ``:value``

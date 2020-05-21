@@ -13,6 +13,10 @@ Feature: Test auth steps
                     Imbo\BehatApiExtension:
                         apiClient:
                             base_uri: http://localhost:8080
+                            oauth:
+                              url: /oauth/token
+                              client_id: ''
+                              client_secret: ''
 
                 suites:
                     default:
@@ -56,6 +60,54 @@ Feature: Test auth steps
 
             """
         When I run "behat features/auth-no-success.feature"
+        Then it should pass with:
+            """
+            ...
+
+            1 scenario (1 passed)
+            3 steps (3 passed)
+            """
+
+    Scenario: Successfully OAuth
+        Given a file named "features/oauth-success.feature" with:
+            """
+            Feature: Set up the request
+                Scenario: Specity auth
+                    Given I oauth with "foo" and "bar" in scope "baz"
+                    When I request "/securedWithOAuth"
+                    Then the response code is 200
+                    And the response body contains JSON:
+                    '''
+                    {
+                        "users": {
+                        "foo": "bar"
+                        }
+                    }
+                    '''
+
+
+            """
+        When I run "behat features/oauth-success.feature"
+        Then it should pass with:
+            """
+            ...
+
+            1 scenario (1 passed)
+            4 steps (4 passed)
+            """
+
+    Scenario: Unsuccessfully OAuth
+        Given a file named "features/oauth-no-success.feature" with:
+            """
+            Feature: Set up the request
+                Scenario: Specity auth
+                    Given I oauth with "invalid" and "invalid" in scope "bar"
+                    When I request "/securedWithOAuth"
+                    Then the response code is 401
+
+
+            """
+        When I run "behat features/oauth-no-success.feature"
         Then it should pass with:
             """
             ...

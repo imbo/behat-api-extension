@@ -8,7 +8,7 @@ In the project root directory, run the following command:
 
 and to execute the tests run (also from the project root):
 
-    composer test-behat
+    composer test:behat
 
 or
 

@@ -170,7 +170,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @param string $username The username to authenticate with.
      * @param string $password The password to authenticate with.
      * @param string $scope    The scope to authenticate in.
-     *
      * @return self
      *
      * @Given I oauth with :username and :password in scope :scope
@@ -179,26 +178,29 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $oauthConfig = $this->client->getConfig('oauth');
 
         $this->requestOptions['form_params'] = [
-            "grant_type" => 'password',
-            "username" => $username,
-            "password" => $password,
-            "scope" => $scope,
-            "client_id" => $oauthConfig['client_id'],
-            "client_secret" => $oauthConfig['client_secret'],
+            'grant_type' => 'password',
+            'username' => $username,
+            'password' => $password,
+            'scope' => $scope,
+            'client_id' => $oauthConfig['client_id'],
+            'client_secret' => $oauthConfig['client_secret'],
         ];
 
-        $this->addRequestHeader(
-            'Content-Type',
-            'application/x-www-form-urlencoded'
-        );
+        $this->addRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         $this->setRequestPath($oauthConfig['url']);
         $this->setRequestMethod('POST');
         $this->sendRequest();
 
         unset($this->requestOptions['form_params']);
 
+        /** @var stdClass */
+        $body = $this->getResponseBody();
+
         if (200 === $this->response->getStatusCode()) {
-            $this->addRequestHeader('Authorization', 'Bearer ' . $this->getResponseBody()->access_token);
+            $this->addRequestHeader(
+                'Authorization',
+                sprintf('Bearer %s', $body->access_token)
+            );
         }
 
         return $this;

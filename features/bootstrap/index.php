@@ -133,18 +133,23 @@ $app->any('/basicAuth', function(Request $request, Response $response) use ($app
 });
 
 /**
- * Return fake access token.
+ * Return access token given the correct credentials
  */
 $app->any('/oauth/token', function(Request $request, Response $response) use ($app) {
     $body = $request->getParsedBody();
 
     if ('foo' === $body['username'] && 'bar' === $body['password']) {
-        $response->getBody()->write(json_encode([
-            'access_token' => 'fake_access_token',
-        ]));
+        $responseBody = [
+            'access_token' => 'some_access_token',
+        ];
     } else {
         $response = $response->withStatus(401);
+        $responseBody = [
+            'error' => 'invalid_request',
+        ];
     }
+
+    $response->getBody()->write(json_encode($responseBody));
 
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -153,15 +158,20 @@ $app->any('/oauth/token', function(Request $request, Response $response) use ($a
  * Return secured resource if Authorization header is valid.
  */
 $app->any('/securedWithOAuth', function(Request $request, Response $response) use ($app) {
-    if ('Bearer fake_access_token' === $request->getHeaderLine('Authorization')) {
-        $response->getBody()->write(json_encode([
+    if ('Bearer some_access_token' === $request->getHeaderLine('Authorization')) {
+        $responseBody = [
             'users' => [
                 'foo' => 'bar',
             ]
-        ]));
+        ];
     } else {
         $response = $response->withStatus(401);
+        $responseBody = [
+            'error' => 'invalid_request',
+        ];
     }
+
+    $response->getBody()->write(json_encode($responseBody));
 
     return $response->withHeader('Content-Type', 'application/json');
 });

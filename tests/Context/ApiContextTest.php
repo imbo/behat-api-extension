@@ -65,7 +65,7 @@ class ApiContextTest extends TestCase {
             'handler' => $this->handlerStack,
             'base_uri' => $this->baseUri,
             'oauth' => [
-                'url' => '/oauth/token',
+                'path' => '/oauth/token',
                 'client_id' => '',
                 'client_secret' => '',
             ],

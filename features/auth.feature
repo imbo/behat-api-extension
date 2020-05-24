@@ -14,7 +14,7 @@ Feature: Test auth steps
                         apiClient:
                             base_uri: http://localhost:8080
                             oauth:
-                              url: /oauth/token
+                              path: /oauth/token
                               client_id: ''
                               client_secret: ''
 

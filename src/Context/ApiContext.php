@@ -172,7 +172,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @param string $scope    The scope to authenticate in.
      * @return self
      *
-     * @Given I oauth with :username and :password in scope :scope
+     * @Given I use OAuth with :username and :password in scope :scope
      */
     public function oauthInScope($username, $password, $scope) {
         $oauthConfig = $this->client->getConfig('oauth');

@@ -69,7 +69,7 @@ Feature: Test auth steps
             """
             Feature: Set up the request
                 Scenario: Specify auth
-                    Given I oauth with "foo" and "bar" in scope "baz"
+                    Given I use OAuth with "foo" and "bar" in scope "baz"
                     When I request "/securedWithOAuth"
                     Then the response code is 200
                     And the response body contains JSON:
@@ -95,7 +95,7 @@ Feature: Test auth steps
             """
             Feature: Set up the request
                 Scenario: Specify auth
-                    Given I oauth with "invalid" and "invalid" in scope "bar"
+                    Given I use OAuth with "invalid" and "invalid" in scope "bar"
                     When I request "/securedWithOAuth"
                     Then the response code is 401
             """

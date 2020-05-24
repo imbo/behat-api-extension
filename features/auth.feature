@@ -36,8 +36,6 @@ Feature: Test auth steps
                         "user": "foo"
                     }
                     '''
-
-
             """
         When I run "behat features/auth-success.feature"
         Then it should pass with:
@@ -56,8 +54,6 @@ Feature: Test auth steps
                     Given I am authenticating as "foo" with password "foobar"
                     When I request "/basicAuth"
                     Then the response code is 401
-
-
             """
         When I run "behat features/auth-no-success.feature"
         Then it should pass with:
@@ -84,8 +80,6 @@ Feature: Test auth steps
                         }
                     }
                     '''
-
-
             """
         When I run "behat features/oauth-success.feature"
         Then it should pass with:
@@ -104,8 +98,6 @@ Feature: Test auth steps
                     Given I oauth with "invalid" and "invalid" in scope "bar"
                     When I request "/securedWithOAuth"
                     Then the response code is 401
-
-
             """
         When I run "behat features/oauth-no-success.feature"
         Then it should pass with:

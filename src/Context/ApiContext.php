@@ -177,6 +177,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     public function oauthInScope($username, $password, $scope) {
         $oauthConfig = $this->client->getConfig('oauth');
 
+        if (array_diff_key(array_flip(['path', 'client_id', 'client_secret']), $oauthConfig)) {
+            throw new RuntimeException(
+                "The 'apiClient' parameters 'oauth.path', 'oauth.client_id' and 'oauth.client_secret' must be defined in behat.yml"
+            );
+        }
+
         $this->requestOptions['form_params'] = [
             'grant_type' => 'password',
             'username' => $username,

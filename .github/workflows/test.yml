@@ -1,5 +1,7 @@
 name: CI
-on: push
+on:
+  - push
+  - pull_request
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -15,8 +17,9 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
 
-      - name: Debug PHP version
+      - name: Debug PHP installation
         run: |
+            php -v
             php -i
             php -m
 

@@ -187,7 +187,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         ];
 
         $this->addRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $this->setRequestPath($oauthConfig['url']);
+        $this->setRequestPath($oauthConfig['path']);
         $this->setRequestMethod('POST');
         $this->sendRequest();
 

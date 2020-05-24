@@ -76,7 +76,7 @@ To use OAuth, you need to configure your client:
           apiClient:
             # ...
             oauth:
-              url: /oauth/token
+              path: /oauth/token
               client_id: ''
               client_secret: ''
 
@@ -85,7 +85,7 @@ This authentication method requires the following configuration parameters:
 =================================  ======  ========================
 Key                                Type    Description
 =================================  ======  ========================
-``apiClient.oauth.url``            string  OAuth client URL
+``apiClient.oauth.path``           string  OAuth client Path
 ``apiClient.oauth.client_id``      string  OAuth client ID
 ``apiClient.oauth.client_secret``  string  OAuth client Secret Key
 =================================  ======  ========================

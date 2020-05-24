@@ -408,14 +408,10 @@ class ApiContextTest extends TestCase {
      * @covers ::oauthInScope
      */
     public function testSupportOAuth() : void {
-        $responseMock = $this->prophesize(Response::class);
-        $responseMock->getStatusCode()
-            ->shouldBeCalledTimes(3)
-            ->willReturn(200);
-        $responseMock->getBody()
-            ->shouldBeCalledTimes(1)
-            ->willReturn('{"access_token": "fake_access_token"}');
-        $this->mockHandler->append($responseMock->reveal());
+        $this->mockHandler->append($this->createConfiguredMock(Response::class, [
+            'getBody' => '{"access_token": "some_access_token"}',
+            'getStatusCode' => 200,
+        ]));
         $this->mockHandler->append(new Response(200));
 
         $username = 'user';
@@ -430,7 +426,7 @@ class ApiContextTest extends TestCase {
         $this->context->requestPath('/some/path', 'POST');
         $this->assertCount(2, $this->historyContainer);
         $request = $this->historyContainer[1]['request'];
-        $this->assertSame('Bearer fake_access_token', $request->getHeaderLine('authorization'));
+        $this->assertSame('Bearer some_access_token', $request->getHeaderLine('authorization'));
     }
 
     /**

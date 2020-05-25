@@ -207,6 +207,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                 'Authorization',
                 sprintf('Bearer %s', $body->access_token)
             );
+        } elseif(401 !== $this->response->getStatusCode()) {
+            throw new RuntimeException(
+                'Error from OAuth Server: ' . $this->response->getStatusCode() . ($body->error ? ' - ' . $body->error: '')
+            );
         }
 
         return $this;

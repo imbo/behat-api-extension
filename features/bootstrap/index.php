@@ -124,7 +124,7 @@ $app->any('/echoHttpMethod', function(Request $request, Response $response) : Re
 /**
  * Return the authenticated user name
  */
-$app->any('/basicAuth', function(Request $request, Response $response) use ($app) {
+$app->any('/basicAuth', function(Request $request, Response $response) {
     $response->getBody()->write(json_encode([
         'user' => explode(':', $request->getUri()->getUserInfo())[0],
     ]));
@@ -135,7 +135,7 @@ $app->any('/basicAuth', function(Request $request, Response $response) use ($app
 /**
  * Return access token given the correct credentials
  */
-$app->any('/oauth/token', function(Request $request, Response $response) use ($app) {
+$app->any('/oauth/token', function(Request $request, Response $response) {
     $body = $request->getParsedBody();
 
     if ('foo' === $body['username'] && 'bar' === $body['password']) {
@@ -157,7 +157,7 @@ $app->any('/oauth/token', function(Request $request, Response $response) use ($a
 /**
  * Return secured resource if Authorization header is valid.
  */
-$app->any('/securedWithOAuth', function(Request $request, Response $response) use ($app) {
+$app->any('/securedWithOAuth', function(Request $request, Response $response) {
     if ('Bearer some_access_token' === $request->getHeaderLine('Authorization')) {
         $responseBody = [
             'users' => [

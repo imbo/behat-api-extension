@@ -64,11 +64,6 @@ class ApiContextTest extends TestCase {
         $this->client = new Client([
             'handler' => $this->handlerStack,
             'base_uri' => $this->baseUri,
-            'oauth' => [
-                'path' => '/oauth/token',
-                'client_id' => '',
-                'client_secret' => '',
-            ],
         ]);
         $this->comparator = $this->createMock(ArrayContainsComparator::class);
 
@@ -405,28 +400,61 @@ class ApiContextTest extends TestCase {
     }
 
     /**
-     * @covers ::oauthInScope
+     * @covers ::oauthWithPasswordGrantInScope
      */
-    public function testSupportOAuth() : void {
-        $this->mockHandler->append($this->createConfiguredMock(Response::class, [
-            'getBody' => '{"access_token": "some_access_token"}',
-            'getStatusCode' => 200,
-        ]));
+    public function testSupportOAuthWithPasswordGrant() : void {
+        $this->mockHandler->append(new Response(200, [], '{"access_token": "some_access_token"}'));
         $this->mockHandler->append(new Response(200));
 
-        $username = 'user';
-        $password = 'pass';
-        $scope    = 'scope';
+        $path         = '/some/path';
+        $username     = 'user';
+        $password     = 'pass';
+        $scope        = 'scope';
+        $clientId     = 'client id';
+        $clientSecret = 'client secret';
 
-        // Create authentication request and set Authorization header.
-        $this->assertSame($this->context, $this->context->oauthInScope($username, $password, $scope));
+        $this->assertSame(
+            $this->context,
+            $this->context->oauthWithPasswordGrantInScope($path, $username, $password, $scope, $clientId, $clientSecret
+        ));
         $this->assertCount(1, $this->historyContainer);
 
-        // Create new request with Authorization header.
+        parse_str($this->historyContainer[0]['request']->getBody()->getContents(), $requestBody);
+
+        $this->assertSame('password', $requestBody['grant_type'], 'Incorrect grant type');
+        $this->assertSame($username, $requestBody['username'], 'Incorrect username');
+        $this->assertSame($password, $requestBody['password'], 'Incorrect password');
+        $this->assertSame($scope, $requestBody['scope'], 'Incorrect scope');
+        $this->assertSame($clientId, $requestBody['client_id'], 'Incorrect client ID');
+        $this->assertSame($clientSecret, $requestBody['client_secret'], 'Incorrect client secret');
+
+        // Create new request with Authorization header
         $this->context->requestPath('/some/path', 'POST');
         $this->assertCount(2, $this->historyContainer);
         $request = $this->historyContainer[1]['request'];
         $this->assertSame('Bearer some_access_token', $request->getHeaderLine('authorization'));
+    }
+
+    /**
+     * @covers ::oauthWithPasswordGrantInScope
+     */
+    public function testThrowsExceptionWhenOauthAccessTokenRequestFails() : void {
+        $this->mockHandler->append(new Response(401, [], '{"error": "some_error"}'));
+        $this->expectExceptionObject(new RuntimeException(
+            'Expected request for access token to pass, got status code 401 with the following response: {"error": "some_error"}'
+        ));
+        $this->context->oauthWithPasswordGrantInScope('/path', 'username', 'password', 'scope', 'client_id', 'client_secret');
+    }
+
+    /**
+     * @covers ::oauthWithPasswordGrantInScope
+     */
+    public function testThrowsExceptionWhenOauthAccessTokenIsMissingFromResponse() : void {
+        $this->mockHandler->append(new Response(200, [], '{"foo": "bar"}'));
+        $this->expectExceptionObject(new RuntimeException(
+            'Missing access_token from response body: {"foo":"bar"}'
+        ));
+        $this->context->oauthWithPasswordGrantInScope('/path', 'username', 'password', 'scope', 'client_id', 'client_secret');
     }
 
     /**

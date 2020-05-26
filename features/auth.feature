@@ -13,11 +13,6 @@ Feature: Test auth steps
                     Imbo\BehatApiExtension:
                         apiClient:
                             base_uri: http://localhost:8080
-                            oauth:
-                              path: /oauth/token
-                              client_id: ''
-                              client_secret: ''
-
                 suites:
                     default:
                         contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
@@ -69,7 +64,7 @@ Feature: Test auth steps
             """
             Feature: Set up the request
                 Scenario: Specify auth
-                    Given I use OAuth with "foo" and "bar" in scope "baz"
+                    Given I get an OAuth token using password grant from "/oauth/token" with "foo" and "bar" in scope "baz" using client ID "id" and client secret "secret"
                     When I request "/securedWithOAuth"
                     Then the response code is 200
                     And the response body contains JSON:
@@ -95,15 +90,31 @@ Feature: Test auth steps
             """
             Feature: Set up the request
                 Scenario: Specify auth
-                    Given I use OAuth with "invalid" and "invalid" in scope "bar"
+                    Given I get an OAuth token using password grant from "/oauth/token" with "invalid" and "invalid" in scope "baz" using client ID "id"
                     When I request "/securedWithOAuth"
-                    Then the response code is 401
             """
         When I run "behat features/oauth-no-success.feature"
-        Then it should pass with:
+        Then it should fail with:
             """
-            ...
+            Expected request for access token to pass, got status code 401 with the following response: {"error":"invalid_request"} (RuntimeException)
 
-            1 scenario (1 passed)
-            3 steps (3 passed)
+            1 scenario (1 failed)
+            2 steps (1 failed, 1 skipped)
+            """
+
+    Scenario: Invalid OAuth token response
+        Given a file named "features/oauth-missing-token.feature" with:
+            """
+            Feature: Set up the request
+                Scenario: Specify auth
+                    Given I get an OAuth token using password grant from "/echoHttpMethod" with "foo" and "bar" in scope "baz" using client ID "id"
+                    When I request "/securedWithOAuth"
+            """
+        When I run "behat features/oauth-missing-token.feature"
+        Then it should fail with:
+            """
+            Missing access_token from response body: {"method":"POST"} (RuntimeException)
+
+            1 scenario (1 failed)
+            2 steps (1 failed, 1 skipped)
             """

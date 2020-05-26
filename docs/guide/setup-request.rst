@@ -57,46 +57,27 @@ Step                                                            ``:username``  `
 Given I am authenticating as "``foo``" with password "``bar``"  ``foo``        ``bar``
 ==============================================================  =============  =============
 
-Given I use OAuth with ``:username`` and ``:password`` in scope ``:scope``
-----------------------------------------------------------------------
+Given I get an OAuth token using password grant from ``:path`` with ``:username`` and ``:password`` in scope ``:scope`` using client ID ``:clientId`` (and client secret ``:clientSecret``)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Send a request using password grant to the given ``:path`` for an access token that will be added as a ``Authorization`` header for the next request. The endpoint is required to respond with a JSON object that contains the ``access_token`` key, for instance:
+
+.. code-block:: json
+
+    {
+        "access_token": "some-token"
+    }
+
+Given the above response body, the next request will have the following header set: ``Authorization: Bearer some-token``.
 
 **Examples:**
 
-To use OAuth, you need to configure your client:
+.. code-block:: gherkin
 
-.. code-block:: yaml
+    Given I get an OAuth token using password grant from "/token" with "user" and "password" in scope "scope" using client ID "id" and client secret "secret"
+    When I request "/path/that/requires/token/in/header"
 
-    default:
-      suites:
-        default:
-          # ...
-
-      extensions:
-        Imbo\BehatApiExtension:
-          apiClient:
-            # ...
-            oauth:
-              path: /oauth/token
-              client_id: ''
-              client_secret: ''
-
-This authentication method requires the following configuration parameters:
-
-=================================  ======  ========================
-Key                                Type    Description
-=================================  ======  ========================
-``apiClient.oauth.path``           string  OAuth client Path
-``apiClient.oauth.client_id``      string  OAuth client ID
-``apiClient.oauth.client_secret``  string  OAuth client Secret Key
-=================================  ======  ========================
-
-After that, you can use this step to set up OAuth for the next request:
-
-=================================================================  =============  =============  =============
-Step                                                               ``:username``  ``:password``  ``:scope``
-=================================================================  =============  =============  =============
-Given I use OAuth with "``foo``" and "``bar``" in scope "``baz``"   ``foo``        ``bar``        ``baz``
-=================================================================  =============  =============  =============
+The second step in the above example will include the required ``Authorization`` header given the response from ``/token`` as seen in the first step.
 
 .. _given-the-header-request-header-is-value:
 

@@ -165,53 +165,58 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
-     * Send OAuth request and set 'Authorization' header.
+     * Send OAuth request using password grant and set Authorization header.
      *
-     * @param string $username The username to authenticate with.
-     * @param string $password The password to authenticate with.
-     * @param string $scope    The scope to authenticate in.
+     * @param string $path         The path to get the token from
+     * @param string $username     The username to authenticate with
+     * @param string $password     The password to authenticate with
+     * @param string $scope        The scope to authenticate in
+     * @param string $clientId     The client_id to send
+     * @param string $clientSecret Optional client_secret to send
      * @return self
      *
-     * @Given I use OAuth with :username and :password in scope :scope
+     * @Given I get an OAuth token using password grant from :path with :username and :password in scope :scope using client ID :clientId
+     * @Given I get an OAuth token using password grant from :path with :username and :password in scope :scope using client ID :clientId and client secret :clientSecret
      */
-    public function oauthInScope($username, $password, $scope) {
-        $oauthConfig = $this->client->getConfig('oauth');
-
-        if (array_diff_key(array_flip(['path', 'client_id', 'client_secret']), $oauthConfig)) {
-            throw new RuntimeException(
-                "The 'apiClient' parameters 'oauth.path', 'oauth.client_id' and 'oauth.client_secret' must be defined in behat.yml"
-            );
-        }
-
-        $this->requestOptions['form_params'] = [
-            'grant_type' => 'password',
-            'username' => $username,
-            'password' => $password,
-            'scope' => $scope,
-            'client_id' => $oauthConfig['client_id'],
-            'client_secret' => $oauthConfig['client_secret'],
-        ];
+    public function oauthWithPasswordGrantInScope($path, $username, $password, $scope, $clientId, $clientSecret = null) {
+        $this->requestOptions['form_params'] = array_filter([
+            'grant_type'    => 'password',
+            'username'      => $username,
+            'password'      => $password,
+            'scope'         => $scope,
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+        ]);
 
         $this->addRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        $this->setRequestPath($oauthConfig['path']);
+        $this->setRequestPath($path);
         $this->setRequestMethod('POST');
         $this->sendRequest();
 
         unset($this->requestOptions['form_params']);
 
+        if (200 !== $this->response->getStatusCode()) {
+            throw new RuntimeException(sprintf(
+                'Expected request for access token to pass, got status code %d with the following response: %s',
+                $this->response->getStatusCode(),
+                (string) $this->response->getBody()
+            ));
+        }
+
         /** @var stdClass */
         $body = $this->getResponseBody();
 
-        if (200 === $this->response->getStatusCode()) {
-            $this->addRequestHeader(
-                'Authorization',
-                sprintf('Bearer %s', $body->access_token)
-            );
-        } elseif(401 !== $this->response->getStatusCode()) {
-            throw new RuntimeException(
-                'Error from OAuth Server: ' . $this->response->getStatusCode() . ($body->error ? ' - ' . $body->error: '')
+        if (empty($body->access_token)) {
+            throw new RuntimeException(sprintf(
+                'Missing access_token from response body: %s',
+                json_encode($body))
             );
         }
+
+        $this->addRequestHeader(
+            'Authorization',
+            sprintf('Bearer %s', $body->access_token)
+        );
 
         return $this;
     }

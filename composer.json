@@ -21,11 +21,11 @@
   },
   "require": {
     "php": ">=7.2",
+    "ext-json": "*",
     "behat/behat": "^3.5",
     "guzzlehttp/guzzle": "^6.5",
     "beberlei/assert": "^3.2",
-    "firebase/php-jwt": "^5.0",
-    "ext-json": "*"
+    "firebase/php-jwt": "^5.0"
   },
   "require-dev": {
     "symfony/process": "^5.0",

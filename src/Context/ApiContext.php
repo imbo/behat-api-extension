@@ -283,15 +283,15 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given the JWT will have claim :claim with value :value
      */
     public function addJwtClaim($claim, $value) {
-      // Support for a simple nested claim.
+      if (in_array($claim, ['exp', 'nbf', 'iat']) && !is_numeric($value)) {
+        $value = strtotime($value);
+      }
+      // Support for a simple nested (namespaced) claim.
       if (preg_match('/(.+)\[(.+)\]/', $claim, $matches)) {
           $claim = $matches[1];
           $value = [
             $matches[2] => $value,
           ];
-      }
-      if (in_array($claim, ["exp", "nbf", "iat"]) && !is_numeric($value)) {
-          $value = strtotime($value);
       }
       if (isset($this->jwtPayload[$claim]) && is_array($this->jwtPayload[$claim])) {
           $this->jwtPayload[$claim] = array_merge($this->jwtPayload[$claim], (array) $value);

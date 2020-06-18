@@ -65,15 +65,17 @@ class BehatApiExtension implements ExtensionInterface {
                     ->ignoreExtraKeys(false)
                     ->children()
                         ->scalarNode('jwt_alg')
-                        ->defaultValue('HS256')
+                            ->defaultValue('HS256')
                         ->end()
                         ->scalarNode('jwt_key')
-                        ->defaultNull()
+                            ->defaultNull()
                         ->end()
                         ->scalarNode('base_uri')
                             ->isRequired()
                             ->cannotBeEmpty()
-                            ->defaultValue('http://localhost:8080');
+                            ->defaultValue('http://localhost:8080')
+                        ->end()
+                    ->end();
     }
 
     /**

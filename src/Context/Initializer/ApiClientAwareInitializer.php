@@ -28,7 +28,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
      */
     private $jwtKey;
 
-    public function __construct(array $guzzleConfig, $jwtAlg, $jwtKey) {
+    public function __construct(array $guzzleConfig, $jwtAlg = 'HS256', $jwtKey = null) {
         $this->guzzleConfig = $guzzleConfig;
         $this->jwtAlg = $jwtAlg;
         $this->jwtKey = $jwtKey;

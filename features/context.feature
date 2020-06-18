@@ -18,6 +18,10 @@ Feature: Client aware context
                     $this->client = $client;
                 }
 
+                public function setJwt($jwtAlg, $jwtKey) {
+                    return $this
+                }
+
                 /**
                  * @Then the client should be set
                  */

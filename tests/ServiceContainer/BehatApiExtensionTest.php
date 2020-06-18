@@ -30,6 +30,8 @@ class BehatApiExtensionTest extends TestCase {
 
         $this->assertSame([
             'apiClient' => [
+                'jwt_alg' => 'HS256',
+                'jwt_key' => null,
                 'base_uri' => 'http://localhost:8080',
             ],
         ], $config);
@@ -56,6 +58,8 @@ class BehatApiExtensionTest extends TestCase {
         $this->assertSame([
             'apiClient' => [
                 'base_uri' => $baseUri,
+                'jwt_alg' => 'HS256',
+                'jwt_key' => null,
             ],
         ], $config);
     }

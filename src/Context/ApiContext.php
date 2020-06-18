@@ -7,6 +7,7 @@ use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Firebase;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
@@ -29,6 +30,34 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @var ClientInterface
      */
     protected $client;
+
+    /**
+     * Should JWT auth be added to the request.
+     *
+     * @var bool
+     */
+    protected $useJwtAuth = false;
+
+    /**
+     * JWT algorithm.
+     *
+     * @var string
+     */
+    protected $jwtAlg;
+
+    /**
+     * JWT secret key.
+     *
+     * @var string
+     */
+    protected $jwtKey;
+
+    /**
+     * JWT payload.
+     *
+     * @var array
+     */
+    protected $jwtPayload = [];
 
     /**
      * Request instance
@@ -87,6 +116,16 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
     public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
         $this->arrayContainsComparator = $comparator;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setJwt($jwtAlg, $jwtKey) {
+        $this->jwtAlg = $jwtAlg;
+        $this->jwtKey = $jwtKey;
 
         return $this;
     }
@@ -219,6 +258,48 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         );
 
         return $this;
+    }
+
+    /**
+     * Enable JWT authentication for the next request
+     *
+     * @return self
+     *
+     * @Given I am authenticating with JWT
+     */
+    public function useJwtAuth() {
+      $this->useJwtAuth = true;
+
+      return $this;
+    }
+
+    /**
+     * Add a JWT claim to be used in the next request
+     *
+     * @param string $claim The claim name
+     * @param string $value The claim value
+     * @return self
+     *
+     * @Given the JWT will have claim :claim with value :value
+     */
+    public function addJwtClaim($claim, $value) {
+      // Support for a simple nested claim.
+      if (preg_match('/(.+)\[(.+)\]/', $claim, $matches)) {
+          $claim = $matches[1];
+          $value = [
+            $matches[2] => $value,
+          ];
+      }
+      if (in_array($claim, ["exp", "nbf", "iat"]) && !is_numeric($value)) {
+          $value = strtotime($value);
+      }
+      if (isset($this->jwtPayload[$claim]) && is_array($this->jwtPayload[$claim])) {
+          $this->jwtPayload[$claim] = array_merge($this->jwtPayload[$claim], (array) $value);
+      } else {
+          $this->jwtPayload[$claim] = $value;
+      }
+
+      return $this;
     }
 
     /**
@@ -1080,6 +1161,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     protected function sendRequest() {
         if (!empty($this->requestOptions['form_params']) && !$this->forceHttpMethod) {
             $this->setRequestMethod('POST');
+        }
+
+        if ($this->useJwtAuth) {
+            unset($this->requestOptions['auth']);
+            $token = Firebase\JWT\JWT::encode($this->jwtPayload, $this->jwtKey, $this->jwtAlg);
+            $this->setRequestHeader('Authorization', 'Bearer ' . $token);
         }
 
         if (!empty($this->requestOptions['multipart']) && !empty($this->requestOptions['form_params'])) {

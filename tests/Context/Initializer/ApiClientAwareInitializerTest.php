@@ -15,7 +15,7 @@ class ApiClientAwareInitializerTest extends TestCase {
      * @covers ::validateConnection
      */
     public function testThrowsExceptionWhenBaseUriIsNotConnectable() : void {
-        $initializer = new ApiClientAwareInitializer(['base_uri' => 'http://localhost:123']);
+        $initializer = new ApiClientAwareInitializer(['base_uri' => 'http://localhost:123'], 'HS256', null);
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Can\'t connect to base_uri: "http://localhost:123".');
         $initializer->initializeContext($this->createMock(ApiClientAwareContext::class));
@@ -57,7 +57,7 @@ class ApiClientAwareInitializerTest extends TestCase {
 
         $initializer = new ApiClientAwareInitializer([
             'base_uri' => sprintf('http://localhost:%d', $port),
-        ]);
+        ], 'HS256', null);
         $initializer->initializeContext($context);
 
         // Close socket used in test case

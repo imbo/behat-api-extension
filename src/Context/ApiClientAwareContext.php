@@ -8,7 +8,6 @@ use GuzzleHttp\ClientInterface;
  * Api client aware interface
  */
 interface ApiClientAwareContext extends Context {
-
     /**
      * Set the Guzzle client and create a pristine request instance
      *
@@ -21,9 +20,7 @@ interface ApiClientAwareContext extends Context {
      *
      * @param string $jwtAlg
      * @param string $jwtKey
-     *
      * @return self
      */
     function setJwt($jwtAlg, $jwtKey);
-
 }

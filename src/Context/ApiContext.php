@@ -7,7 +7,7 @@ use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Firebase;
+use Firebase\JWT\JWT;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
@@ -1165,7 +1165,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         if ($this->useJwtAuth) {
             unset($this->requestOptions['auth']);
-            $token = Firebase\JWT\JWT::encode($this->jwtPayload, $this->jwtKey, $this->jwtAlg);
+            $token = JWT::encode($this->jwtPayload, $this->jwtKey, $this->jwtAlg);
             $this->setRequestHeader('Authorization', 'Bearer ' . $token);
         }
 

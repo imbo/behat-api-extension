@@ -14,6 +14,10 @@ Feature: Client aware context
             class FeatureContext implements ApiClientAwareContext {
                 private $client;
 
+                public function setJwt($jwtAlg, $jwtKey) {
+                    return $this;
+                }
+
                 public function setClient(ClientInterface $client) {
                     $this->client = $client;
                 }

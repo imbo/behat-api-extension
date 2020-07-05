@@ -15,7 +15,6 @@ use GuzzleHttp\Psr7;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use stdClass;
@@ -274,6 +273,24 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
+     * Set the JWT secret and algorithm to be used in the next request.
+     *
+     * @param string $secret The secret key
+     * @param string $algorithm The JWT algorithm (optional)
+     * @return self
+     *
+     * @Given I use JWT authentication with the key :secret
+     * @Given I use JWT authentication with the key :secret and algorithm :algorithm
+     * @Given the JWT will use the key :secret
+     * @Given the JWT will use the key :secret and algorithm :algorithm
+     */
+    public function setJwtSecret($secret, $algorithm = null) {
+      $this->useJwtAuth = true;
+      $this->setJwt($algorithm ?? $this->jwtAlg, $secret);
+      return $this;
+    }
+
+    /**
      * Add a JWT claim to be used in the next request
      *
      * @param string $claim The claim name
@@ -281,8 +298,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      *
      * @Given the JWT will have claim :claim with value :value
+     * @Given I use JWT authentication with claim :claim and value :value
      */
     public function addJwtClaim($claim, $value) {
+      $this->useJwtAuth = true;
       if (in_array($claim, ['exp', 'nbf', 'iat']) && !is_numeric($value)) {
         $value = strtotime($value);
       }

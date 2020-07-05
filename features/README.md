@@ -4,7 +4,7 @@ For these tests to pass an HTTP server must be set up to listen on `http://local
 
 In the project root directory, run the following command:
 
-    composer dev --timeout=0
+    composer run dev --timeout=0
 
 and to execute the tests run (also from the project root):
 

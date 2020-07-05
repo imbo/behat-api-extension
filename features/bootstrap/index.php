@@ -1,6 +1,7 @@
 <?php
 namespace Imbo\BehatApiExtension;
 
+use Imbo\BehatApiExtension\Middleware\JwtAuthentication;
 use Slim\Factory\AppFactory;
 use Tuupola\Middleware\HttpBasicAuthentication;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -130,6 +131,18 @@ $app->any('/basicAuth', function(Request $request, Response $response) {
     ]));
 
     return $response->withHeader('Content-Type', 'application/json');
+});
+
+/**
+ * Return a success message given the correct credentials
+ */
+$app->any('/jwtAuth', function(Request $request, Response $response) {
+  // todo - JWT auth here.
+  $response->getBody()->write(json_encode([
+    'success' => 'yes',
+  ]));
+
+  return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**

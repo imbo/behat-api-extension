@@ -5,6 +5,7 @@ use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -14,6 +15,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Exception\RequestException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use GuzzleHttp\Psr7\MultipartStream;
 use InvalidArgumentException;
 use RuntimeException;
 use OutOfRangeException;
@@ -47,12 +49,25 @@ function is_readable(string $path) : bool {
  * @coversDefaultClass Imbo\BehatApiExtension\Context\ApiContext
  */
 class ApiContextTest extends TestCase {
+    /** @var MockHandler */
     private $mockHandler;
+
+    /** @var HandlerStack */
     private $handlerStack;
+
+    /** @var array{request: Request, response: Response}[] */
     private $historyContainer = [];
+
+    /** @var ApiContext */
     private $context;
+
+    /** @var Client */
     private $client;
+
+    /** @var MockObject&ArrayContainsComparator */
     private $comparator;
+
+    /** @var string */
     private $baseUri = 'http://localhost:9876';
 
     public function setUp() : void {
@@ -72,6 +87,9 @@ class ApiContextTest extends TestCase {
         $this->context->setArrayContainsComparator($this->comparator);
     }
 
+    /**
+     * @return array{method: string}[]
+     */
     public function getHttpMethods() : array {
         return [
             ['method' => 'GET'],
@@ -84,6 +102,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{filePath: string, method: string, expectedMimeType: string}[]
+     */
     public function getFilesAndMimeTypes() : array {
         return [
             [
@@ -100,6 +121,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{code: int, others: int[]}[]
+     */
     public function getResponseCodes() : array {
         return [
             [
@@ -121,6 +145,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{group: string, codes: int[]}[]
+     */
     public function getGroupAndResponseCodes() : array {
         return [
             [
@@ -146,6 +173,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return int[][]
+     */
     public function getInvalidHttpResponseCodes() : array {
         return [
             [99],
@@ -153,6 +183,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{body: int[], lengthToUse: int, willFail: bool}[]
+     */
     public function getResponseBodyArrays() : array {
         return [
             [
@@ -178,6 +211,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{body: int[], min: int}[]
+     */
     public function getResponseBodyArraysForAtLeast() : array {
         return [
             [
@@ -199,6 +235,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{body: int[], max: int}[]
+     */
     public function getResponseBodyArraysForAtMost() : array {
         return [
             [
@@ -220,6 +259,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{code: int, phrase: string}[]
+     */
     public function getResponseCodesAndReasonPhrases() : array {
         return [
             200 => [
@@ -241,6 +283,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{baseUri: string, path: string, fullUri: string}[]
+     */
     public function getUris() : array {
         return [
             // The first six sets are from http://docs.guzzlephp.org/en/latest/quickstart.html (2016-12-12)
@@ -300,6 +345,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{responseCode: int, actualGroup: string, expectedGroup: string}[]
+     */
     public function getDataForResponseGroupFailures() : array {
         return [
             [
@@ -330,6 +378,9 @@ class ApiContextTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array<array-key, array{data: string|PyStringNode, expected: string}>
+     */
     public function getRequestBodyValues() : array {
         return [
             [
@@ -355,7 +406,7 @@ class ApiContextTest extends TestCase {
             ->setRequestHeader('bar', 'bar')
         );
         $this->context->requestPath('/some/path', 'POST');
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertSame('foo', $request->getHeaderLine('foo'));
@@ -374,7 +425,7 @@ class ApiContextTest extends TestCase {
             ->addRequestHeader('bar', 'bar')
         );
         $this->context->requestPath('/some/path', 'POST');
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertSame('foo', $request->getHeaderLine('foo'));
@@ -393,7 +444,7 @@ class ApiContextTest extends TestCase {
         $this->assertSame($this->context, $this->context->setBasicAuth($username, $password));
         $this->context->requestPath('/some/path', 'POST');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
         $this->assertSame('Basic dXNlcjpwYXNz', $request->getHeaderLine('authorization'));
@@ -474,17 +525,20 @@ class ApiContextTest extends TestCase {
 
         $this->context->requestPath('/some/path', 'POST');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $boundary = $request->getBody()->getBoundary();
+
+        /** @var MultipartStream */
+        $requestBody = $request->getBody();
+        $boundary = $requestBody->getBoundary();
 
         $this->assertSame(sprintf('multipart/form-data; boundary=%s', $boundary), $request->getHeaderLine('Content-Type'));
-        $contents = $request->getBody()->getContents();
+        $contents = $requestBody->getContents();
 
         foreach ($files as $path) {
             $this->assertStringContainsString(
-                file_get_contents($path),
+                (string) file_get_contents($path),
                 $contents
             );
         }
@@ -505,10 +559,13 @@ class ApiContextTest extends TestCase {
 
         $this->context->requestPath('/some/path', 'POST');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $boundary = $request->getBody()->getBoundary();
+
+        /** @var MultipartStream */
+        $requestBody = $request->getBody();
+        $boundary = $requestBody->getBoundary();
 
         $this->assertSame(sprintf('multipart/form-data; boundary=%s', $boundary), $request->getHeaderLine('Content-Type'));
     }
@@ -527,7 +584,7 @@ class ApiContextTest extends TestCase {
         ])));
         $this->context->requestPath('/some/path');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
 
@@ -537,6 +594,9 @@ class ApiContextTest extends TestCase {
         $this->assertSame('foo=bar&bar%5B0%5D=foo&bar%5B1%5D=bar', (string) $request->getBody());
     }
 
+    /**
+     * @return array{httpMethod: string}[]
+     */
     public function getHttpMethodsForFormParametersTest() : array {
         return [
             ['httpMethod' => 'PUT'],
@@ -561,7 +621,7 @@ class ApiContextTest extends TestCase {
         ])));
         $this->context->requestPath('/some/path', $httpMethod);
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
 
@@ -585,18 +645,22 @@ class ApiContextTest extends TestCase {
         $this->context->addMultipartFileToRequest(__FILE__, 'file');
         $this->context->requestPath('/some/path');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
-        $boundary = $request->getBody()->getBoundary();
+
+        /** @var MultipartStream */
+        $requestBody = $request->getBody();
+
+        $boundary = $requestBody->getBoundary();
 
         $this->assertSame('POST', $request->getMethod());
         $this->assertSame(sprintf('multipart/form-data; boundary=%s', $boundary), $request->getHeaderLine('Content-Type'));
 
-        $contents = $request->getBody()->getContents();
+        $contents = $requestBody->getContents();
 
         $this->assertStringContainsString('Content-Disposition: form-data; name="file"; filename="ApiContextTest.php"', $contents);
-        $this->assertStringContainsString(file_get_contents(__FILE__), $contents);
+        $this->assertStringContainsString((string) file_get_contents(__FILE__), $contents);
 
         $foo = <<<FOO
 Content-Disposition: form-data; name="foo"
@@ -640,7 +704,7 @@ BAR;
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
         $this->context->requestPath('/some/path', 'POST');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
         $this->assertSame(file_get_contents(__FILE__), (string) $request->getBody());
         $this->assertSame('text/x-php', $request->getHeaderLine('Content-Type'));
@@ -649,13 +713,14 @@ BAR;
     /**
      * @dataProvider getRequestBodyValues
      * @covers ::setRequestBody
+     * @param string|PyStringNode $data
      */
     public function testCanSetRequestBodyToAString($data, string $expected) : void {
         $this->mockHandler->append(new Response());
         $this->context->setRequestBody($data);
         $this->context->requestPath('/some/path', 'POST');
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
         $this->assertSame($expected, (string) $request->getBody());
     }
@@ -676,7 +741,7 @@ BAR;
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));
         $this->context->requestPath($path);
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
         $request = $this->historyContainer[0]['request'];
         $this->assertSame($fullUri, (string) $request->getUri());
     }
@@ -736,7 +801,7 @@ BAR;
         $this->mockHandler->append(new Response(200));
         $this->assertSame($this->context, $this->context->requestPath('/some/path', $method));
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
         $this->assertSame($method, $this->historyContainer[0]['request']->getMethod());
     }
 
@@ -754,7 +819,7 @@ BAR;
             $this->context->requestPath('/some/path?foo=bar&bar=foo&a[]=1&a[]=2')
         );
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
 
@@ -795,7 +860,7 @@ BAR;
             $this->context->requestPath('/some/path?wut=wat')
         );
 
-        $this->assertSame(1, count($this->historyContainer));
+        $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
 
@@ -810,7 +875,7 @@ BAR;
     public function testCanAssertWhatTheResponseCodeIs(int $code) : void {
         $this->mockHandler->append(new Response($code));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseCodeIs($code));
+        $this->assertTrue($this->context->assertResponseCodeIs($code));
     }
 
     /**
@@ -820,7 +885,7 @@ BAR;
     public function testCanAssertWhatTheResponseCodeIsNot() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseCodeIsNot(201));
+        $this->assertTrue($this->context->assertResponseCodeIsNot(201));
     }
 
     /**
@@ -828,12 +893,13 @@ BAR;
      * @covers ::assertResponseIs
      * @covers ::requireResponse
      * @covers ::getResponseCodeGroupRange
+     * @param int[] $codes
      */
     public function testCanAssertWhichGroupTheResponseIsIn(string $group, array $codes) : void {
         foreach ($codes as $code) {
             $this->mockHandler->append(new Response($code, [], 'response body'));
             $this->context->requestPath('/some/path');
-            $this->assertNull($this->context->assertResponseIs($group));
+            $this->assertTrue($this->context->assertResponseIs($group));
         }
     }
 
@@ -841,6 +907,7 @@ BAR;
      * @dataProvider getGroupAndResponseCodes
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
+     * @param int[] $codes
      */
     public function testCanAssertWhichGroupTheResponseIsNotIn(string $group, array $codes) : void {
         $groups = [
@@ -857,7 +924,7 @@ BAR;
 
             foreach (array_filter($groups, function(string $g) use ($group) : bool { return $g !== $group; }) as $g) {
                 // Assert that the response is not in any of the other groups
-                $this->assertNull($this->context->assertResponseIsNot($g));
+                $this->assertTrue($this->context->assertResponseIsNot($g));
             }
         }
     }
@@ -867,9 +934,9 @@ BAR;
      * @covers ::assertResponseReasonPhraseIs
      */
     public function testCanAssertWhatTheResponseReasonPhraseIs(int $code, string $phrase) : void {
-        $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
+        $this->mockHandler->append(new Response($code, [], null, '1.1', $phrase));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseReasonPhraseIs($phrase));
+        $this->assertTrue($this->context->assertResponseReasonPhraseIs($phrase));
     }
 
     /**
@@ -878,7 +945,7 @@ BAR;
     public function testCanAssertWhatTheResponseReasonPhraseIsNot() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseReasonPhraseIsNot('Not Modified'));
+        $this->assertTrue($this->context->assertResponseReasonPhraseIsNot('Not Modified'));
     }
 
     /**
@@ -887,7 +954,7 @@ BAR;
     public function testCanAssertThatTheResponseReasonPhraseMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseReasonPhraseMatches('/OK/'));
+        $this->assertTrue($this->context->assertResponseReasonPhraseMatches('/OK/'));
     }
 
     /**
@@ -895,9 +962,9 @@ BAR;
      * @covers ::assertResponseStatusLineIs
      */
     public function testCanAssertWhatTheResponseStatusLineIs(int $code, string $phrase) : void {
-        $this->mockHandler->append(new Response($code, [], null, 1.1, $phrase));
+        $this->mockHandler->append(new Response($code, [], null, '1.1', $phrase));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseStatusLineIs(sprintf('%d %s', $code, $phrase)));
+        $this->assertTrue($this->context->assertResponseStatusLineIs(sprintf('%d %s', $code, $phrase)));
     }
 
     /**
@@ -906,7 +973,7 @@ BAR;
     public function testCanAssertWhatTheResponseStatusLineIsNot() : void {
         $this->mockHandler->append(new Response());
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseStatusLineIsNot('304 Not Modified'));
+        $this->assertTrue($this->context->assertResponseStatusLineIsNot('304 Not Modified'));
     }
 
     /**
@@ -915,7 +982,7 @@ BAR;
     public function testCanAssertThatTheResponseStatusLineMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseStatusLineMatches('/200 OK/'));
+        $this->assertTrue($this->context->assertResponseStatusLineMatches('/200 OK/'));
     }
 
     /**
@@ -924,7 +991,7 @@ BAR;
     public function testCanAssertThatAResponseHeaderExists() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseHeaderExists('Content-Type'));
+        $this->assertTrue($this->context->assertResponseHeaderExists('Content-Type'));
     }
 
     /**
@@ -933,7 +1000,7 @@ BAR;
     public function testCanAssertThatAResponseHeaderDoesNotExist() : void {
         $this->mockHandler->append(new Response(200));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseHeaderDoesNotExist('Content-Type'));
+        $this->assertTrue($this->context->assertResponseHeaderDoesNotExist('Content-Type'));
     }
 
     /**
@@ -942,7 +1009,7 @@ BAR;
     public function testCanAssertWhatAResponseHeaderIs() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseHeaderIs('Content-Type', 'application/json'));
+        $this->assertTrue($this->context->assertResponseHeaderIs('Content-Type', 'application/json'));
     }
 
     /**
@@ -951,7 +1018,7 @@ BAR;
     public function testCanAssertWhatAResponseHeaderIsNot() : void {
         $this->mockHandler->append(new Response(200, ['Content-Length' => '123']));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseHeaderIsNot('Content-Type', '456'));
+        $this->assertTrue($this->context->assertResponseHeaderIsNot('Content-Type', '456'));
     }
 
     /**
@@ -960,7 +1027,7 @@ BAR;
     public function testCanAssertThatAResponseHeaderMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200, ['Content-Type' => 'application/json']));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#'));
+        $this->assertTrue($this->context->assertResponseHeaderMatches('Content-Type', '#^application/(json|xml)$#'));
     }
 
     /**
@@ -969,7 +1036,7 @@ BAR;
     public function testCanAssertWhatTheResponseBodyIs() : void {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyIs(new PyStringNode(['response body'], 1)));
+        $this->assertTrue($this->context->assertResponseBodyIs(new PyStringNode(['response body'], 1)));
     }
 
     /**
@@ -978,7 +1045,7 @@ BAR;
     public function testCanAssertWhatTheResponseBodyIsNot() : void {
         $this->mockHandler->append(new Response(200, [], 'response body'));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyIsNot(new PyStringNode(['some other response body'], 1)));
+        $this->assertTrue($this->context->assertResponseBodyIsNot(new PyStringNode(['some other response body'], 1)));
     }
 
     /**
@@ -987,7 +1054,7 @@ BAR;
     public function testCanAssertThatTheResponseBodyMatchesAnExpression() : void {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1)));
+        $this->assertTrue($this->context->assertResponseBodyMatches(new PyStringNode(['/^{"FOO": ?"BAR"}$/i'], 1)));
     }
 
     /**
@@ -996,31 +1063,32 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testCanAssertThatTheResponseIsAnEmptyArray() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode([])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode([])));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyIsAnEmptyJsonArray());
+        $this->assertTrue($this->context->assertResponseBodyIsAnEmptyJsonArray());
     }
 
     /**
      * @covers ::assertResponseBodyIsAnEmptyJsonObject
      */
     public function testCanAssertThatTheResponseIsAnEmptyObject() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode(new stdClass())));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode(new stdClass())));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyIsAnEmptyJsonObject());
+        $this->assertTrue($this->context->assertResponseBodyIsAnEmptyJsonObject());
     }
 
     /**
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
+     * @param int[] $body
      */
     public function testCanAssertThatTheArrayInTheResponseBodyHasACertainLength(array $body, int $lengthToUse, bool $willFail) : void {
-        $this->mockHandler->append(new Response(200, [], json_encode($body)));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode($body)));
         $this->context->requestPath('/some/path');
 
         if ($willFail) {
-            $this->expectException('Imbo\BehatApiExtension\Exception\AssertionFailedException');
+            $this->expectException(AssertionFailedException::class);
             $this->expectExceptionMessage(sprintf(
                 'Expected response body to be a JSON array with %d entr%s, got %d: "[',
                 $lengthToUse,
@@ -1029,29 +1097,31 @@ BAR;
             ));
         }
 
-        $this->assertNull($this->context->assertResponseBodyJsonArrayLength($lengthToUse));
+        $this->assertTrue($this->context->assertResponseBodyJsonArrayLength($lengthToUse));
     }
 
     /**
      * @dataProvider getResponseBodyArraysForAtLeast
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
+     * @param int[] $body
      */
     public function testCanAssertTheMinLengthOfAnArrayInTheResponseBody(array $body, int $min) : void {
-        $this->mockHandler->append(new Response(200, [], json_encode($body)));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode($body)));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyJsonArrayMinLength($min));
+        $this->assertTrue($this->context->assertResponseBodyJsonArrayMinLength($min));
     }
 
     /**
      * @dataProvider getResponseBodyArraysForAtMost
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
+     * @param int[] $body
      */
     public function testCanAssertTheMaxLengthOfAnArrayInTheResponseBody(array $body, int $max) : void {
-        $this->mockHandler->append(new Response(200, [], json_encode($body)));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode($body)));
         $this->context->requestPath('/some/path');
-        $this->assertNull($this->context->assertResponseBodyJsonArrayMaxLength($max));
+        $this->assertTrue($this->context->assertResponseBodyJsonArrayMaxLength($max));
     }
 
     /**
@@ -1562,7 +1632,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testAssertingThatTheResponseIsAnEmptyArrayCanFail() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be an empty JSON array, got "[');
@@ -1575,7 +1645,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyArrayWhenTheBodyDoesNotContainAnArray() : void {
-        $this->mockHandler->append(new Response(200, [], 123));
+        $this->mockHandler->append(new Response(200, [], '123'));
         $this->context->requestPath('/some/path');
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The response body does not contain a valid JSON array / object.');
@@ -1588,7 +1658,7 @@ BAR;
     public function testAssertingThatTheResponseIsAnEmptyObjectCanFail() : void {
         $object = new stdClass();
         $object->foo = 'bar';
-        $this->mockHandler->append(new Response(200, [], json_encode($object)));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode($object)));
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be an empty JSON object, got "{');
@@ -1600,7 +1670,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyObjectWhenTheBodyDoesNotContainAnObject() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode([])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode([])));
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be a JSON object.');
@@ -1613,7 +1683,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testAssertingThatTheResponseBodyIsAJsonArrayWithACertainLengthCanFail() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be a JSON array with 2 entries, got 3: "[');
@@ -1635,7 +1705,7 @@ BAR;
      * @covers ::getResponseBodyArray
      */
     public function testThrowsExceptionWhenAssertingTheLengthOfAJsonArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The response body does not contain a valid JSON array.');
@@ -1647,7 +1717,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testAssertingThatTheResponseBodyContainsAJsonArrayWithAMinimumLengthCanFail() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be a JSON array with at least 4 entries, got 3: "[');
@@ -1669,7 +1739,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testThrowsExceptionWhenAssertingTheMinimumLengthOfAnArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The response body does not contain a valid JSON array.');
@@ -1681,7 +1751,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testAssertingThatTheResponseBodyContainsAJsonArrayWithAMaximumLengthCanFail() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode([1, 2, 3])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode([1, 2, 3])));
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be a JSON array with at most 2 entries, got 3: "[');
@@ -1703,7 +1773,7 @@ BAR;
      * @covers ::getResponseBody
      */
     public function testThrowsExceptionWhenAssertingTheMaximumLengthOfAnArrayInTheResponseBodyAndTheBodyDoesNotContainAnArray() : void {
-        $this->mockHandler->append(new Response(200, [], json_encode(['foo' => 'bar'])));
+        $this->mockHandler->append(new Response(200, [], (string) json_encode(['foo' => 'bar'])));
         $this->context->requestPath('/some/path');
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The response body does not contain a valid JSON array.');
@@ -1792,7 +1862,7 @@ BAR;
         $this->context->requestPath('/some/path', 'POST');
         $this->context->requestPath('/some/path');
 
-        $this->assertSame(2, count($this->historyContainer));
+        $this->assertCount(2, $this->historyContainer);
 
         $this->assertSame(
             'POST',

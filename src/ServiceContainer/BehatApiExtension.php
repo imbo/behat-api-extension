@@ -72,8 +72,10 @@ class BehatApiExtension implements ExtensionInterface {
 
     /**
      * @codeCoverageIgnore
+     * @param array Guzzle client configuration array
+     * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
-    public function load(ContainerBuilder $container, array $config) : void {
+    public function load(ContainerBuilder $container, array $config) : void { // @phpstan-ignore-line
         $clientInitializerDefinition = new Definition(
             ApiClientAwareInitializer::class,
             [

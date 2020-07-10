@@ -14,7 +14,7 @@ class RegExp {
      * @param string $pattern A valid regular expression pattern
      * @throws InvalidArgumentException
      */
-    public function __invoke($subject, string $pattern) : void {
+    public function __invoke($subject, string $pattern) : bool {
         if (!in_array(gettype($subject), ['string', 'integer', 'double'])) {
             throw new InvalidArgumentException(sprintf(
                 'Regular expression matching can only be applied to strings, integers or doubles, got "%s".',
@@ -31,5 +31,7 @@ class RegExp {
                 $pattern
             ));
         }
+
+        return true;
     }
 }

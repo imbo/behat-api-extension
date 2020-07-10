@@ -19,7 +19,7 @@ class JWT {
     /**
      * JWT tokens present in the response body
      *
-     * @var array
+     * @var array<string, array{payload: array, secret: string}>
      */
     private $jwtTokens = [];
 
@@ -41,7 +41,7 @@ class JWT {
     /**
      * Add a JWT token that can be matched
      */
-    public function addToken(string $name, array $payload, string $secret) : self {
+    public function addToken(string $name, array $payload, string $secret) : self { // @phpstan-ignore-line
         $this->jwtTokens[$name] = [
             'payload' => $payload,
             'secret' => $secret,
@@ -55,7 +55,7 @@ class JWT {
      *
      * @throws InvalidArgumentException
      */
-    public function __invoke(string $jwt, string $name) : void {
+    public function __invoke(string $jwt, string $name) : bool {
         if (!isset($this->jwtTokens[$name])) {
             throw new InvalidArgumentException(sprintf('No JWT registered for "%s".', $name));
         }
@@ -66,5 +66,7 @@ class JWT {
         if (!$this->comparator->compare($token['payload'], $result)) {
             throw new InvalidArgumentException('JWT mismatch.');
         }
+
+        return true;
     }
 }

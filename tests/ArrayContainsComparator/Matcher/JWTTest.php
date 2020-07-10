@@ -10,12 +10,16 @@ use InvalidArgumentException;
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT
  */
 class JWTTest extends TestCase {
+    /** @var JWT */
     private $matcher;
 
     public function setUp() : void {
         $this->matcher = new JWT(new ArrayContainsComparator());
     }
 
+    /**
+     * @return array{jwt: string, name: string, payload: array<string, mixed>, secret: string}[]
+     */
     public function getJwt() : array {
         return [
             [
@@ -54,7 +58,7 @@ class JWTTest extends TestCase {
      * @covers ::__invoke
      */
     public function testThrowsExceptionWhenJwtDoesNotMatch() : void {
-        $matcher = $this->matcher->addToken('some name', ['some' => 'data'], 'secret', 'HS256');
+        $matcher = $this->matcher->addToken('some name', ['some' => 'data'], 'secret');
         $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage('Haystack object is missing the "some" key.');
         $matcher(
@@ -66,10 +70,11 @@ class JWTTest extends TestCase {
     /**
      * @covers ::__invoke
      * @dataProvider getJwt
+     * @param array<string, mixed> $payload
      */
     public function testCanMatchJwt(string $jwt, string $name, array $payload, string $secret) : void {
         $matcher = $this->matcher->addToken($name, $payload, $secret);
-        $this->assertNull($matcher(
+        $this->assertTrue($matcher(
             $jwt,
             $name
         ));

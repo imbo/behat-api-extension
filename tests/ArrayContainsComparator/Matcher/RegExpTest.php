@@ -8,12 +8,16 @@ use InvalidArgumentException;
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp
  */
 class RegExpTest extends TestCase {
+    /** @var RegExp */
     private $matcher;
 
     public function setUp() : void {
         $this->matcher = new RegExp();
     }
 
+    /**
+     * @return array<string, array{subject: float|int|string, pattern: string}>
+     */
     public function getSubjectsAndPatterns() : array {
         return [
             'a regular string' => [
@@ -38,16 +42,17 @@ class RegExpTest extends TestCase {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Regular expression matching can only be applied to strings, integers or doubles, got "boolean".');
-        $matcher(true, '/true/');
+        $matcher(true, '/true/'); // @phpstan-ignore-line
     }
 
     /**
      * @dataProvider getSubjectsAndPatterns
      * @covers ::__invoke
+     * @param float|int|string $subject
      */
     public function testCanMatchRegularExpressionPatternsAgainst($subject, string $pattern) : void {
         $matcher = $this->matcher;
-        $this->assertNull($matcher($subject, $pattern));
+        $this->assertTrue($matcher($subject, $pattern));
     }
 
     /**

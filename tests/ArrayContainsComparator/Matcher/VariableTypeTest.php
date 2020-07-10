@@ -8,12 +8,16 @@ use InvalidArgumentException;
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType
  */
 class VariableTypeTest extends TestCase {
+    /** @var VariableType */
     private $matcher;
 
     public function setUp() : void {
         $this->matcher = new VariableType();
     }
 
+    /**
+     * @return array<string, array{value: mixed, type: string}>
+     */
     public function getValuesAndTypes() : array {
         return [
             'int' => [
@@ -123,6 +127,9 @@ class VariableTypeTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{value: mixed, type: string, message: string}[]
+     */
     public function getInvalidMatches() : array {
         return [
             [
@@ -152,12 +159,13 @@ class VariableTypeTest extends TestCase {
      * @dataProvider getValuesAndTypes
      * @covers ::__invoke
      * @covers ::normalizeTypes
+     * @param mixed $value
      */
     public function testCanMatchValuesOfType($value, string $type) : void {
         $matcher = $this->matcher;
-        $this->assertNull(
+        $this->assertTrue(
             $matcher($value, $type),
-            'Matcher is supposed to return null.'
+            'Matcher is supposed to return true.'
         );
     }
 
@@ -174,6 +182,7 @@ class VariableTypeTest extends TestCase {
     /**
      * @dataProvider getInvalidMatches
      * @covers ::__invoke
+     * @param mixed $value
      */
     public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, string $type, string $message) : void {
         $matcher = $this->matcher;

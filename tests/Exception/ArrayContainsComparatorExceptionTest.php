@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
  * @coversDefaultClass Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
  */
 class ArrayContainsComparatorExceptionTest extends TestCase {
+    /**
+     * @return array<array-key, array{message: string, needle: array<string, string>, haystack: array<string, string>, formattedMessage: string}>
+     */
     public function getExceptionData() : array {
         return [
             'with no needle / haystack' => [
@@ -56,6 +59,10 @@ MESSAGE
     /**
      * @dataProvider getExceptionData
      * @covers ::__construct
+     * @param string $message
+     * @param array<string, string> $needle
+     * @param array<string, string> $haystack
+     * @param string $formattedMessage
      */
     public function testCanProperlyFormatErrorMessages(string $message, array $needle, array $haystack, string $formattedMessage) : void {
         $this->expectException(ArrayContainsComparatorException::class);

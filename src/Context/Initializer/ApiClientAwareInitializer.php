@@ -15,10 +15,16 @@ use RuntimeException;
 class ApiClientAwareInitializer implements ContextInitializer {
     /**
      * @var array Guzzle client configuration array
+     * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
-    private $guzzleConfig = [];
+    private $guzzleConfig = []; // @phpstan-ignore-line
 
-    public function __construct(array $guzzleConfig) {
+    /**
+     * Class constructor
+     *
+     * @var array Guzzle client configuration array
+     */
+    public function __construct(array $guzzleConfig) { // @phpstan-ignore-line
         $this->guzzleConfig = $guzzleConfig;
     }
 

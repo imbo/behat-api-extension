@@ -33,6 +33,12 @@ class ApiClientAwareInitializerTest extends TestCase {
         set_error_handler(function() { return true; });
         $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
+        if (false === $sock) {
+            $this->fail('Unable to create socket');
+        }
+
+        $result = false;
+
         for ($port = 8000; $port < 8079; $port++) {
             if ($result = socket_bind($sock, 'localhost', $port)) {
                 break;

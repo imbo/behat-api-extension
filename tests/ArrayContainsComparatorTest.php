@@ -18,7 +18,7 @@ class ArrayContainsComparatorTest extends TestCase {
     }
 
     /**
-     * @return array{needle: mixed, haystack: mixed}[]
+     * @return array<string, array{needle: array, haystack: array}>
      */
     public function getDataForInArrayCheck() : array {
         $scalarHaystack = [1, 2, 1.1, 2.2, 'foo', 'bar', true, false];
@@ -163,7 +163,7 @@ class ArrayContainsComparatorTest extends TestCase {
     }
 
     /**
-     * @return array{needle: mixed, haystack: mixed}[]
+     * @return array<string, array{needle: array, haystack: array}>
      */
     public function getDataForCompareCheck() : array {
         return [
@@ -278,7 +278,7 @@ class ArrayContainsComparatorTest extends TestCase {
     /**
      * @return array{
      *  needle: array<string, string>,
-     *  haystack: array,
+     *  haystack: array<array-key, mixed>,
      *  exceptionMessage: string
      * }[]
      */
@@ -413,7 +413,7 @@ EXCEPTION
             ],
             '@customFunction' => [
                 'function' => 'customFunction',
-                'callback' => function($subject, $param) {
+                'callback' => function(string $subject, string $param) : bool {
                     return strtoupper($subject) === $param;
                 },
                 'needle' => [
@@ -499,8 +499,7 @@ EXCEPTION
             // @customFunction
             [
                 'function' => 'customFunction',
-                'callback' => function($subject, $param) {
-                    unset($subject, $param);
+                'callback' => function(string $subject, string $param) : void {
                     throw new InvalidArgumentException('Some custom error message');
                 },
                 'needle' => [
@@ -925,7 +924,7 @@ EXCEPTION
      * @dataProvider getDataForSpecificKeyInListChecksWithInvalidData
      * @covers ::compare
      * @param array<string, string> $needle
-     * @param array<string, string> $haystack
+     * @param array<array-key, mixed> $haystack
      */
     public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack, string $exceptionMessage) : void {
         $this->expectException(ArrayContainsComparatorException::class);

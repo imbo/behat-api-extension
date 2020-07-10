@@ -55,7 +55,9 @@ class ApiContextTest extends TestCase {
     /** @var HandlerStack */
     private $handlerStack;
 
-    /** @var array{request: Request, response: Response}[] */
+    /**
+     * @var array{request: Request, response: Response}[]
+     */
     private $historyContainer = [];
 
     /** @var ApiContext */
@@ -75,6 +77,7 @@ class ApiContextTest extends TestCase {
 
         $this->mockHandler = new MockHandler();
         $this->handlerStack = HandlerStack::create($this->mockHandler);
+        /** @psalm-suppress MixedPropertyTypeCoercion */
         $this->handlerStack->push(Middleware::history($this->historyContainer));
         $this->client = new Client([
             'handler' => $this->handlerStack,
@@ -1137,7 +1140,7 @@ BAR;
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo', 'foo' => 'bar'], ['foo' => 'bar', 'bar' => 'foo'])
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1));
     }
@@ -1791,7 +1794,7 @@ BAR;
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
-            ->will($this->throwException(new OutOfRangeException('error message')));
+            ->willThrowException(new OutOfRangeException('error message'));
 
         $this->expectException(OutOfRangeException::class);
         $this->expectExceptionMessage('error message');
@@ -1810,7 +1813,7 @@ BAR;
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Comparator did not return in a correct manner. Marking assertion as failed.');

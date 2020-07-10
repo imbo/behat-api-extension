@@ -28,7 +28,7 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase {
                 ['lt', $this->isInstanceOf(Matcher\LessThan::class)],
                 ['jwt', $this->isInstanceOf(Matcher\JWT::class)]
             )
-            ->will($this->returnSelf());
+            ->willReturnSelf();
 
         new ArrayContainsComparatorAwareInitializer($comparator);
     }
@@ -41,7 +41,7 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase {
         $comparator
             ->expects($this->exactly(8))
             ->method('addFunction')
-            ->will($this->returnSelf());
+            ->willReturnSelf();
 
         $context = $this->createMock(ArrayContainsComparatorAwareContext::class);
         $context->expects($this->once())->method('setArrayContainsComparator')->with($comparator);

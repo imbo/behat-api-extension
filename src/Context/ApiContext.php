@@ -156,12 +156,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Add multipart form parameters to the request
      *
-     * @param TableNode<array{name: string, value: string}> $table Table with name / value pairs
+     * @param TableNode $table Table with name / value pairs
      * @return self
      *
      * @Given the following multipart form parameters are set:
      */
-    public function setRequestMultipartFormParams(TableNode $table) {
+    public function setRequestMultipartFormParams(TableNode $table) { // @phpstan-ignore-line
         foreach ($table as $row) {
             $this->addMultipartPart([
                 'name' => $row['name'],
@@ -285,12 +285,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Set form parameters
      *
-     * @param TableNode<array{name: string, value: string}> $table Table with name / value pairs
+     * @param TableNode $table Table with name / value pairs
      * @return self
      *
      * @Given the following form parameters are set:
      */
-    public function setRequestFormParams(TableNode $table) {
+    public function setRequestFormParams(TableNode $table) { // @phpstan-ignore-line
         if (!isset($this->requestOptions['form_params'])) {
             $this->requestOptions['form_params'] = [];
         }
@@ -401,13 +401,13 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Add a query parameter to the upcoming request
      *
      * @param string $name The name of the parameter
-     * @param string|TableNode<array{name: string, value: string}> $value The value to add
+     * @param string|TableNode $value The value to add
      * @return self
      *
      * @Given the query parameter :name is :value
      * @Given the query parameter :name is:
      */
-    public function setQueryStringParameter($name, $value) {
+    public function setQueryStringParameter($name, $value) { // @phpstan-ignore-line
         if ($value instanceof TableNode) {
             $value = array_map(function(array $row) : string {
                 return $row['value'];
@@ -422,12 +422,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Set multiple query parameters for the upcoming request
      *
-     * @param TableNode<array{name: string, value: string}> $params The values to set
+     * @param TableNode $params The values to set
      * @return self
      *
      * @Given the following query parameters are set:
      */
-    public function setQueryStringParameters(TableNode $params) {
+    public function setQueryStringParameters(TableNode $params) { // @phpstan-ignore-line
         foreach ($params as $row) {
             $this->requestOptions['query'][$row['name']] = $row['value'];
         }

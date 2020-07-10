@@ -26,7 +26,7 @@ class FeatureContext implements SnippetAcceptingContext {
     /**
      * Process instance for executing processes
      *
-     * @var Process
+     * @var Process<string>
      */
     private $process;
 
@@ -45,7 +45,7 @@ class FeatureContext implements SnippetAcceptingContext {
      * @BeforeSuite
      * @AfterSuite
      */
-    public static function emptyTestDir(SuiteScope $scope) {
+    public static function emptyTestDir(SuiteScope $scope) : void {
         $testDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension';
 
         if (is_dir($testDir)) {
@@ -61,7 +61,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @BeforeScenario
      */
-    public function prepareScenario(BeforeScenarioScope $scope) {
+    public function prepareScenario(BeforeScenarioScope $scope) : void {
         $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension' . DIRECTORY_SEPARATOR . microtime(true);
         mkdir($dir . '/features/bootstrap', 0777, true);
 
@@ -83,7 +83,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @Given a file named :filename with:
      */
-    public function createFile($filename, PyStringNode $content, $readable = true) {
+    public function createFile($filename, PyStringNode $content, $readable = true) : void {
         $filename = rtrim($this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
         $path = dirname($filename);
         $content = str_replace("'''", '"""', (string) $content);
@@ -107,17 +107,21 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @Given a non-readable file named :filename with:
      */
-    public function createNonReadableFile($filename, PyStringNode $content) {
+    public function createNonReadableFile($filename, PyStringNode $content) : void {
         $this->createFile($filename, $content, false);
     }
 
     /**
      * Runs Behat
      *
-     * @param string $argumentsString
+     * @param string $args
      * @When /^I run "behat(?: ((?:\"|[^"])*))?"$/
      */
-    public function runBehat($args = '') {
+    public function runBehat(string $args = '') : void {
+        if (!defined('BEHAT_BIN_PATH')) {
+            throw new RuntimeException('Missing BEHAT_BIN_PATH constant');
+        }
+
         $args = strtr($args, ['\'' => '"']);
 
         $this->process = Process::fromShellCommandline(
@@ -144,7 +148,7 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @Then /^it should (fail|pass) with:$/
      */
-    public function assertCommandResultWithOutput($result, PyStringNode $output) {
+    public function assertCommandResultWithOutput($result, PyStringNode $output) : void {
         $this->assertCommandResult($result);
         $this->assertCommandOutputMatches($output);
     }
@@ -152,11 +156,11 @@ class FeatureContext implements SnippetAcceptingContext {
     /**
      * Assert command output contains a string
      *
-     * @param PyStringNode $output
+     * @param PyStringNode $content
      *
      * @Then the output should contain:
      */
-    public function assertCommandOutputMatches(PyStringNode $content) {
+    public function assertCommandOutputMatches(PyStringNode $content) : void {
         Assertion::contains(
             $this->getOutput(),
             str_replace("'''", '"""', (string) $content),
@@ -170,7 +174,7 @@ class FeatureContext implements SnippetAcceptingContext {
      * @param string $result
      * @Then /^it should (fail|pass)$/
      */
-    public function assertCommandResult($result) {
+    public function assertCommandResult($result) : void {
         $exitCode = $this->getExitCode();
 
         // Escape % as the callback will pass this value to sprintf() if the assertion fails, and
@@ -199,9 +203,9 @@ class FeatureContext implements SnippetAcceptingContext {
     /**
      * Get the exit code of the process
      *
-     * @return int
+     * @return ?int
      */
-    private function getExitCode() {
+    private function getExitCode() : ?int {
         return $this->process->getExitCode();
     }
 
@@ -213,7 +217,7 @@ class FeatureContext implements SnippetAcceptingContext {
     private function getOutput() {
         $output = $this->process->getErrorOutput() . $this->process->getOutput();
 
-        return trim(preg_replace('/ +$/m', '', $output));
+        return trim((string) preg_replace('/ +$/m', '', $output));
     }
 
     /**
@@ -221,8 +225,11 @@ class FeatureContext implements SnippetAcceptingContext {
      *
      * @param string $path Path to a file or a directory
      */
-    private static function rmdir($path) {
-        foreach (glob($path . '/*') as $file) {
+    private static function rmdir($path) : void {
+        /** @var string[] */
+        $files = glob(sprintf('%s/*', $path));
+
+        foreach ($files as $file) {
             if (is_dir($file)) {
                 self::rmdir($file);
             } else {

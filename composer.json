@@ -33,7 +33,9 @@
     "slim/slim": "^4.4",
     "slim/psr7": "^1.0",
     "tuupola/slim-basic-auth": "^3.2",
-    "phpstan/phpstan": "^0.12.8"
+    "phpstan/phpstan": "^0.12",
+    "phpstan/phpstan-phpunit": "^0.12",
+    "phpstan/extension-installer": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -55,7 +57,10 @@
       "@test:phpunit",
       "@test:behat"
     ],
-    "sa": "vendor/bin/phpstan analyse -l 7 src",
+    "sa:phpstan": "vendor/bin/phpstan analyse -l max src features tests",
+    "sa": [
+      "@sa:phpstan"
+    ],
     "ci": [
       "@lint",
       "@sa",

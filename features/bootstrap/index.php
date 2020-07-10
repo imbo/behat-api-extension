@@ -22,7 +22,7 @@ $app->add(new HttpBasicAuthentication([
  * Front page
  */
 $app->any('/', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         'null' => null,
         'string' => 'value',
         'integer' => 42,
@@ -57,7 +57,7 @@ $app->any('/', function(Request $request, Response $response) : Response {
  * List with objects
  */
 $app->any('/list', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         [
             'integer' => 123,
             'string' => 'value',
@@ -80,7 +80,7 @@ $app->any('/echo', function(Request $request, Response $response) : Response {
     $requestBody = (string) $request->getBody();
 
     if (array_key_exists('json', $request->getQueryParams())) {
-        $response->getBody()->write(json_encode(json_decode($requestBody, true)));
+        $response->getBody()->write((string) json_encode(json_decode($requestBody, true)));
         $response = $response->withHeader('Content-Type', 'application/json');
     } else {
         $response->getBody()->write($requestBody);
@@ -93,7 +93,7 @@ $app->any('/echo', function(Request $request, Response $response) : Response {
  * Return information about uploaded files
  */
 $app->post('/files', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode($_FILES));
+    $response->getBody()->write((string) json_encode($_FILES));
     return $response->withHeader('Content-Type', 'application/json');
 });
 
@@ -101,7 +101,7 @@ $app->post('/files', function(Request $request, Response $response) : Response {
  * Return information about the request
  */
 $app->any('/requestInfo', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         '_GET' => $_GET,
         '_POST' => $_POST,
         '_FILES' => $_FILES,
@@ -115,7 +115,7 @@ $app->any('/requestInfo', function(Request $request, Response $response) : Respo
  * Return the HTTP method
  */
 $app->any('/echoHttpMethod', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         'method' => $request->getMethod(),
     ]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -125,7 +125,7 @@ $app->any('/echoHttpMethod', function(Request $request, Response $response) : Re
  * Return the authenticated user name
  */
 $app->any('/basicAuth', function(Request $request, Response $response) {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         'user' => explode(':', $request->getUri()->getUserInfo())[0],
     ]));
 
@@ -136,6 +136,7 @@ $app->any('/basicAuth', function(Request $request, Response $response) {
  * Return access token given the correct credentials
  */
 $app->any('/oauth/token', function(Request $request, Response $response) {
+    /** @var array{username: string, password: string} */
     $body = $request->getParsedBody();
 
     if ('foo' === $body['username'] && 'bar' === $body['password']) {
@@ -149,7 +150,7 @@ $app->any('/oauth/token', function(Request $request, Response $response) {
         ];
     }
 
-    $response->getBody()->write(json_encode($responseBody));
+    $response->getBody()->write((string) json_encode($responseBody));
 
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -171,7 +172,7 @@ $app->any('/securedWithOAuth', function(Request $request, Response $response) {
         ];
     }
 
-    $response->getBody()->write(json_encode($responseBody));
+    $response->getBody()->write((string) json_encode($responseBody));
 
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -180,7 +181,7 @@ $app->any('/securedWithOAuth', function(Request $request, Response $response) {
  * Return a client error
  */
 $app->any('/clientError', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         'error' => 'client error',
     ]));
     return $response
@@ -192,7 +193,7 @@ $app->any('/clientError', function(Request $request, Response $response) : Respo
  * @see https://github.com/imbo/behat-api-extension/issues/13
  */
 $app->any('/issue-13', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([
+    $response->getBody()->write((string) json_encode([
         'customer' => [
             'id' => '12345',
             'name' => 'Behat Testing API',
@@ -234,7 +235,7 @@ $app->get('/customReasonPhrase', function(Request $request, Response $response) 
  * Return a response with an empty array
  */
 $app->get('/emptyArray', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode([]));
+    $response->getBody()->write((string) json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
 });
 
@@ -242,7 +243,7 @@ $app->get('/emptyArray', function(Request $request, Response $response) : Respon
  * Return a response with an empty object
  */
 $app->get('/emptyObject', function(Request $request, Response $response) : Response {
-    $response->getBody()->write(json_encode(new stdClass()));
+    $response->getBody()->write((string) json_encode(new stdClass()));
     return $response->withHeader('Content-Type', 'application/json');
 });
 

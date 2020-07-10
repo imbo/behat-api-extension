@@ -3,12 +3,14 @@ namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
  */
 class BehatApiExtensionTest extends TestCase {
+    /** @var BehatApiExtension */
     private $extension;
 
     public function setUp() : void {
@@ -20,6 +22,7 @@ class BehatApiExtensionTest extends TestCase {
      * @covers ::configure
      */
     public function testCanBuildConfiguration() : void {
+        /** @var ArrayNodeDefinition */
         $rootNode = (new TreeBuilder($this->extension->getConfigKey()))->getRootNode();
 
         // Configure the root node builder
@@ -39,6 +42,7 @@ class BehatApiExtensionTest extends TestCase {
      * @covers ::configure
      */
     public function testCanOverrideDefaultValuesWhenBuildingConfiguration() : void {
+        /** @var ArrayNodeDefinition */
         $rootNode = (new TreeBuilder($this->extension->getConfigKey()))->getRootNode();
 
         // Configure the root node builder

@@ -5,18 +5,21 @@ use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
-use Prophecy\Exception\InvalidArgumentException as ProphecyInvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
  */
 class ArrayContainsComparatorTest extends TestCase {
+    /** @var ArrayContainsComparator */
     private $comparator;
 
     public function setUp() : void {
         $this->comparator = new ArrayContainsComparator();
     }
 
+    /**
+     * @return array{needle: mixed, haystack: mixed}[]
+     */
     public function getDataForInArrayCheck() : array {
         $scalarHaystack = [1, 2, 1.1, 2.2, 'foo', 'bar', true, false];
         $haystackWithArrayElements = [
@@ -159,6 +162,9 @@ class ArrayContainsComparatorTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{needle: mixed, haystack: mixed}[]
+     */
     public function getDataForCompareCheck() : array {
         return [
             'simple key value objects' => [
@@ -200,6 +206,9 @@ class ArrayContainsComparatorTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{needle: array, haystack: array}[]
+     */
     public function getDataForSpecificKeyInListChecks() : array {
         return [
             'simple list in haystack key' => [
@@ -266,6 +275,13 @@ class ArrayContainsComparatorTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{
+     *  needle: array<string, string>,
+     *  haystack: array,
+     *  exceptionMessage: string
+     * }[]
+     */
     public function getDataForSpecificKeyInListChecksWithInvalidData() : array {
         return [
             'a string' => [
@@ -325,6 +341,14 @@ EXCEPTION
         ];
     }
 
+    /**
+     * @return array{
+     *  function: string,
+     *  callback: callable,
+     *  needle: array{key: string},
+     *  haystack: array{key: string|int[]}
+     * }[]
+     */
     public function getCustomFunctionsAndData() : array {
         return [
             '@arrayLength' => [
@@ -379,7 +403,7 @@ EXCEPTION
             ],
             '@jwt' => [
                 'function' => 'jwt',
-                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], 'secret', 'HS256'),
+                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], 'secret'),
                 'needle' => [
                     'key' => '@jwt(my jwt)',
                 ],
@@ -402,6 +426,9 @@ EXCEPTION
         ];
     }
 
+    /**
+     * @return array{function: string, callback: callable, needle: array<string, string>, haystack: array<string, mixed>, errorMessage: string}[]
+     */
     public function getCustomFunctionsAndDataThatWillFail() : array {
         return [
             // @arrayLength
@@ -473,7 +500,7 @@ EXCEPTION
             [
                 'function' => 'customFunction',
                 'callback' => function($subject, $param) {
-                    unset($subject, $params);
+                    unset($subject, $param);
                     throw new InvalidArgumentException('Some custom error message');
                 },
                 'needle' => [
@@ -523,7 +550,7 @@ EXCEPTION
      * @covers ::arrayIsList
      * @covers ::arrayIsObject
      */
-    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) : void {
+    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) : void { // @phpstan-ignore-line
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -709,7 +736,7 @@ EXCEPTION
      * @covers ::arrayIsList
      * @covers ::arrayIsObject
      */
-    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) : void {
+    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) : void { // @phpstan-ignore-line
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -857,7 +884,7 @@ EXCEPTION
      * @covers ::compare
      * @covers ::compareValues
      */
-    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) : void {
+    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) : void { // @phpstan-ignore-line
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -897,6 +924,8 @@ EXCEPTION
     /**
      * @dataProvider getDataForSpecificKeyInListChecksWithInvalidData
      * @covers ::compare
+     * @param array<string, string> $needle
+     * @param array<string, string> $haystack
      */
     public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack, string $exceptionMessage) : void {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -971,6 +1000,8 @@ EXCEPTION
      * @covers ::addFunction
      * @covers ::compare
      * @covers ::compareValues
+     * @param array<string, string> $needle
+     * @param array<string, mixed> $haystack
      */
     public function testCanUseCustomFunctionMatcher(string $function, callable $callback, array $needle, array $haystack) : void {
         $this->assertTrue(
@@ -1016,6 +1047,8 @@ EXCEPTION
      * @covers ::addFunction
      * @covers ::compare
      * @covers ::compareValues
+     * @param array<string, string> $needle
+     * @param array<string, mixed> $haystack
      */
     public function testThrowsExceptionWhenCustomFunctionMatcherFails(string $function, callable $callback, array $needle, array $haystack, string $errorMessage) : void {
         $this->expectException(ArrayContainsComparatorException::class);

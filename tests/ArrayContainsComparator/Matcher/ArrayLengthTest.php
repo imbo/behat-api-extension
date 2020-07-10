@@ -8,12 +8,16 @@ use InvalidArgumentException;
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength
  */
 class ArrayLengthTest extends TestCase {
+    /** @var ArrayLength */
     private $matcher;
 
     public function setup() : void {
         $this->matcher = new ArrayLength();
     }
 
+    /**
+     * @return array{list: int[], length: int}[]
+     */
     public function getArraysAndLengths() : array {
         return [
             [
@@ -31,6 +35,9 @@ class ArrayLengthTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{value: int|string|array<string, string>, message: string}[]
+     */
     public function getInvalidValues() : array {
         return [
             [
@@ -48,6 +55,9 @@ class ArrayLengthTest extends TestCase {
         ];
     }
 
+    /**
+     * @return array{array: int[], maxLength: int, message: string}[]
+     */
     public function getValuesThatFail() : array {
         return [
             [
@@ -66,30 +76,33 @@ class ArrayLengthTest extends TestCase {
     /**
      * @dataProvider getArraysAndLengths
      * @covers ::__invoke
+     * @param int[] $array
      */
     public function testCanMatchLengthOfArrays(array $array, int $length) : void {
         $matcher = $this->matcher;
 
-        $this->assertNull(
+        $this->assertTrue(
             $matcher($array, $length),
-            'Matcher is supposed to return null.'
+            'Matcher is supposed to return true.'
         );
     }
 
     /**
      * @dataProvider getInvalidValues
      * @covers ::__invoke
+     * @param int|string|array<string, string> $value
      */
     public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray($value, string $message) : void {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
-        $matcher($value, 123);
+        $matcher($value, 123); // @phpstan-ignore-line
     }
 
     /**
      * @dataProvider getValuesThatFail
      * @covers ::__invoke
+     * @param int[] $array
      */
     public function testThrowsExceptionWhenLengthIsNotCorrect(array $array, int $length, string $message) : void {
         $this->expectException(InvalidArgumentException::class);

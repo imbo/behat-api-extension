@@ -15,7 +15,7 @@ class ArrayContainsComparator {
      * Keys are the names of the functions, and the values represent an invokable piece of code, be
      * it a function name or the name of an invokable class.
      *
-     * @var array
+     * @var array<string, callable>
      */
     protected $functions = [];
 
@@ -50,7 +50,7 @@ class ArrayContainsComparator {
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
      * "list" is a numerically indexed array, and an "object" is an associative array.
      */
-    public function compare(array $needle, array $haystack) : bool {
+    public function compare(array $needle, array $haystack) : bool { // @phpstan-ignore-line
         $needleIsList = $this->arrayIsList($needle);
         $haystackIsList = $this->arrayIsList($haystack);
 
@@ -188,7 +188,7 @@ class ArrayContainsComparator {
     /**
      * Make sure all values in the $needle array is present in the $haystack array
      */
-    protected function inArray(array $needle, array $haystack) : bool {
+    protected function inArray(array $needle, array $haystack) : bool { // @phpstan-ignore-line
         // Loop over all the values in the needle array, and make sure each and every one is in some
         // way present in the haystack, in a recursive manner.
         foreach ($needle as $needleValue) {
@@ -278,7 +278,7 @@ class ArrayContainsComparator {
     /**
      * See if a PHP array is a JSON array
      */
-    protected function arrayIsList(array $array) : bool {
+    protected function arrayIsList(array $array) : bool { // @phpstan-ignore-line
         $encoded = json_encode($array);
 
         return false !== $encoded && $encoded[0] === '[';
@@ -287,7 +287,7 @@ class ArrayContainsComparator {
     /**
      * See if a PHP array is a JSON object
      */
-    protected function arrayIsObject(array $array) : bool {
+    protected function arrayIsObject(array $array) : bool { // @phpstan-ignore-line
         $encoded = json_encode($array);
 
         return false !== $encoded && $encoded[0] === '{';

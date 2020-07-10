@@ -31,7 +31,7 @@ class VariableType {
      * @param string $expectedTypes The expected types of $variable, separated by |
      * @throws InvalidArgumentException
      */
-    public function __invoke($variable, string $expectedTypes) : void {
+    public function __invoke($variable, string $expectedTypes) : bool {
         $expectedTypes = $this->normalizeTypes($expectedTypes);
 
         foreach ($expectedTypes as $expectedType) {
@@ -44,7 +44,7 @@ class VariableType {
         }
 
         if (in_array('any', $expectedTypes)) {
-            return;
+            return true;
         }
 
         // Encode / decode the value to easier check for objects
@@ -58,7 +58,7 @@ class VariableType {
                 ($expectedType === 'scalar' && is_scalar($variable)) ||
                 $expectedType === $actualType
             ) {
-                return;
+                return true;
             }
         }
 
@@ -80,6 +80,7 @@ class VariableType {
             return trim(strtolower($type));
         }, explode('|', $types));
 
+        /** @var string[] */
         return preg_replace(
             ['/^bool$/i', '/^int$/i', '/^float$/i'],
             ['boolean', 'integer', 'double'],

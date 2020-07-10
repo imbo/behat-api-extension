@@ -227,7 +227,7 @@ $app->get('/customReasonPhrase', function(Request $request, Response $response) 
 
     return $response->withStatus(
         !empty($params['code']) ? (int) $params['code'] : 200,
-        !empty($params['phrase']) ? $params['phrase'] : ''
+        !empty($params['phrase']) ? (string) $params['phrase'] : ''
     );
 });
 

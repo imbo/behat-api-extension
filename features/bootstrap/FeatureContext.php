@@ -1,5 +1,5 @@
 <?php
-use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Testwork\Hook\Scope\SuiteScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -15,25 +15,25 @@ use Assert\Assertion;
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class FeatureContext implements SnippetAcceptingContext {
+class FeatureContext implements Context {
     /**
      * PHP binary used to trigger Behat from the scenarios
      *
-     * @var string
+     * @var ?string
      */
     private $phpBin;
 
     /**
      * Process instance for executing processes
      *
-     * @var Process<string>
+     * @var ?Process
      */
-    private $process;
+    private $process; // @phpstan-ignore-line
 
     /**
      * The working directory where files can be created
      *
-     * @var string
+     * @var ?string
      */
     private $workingDir;
 
@@ -84,7 +84,7 @@ class FeatureContext implements SnippetAcceptingContext {
      * @Given a file named :filename with:
      */
     public function createFile($filename, PyStringNode $content, $readable = true) : void {
-        $filename = rtrim($this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+        $filename = rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
         $path = dirname($filename);
         $content = str_replace("'''", '"""', (string) $content);
 
@@ -127,8 +127,8 @@ class FeatureContext implements SnippetAcceptingContext {
         $this->process = Process::fromShellCommandline(
             sprintf(
                 '%s %s %s %s',
-                $this->phpBin,
-                escapeshellarg(BEHAT_BIN_PATH),
+                (string) $this->phpBin,
+                escapeshellarg((string) BEHAT_BIN_PATH),
                 $args,
                 '--format-settings="{\"timer\": false}" --no-colors'
             ),
@@ -180,7 +180,7 @@ class FeatureContext implements SnippetAcceptingContext {
         // Escape % as the callback will pass this value to sprintf() if the assertion fails, and
         // sprintf might complain about too few arguments as the output might contain stuff like %s
         // or %d.
-        $output = str_replace('%', '%%', $this->getOutput());
+        $output = (string) str_replace('%', '%%', $this->getOutput());
 
         if ($result === 'fail') {
             $callback = 'notEq';
@@ -203,10 +203,20 @@ class FeatureContext implements SnippetAcceptingContext {
     /**
      * Get the exit code of the process
      *
-     * @return ?int
+     * @return int
      */
-    private function getExitCode() : ?int {
-        return $this->process->getExitCode();
+    private function getExitCode() : int {
+        if (null === $this->process) {
+            throw new RuntimeException('No process is running');
+        }
+
+        $code = $this->process->getExitCode();
+
+        if (null === $code) {
+            throw new RuntimeException('Process is not finished');
+        }
+
+        return $code;
     }
 
     /**
@@ -215,6 +225,10 @@ class FeatureContext implements SnippetAcceptingContext {
      * @return string
      */
     private function getOutput() {
+        if (null === $this->process) {
+            throw new RuntimeException('No process is running');
+        }
+
         $output = $this->process->getErrorOutput() . $this->process->getOutput();
 
         return trim((string) preg_replace('/ +$/m', '', $output));

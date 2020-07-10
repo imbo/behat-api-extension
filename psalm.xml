@@ -7,9 +7,26 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-        <directory name="features" />
+        <directory name="features"/>
+        <directory name="tests"/>
         <ignoreFiles>
-            <directory name="vendor" />
+            <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <InternalMethod>
+            <errorLevel type="info">
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::method"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willReturn"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willReturnSelf"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willThrowException"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::with"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
+            </errorLevel>
+        </InternalMethod>
+    </issueHandlers>
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+        <pluginClass class="AlexS\Guzzle\PsalmPlugin"/>
+    </plugins>
 </psalm>

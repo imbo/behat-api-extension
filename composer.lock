@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9378ddc7609b44d5b25393cf56b9765d",
+    "content-hash": "38553df50bd59f65fa96761b4db7cb87",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -2252,6 +2252,49 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "alexeyshockov/guzzle-psalm-plugin",
+            "version": "v0.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alexeyshockov/guzzle-psalm-plugin.git",
+                "reference": "bf164fdf3bac5338be081fad1282e6ed373bcee9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alexeyshockov/guzzle-psalm-plugin/zipball/bf164fdf3bac5338be081fad1282e6ed373bcee9",
+                "reference": "bf164fdf3bac5338be081fad1282e6ed373bcee9",
+                "shasum": ""
+            },
+            "require": {
+                "vimeo/psalm": "^3"
+            },
+            "type": "psalm-plugin",
+            "extra": {
+                "psalm": {
+                    "pluginClass": "AlexS\\Guzzle\\PsalmPlugin"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AlexS\\Guzzle\\": [
+                        "."
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexey Shokov",
+                    "email": "alexey@shockov.com"
+                }
+            ],
+            "description": "Guzzle type information for Psalm",
+            "time": "2019-12-16T12:54:51+00:00"
+        },
         {
             "name": "amphp/amp",
             "version": "v2.4.4",

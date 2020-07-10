@@ -96,6 +96,7 @@ class ArrayLengthTest extends TestCase {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
+        /** @psalm-suppress PossiblyInvalidArgument */
         $matcher($value, 123); // @phpstan-ignore-line
     }
 

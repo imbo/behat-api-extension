@@ -36,7 +36,7 @@ class ArrayMaxLengthTest extends TestCase {
     }
 
     /**
-     * @return array{value: int|string|array<string, string>}[]
+     * @return array{value: int|string|array<string, string>, message: string}[]
      */
     public function getInvalidValues() : array {
         return [
@@ -95,6 +95,7 @@ class ArrayMaxLengthTest extends TestCase {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
+        /** @psalm-suppress PossiblyInvalidArgument */
         $matcher($value, 123); // @phpstan-ignore-line
     }
 

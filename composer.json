@@ -37,7 +37,8 @@
     "phpstan/phpstan-phpunit": "^0.12",
     "phpstan/extension-installer": "^1.0",
     "vimeo/psalm": "^3.12",
-    "psalm/plugin-phpunit": "dev-master"
+    "psalm/plugin-phpunit": "dev-master",
+    "alexeyshockov/guzzle-psalm-plugin": "^0.2.1"
   },
   "autoload": {
     "psr-4": {

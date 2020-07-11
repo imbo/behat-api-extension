@@ -49,9 +49,12 @@ class ArrayContainsComparator {
      *
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
      * "list" is a numerically indexed array, and an "object" is an associative array.
+     *
+     * @param array<array-key, scalar|array> $needle
+     * @param array<array-key, mixed> $haystack
      */
-    public function compare(array $needle, array $haystack) : bool { // @phpstan-ignore-line
-        $needleIsList = $this->arrayIsList($needle);
+    public function compare(array $needle, array $haystack) : bool {
+        $needleIsList   = $this->arrayIsList($needle);
         $haystackIsList = $this->arrayIsList($haystack);
 
         // If the needle is a numerically indexed array, the haystack needs to be one as well
@@ -71,11 +74,11 @@ class ArrayContainsComparator {
             // Check if the needle key refers to a specific array key in the haystack
             $match = [];
 
-            if (preg_match('/^(?<key>.*?)\[(?<index>[\d]+)\]$/', $key, $match)) {
-                $realKey = $match['key'] ?: null;
-                $index = (int) $match['index'];
+            if (preg_match('/^(?<key>.*?)\[(?<index>[\d]+)\]$/', (string) $key, $match)) {
+                $realKey = (string) $match['key'];
+                $index   = (int) $match['index'];
 
-                if ($realKey && !array_key_exists($realKey, $haystack)) {
+                if (!empty($realKey) && !array_key_exists($realKey, $haystack)) {
                     // The key does not exist in the haystack
                     throw new ArrayContainsComparatorException(
                         sprintf('Haystack object is missing the "%s" key.', $realKey), 0, null,
@@ -85,6 +88,7 @@ class ArrayContainsComparator {
 
                 // If a key has been specified, use that part of the haystack to compare against,
                 // if no key exists, simply use the haystack as-is.
+                /** @var mixed */
                 $subHaystack = $realKey ? $haystack[$realKey] : $haystack;
 
                 if (!is_array($subHaystack) || !$this->arrayIsList($subHaystack)) {
@@ -102,6 +106,13 @@ class ArrayContainsComparator {
                 }
 
                 if (is_array($value)) {
+                    if (!is_array($subHaystack[$index])) {
+                        throw new ArrayContainsComparatorException(
+                            sprintf('Expected haystack element on index "%d" to be an array, got "%s".', $index, gettype($subHaystack[$index])), 0, null,
+                            $needle, $haystack
+                        );
+                    }
+
                     // The value is an array, do a recursive check
                     $this->compare($value, $subHaystack[$index]);
                 } else if (!$this->compareValues($value, $subHaystack[$index])) {
@@ -123,6 +134,13 @@ class ArrayContainsComparator {
                 }
 
                 if (is_array($value)) {
+                    if (!is_array($haystack[$key])) {
+                        throw new ArrayContainsComparatorException(
+                            sprintf('Expected haystack value with key "%s" to be an array, got "%s".', $key, gettype($haystack[$key])), 0, null,
+                            $needle, $haystack
+                        );
+                    }
+
                     // If the value is an array, recurse
                     $this->compare($value, $haystack[$key]);
                 } else if (!$this->compareValues($value, $haystack[$key])) {
@@ -187,6 +205,9 @@ class ArrayContainsComparator {
 
     /**
      * Make sure all values in the $needle array is present in the $haystack array
+     *
+     * @param array<array-key, array|scalar> $needle
+     * @param array $haystack
      */
     protected function inArray(array $needle, array $haystack) : bool { // @phpstan-ignore-line
         // Loop over all the values in the needle array, and make sure each and every one is in some
@@ -208,7 +229,7 @@ class ArrayContainsComparator {
                         );
                     }
 
-                    $result = array_filter($listElementsInHaystack, function ($haystackListElement) use ($needleValue) {
+                    $result = array_filter($listElementsInHaystack, function (array $haystackListElement) use ($needleValue) : bool {
                         try {
                             return $this->inArray($needleValue, $haystackListElement);
                         } catch (ArrayContainsComparatorException $e) {
@@ -228,7 +249,7 @@ class ArrayContainsComparator {
                 } else {
                     // The needle value is an object, so we only want to compare it to objects in
                     // the haystack
-                    $objectElementsInHaystack = array_filter($haystack, function($element) {
+                    $objectElementsInHaystack = array_filter($haystack, function($element) : bool {
                         return is_array($element) && $this->arrayIsObject($element);
                     });
 
@@ -239,7 +260,7 @@ class ArrayContainsComparator {
                         );
                     }
 
-                    $result = array_filter($objectElementsInHaystack, function ($haystackObjectElement) use ($needleValue) {
+                    $result = array_filter($objectElementsInHaystack, function (array $haystackObjectElement) use ($needleValue) {
                         try {
                             return $this->compare($needleValue, $haystackObjectElement);
                         } catch (ArrayContainsComparatorException $e) {

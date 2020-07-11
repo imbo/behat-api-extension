@@ -4,17 +4,19 @@ namespace Imbo\BehatApiExtension\Context;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT as JwtMatcher;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
-use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\UriResolver;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use stdClass;
@@ -22,7 +24,7 @@ use stdClass;
 /**
  * Behat feature context that can be used to simplify testing of JSON-based RESTful HTTP APIs
  */
-class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareContext, SnippetAcceptingContext {
+class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareContext, Context {
     /**
      * Guzzle client
      *
@@ -44,9 +46,19 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * Options to send with the request.
      *
-     * @var array
+     * @var array{
+     *   auth: string[],
+     *   form_params: array<string, string|string[]>,
+     *   multipart: array<int, array{name: string, contents: string|resource}>,
+     *   query: array<string, mixed>
+     * }
      */
-    protected $requestOptions = []; // @phpstan-ignore-line
+    protected $requestOptions = [
+        'auth'        => [],
+        'form_params' => [],
+        'multipart'   => [],
+        'query'       => [],
+    ];
 
     /**
      * Response instance
@@ -91,8 +103,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     public function setClient(ClientInterface $client) {
-        $this->client = $client;
-        $this->request = new Request('GET', $client->getConfig('base_uri'));
+        $this->client  = $client;
+
+        /** @var string|UriInterface */
+        $uri = $client->getConfig('base_uri');
+
+        $this->request = new Request('GET', $uri);
 
         return $this;
     }
@@ -144,10 +160,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     private function addMultipartPart($part) {
-        if (!isset($this->requestOptions['multipart'])) {
-            $this->requestOptions['multipart'] = [];
-        }
-
         $this->requestOptions['multipart'][] = $part;
 
         return $this;
@@ -162,10 +174,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given the following multipart form parameters are set:
      */
     public function setRequestMultipartFormParams(TableNode $table) { // @phpstan-ignore-line
-        foreach ($table as $row) {
+        foreach ($this->getTableNodeHash($table) as $name => $value) {
             $this->addMultipartPart([
-                'name' => $row['name'],
-                'contents' => $row['value'],
+                'name'     => $name,
+                'contents' => $value,
             ]);
         }
 
@@ -220,7 +232,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new RuntimeException($this->missingResponseError);
         }
 
-        unset($this->requestOptions['form_params']);
+        $this->requestOptions['form_params'] = [];
 
         if (200 !== $this->response->getStatusCode()) {
             throw new RuntimeException(sprintf(
@@ -242,7 +254,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         $this->addRequestHeader(
             'Authorization',
-            sprintf('Bearer %s', $body->access_token)
+            sprintf('Bearer %s', (string) $body->access_token)
         );
 
         return $this;
@@ -291,20 +303,18 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given the following form parameters are set:
      */
     public function setRequestFormParams(TableNode $table) { // @phpstan-ignore-line
-        if (!isset($this->requestOptions['form_params'])) {
-            $this->requestOptions['form_params'] = [];
-        }
+        /** @var array<string, array{name: string, value: string}> */
+        $rows = $table->getColumnsHash();
 
-        foreach ($table as $row) {
-            $name = $row['name'];
-            $value = $row['value'];
+        foreach ($rows as $row) {
+            $name  = (string) $row['name'];
+            $value = (string) $row['value'];
 
             if (isset($this->requestOptions['form_params'][$name]) && !is_array($this->requestOptions['form_params'][$name])) {
-                $this->requestOptions['form_params'][$name] = [$this->requestOptions['form_params'][$name]];
-            }
-
-            if (isset($this->requestOptions['form_params'][$name])) {
-                $this->requestOptions['form_params'][$name][] = $value;
+                $this->requestOptions['form_params'][$name] = [
+                    $this->requestOptions['form_params'][$name],
+                    $value
+                ];
             } else {
                 $this->requestOptions['form_params'][$name] = $value;
             }
@@ -409,9 +419,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     public function setQueryStringParameter($name, $value) { // @phpstan-ignore-line
         if ($value instanceof TableNode) {
-            $value = array_map(function(array $row) : string {
-                return $row['value'];
-            }, $value->getHash());
+            /** @var string[] */
+            $value = array_column($value->getHash(), 'value');
         }
 
         $this->requestOptions['query'][$name] = $value;
@@ -428,8 +437,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given the following query parameters are set:
      */
     public function setQueryStringParameters(TableNode $params) { // @phpstan-ignore-line
-        foreach ($params as $row) {
-            $this->requestOptions['query'][$row['name']] = $row['value'];
+        foreach ($this->getTableNodeHash($params) as $name => $value) {
+            $this->requestOptions['query'][$name] = $value;
         }
 
         return $this;
@@ -1148,6 +1157,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
+        /** @var array<array-key, mixed> */
         $body = json_decode((string) json_encode($this->getResponseBody()), true);
 
         try {
@@ -1197,14 +1207,13 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                 }
             }
 
-            // Remove form_params from the options, otherwise Guzzle will throw an exception
-            unset($this->requestOptions['form_params']);
+            $this->requestOptions['form_params'] = [];
         }
 
         try {
             $this->response = $this->client->send(
                 $this->request,
-                $this->requestOptions
+                array_filter($this->requestOptions)
             );
         } catch (RequestException $e) {
             $this->response = $e->getResponse();
@@ -1312,8 +1321,9 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function setRequestPath(string $path) {
-        // Resolve the path with the base_uri set in the client
-        $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
+        /** @var UriInterface */
+        $baseUri = $this->client->getConfig('base_uri');
+        $uri = UriResolver::resolve($baseUri, Psr7\uri_for($path));
         $this->request = $this->request->withUri($uri);
 
         return $this;
@@ -1339,13 +1349,14 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Get the JSON-encoded array or stdClass from the response body
      *
      * @throws InvalidArgumentException
-     * @return array|stdClass
+     * @return array<mixed>|stdClass
      */
-    protected function getResponseBody() { // @phpstan-ignore-line
+    protected function getResponseBody() {
         if (!$this->response) {
             throw new RuntimeException($this->missingResponseError);
         }
 
+        /** @var mixed */
         $body = json_decode((string) $this->response->getBody());
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -1354,6 +1365,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             throw new InvalidArgumentException('The response body does not contain a valid JSON array / object.');
         }
 
+        /** @var array<mixed>|stdClass */
         return $body;
     }
 
@@ -1379,9 +1391,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @param string $value The value to decode
      * @param string $errorMessage Optional error message
      * @throws InvalidArgumentException
-     * @return array
+     * @return array<mixed>
      */
-    protected function jsonDecode(string $value, string $errorMessage = null) : array { // @phpstan-ignore-line
+    protected function jsonDecode(string $value, string $errorMessage = null) : array {
+        /** @var array<mixed> */
         $decoded = json_decode($value, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -1391,5 +1404,18 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         }
 
         return $decoded;
+    }
+
+    /**
+     * Get an associative array from the TableNode
+     *
+     * This method will effectively remove duplicates from TableNode
+     *
+     * @param TableNode $table
+     * @return array<string, string>
+     */
+    protected function getTableNodeHash(TableNode $table) : array { // @phpstan-ignore-line
+        /** @var array<string, string> */
+        return array_slice($table->getRowsHash(), 1);
     }
 }

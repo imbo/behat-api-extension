@@ -4,7 +4,6 @@ namespace Imbo\BehatApiExtension\Context;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT as JwtMatcher;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
-use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
@@ -24,7 +23,7 @@ use stdClass;
 /**
  * Behat feature context that can be used to simplify testing of JSON-based RESTful HTTP APIs
  */
-class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareContext, Context {
+class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareContext {
     /**
      * Guzzle client
      *

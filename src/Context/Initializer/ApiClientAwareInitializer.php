@@ -14,17 +14,17 @@ use RuntimeException;
  */
 class ApiClientAwareInitializer implements ContextInitializer {
     /**
-     * @var array Guzzle client configuration array
+     * @var array{base_uri?: string} Guzzle client configuration array
      * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
-    private $guzzleConfig = []; // @phpstan-ignore-line
+    private $guzzleConfig = [];
 
     /**
      * Class constructor
      *
-     * @var array Guzzle client configuration array
+     * @param array{base_uri?: string} $guzzleConfig Guzzle client configuration array
      */
-    public function __construct(array $guzzleConfig) { // @phpstan-ignore-line
+    public function __construct(array $guzzleConfig) {
         $this->guzzleConfig = $guzzleConfig;
     }
 
@@ -36,7 +36,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
     public function initializeContext(Context $context) : void {
         if ($context instanceof ApiClientAwareContext) {
             // Fetch base URI from the Guzzle client configuration, if it exists
-            $baseUri = !empty($this->guzzleConfig['base_uri']) ? $this->guzzleConfig['base_uri'] : null;
+            $baseUri = isset($this->guzzleConfig['base_uri']) ? $this->guzzleConfig['base_uri'] : null;
 
             if ($baseUri && !$this->validateConnection($baseUri)) {
                 throw new RuntimeException(sprintf('Can\'t connect to base_uri: "%s".', $baseUri));

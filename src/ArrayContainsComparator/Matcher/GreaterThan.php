@@ -18,14 +18,14 @@ class GreaterThan {
         if (!is_numeric($number)) {
             throw new InvalidArgumentException(sprintf(
                 '"%s" is not numeric.',
-                $number
+                (string) $number
             ));
         }
 
         if (!is_numeric($min)) {
             throw new InvalidArgumentException(sprintf(
                 '"%s" is not numeric.',
-                $min
+                (string) $min
             ));
         }
 

@@ -8,14 +8,26 @@
 >
     <projectFiles>
         <directory name="features"/>
+        <directory name="src"/>
         <directory name="tests"/>
         <ignoreFiles>
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
+        <MixedArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator::inArray" />
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator::compare" />
+            </errorLevel>
+        </MixedArgumentTypeCoercion>
+        <MissingConstructor>
+            <errorLevel type="suppress">
+                <file name="src/Context/ApiContext.php" />
+            </errorLevel>
+        </MissingConstructor>
         <InternalMethod>
-            <errorLevel type="info">
+            <errorLevel type="suppress">
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::method"/>
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willReturn"/>
                 <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willReturnSelf"/>

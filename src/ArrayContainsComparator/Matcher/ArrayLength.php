@@ -16,6 +16,7 @@ class ArrayLength {
      */
     public function __invoke($array, $length) : bool { // @phpstan-ignore-line
         // Encode / decode to make sure we have a "list"
+        /** @var mixed */
         $array = json_decode((string) json_encode($array));
 
         if (!is_array($array)) {

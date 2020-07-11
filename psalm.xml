@@ -15,12 +15,29 @@
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
+        <MixedPropertyTypeCoercion>
+            <errorLevel type="suppress">
+                <referencedProperty name="Imbo\BehatApiExtension\Context\ApiContextTest::$historyContainer" />
+            </errorLevel>
+        </MixedPropertyTypeCoercion>
         <MixedArgumentTypeCoercion>
             <errorLevel type="suppress">
                 <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator::inArray" />
                 <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator::compare" />
             </errorLevel>
         </MixedArgumentTypeCoercion>
+        <PossiblyInvalidArgument>
+            <errorLevel type="suppress">
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength::__invoke" />
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMaxLength::__invoke" />
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMinLength::__invoke" />
+            </errorLevel>
+        </PossiblyInvalidArgument>
+        <InvalidScalarArgument>
+            <errorLevel type="suppress">
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp::__invoke" />
+            </errorLevel>
+        </InvalidScalarArgument>
         <MissingConstructor>
             <errorLevel type="suppress">
                 <file name="src/Context/ApiContext.php" />

@@ -42,7 +42,6 @@ class RegExpTest extends TestCase {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Regular expression matching can only be applied to strings, integers or doubles, got "boolean".');
-        /** @psalm-suppress InvalidScalarArgument */
         $matcher(true, '/true/'); // @phpstan-ignore-line
     }
 

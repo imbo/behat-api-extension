@@ -55,9 +55,7 @@ class ApiContextTest extends TestCase {
     /** @var HandlerStack */
     private $handlerStack;
 
-    /**
-     * @var array{request: Request, response: Response}[]
-     */
+    /** @var array{request: Request, response: Response}[] */
     private $historyContainer = [];
 
     /** @var ApiContext */
@@ -77,7 +75,6 @@ class ApiContextTest extends TestCase {
 
         $this->mockHandler = new MockHandler();
         $this->handlerStack = HandlerStack::create($this->mockHandler);
-        /** @psalm-suppress MixedPropertyTypeCoercion */
         $this->handlerStack->push(Middleware::history($this->historyContainer));
         $this->client = new Client([
             'handler' => $this->handlerStack,

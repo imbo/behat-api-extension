@@ -28,7 +28,7 @@ class FeatureContext implements Context {
      *
      * @var ?Process
      */
-    private $process; // @phpstan-ignore-line
+    private $process;
 
     /**
      * The working directory where files can be created

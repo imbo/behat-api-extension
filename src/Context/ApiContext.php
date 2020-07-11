@@ -173,7 +173,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the following multipart form parameters are set:
      */
-    public function setRequestMultipartFormParams(TableNode $table) { // @phpstan-ignore-line
+    public function setRequestMultipartFormParams(TableNode $table) {
         foreach ($this->getTableNodeHash($table) as $name => $value) {
             $this->addMultipartPart([
                 'name'     => $name,
@@ -302,7 +302,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the following form parameters are set:
      */
-    public function setRequestFormParams(TableNode $table) { // @phpstan-ignore-line
+    public function setRequestFormParams(TableNode $table) {
         /** @var array<string, array{name: string, value: string}> */
         $rows = $table->getColumnsHash();
 
@@ -417,7 +417,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given the query parameter :name is :value
      * @Given the query parameter :name is:
      */
-    public function setQueryStringParameter($name, $value) { // @phpstan-ignore-line
+    public function setQueryStringParameter($name, $value) {
         if ($value instanceof TableNode) {
             /** @var string[] */
             $value = array_column($value->getHash(), 'value');
@@ -436,7 +436,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the following query parameters are set:
      */
-    public function setQueryStringParameters(TableNode $params) { // @phpstan-ignore-line
+    public function setQueryStringParameters(TableNode $params) {
         foreach ($this->getTableNodeHash($params) as $name => $value) {
             $this->requestOptions['query'][$name] = $value;
         }
@@ -1375,7 +1375,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @throws InvalidArgumentException
      * @return array
      */
-    protected function getResponseBodyArray() : array { // @phpstan-ignore-line
+    protected function getResponseBodyArray() : array {
         $body = $this->getResponseBody();
 
         if (!is_array($body)) {
@@ -1414,7 +1414,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @param TableNode $table
      * @return array<string, string>
      */
-    protected function getTableNodeHash(TableNode $table) : array { // @phpstan-ignore-line
+    protected function getTableNodeHash(TableNode $table) : array {
         /** @var array<string, string> */
         return array_slice($table->getRowsHash(), 1);
     }

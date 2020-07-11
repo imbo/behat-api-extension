@@ -209,7 +209,7 @@ class ArrayContainsComparator {
      * @param array<array-key, array|scalar> $needle
      * @param array $haystack
      */
-    protected function inArray(array $needle, array $haystack) : bool { // @phpstan-ignore-line
+    protected function inArray(array $needle, array $haystack) : bool {
         // Loop over all the values in the needle array, and make sure each and every one is in some
         // way present in the haystack, in a recursive manner.
         foreach ($needle as $needleValue) {
@@ -299,7 +299,7 @@ class ArrayContainsComparator {
     /**
      * See if a PHP array is a JSON array
      */
-    protected function arrayIsList(array $array) : bool { // @phpstan-ignore-line
+    protected function arrayIsList(array $array) : bool {
         $encoded = json_encode($array);
 
         return false !== $encoded && $encoded[0] === '[';
@@ -308,7 +308,7 @@ class ArrayContainsComparator {
     /**
      * See if a PHP array is a JSON object
      */
-    protected function arrayIsObject(array $array) : bool { // @phpstan-ignore-line
+    protected function arrayIsObject(array $array) : bool {
         $encoded = json_encode($array);
 
         return false !== $encoded && $encoded[0] === '{';

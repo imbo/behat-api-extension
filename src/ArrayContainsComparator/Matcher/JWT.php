@@ -41,7 +41,7 @@ class JWT {
     /**
      * Add a JWT token that can be matched
      */
-    public function addToken(string $name, array $payload, string $secret) : self { // @phpstan-ignore-line
+    public function addToken(string $name, array $payload, string $secret) : self {
         $this->jwtTokens[$name] = [
             'payload' => $payload,
             'secret' => $secret,

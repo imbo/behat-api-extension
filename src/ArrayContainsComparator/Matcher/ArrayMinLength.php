@@ -14,7 +14,7 @@ class ArrayMinLength {
      * @param int $minLength The expected minimum length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $minLength) : bool { // @phpstan-ignore-line
+    public function __invoke($array, $minLength) : bool {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */
         $array = json_decode((string) json_encode($array));

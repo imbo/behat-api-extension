@@ -14,7 +14,7 @@ class ArrayMaxLength {
      * @param int $maxLength The expected maximum length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $maxLength) : bool { // @phpstan-ignore-line
+    public function __invoke($array, $maxLength) : bool {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */
         $array = json_decode((string) json_encode($array));

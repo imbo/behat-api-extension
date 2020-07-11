@@ -14,7 +14,7 @@ class ArrayLength {
      * @param int $length The expected exact length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $length) : bool { // @phpstan-ignore-line
+    public function __invoke($array, $length) : bool {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */
         $array = json_decode((string) json_encode($array));

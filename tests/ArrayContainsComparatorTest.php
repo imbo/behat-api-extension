@@ -549,7 +549,7 @@ EXCEPTION
      * @covers ::arrayIsList
      * @covers ::arrayIsObject
      */
-    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) : void { // @phpstan-ignore-line
+    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -735,7 +735,7 @@ EXCEPTION
      * @covers ::arrayIsList
      * @covers ::arrayIsObject
      */
-    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) : void { // @phpstan-ignore-line
+    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -883,7 +883,7 @@ EXCEPTION
      * @covers ::compare
      * @covers ::compareValues
      */
-    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) : void { // @phpstan-ignore-line
+    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'

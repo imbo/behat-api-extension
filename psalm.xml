@@ -12,6 +12,7 @@
         <directory name="tests"/>
         <ignoreFiles>
             <directory name="vendor"/>
+            <file name="features/bootstrap/index.php" />
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>

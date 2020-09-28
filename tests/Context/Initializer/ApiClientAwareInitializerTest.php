@@ -12,18 +12,6 @@ use RuntimeException;
 class ApiClientAwareInitializerTest extends TestCase {
     /**
      * @covers ::initializeContext
-     * @covers ::validateConnection
-     */
-    public function testThrowsExceptionWhenBaseUriIsNotConnectable() : void {
-        $initializer = new ApiClientAwareInitializer(['base_uri' => 'http://localhost:123']);
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Can\'t connect to base_uri: "http://localhost:123".');
-        $initializer->initializeContext($this->createMock(ApiClientAwareContext::class));
-    }
-
-    /**
-     * @covers ::initializeContext
-     * @covers ::validateConnection
      * @covers ::__construct
      */
     public function testInjectsClientWhenInitializingContext() : void {

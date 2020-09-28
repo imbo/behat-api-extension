@@ -1,4 +1,9 @@
 parameters:
+    level: max
+    paths:
+        - src
+        - tests
+        - features
     ignoreErrors:
         - message: '#ArrayContainsComparatorTest::testCanRecursivelyCompareAssociativeArraysWith\(\) has parameter#'
           path: tests/*

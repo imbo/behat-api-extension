@@ -34,7 +34,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
      */
     public function initializeContext(Context $context) : void {
         if ($context instanceof ApiClientAwareContext) {
-            $context->setClient(new Client($this->guzzleConfig));
+            $context->setClient(new Client($this->guzzleConfig), $this->guzzleConfig['base_uri'] ?? '');
         }
     }
 }

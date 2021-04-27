@@ -83,7 +83,7 @@ class ApiContextTest extends TestCase {
         $this->comparator = $this->createMock(ArrayContainsComparator::class);
 
         $this->context = new ApiContext();
-        $this->context->setClient($this->client);
+        $this->context->setClient($this->client, $this->baseUri);
         $this->context->setArrayContainsComparator($this->comparator);
     }
 
@@ -735,7 +735,7 @@ BAR;
         $this->assertSame($this->context, $this->context->setClient(new Client([
             'handler' => $this->handlerStack,
             'base_uri' => $baseUri,
-        ])));
+        ]), $baseUri));
 
         $this->mockHandler->append(new Response());
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));

@@ -13,5 +13,5 @@ interface ApiClientAwareContext extends Context {
      *
      * @return self
      */
-    function setClient(ClientInterface $client);
+    function setClient(ClientInterface $client, string $baseUri);
 }

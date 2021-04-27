@@ -63,7 +63,7 @@ class ArrayContainsComparator {
                 'The needle is a list, while the haystack is not.', 0, null,
                 $needle, $haystack
             );
-        } else if ($needleIsList && $haystackIsList) {
+        } else if ($needleIsList) {
             // Both arrays are numerically indexed arrays
             return $this->inArray($needle, $haystack);
         }

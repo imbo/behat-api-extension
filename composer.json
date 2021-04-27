@@ -23,12 +23,13 @@
     "php": ">=7.2.5",
     "ext-json": "*",
     "behat/behat": "^3.5",
-    "guzzlehttp/guzzle": "^6.5",
+    "guzzlehttp/guzzle": "^7.0",
     "beberlei/assert": "^3.2",
     "firebase/php-jwt": "^5.0"
   },
   "require-dev": {
     "symfony/process": "^5.0",
+    "symfony/polyfill-mbstring": "1.20.0",
     "phpunit/phpunit": "^8.5",
     "slim/slim": "^4.4",
     "slim/psr7": "^1.0",
@@ -39,6 +40,11 @@
     "vimeo/psalm": "^3.12",
     "psalm/plugin-phpunit": "^0.12",
     "alexeyshockov/guzzle-psalm-plugin": "^0.2.1"
+  },
+  "config": {
+      "platform": {
+          "php": "7.2.5"
+      }
   },
   "autoload": {
     "psr-4": {

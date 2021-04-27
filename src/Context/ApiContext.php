@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context;
 
+use GuzzleHttp\Psr7\Utils;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT as JwtMatcher;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\AssertionFailedException;
@@ -15,7 +16,6 @@ use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use stdClass;
@@ -30,6 +30,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @var ClientInterface
      */
     protected $client;
+
+    /**
+     * @var string
+     */
+    protected $baseUri = '';
 
     /**
      * Request instance
@@ -101,13 +106,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @return self
      */
-    public function setClient(ClientInterface $client) {
+    public function setClient(ClientInterface $client, string $baseUri) {
         $this->client  = $client;
+        $this->baseUri  = $baseUri;
 
-        /** @var string|UriInterface */
-        $uri = $client->getConfig('base_uri');
-
-        $this->request = new Request('GET', $uri);
+        $this->request = new Request('GET', $this->baseUri);
 
         return $this;
     }
@@ -343,7 +346,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             $string = (string) $string;
         }
 
-        $this->request = $this->request->withBody(Psr7\stream_for($string));
+        $this->request = $this->request->withBody(Utils::streamFor($string));
 
         return $this;
     }
@@ -925,7 +928,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $body = $this->getResponseBody();
 
         try {
-            Assertion::isInstanceOf($body, 'stdClass', 'Expected response body to be a JSON object.');
+            Assertion::isInstanceOf($body, \stdClass::class, 'Expected response body to be a JSON object.');
             Assertion::same('{}', $encoded = json_encode($body, JSON_PRETTY_PRINT), sprintf(
                 'Expected response body to be an empty JSON object, got "%s".',
                 $encoded
@@ -1320,9 +1323,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function setRequestPath(string $path) {
-        /** @var UriInterface */
-        $baseUri = $this->client->getConfig('base_uri');
-        $uri = UriResolver::resolve($baseUri, Psr7\uri_for($path));
+        $uri = UriResolver::resolve(new Psr7\Uri($this->baseUri), Utils::uriFor($path));
         $this->request = $this->request->withUri($uri);
 
         return $this;

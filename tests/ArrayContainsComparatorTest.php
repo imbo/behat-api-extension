@@ -499,7 +499,7 @@ EXCEPTION
             // @customFunction
             [
                 'function' => 'customFunction',
-                'callback' => function(string $subject, string $param) : void {
+                'callback' => function() : void {
                     throw new InvalidArgumentException('Some custom error message');
                 },
                 'needle' => [

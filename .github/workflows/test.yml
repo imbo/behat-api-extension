@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['7.4']
     name: Validate, lint and test on PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-suggest --no-ansi --no-progress -o
+        run: composer install
 
       - name: Start dev server
         run: composer run dev --timeout=0 &

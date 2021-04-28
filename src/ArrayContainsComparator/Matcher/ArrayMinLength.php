@@ -11,7 +11,7 @@ class ArrayMinLength {
      * Match the min length of an array
      *
      * @param array $array An array
-     * @param int $minLength The expected minimum length of $array
+     * @param int|string $minLength The expected minimum length of $array
      * @throws InvalidArgumentException
      */
     public function __invoke($array, $minLength) : bool {

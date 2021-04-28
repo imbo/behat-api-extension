@@ -16,7 +16,7 @@ class ApiClientAwareInitializer implements ContextInitializer {
      * @var array{base_uri?: string} Guzzle client configuration array
      * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
-    private $guzzleConfig = [];
+    private array $guzzleConfig = [];
 
     /**
      * Class constructor
@@ -34,7 +34,10 @@ class ApiClientAwareInitializer implements ContextInitializer {
      */
     public function initializeContext(Context $context) : void {
         if ($context instanceof ApiClientAwareContext) {
-            $context->setClient(new Client($this->guzzleConfig));
+            $context->setClient(
+                new Client($this->guzzleConfig),
+                $this->guzzleConfig['base_uri'] ?? '',
+            );
         }
     }
 }

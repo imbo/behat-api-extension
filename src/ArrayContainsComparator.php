@@ -63,7 +63,7 @@ class ArrayContainsComparator {
                 'The needle is a list, while the haystack is not.', 0, null,
                 $needle, $haystack
             );
-        } else if ($needleIsList && $haystackIsList) {
+        } else if ($needleIsList) {
             // Both arrays are numerically indexed arrays
             return $this->inArray($needle, $haystack);
         }
@@ -75,7 +75,7 @@ class ArrayContainsComparator {
             $match = [];
 
             if (preg_match('/^(?<key>.*?)\[(?<index>[\d]+)\]$/', (string) $key, $match)) {
-                $realKey = (string) $match['key'];
+                $realKey = $match['key'];
                 $index   = (int) $match['index'];
 
                 if (!empty($realKey) && !array_key_exists($realKey, $haystack)) {

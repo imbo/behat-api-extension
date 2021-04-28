@@ -41,7 +41,9 @@ class ApiClientAwareInitializerTest extends TestCase {
         }
 
         // Listen for connections
-        socket_listen($sock);
+        if (!socket_listen($sock)) {
+            $this->markTestSkipped('Unable to listen for a connection, skipping test for now.');
+        }
 
         $context = $this->createMock(ApiClientAwareContext::class);
         $context

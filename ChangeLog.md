@@ -5,9 +5,9 @@ v3.0.0
 ------
 __N/A__
 
+* [#101](https://github.com/imbo/behat-api-extension/issues/101): Require PHP >= 7.4
 * [#92](https://github.com/imbo/behat-api-extension/pull/92): Add password grant OAuth step ([@ABGEO](https://github.com/ABGEO))
 * [#85](https://github.com/imbo/behat-api-extension/pull/85): Add support for manipulating query parameters using steps
-* [#81](https://github.com/imbo/behat-api-extension/pull/81): Require PHP >= 7.2
 
 v2.3.1
 ------

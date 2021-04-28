@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['7.4']
+        php: ['7.4', '8.0', '8.1']
     name: Validate, lint and test on PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v2

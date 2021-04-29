@@ -11,7 +11,9 @@ interface ApiClientAwareContext extends Context {
     /**
      * Set the Guzzle client and create a pristine request instance
      *
+     * @param ClientInterface $client
+     * @param string $baseUri
      * @return self
      */
-    function setClient(ClientInterface $client);
+    function setClient(ClientInterface $client, string $baseUri);
 }

@@ -174,13 +174,13 @@ class FeatureContext implements Context {
      * @param string $result
      * @Then /^it should (fail|pass)$/
      */
-    public function assertCommandResult($result) : void {
+    public function assertCommandResult(string $result) : void {
         $exitCode = $this->getExitCode();
 
         // Escape % as the callback will pass this value to sprintf() if the assertion fails, and
         // sprintf might complain about too few arguments as the output might contain stuff like %s
         // or %d.
-        $output = (string) str_replace('%', '%%', $this->getOutput());
+        $output = str_replace('%', '%%', $this->getOutput());
 
         if ($result === 'fail') {
             $callback = 'notEq';

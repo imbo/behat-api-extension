@@ -17,9 +17,6 @@ class ArrayContainsComparatorException extends AssertionFailedException {
      * @param mixed $haystack
      */
     public function __construct(string $message, int $code = 0, Exception $previous = null, $needle = null, $haystack = null) {
-        // Reusable line of ='s
-        $line = str_repeat('=', 80);
-
         // Format the error message
         $message .= PHP_EOL . PHP_EOL . sprintf(<<<MESSAGE
 ================================================================================

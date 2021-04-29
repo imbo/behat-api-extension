@@ -11,7 +11,7 @@ class ArrayMaxLength {
      * Match the max length of an array
      *
      * @param array $array An array
-     * @param int $maxLength The expected maximum length of $array
+     * @param int|string $maxLength The expected maximum length of $array
      * @throws InvalidArgumentException
      */
     public function __invoke($array, $maxLength) : bool {

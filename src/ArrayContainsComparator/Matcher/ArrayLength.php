@@ -11,7 +11,7 @@ class ArrayLength {
      * Match the exact length of an array
      *
      * @param array $array An array
-     * @param int $length The expected exact length of $array
+     * @param int|string $length The expected exact length of $array
      * @throws InvalidArgumentException
      */
     public function __invoke($array, $length) : bool {

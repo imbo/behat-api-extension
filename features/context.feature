@@ -13,9 +13,11 @@ Feature: Client aware context
 
             class FeatureContext implements ApiClientAwareContext {
                 private $client;
+                private $baseUri;
 
-                public function setClient(ClientInterface $client) {
+                public function setClient(ClientInterface $client, string $baseUri) {
                     $this->client = $client;
+                    $this->baseUri = $baseUri;
                 }
 
                 /**

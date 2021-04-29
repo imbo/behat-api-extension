@@ -8,11 +8,11 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\UriResolver;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -29,7 +29,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @var ClientInterface
      */
-    protected $client;
+    protected ClientInterface $client;
+
+    /**
+     * Base URI used by the Guzzle client
+     */
+    protected string $baseUri;
 
     /**
      * Request instance
@@ -101,13 +106,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @return self
      */
-    public function setClient(ClientInterface $client) {
-        $this->client  = $client;
+    public function setClient(ClientInterface $client, string $baseUri) {
+        $this->client = $client;
+        $this->baseUri = $baseUri;
 
-        /** @var string|UriInterface */
-        $uri = $client->getConfig('base_uri');
-
-        $this->request = new Request('GET', $uri);
+        $this->request = new Request('GET', $this->baseUri);
 
         return $this;
     }
@@ -306,8 +309,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $rows = $table->getColumnsHash();
 
         foreach ($rows as $row) {
-            $name  = (string) $row['name'];
-            $value = (string) $row['value'];
+            $name  = $row['name'];
+            $value = $row['value'];
 
             if (isset($this->requestOptions['form_params'][$name]) && !is_array($this->requestOptions['form_params'][$name])) {
                 $this->requestOptions['form_params'][$name] = [
@@ -343,7 +346,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             $string = (string) $string;
         }
 
-        $this->request = $this->request->withBody(Psr7\stream_for($string));
+        $this->request = $this->request->withBody(Utils::streamFor($string));
 
         return $this;
     }
@@ -468,7 +471,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Assert the HTTP response code
      *
-     * @param int $code The HTTP response code
+     * @param int|string $code The HTTP response code
      * @throws AssertionFailedException
      *
      * @Then the response code is :code
@@ -494,7 +497,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Assert the HTTP response code is not a specific code
      *
-     * @param int $code The HTTP response code
+     * @param int|string $code The HTTP response code
      * @throws AssertionFailedException
      *
      * @Then the response code is not :code
@@ -925,7 +928,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $body = $this->getResponseBody();
 
         try {
-            Assertion::isInstanceOf($body, 'stdClass', 'Expected response body to be a JSON object.');
+            Assertion::isInstanceOf($body, stdClass::class, 'Expected response body to be a JSON object.');
             Assertion::same('{}', $encoded = json_encode($body, JSON_PRETTY_PRINT), sprintf(
                 'Expected response body to be an empty JSON object, got "%s".',
                 $encoded
@@ -963,7 +966,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Assert that the response body contains an array with a specific length
      *
-     * @param int $length The length of the array
+     * @param int|string $length The length of the array
      * @throws AssertionFailedException
      *
      * @Then the response body is a JSON array of length :length
@@ -994,7 +997,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Assert that the response body contains an array with a length of at least a given length
      *
-     * @param int $length The length to use in the assertion
+     * @param int|string $length The length to use in the assertion
      * @throws AssertionFailedException
      *
      * @Then the response body is a JSON array with a length of at least :length
@@ -1012,7 +1015,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                 sprintf(
                     'Expected response body to be a JSON array with at least %d entr%s, got %d: "%s".',
                     $length,
-                    (int) $length === 1 ? 'y' : 'ies',
+                    $length === 1 ? 'y' : 'ies',
                     $bodyLength,
                     json_encode($body, JSON_PRETTY_PRINT)
                 )
@@ -1027,7 +1030,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Assert that the response body contains an array with a length of at most a given length
      *
-     * @param int $length The length to use in the assertion
+     * @param int|string $length The length to use in the assertion
      * @throws AssertionFailedException
      *
      * @Then the response body is a JSON array with a length of at most :length
@@ -1045,7 +1048,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                 sprintf(
                     'Expected response body to be a JSON array with at most %d entr%s, got %d: "%s".',
                     $length,
-                    (int) $length === 1 ? 'y' : 'ies',
+                    $length === 1 ? 'y' : 'ies',
                     $bodyLength,
                     json_encode($body, JSON_PRETTY_PRINT)
                 )
@@ -1320,9 +1323,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @return self
      */
     protected function setRequestPath(string $path) {
-        /** @var UriInterface */
-        $baseUri = $this->client->getConfig('base_uri');
-        $uri = UriResolver::resolve($baseUri, Psr7\uri_for($path));
+        $base = Utils::uriFor($this->baseUri);
+        $uri = UriResolver::resolve($base, Utils::uriFor($path));
         $this->request = $this->request->withUri($uri);
 
         return $this;

@@ -10,7 +10,7 @@ Migration from v2.x to v3.x
     :local:
     :depth: 1
 
-The usage of Behat API Extension has not changed between these versions, but ``>=3.0`` requires ``PHP >= 7.2``.
+The usage of Behat API Extension itself has not changed between these versions, but ``>=3.0`` requires ``PHP >= 7.4``.
 
 Migrating from v1.x to v2.x
 ---------------------------

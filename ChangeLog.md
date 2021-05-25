@@ -3,7 +3,7 @@ Changelog for Behat API Extension
 
 v3.0.0
 ------
-__N/A__
+__2021-05-25__
 
 * [#101](https://github.com/imbo/behat-api-extension/issues/101): Require PHP >= 7.4
 * [#92](https://github.com/imbo/behat-api-extension/pull/92): Add password grant OAuth step ([@ABGEO](https://github.com/ABGEO))

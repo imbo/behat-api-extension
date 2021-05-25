@@ -1,12 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Match the type of a value
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class VariableType {
     /**
@@ -23,56 +21,71 @@ class VariableType {
         'object',
         'null',
         'scalar',
+        'any',
     ];
 
     /**
      * Match a variable type
      *
      * @param mixed $variable A variable
-     * @param string $expectedType The expected type of $variable
+     * @param string $expectedTypes The expected types of $variable, separated by |
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($variable, $expectedType) {
-        $expectedType = $this->normalizeType($expectedType);
+    public function __invoke($variable, string $expectedTypes) : bool {
+        $expectedTypes = $this->normalizeTypes($expectedTypes);
 
-        if (!in_array($expectedType, $this->validTypes)) {
-            throw new InvalidArgumentException(sprintf(
-                'Unsupported variable type: "%s".',
-                $expectedType
-            ));
+        foreach ($expectedTypes as $expectedType) {
+            if (!in_array($expectedType, $this->validTypes)) {
+                throw new InvalidArgumentException(sprintf(
+                    'Unsupported variable type: "%s".',
+                    $expectedType
+                ));
+            }
         }
 
-        if ($expectedType === 'scalar' && is_scalar($variable)) {
-            return;
+        if (in_array('any', $expectedTypes)) {
+            return true;
         }
 
         // Encode / decode the value to easier check for objects
-        $variable = json_decode(json_encode($variable));
+        /** @var mixed */
+        $variable = json_decode((string) json_encode($variable));
 
         // Get the actual type of the value
         $actualType = strtolower(gettype($variable));
 
-        if ($expectedType !== $actualType) {
-            throw new InvalidArgumentException(sprintf(
-                'Expected variable type "%s", got "%s".',
-                $expectedType,
-                $actualType
-            ));
+        foreach ($expectedTypes as $expectedType) {
+            if (
+                ($expectedType === 'scalar' && is_scalar($variable)) ||
+                $expectedType === $actualType
+            ) {
+                return true;
+            }
         }
+
+        throw new InvalidArgumentException(sprintf(
+            'Expected variable type "%s", got "%s".',
+            join('|', $expectedTypes),
+            $actualType
+        ));
     }
 
     /**
      * Normalize the type
      *
-     * @param string $type The type from the scenario
-     * @return string Returns a normalized type
+     * @param string $types The types from the scenario
+     * @return string[] Returns an array of normalized types
      */
-    protected function normalizeType($type) {
-        return strtolower(preg_replace(
+    protected function normalizeTypes(string $types) : array {
+        $types = array_map(function(string $type) : string {
+            return trim(strtolower($type));
+        }, explode('|', $types));
+
+        /** @var string[] */
+        return preg_replace(
             ['/^bool$/i', '/^int$/i', '/^float$/i'],
             ['boolean', 'integer', 'double'],
-            $type
-        ));
+            $types
+        );
     }
 }

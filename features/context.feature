@@ -13,9 +13,11 @@ Feature: Client aware context
 
             class FeatureContext implements ApiClientAwareContext {
                 private $client;
+                private $baseUri;
 
-                public function setClient(ClientInterface $client) {
+                public function setClient(ClientInterface $client, string $baseUri) {
                     $this->client = $client;
+                    $this->baseUri = $baseUri;
                 }
 
                 /**
@@ -51,29 +53,4 @@ Feature: Client aware context
 
             1 scenario (1 passed)
             1 step (1 passed)
-            """
-
-    Scenario: Host / port not connectable
-        Given a file named "behat.yml" with:
-            """
-            default:
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:9999
-            """
-        And a file named "features/client.feature" with:
-            """
-            Feature: API client
-                In order to call the API
-                As feature runner
-                I need to be able to access the client
-
-                Scenario: client is set
-                    Then the client should be set
-            """
-        When I run "behat -f progress features/client.feature"
-        Then it should fail with:
-            """
-            Can't connect to base_uri: "http://localhost:9999".
             """

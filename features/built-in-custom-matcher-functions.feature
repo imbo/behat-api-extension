@@ -97,6 +97,34 @@ Feature: Test built in matcher functions
                         '''
                         {
                             "types": {
+                                "string": "@variableType(any)",
+                                "integer": "@variableType(any)",
+                                "double": "@variableType(any)",
+                                "array": "@variableType(any)",
+                                "boolean": "@variableType(any)",
+                                "null": "@variableType(any)",
+                                "scalar": "@variableType(any)"
+                            }
+                        }
+                        '''
+                    And the response body contains JSON:
+                        '''
+                        {
+                            "types": {
+                                "string": "@variableType(int|bool|string)",
+                                "integer": "@variableType(double|array|object|integer)",
+                                "double": "@variableType(bool|double)",
+                                "array": "@variableType(int|string|any)",
+                                "boolean": "@variableType(double | int | bool)",
+                                "null": "@variableType(string|int|null)",
+                                "scalar": "@variableType(string|bool|scalar|array)"
+                            }
+                        }
+                        '''
+                    And the response body contains JSON:
+                        '''
+                        {
+                            "types": {
                                 "string": "@regExp(/SOME STRING/i)",
                                 "integer": "@regExp(/\\d\\d\\d/)",
                                 "double": "@regExp(/[\\d\\.]+/)"
@@ -131,8 +159,8 @@ Feature: Test built in matcher functions
         When I run "behat features/custom-matcher-functions.feature"
         Then it should pass with:
             """
-            .............
+            ...............
 
             1 scenario (1 passed)
-            13 steps (13 passed)
+            15 steps (15 passed)
             """

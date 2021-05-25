@@ -3,6 +3,15 @@ Upgrading
 
 This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
+Migration from v2.x to v3.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+The usage of Behat API Extension itself has not changed between these versions, but ``>=3.0`` requires ``PHP >= 7.4``.
+
 Migrating from v1.x to v2.x
 ---------------------------
 
@@ -20,27 +29,27 @@ In ``v1`` the extension only had a single configuration option, which was ``base
 .. code-block:: yaml
 
     default:
-        suites:
-            default:
-                # ...
+      suites:
+        default:
+          # ...
 
-        extensions:
-            Imbo\BehatApiExtension:
-                base_uri: http://localhost:8080
+      extensions:
+        Imbo\BehatApiExtension:
+          base_uri: http://localhost:8080
 
 **v2 behat.yml**
 
 .. code-block:: yaml
 
     default:
-        suites:
-            default:
-                # ...
+      suites:
+        default:
+          # ...
 
-        extensions:
-            Imbo\BehatApiExtension:
-                apiClient:
-                    base_uri: http://localhost:8080
+      extensions:
+        Imbo\BehatApiExtension:
+          apiClient:
+            base_uri: http://localhost:8080
 
 Renamed public methods
 ^^^^^^^^^^^^^^^^^^^^^^

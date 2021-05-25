@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension;
 
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
@@ -7,8 +7,6 @@ use Exception;
 
 /**
  * Comparator class used for the response body comparisons
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayContainsComparator {
     /**
@@ -17,7 +15,7 @@ class ArrayContainsComparator {
      * Keys are the names of the functions, and the values represent an invokable piece of code, be
      * it a function name or the name of an invokable class.
      *
-     * @var array
+     * @var array<string, callable>
      */
     protected $functions = [];
 
@@ -25,20 +23,8 @@ class ArrayContainsComparator {
      * Add a custom matcher function
      *
      * If an existing function exists with the same name it will be replaced
-     *
-     * @param string $name The name of the function, for instance "length"
-     * @param callable $callback The piece of callback code
-     * @throws InvalidArgumentException Throws an exception if the callback is not callable
-     * @return self
      */
-    public function addFunction($name, $callback) {
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException(sprintf(
-                'Callback provided for function "%s" is not callable.',
-                $name
-            ));
-        }
-
+    public function addFunction(string $name, callable $callback) : self {
         $this->functions[$name] = $callback;
 
         return $this;
@@ -46,11 +32,8 @@ class ArrayContainsComparator {
 
     /**
      * Get a matcher function by name
-     *
-     * @param string $name The name of the matcher function
-     * @return mixed
      */
-    public function getMatcherFunction($name) {
+    public function getMatcherFunction(string $name) : callable {
         if (!isset($this->functions[$name])) {
             throw new InvalidArgumentException(sprintf(
                 'No matcher function registered for "%s".',
@@ -67,13 +50,11 @@ class ArrayContainsComparator {
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
      * "list" is a numerically indexed array, and an "object" is an associative array.
      *
-     * @param array $needle The needle array
-     * @param array $haystack The haystack array
-     * @throws ArrayContainsComparatorException Throws an exception on error
-     * @return boolean
+     * @param array<array-key, scalar|array> $needle
+     * @param array<array-key, mixed> $haystack
      */
-    public function compare(array $needle, array $haystack) {
-        $needleIsList = $this->arrayIsList($needle);
+    public function compare(array $needle, array $haystack) : bool {
+        $needleIsList   = $this->arrayIsList($needle);
         $haystackIsList = $this->arrayIsList($haystack);
 
         // If the needle is a numerically indexed array, the haystack needs to be one as well
@@ -82,7 +63,7 @@ class ArrayContainsComparator {
                 'The needle is a list, while the haystack is not.', 0, null,
                 $needle, $haystack
             );
-        } else if ($needleIsList && $haystackIsList) {
+        } else if ($needleIsList) {
             // Both arrays are numerically indexed arrays
             return $this->inArray($needle, $haystack);
         }
@@ -93,11 +74,11 @@ class ArrayContainsComparator {
             // Check if the needle key refers to a specific array key in the haystack
             $match = [];
 
-            if (preg_match('/^(?<key>.*?)\[(?<index>[\d]+)\]$/', $key, $match)) {
-                $realKey = $match['key'] ?: null;
-                $index = (int) $match['index'];
+            if (preg_match('/^(?<key>.*?)\[(?<index>[\d]+)\]$/', (string) $key, $match)) {
+                $realKey = $match['key'];
+                $index   = (int) $match['index'];
 
-                if ($realKey && !array_key_exists($realKey, $haystack)) {
+                if (!empty($realKey) && !array_key_exists($realKey, $haystack)) {
                     // The key does not exist in the haystack
                     throw new ArrayContainsComparatorException(
                         sprintf('Haystack object is missing the "%s" key.', $realKey), 0, null,
@@ -107,6 +88,7 @@ class ArrayContainsComparator {
 
                 // If a key has been specified, use that part of the haystack to compare against,
                 // if no key exists, simply use the haystack as-is.
+                /** @var mixed */
                 $subHaystack = $realKey ? $haystack[$realKey] : $haystack;
 
                 if (!is_array($subHaystack) || !$this->arrayIsList($subHaystack)) {
@@ -124,6 +106,13 @@ class ArrayContainsComparator {
                 }
 
                 if (is_array($value)) {
+                    if (!is_array($subHaystack[$index])) {
+                        throw new ArrayContainsComparatorException(
+                            sprintf('Expected haystack element on index "%d" to be an array, got "%s".', $index, gettype($subHaystack[$index])), 0, null,
+                            $needle, $haystack
+                        );
+                    }
+
                     // The value is an array, do a recursive check
                     $this->compare($value, $subHaystack[$index]);
                 } else if (!$this->compareValues($value, $subHaystack[$index])) {
@@ -145,6 +134,13 @@ class ArrayContainsComparator {
                 }
 
                 if (is_array($value)) {
+                    if (!is_array($haystack[$key])) {
+                        throw new ArrayContainsComparatorException(
+                            sprintf('Expected haystack value with key "%s" to be an array, got "%s".', $key, gettype($haystack[$key])), 0, null,
+                            $needle, $haystack
+                        );
+                    }
+
                     // If the value is an array, recurse
                     $this->compare($value, $haystack[$key]);
                 } else if (!$this->compareValues($value, $haystack[$key])) {
@@ -168,10 +164,8 @@ class ArrayContainsComparator {
      *
      * @param mixed $needleValue
      * @param mixed $haystackValue
-     * @throws ArrayContainsComparatorException
-     * @return boolean
      */
-    protected function compareValues($needleValue, $haystackValue) {
+    protected function compareValues($needleValue, $haystackValue) : bool {
         $match = [];
 
         // List of available function names
@@ -212,12 +206,10 @@ class ArrayContainsComparator {
     /**
      * Make sure all values in the $needle array is present in the $haystack array
      *
-     * @param array $needle
+     * @param array<array-key, array|scalar> $needle
      * @param array $haystack
-     * @throws ArrayContainsComparatorException
-     * @return boolean
      */
-    protected function inArray(array $needle, array $haystack) {
+    protected function inArray(array $needle, array $haystack) : bool {
         // Loop over all the values in the needle array, and make sure each and every one is in some
         // way present in the haystack, in a recursive manner.
         foreach ($needle as $needleValue) {
@@ -237,7 +229,7 @@ class ArrayContainsComparator {
                         );
                     }
 
-                    $result = array_filter($listElementsInHaystack, function ($haystackListElement) use ($needleValue) {
+                    $result = array_filter($listElementsInHaystack, function (array $haystackListElement) use ($needleValue) : bool {
                         try {
                             return $this->inArray($needleValue, $haystackListElement);
                         } catch (ArrayContainsComparatorException $e) {
@@ -257,7 +249,7 @@ class ArrayContainsComparator {
                 } else {
                     // The needle value is an object, so we only want to compare it to objects in
                     // the haystack
-                    $objectElementsInHaystack = array_filter($haystack, function($element) {
+                    $objectElementsInHaystack = array_filter($haystack, function($element) : bool {
                         return is_array($element) && $this->arrayIsObject($element);
                     });
 
@@ -268,7 +260,7 @@ class ArrayContainsComparator {
                         );
                     }
 
-                    $result = array_filter($objectElementsInHaystack, function ($haystackObjectElement) use ($needleValue) {
+                    $result = array_filter($objectElementsInHaystack, function (array $haystackObjectElement) use ($needleValue) {
                         try {
                             return $this->compare($needleValue, $haystackObjectElement);
                         } catch (ArrayContainsComparatorException $e) {
@@ -306,21 +298,19 @@ class ArrayContainsComparator {
 
     /**
      * See if a PHP array is a JSON array
-     *
-     * @param array $array The array to check
-     * @return boolean True if the array is a numerically indexed array
      */
-    protected function arrayIsList(array $array) {
-        return json_encode($array)[0] === '[';
+    protected function arrayIsList(array $array) : bool {
+        $encoded = json_encode($array);
+
+        return false !== $encoded && $encoded[0] === '[';
     }
 
     /**
      * See if a PHP array is a JSON object
-     *
-     * @param array $array The array to check
-     * @return boolean True if the array is an associative array
      */
-    protected function arrayIsObject(array $array) {
-        return json_encode($array)[0] === '{';
+    protected function arrayIsObject(array $array) : bool {
+        $encoded = json_encode($array);
+
+        return false !== $encoded && $encoded[0] === '{';
     }
 }

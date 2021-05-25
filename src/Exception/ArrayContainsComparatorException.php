@@ -1,27 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Exception;
 
 use Exception;
 
 /**
  * Array contains comparator exception
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayContainsComparatorException extends AssertionFailedException {
     /**
      * Class constructor
      *
-     * @param string $message Exception message
-     * @param int $code Exception code
-     * @param Exception $previous Previous exception in the stack
-     * @param mixed $needle The needle in the comparison
-     * @param mixed $haystack The haystack in the comparison
+     * @param string $message
+     * @param int $code
+     * @param Exception $previous
+     * @param mixed $needle
+     * @param mixed $haystack
      */
-    public function __construct($message, $code = 0, Exception $previous = null, $needle = null, $haystack = null) {
-        // Reusable line of ='s
-        $line = str_repeat('=', 80);
-
+    public function __construct(string $message, int $code = 0, Exception $previous = null, $needle = null, $haystack = null) {
         // Format the error message
         $message .= PHP_EOL . PHP_EOL . sprintf(<<<MESSAGE
 ================================================================================

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use Firebase;
@@ -7,8 +7,6 @@ use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
 
 /**
  * Match a JWT token
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class JWT {
     /**
@@ -21,7 +19,7 @@ class JWT {
     /**
      * JWT tokens present in the response body
      *
-     * @var array
+     * @var array<string, array{payload: array, secret: string}>
      */
     private $jwtTokens = [];
 
@@ -36,24 +34,14 @@ class JWT {
         'HS512',
     ];
 
-    /**
-     * Class constructor
-     *
-     * @param Comparator $comparator
-     */
     public function __construct(Comparator $comparator) {
         $this->comparator = $comparator;
     }
 
     /**
      * Add a JWT token that can be matched
-     *
-     * @param string $name String identifying the token
-     * @param array $payload The payload
-     * @param string $secret The secret used to sign the token
-     * @return self
      */
-    public function addToken($name, array $payload, $secret) {
+    public function addToken(string $name, array $payload, string $secret) : self {
         $this->jwtTokens[$name] = [
             'payload' => $payload,
             'secret' => $secret,
@@ -65,12 +53,9 @@ class JWT {
     /**
      * Match an array against a JWT
      *
-     * @param string $jwt The encoded JWT
-     * @param string $name The identifier of the decoded data, added using the addToken method
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($jwt, $name) {
+    public function __invoke(string $jwt, string $name) : bool {
         if (!isset($this->jwtTokens[$name])) {
             throw new InvalidArgumentException(sprintf('No JWT registered for "%s".', $name));
         }
@@ -81,5 +66,7 @@ class JWT {
         if (!$this->comparator->compare($token['payload'], $result)) {
             throw new InvalidArgumentException('JWT mismatch.');
         }
+
+        return true;
     }
 }

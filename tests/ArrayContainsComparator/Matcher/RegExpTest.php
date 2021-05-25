@@ -1,31 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp
- * @testdox Regular expression pattern matcher
  */
-class RegExpTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var RegExp
-     */
+class RegExpTest extends TestCase {
+    /** @var RegExp */
     private $matcher;
 
-    /**
-     * Set up matcher instance
-     */
-    public function setup() {
+    public function setUp() : void {
         $this->matcher = new RegExp();
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array<string, array{subject: float|int|string, pattern: string}>
      */
-    public function getSubjectsAndPatterns() {
+    public function getSubjectsAndPatterns() : array {
         return [
             'a regular string' => [
                 'subject' => 'some string',
@@ -43,33 +36,32 @@ class RegExpTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Regular expression matching can only be applied to strings, integers or doubles, got "boolean".
      * @covers ::__invoke
      */
-    public function testThrowsExceptionIfSubjectIsNotASupportedVariableType() {
+    public function testThrowsExceptionIfSubjectIsNotASupportedVariableType() : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Regular expression matching can only be applied to strings, integers or doubles, got "boolean".');
         $matcher(true, '/true/');
     }
 
     /**
      * @dataProvider getSubjectsAndPatterns
      * @covers ::__invoke
-     * @param scalar $subject
-     * @param string $pattern
+     * @param float|int|string $subject
      */
-    public function testCanMatchRegularExpressionPatternsAgainst($subject, $pattern) {
+    public function testCanMatchRegularExpressionPatternsAgainst($subject, string $pattern) : void {
         $matcher = $this->matcher;
-        $matcher($subject, $pattern);
+        $this->assertTrue($matcher($subject, $pattern));
     }
 
     /**
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Subject "some string" did not match pattern "/SOME STRING/".
      */
-    public function testThrowsExceptionIfPatternDoesNotMatchSubject() {
+    public function testThrowsExceptionIfPatternDoesNotMatchSubject() : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Subject "some string" did not match pattern "/SOME STRING/".');
         $matcher('some string', '/SOME STRING/');
     }
 }

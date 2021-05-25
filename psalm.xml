@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="features"/>
+        <directory name="src"/>
+        <directory name="tests"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+            <file name="features/bootstrap/index.php" />
+        </ignoreFiles>
+    </projectFiles>
+    <issueHandlers>
+        <MixedPropertyTypeCoercion>
+            <errorLevel type="suppress">
+                <referencedProperty name="Imbo\BehatApiExtension\Context\ApiContextTest::$historyContainer" />
+            </errorLevel>
+        </MixedPropertyTypeCoercion>
+        <MixedArgumentTypeCoercion>
+            <errorLevel type="suppress">
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator::inArray" />
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator::compare" />
+            </errorLevel>
+        </MixedArgumentTypeCoercion>
+        <PossiblyInvalidArgument>
+            <errorLevel type="suppress">
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength::__invoke" />
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMaxLength::__invoke" />
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMinLength::__invoke" />
+            </errorLevel>
+        </PossiblyInvalidArgument>
+        <InvalidScalarArgument>
+            <errorLevel type="suppress">
+                <referencedFunction name="Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp::__invoke" />
+            </errorLevel>
+        </InvalidScalarArgument>
+        <MissingConstructor>
+            <errorLevel type="suppress">
+                <file name="src/Context/ApiContext.php" />
+            </errorLevel>
+        </MissingConstructor>
+        <InternalMethod>
+            <errorLevel type="suppress">
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::method"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willReturn"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willReturnSelf"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::willThrowException"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::with"/>
+                <referencedMethod name="PHPUnit\Framework\MockObject\Builder\InvocationMocker::withConsecutive"/>
+            </errorLevel>
+        </InternalMethod>
+    </issueHandlers>
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+        <pluginClass class="AlexS\Guzzle\PsalmPlugin"/>
+    </plugins>
+</psalm>

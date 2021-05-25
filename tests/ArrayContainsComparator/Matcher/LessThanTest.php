@@ -1,31 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\LessThan
- * @testdox Numeric less than matcher
  */
-class LessThanTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var LessThan
-     */
+class LessThanTest extends TestCase {
+    /** @var LessThan */
     private $matcher;
 
-    /**
-     * Set up matcher instance
-     */
-    public function setup() {
+    public function setUp() : void {
         $this->matcher = new LessThan();
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{number: int|string, max: int|string|float}[]
      */
-    public function getValuesForMatching() {
+    public function getValuesForMatching() : array {
         return [
             'integer' => [
                 'number' => 1,
@@ -43,11 +36,9 @@ class LessThanTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{number: int|float|string, max: int|float|string, errorMessage: string}[]
      */
-    public function getFailingValues() {
+    public function getFailingValues() : array {
         return [
             [
                 'number' => 123,
@@ -75,48 +66,46 @@ class LessThanTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getValuesForMatching
      * @covers ::__invoke
-     *
-     * @param numeric $number
-     * @param numeric $max
+     * @param int|string $number
+     * @param int|string|float $max
      */
-    public function testCanCompareValuesOfType($number, $max) {
+    public function testCanCompareValuesOfType($number, $max) : void {
         $matcher = $this->matcher;
-        $this->assertNull(
+        $this->assertTrue(
             $matcher($number, $max),
-            'Matcher is supposed to return null.'
+            'Matcher is supposed to return true.'
         );
     }
 
     /**
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage "foo" is not numeric.
      */
-    public function testThrowsExceptionIfNumberIsNotNumeric() {
+    public function testThrowsExceptionIfNumberIsNotNumeric() : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('"foo" is not numeric.');
         $matcher('foo', 123);
     }
 
     /**
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage "foo" is not numeric.
      */
-    public function testThrowsExceptionIfMaximumNumberIsNotNumeric() {
+    public function testThrowsExceptionIfMaximumNumberIsNotNumeric() : void {
         $matcher = $this->matcher;
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('"foo" is not numeric.');
         $matcher(123, 'foo');
     }
 
     /**
      * @dataProvider getFailingValues
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
+     * @param int|float|string $number
+     * @param int|float|string $max
      *
-     * @param numeric $number
-     * @param numeric $max
-     * @param string $errorMessage
      */
-    public function testThrowsExceptionWhenComparisonFails($number, $max, $errorMessage) {
+    public function testThrowsExceptionWhenComparisonFails($number, $max, string $errorMessage) : void {
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($errorMessage);
         $matcher = $this->matcher;
         $matcher($number, $max);

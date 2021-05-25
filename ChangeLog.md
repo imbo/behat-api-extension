@@ -1,6 +1,26 @@
 Changelog for Behat API Extension
 =================================
 
+v3.0.0
+------
+__2021-05-25__
+
+* [#101](https://github.com/imbo/behat-api-extension/issues/101): Require PHP >= 7.4
+* [#92](https://github.com/imbo/behat-api-extension/pull/92): Add password grant OAuth step ([@ABGEO](https://github.com/ABGEO))
+* [#85](https://github.com/imbo/behat-api-extension/pull/85): Add support for manipulating query parameters using steps
+
+v2.3.1
+------
+__2020-01-29__
+
+* Minor docs fix and bumped copyright year
+
+v2.3.0
+------
+__2020-01-29__
+
+* [#84](https://github.com/imbo/behat-api-extension/pull/84): Added support for `any` and multiple variable types with the `@variableType` matcher
+
 v2.2.1
 ------
 __2019-09-15__

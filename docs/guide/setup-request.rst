@@ -57,6 +57,28 @@ Step                                                            ``:username``  `
 Given I am authenticating as "``foo``" with password "``bar``"  ``foo``        ``bar``
 ==============================================================  =============  =============
 
+Given I get an OAuth token using password grant from ``:path`` with ``:username`` and ``:password`` in scope ``:scope`` using client ID ``:clientId`` (and client secret ``:clientSecret``)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Send a request using password grant to the given ``:path`` for an access token that will be added as a ``Authorization`` header for the next request. The endpoint is required to respond with a JSON object that contains the ``access_token`` key, for instance:
+
+.. code-block:: json
+
+    {
+        "access_token": "some-token"
+    }
+
+Given the above response body, the next request will have the following header set: ``Authorization: Bearer some-token``.
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Given I get an OAuth token using password grant from "/token" with "user" and "password" in scope "scope" using client ID "id" and client secret "secret"
+    When I request "/path/that/requires/token/in/header"
+
+The second step in the above example will include the required ``Authorization`` header given the response from ``/token`` as seen in the first step.
+
 .. _given-the-header-request-header-is-value:
 
 Given the ``:header`` request header is ``:value``
@@ -158,3 +180,58 @@ This step can be used to prepare the `JWT <https://jwt.io/>`_ custom matcher fun
         """
 
 The above step would register a JWT which can be matched with ``@jwt(my JWT)`` using the :ref:`@jwt() <jwt-custom-matcher>` custom matcher function. The way the payload is matched is similar to matching a JSON response body, as explained in the :ref:`then-the-response-body-contains-json` section, which means :ref:`custom matcher functions <custom-matcher-functions-and-targeting>` can be used, as seen in the example above.
+
+Given the query parameter ``:name`` is ``:value``
+-------------------------------------------------
+
+This step can be used to set a single query parameter to a specific value for the upcoming request.
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Given the query parameter "foo" is "bar"
+    And the query parameter "bar" is "foo"
+    When I request "/path"
+
+The above steps would end up with a request to ``/path?foo=bar&bar=foo``.
+
+.. note:: When this step is used all query parameters specified in the path portion of ``When I request "/path"`` are ignored.
+
+Given the query parameter ``:name`` is: ``<TableNode>``
+-------------------------------------------------------
+
+This step can be used to set multiple values to a single query parameter for the upcoming request.
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Given the query parameter "foo" is:
+        | value |
+        | foo   |
+        | bar   |
+    When I request "/path"
+
+The above steps would end up with a request to ``/path?foo[0]=foo&foo[1]=bar``.
+
+.. note:: When this step is used all query parameters specified in the path portion of ``When I request "/path"`` are ignored.
+
+Given the following query parameters are set: ``<TableNode>``
+-------------------------------------------------------------
+
+This step can be used to set multiple query parameters at once for the upcoming request.
+
+**Examples:**
+
+.. code-block:: gherkin
+
+    Given the following query parameters are set:
+        | name | value |
+        | foo  | bar   |
+        | bar  | foo   |
+    When I request "/path"
+
+The above steps would end up with a request to ``/path?foo=bar&bar=foo``.
+
+.. note:: When this step is used all query parameters specified in the path portion of ``When I request "/path"`` are ignored.

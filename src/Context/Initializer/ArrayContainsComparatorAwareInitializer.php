@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
@@ -9,8 +9,6 @@ use Behat\Behat\Context\Initializer\ContextInitializer;
 
 /**
  * Array contains comparator context aware initializer
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayContainsComparatorAwareInitializer implements ContextInitializer {
     /**
@@ -18,11 +16,6 @@ class ArrayContainsComparatorAwareInitializer implements ContextInitializer {
      */
     private $comparator;
 
-    /**
-     * Class constructor
-     *
-     * @param Comparator $comparator
-     */
     public function __construct(Comparator $comparator) {
         $comparator
             ->addFunction('arrayLength', new Matcher\ArrayLength())
@@ -37,12 +30,7 @@ class ArrayContainsComparatorAwareInitializer implements ContextInitializer {
         $this->comparator = $comparator;
     }
 
-    /**
-     * Initialize the context
-     *
-     * @param Context $context
-     */
-    public function initializeContext(Context $context) {
+    public function initializeContext(Context $context) : void {
         if ($context instanceof ArrayContainsComparatorAwareContext) {
             $context->setArrayContainsComparator($this->comparator);
         }

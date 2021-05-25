@@ -1,31 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMinLength
- * @testdox Array min length matcher
  */
-class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var ArrayMinLength
-     */
+class ArrayMinLengthTest extends TestCase {
+    /** @var ArrayMinLength */
     private $matcher;
 
-    /**
-     * Set up matcher instance
-     */
-    public function setup() {
+    public function setup() : void {
         $this->matcher = new ArrayMinLength();
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{list: int[], min: int}[]
      */
-    public function getArraysAndMinLengths() {
+    public function getArraysAndMinLengths() : array {
         return [
             [
                 'list' => [],
@@ -43,11 +36,9 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{value: int|string|array<string, string>, message: string}[]
      */
-    public function getInvalidValues() {
+    public function getInvalidValues() : array {
         return [
             [
                 'value' => 123,
@@ -65,11 +56,9 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{array: int[], minLength: int, message: string}[]
      */
-    public function getValuesThatFail() {
+    public function getValuesThatFail() : array {
         return [
             [
                 'array' => [],
@@ -87,27 +76,23 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getArraysAndMinLengths
      * @covers ::__invoke
-     *
-     * @param array $array
-     * @param int $min
+     * @param int[] $array
      */
-    public function testCanMatchMinLengthOfArrays(array $array, $min) {
+    public function testCanMatchMinLengthOfArrays(array $array, int $min) : void {
         $matcher = $this->matcher;
-        $this->assertNull(
+        $this->assertTrue(
             $matcher($array, $min),
-            'Matcher is supposed to return null.'
+            'Matcher is supposed to return true.'
         );
     }
 
     /**
      * @dataProvider getInvalidValues
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     *
-     * @param mixed $value
-     * @param string $message
+     * @param int|string|array<string, string> $value
      */
-    public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray($value, $message) {
+    public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray($value, string $message) : void {
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
         $matcher($value, 123);
@@ -116,13 +101,10 @@ class ArrayMinLengthTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider getValuesThatFail
      * @covers ::__invoke
-     * @expectedException InvalidArgumentException
-     *
-     * @param array $array
-     * @param int $minLength
-     * @param string $message
+     * @param int[] $array
      */
-    public function testThrowsExceptionWhenLengthIsTooLong(array $array, $minLength, $message) {
+    public function testThrowsExceptionWhenLengthIsTooLong(array $array, int $minLength, string $message) : void {
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
         $matcher($array, $minLength);

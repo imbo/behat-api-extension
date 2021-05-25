@@ -1,24 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
-use PHPUnit_Framework_TestCase;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
- * @testdox Extension
  */
-class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var BehatApiExtension
-     */
+class BehatApiExtensionTest extends TestCase {
+    /** @var BehatApiExtension */
     private $extension;
 
-    /**
-     * Set up the SUT
-     */
-    public function setUp() {
+    public function setUp() : void {
         $this->extension = new BehatApiExtension();
     }
 
@@ -26,9 +21,9 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
      * @covers ::getConfigKey
      * @covers ::configure
      */
-    public function testCanBuildConfiguration() {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root($this->extension->getConfigKey());
+    public function testCanBuildConfiguration() : void {
+        /** @var ArrayNodeDefinition */
+        $rootNode = (new TreeBuilder($this->extension->getConfigKey()))->getRootNode();
 
         // Configure the root node builder
         $this->extension->configure($rootNode);
@@ -46,9 +41,9 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers ::configure
      */
-    public function testCanOverrideDefaultValuesWhenBuildingConfiguration() {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root($this->extension->getConfigKey());
+    public function testCanOverrideDefaultValuesWhenBuildingConfiguration() : void {
+        /** @var ArrayNodeDefinition */
+        $rootNode = (new TreeBuilder($this->extension->getConfigKey()))->getRootNode();
 
         // Configure the root node builder
         $this->extension->configure($rootNode);

@@ -1,25 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Check if the length of an array is at most a given length
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayMaxLength {
     /**
      * Match the max length of an array
      *
      * @param array $array An array
-     * @param int $maxLength The expected maximum length of $array
+     * @param int|string $maxLength The expected maximum length of $array
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($array, $maxLength) {
+    public function __invoke($array, $maxLength) : bool {
         // Encode / decode to make sure we have a "list"
-        $array = json_decode(json_encode($array));
+        /** @var mixed */
+        $array = json_decode((string) json_encode($array));
 
         if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(
@@ -38,5 +36,7 @@ class ArrayMaxLength {
                 $actualLength
             ));
         }
+
+        return true;
     }
 }

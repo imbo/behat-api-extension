@@ -1,25 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
 /**
  * Match the length of an array
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
  */
 class ArrayLength {
     /**
      * Match the exact length of an array
      *
      * @param array $array An array
-     * @param int $length The expected exact length of $array
+     * @param int|string $length The expected exact length of $array
      * @throws InvalidArgumentException
-     * @return void
      */
-    public function __invoke($array, $length) {
+    public function __invoke($array, $length) : bool {
         // Encode / decode to make sure we have a "list"
-        $array = json_decode(json_encode($array));
+        /** @var mixed */
+        $array = json_decode((string) json_encode($array));
 
         if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(
@@ -38,5 +36,7 @@ class ArrayLength {
                 $actualLength
             ));
         }
+
+        return true;
     }
 }

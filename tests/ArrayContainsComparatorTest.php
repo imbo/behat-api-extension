@@ -1,33 +1,26 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
-use PHPUnit_Framework_TestCase;
+use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
+use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
- * @testdox Array contains comparator
  */
-class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
-    /**
-     * @var ArrayContainsComparator
-     */
+class ArrayContainsComparatorTest extends TestCase {
+    /** @var ArrayContainsComparator */
     private $comparator;
 
-    /**
-     * Set up the SUT
-     */
-    public function setUp() {
+    public function setUp() : void {
         $this->comparator = new ArrayContainsComparator();
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array<string, array{needle: array, haystack: array}>
      */
-    public function getDataForInArrayCheck() {
+    public function getDataForInArrayCheck() : array {
         $scalarHaystack = [1, 2, 1.1, 2.2, 'foo', 'bar', true, false];
         $haystackWithArrayElements = [
             1, 2, 3,
@@ -170,11 +163,9 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array<string, array{needle: array, haystack: array}>
      */
-    public function getDataForCompareCheck() {
+    public function getDataForCompareCheck() : array {
         return [
             'simple key value objects' => [
                 'needle' => [
@@ -216,11 +207,9 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{needle: array, haystack: array}[]
      */
-    public function getDataForSpecificKeyInListChecks() {
+    public function getDataForSpecificKeyInListChecks() : array {
         return [
             'simple list in haystack key' => [
                 'needle' => [
@@ -287,11 +276,13 @@ class ArrayContainsComparatorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{
+     *  needle: array<string, string>,
+     *  haystack: array<array-key, mixed>,
+     *  exceptionMessage: string
+     * }[]
      */
-    public function getDataForSpecificKeyInListChecksWithInvalidData() {
+    public function getDataForSpecificKeyInListChecksWithInvalidData() : array {
         return [
             'a string' => [
                 'needle' => [
@@ -351,11 +342,14 @@ EXCEPTION
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{
+     *  function: string,
+     *  callback: callable,
+     *  needle: array{key: string},
+     *  haystack: array{key: string|int[]}
+     * }[]
      */
-    public function getCustomFunctionsAndData() {
+    public function getCustomFunctionsAndData() : array {
         return [
             '@arrayLength' => [
                 'function' => 'arrayLength',
@@ -409,7 +403,7 @@ EXCEPTION
             ],
             '@jwt' => [
                 'function' => 'jwt',
-                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], 'secret', 'HS256'),
+                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], 'secret'),
                 'needle' => [
                     'key' => '@jwt(my jwt)',
                 ],
@@ -419,7 +413,7 @@ EXCEPTION
             ],
             '@customFunction' => [
                 'function' => 'customFunction',
-                'callback' => function($subject, $param) {
+                'callback' => function(string $subject, string $param) : bool {
                     return strtoupper($subject) === $param;
                 },
                 'needle' => [
@@ -433,11 +427,9 @@ EXCEPTION
     }
 
     /**
-     * Data provider
-     *
-     * @return array[]
+     * @return array{function: string, callback: callable, needle: array<string, string>, haystack: array<string, mixed>, errorMessage: string}[]
      */
-    public function getCustomFunctionsAndDataThatWillFail() {
+    public function getCustomFunctionsAndDataThatWillFail() : array {
         return [
             // @arrayLength
             [
@@ -507,8 +499,7 @@ EXCEPTION
             // @customFunction
             [
                 'function' => 'customFunction',
-                'callback' => function($subject, $param) {
-                    unset($subject, $params);
+                'callback' => function() : void {
                     throw new InvalidArgumentException('Some custom error message');
                 },
                 'needle' => [
@@ -523,10 +514,10 @@ EXCEPTION
     }
 
     /**
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      * @covers ::compare
      */
-    public function testThrowsExceptionWhenMatchingANumericallyIndexedArrayAgainstAnAssociativeArray() {
+    public function testThrowsExceptionWhenMatchingANumericallyIndexedArrayAgainstAnAssociativeArray() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 The needle is a list, while the haystack is not.
 
@@ -557,11 +548,8 @@ EXCEPTION
      * @covers ::compareValues
      * @covers ::arrayIsList
      * @covers ::arrayIsObject
-     *
-     * @param array $needle
-     * @param array $haystack
      */
-    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) {
+    public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -571,9 +559,9 @@ EXCEPTION
     /**
      * @covers ::compare
      * @covers ::inArray
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenNeedleValueIsAListAndHaystackDoesNotContainAnyLists() {
+    public function testThrowsExceptionWhenNeedleValueIsAListAndHaystackDoesNotContainAnyLists() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Haystack does not contain any list elements, needle can't be found.
 
@@ -598,9 +586,9 @@ EXCEPTION
     /**
      * @covers ::compare
      * @covers ::inArray
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenNeedleValueIsAnObjectAndHaystackDoesNotContainAnyObjects() {
+    public function testThrowsExceptionWhenNeedleValueIsAnObjectAndHaystackDoesNotContainAnyObjects() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Haystack does not contain any object elements, needle can't be found.
 
@@ -633,9 +621,9 @@ EXCEPTION
     /**
      * @covers ::compare
      * @covers ::inArray
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenHaystackListIsMissingValuesFromNeedleList() {
+    public function testThrowsExceptionWhenHaystackListIsMissingValuesFromNeedleList() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 The list in needle was not found in the list elements in the haystack.
 
@@ -678,9 +666,9 @@ EXCEPTION
     /**
      * @covers ::compare
      * @covers ::inArray
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenHaystackObjectIsMissingValuesFromNeedleObject() {
+    public function testThrowsExceptionWhenHaystackObjectIsMissingValuesFromNeedleObject() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 The object in needle was not found in the object elements in the haystack.
 
@@ -746,11 +734,8 @@ EXCEPTION
      * @covers ::compareValues
      * @covers ::arrayIsList
      * @covers ::arrayIsObject
-     *
-     * @param array $needle
-     * @param array $haystack
      */
-    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) {
+    public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -759,9 +744,9 @@ EXCEPTION
 
     /**
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenComparingObjectsAndKeyIsMissingFromHaystack() {
+    public function testThrowsExceptionWhenComparingObjectsAndKeyIsMissingFromHaystack() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Haystack object is missing the "bar" key.
 
@@ -792,9 +777,9 @@ EXCEPTION
 
     /**
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenRegularStringKeyValueDoesNotMatch() {
+    public function testThrowsExceptionWhenRegularStringKeyValueDoesNotMatch() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Value mismatch for key "foo" in haystack object.
 
@@ -824,7 +809,7 @@ EXCEPTION
      * @covers ::compare
      * @covers ::compareValues
      */
-    public function testCanRecursivelyMatchKeysInObjects() {
+    public function testCanRecursivelyMatchKeysInObjects() : void {
         $this->assertTrue(
             $this->comparator->compare([
                 'bar' => 'foo',
@@ -853,9 +838,9 @@ EXCEPTION
 
     /**
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenRegularStringKeyValueInDeepObjectDoesNotMatch() {
+    public function testThrowsExceptionWhenRegularStringKeyValueInDeepObjectDoesNotMatch() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Value mismatch for key "foo" in haystack object.
 
@@ -897,11 +882,8 @@ EXCEPTION
      * @dataProvider getDataForSpecificKeyInListChecks
      * @covers ::compare
      * @covers ::compareValues
-     *
-     * @param array $needle
-     * @param array $haystack
      */
-    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) {
+    public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator->compare($needle, $haystack),
             'Comparator did not return in a correct manner, should return true'
@@ -910,9 +892,9 @@ EXCEPTION
 
     /**
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatDoesNotExist() {
+    public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatDoesNotExist() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Haystack object is missing the "foo" key.
 
@@ -941,22 +923,20 @@ EXCEPTION
     /**
      * @dataProvider getDataForSpecificKeyInListChecksWithInvalidData
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
-     *
-     * @param array $needle
-     * @param array $haystack
-     * @param string $exceptionMessage
+     * @param array<string, string> $needle
+     * @param array<array-key, mixed> $haystack
      */
-    public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack, $exceptionMessage) {
+    public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack, string $exceptionMessage) : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage($exceptionMessage);
         $this->comparator->compare($needle, $haystack);
     }
 
     /**
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionWhenTargetingAListIndexThatDoesNotExist() {
+    public function testThrowsExceptionWhenTargetingAListIndexThatDoesNotExist() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 The index "2" does not exist in the haystack list.
 
@@ -990,9 +970,9 @@ EXCEPTION
 
     /**
      * @covers ::compare
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testThrowsExceptionOnValueMismatchWhenTargetingSpecificIndexInList() {
+    public function testThrowsExceptionOnValueMismatchWhenTargetingSpecificIndexInList() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Value mismatch for index "0" in haystack list.
 
@@ -1019,13 +999,10 @@ EXCEPTION
      * @covers ::addFunction
      * @covers ::compare
      * @covers ::compareValues
-     *
-     * @param string $function
-     * @param callable $callback
-     * @param array $needle
-     * @param array $haystack
+     * @param array<string, string> $needle
+     * @param array<string, mixed> $haystack
      */
-    public function testCanUseCustomFunctionMatcher($function, $callback, array $needle, array $haystack) {
+    public function testCanUseCustomFunctionMatcher(string $function, callable $callback, array $needle, array $haystack) : void {
         $this->assertTrue(
             $this->comparator
                 ->addFunction($function, $callback)
@@ -1037,9 +1014,9 @@ EXCEPTION
     /**
      * @covers ::compare
      * @covers ::compareValues
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      */
-    public function testPerformsARegularStringComparisonWhenSpecifiedCustomFunctionMatcherDoesNotExist() {
+    public function testPerformsARegularStringComparisonWhenSpecifiedCustomFunctionMatcherDoesNotExist() : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage(<<<'EXCEPTION'
 Value mismatch for key "key" in haystack object.
 
@@ -1066,18 +1043,14 @@ EXCEPTION
 
     /**
      * @dataProvider getCustomFunctionsAndDataThatWillFail
-     * @expectedException Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
      * @covers ::addFunction
      * @covers ::compare
      * @covers ::compareValues
-     *
-     * @param string $function
-     * @param callable $callback
-     * @param array $needle
-     * @param array $haystack
-     * @param string $errorMessage
+     * @param array<string, string> $needle
+     * @param array<string, mixed> $haystack
      */
-    public function testThrowsExceptionWhenCustomFunctionMatcherFails($function, $callback, array $needle, array $haystack, $errorMessage) {
+    public function testThrowsExceptionWhenCustomFunctionMatcherFails(string $function, callable $callback, array $needle, array $haystack, string $errorMessage) : void {
+        $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage($errorMessage);
         $this->assertTrue(
             $this->comparator
@@ -1088,19 +1061,10 @@ EXCEPTION
     }
 
     /**
-     * @covers ::addFunction
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Callback provided for function "myFunction" is not callable.
-     */
-    public function testThrowsExceptionWhenAddingAFunctionWithAnInvalidCallback() {
-        $this->comparator->addFunction('myFunction', 'myFunction');
-    }
-
-    /**
      * @covers ::compare
      * @covers ::inArray
      */
-    public function testSupportsInArrayCheckWhenListsAreInADeepStructure() {
+    public function testSupportsInArrayCheckWhenListsAreInADeepStructure() : void {
         $needle = [
             'foo' => [
                 'bar' => 'baz',
@@ -1151,13 +1115,13 @@ EXCEPTION
                 ],
             ],
         ];
-        $this->comparator->compare($needle, $haystack);
+        $this->assertTrue($this->comparator->compare($needle, $haystack));
     }
 
     /**
      * @covers ::getMatcherFunction
      */
-    public function testCanReturnRegisteredMatcherFunction() {
+    public function testCanReturnRegisteredMatcherFunction() : void {
         $this->comparator->addFunction('function', $function = function() {});
         $this->assertSame(
             $function,
@@ -1168,10 +1132,10 @@ EXCEPTION
 
     /**
      * @covers ::getMatcherFunction
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage No matcher function registered for "function".
      */
-    public function testThrowsExceptionWhenGettingFunctionThatDoesNotExist() {
+    public function testThrowsExceptionWhenGettingFunctionThatDoesNotExist() : void {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('No matcher function registered for "function".');
         $this->comparator->getMatcherFunction('function');
     }
 }

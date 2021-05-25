@@ -1,20 +1,19 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer
- * @testdox Initializer for array contains comparator aware contexts
  */
-class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_TestCase {
+class ArrayContainsComparatorAwareInitializerTest extends TestCase {
     /**
      * @covers ::__construct
      */
-    public function testInitializerInjectsDefaultMatcherFunctions() {
+    public function testInitializerInjectsDefaultMatcherFunctions() : void {
         $comparator = $this->createMock(ArrayContainsComparator::class);
         $comparator
             ->expects($this->exactly(8))
@@ -29,25 +28,24 @@ class ArrayContainsComparatorAwareInitializerTest extends PHPUnit_Framework_Test
                 ['lt', $this->isInstanceOf(Matcher\LessThan::class)],
                 ['jwt', $this->isInstanceOf(Matcher\JWT::class)]
             )
-            ->will($this->returnSelf());
+            ->willReturnSelf();
 
-        $initializer = new ArrayContainsComparatorAwareInitializer($comparator);
+        new ArrayContainsComparatorAwareInitializer($comparator);
     }
 
     /**
      * @covers ::initializeContext
      */
-    public function testInjectsComparatorWhenInitializingContext() {
+    public function testInjectsComparatorWhenInitializingContext() : void {
         $comparator = $this->createMock(ArrayContainsComparator::class);
         $comparator
             ->expects($this->exactly(8))
             ->method('addFunction')
-            ->will($this->returnSelf());
+            ->willReturnSelf();
 
         $context = $this->createMock(ArrayContainsComparatorAwareContext::class);
         $context->expects($this->once())->method('setArrayContainsComparator')->with($comparator);
 
-        $initializer = new ArrayContainsComparatorAwareInitializer($comparator);
-        $initializer->initializeContext($context);
+        (new ArrayContainsComparatorAwareInitializer($comparator))->initializeContext($context);
     }
 }

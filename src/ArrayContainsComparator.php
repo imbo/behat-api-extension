@@ -175,7 +175,7 @@ class ArrayContainsComparator {
 
         // Dynamic pattern, based on the keys in the functions list
         $pattern = sprintf(
-            '/^@(?<function>%s)\((?<params>.*?)\)$/',
+            '/@(?<function>%s)\((?<params>.*?)\)/',
             implode('|', $functions)
         );
 
@@ -184,8 +184,16 @@ class ArrayContainsComparator {
             $function = $match['function'];
             $params = $match['params'];
 
+            // Get the replaced part of the received value
+            $realValue = $haystackValue;
+            if (is_string($haystackValue)) {
+                $pieces = explode("@$function($params)", $needleValue);
+                $realValue = str_replace($pieces[0], "", $realValue);
+                $realValue = str_replace($pieces[1], "", $realValue);
+            }
+
             try {
-                $this->functions[$function]($haystackValue, $params);
+                $this->functions[$function]($haystackValue, $params, $realValue);
                 return true;
             } catch (Exception $e) {
                 throw new ArrayContainsComparatorException(

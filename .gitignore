@@ -6,3 +6,4 @@ docs/_build
 .idea
 .phpunit.result.cache
 .vscode
+.php-cs-fixer.cache

@@ -6,7 +6,8 @@ use InvalidArgumentException;
 /**
  * Match the length of an array
  */
-class ArrayLength {
+class ArrayLength
+{
     /**
      * Match the exact length of an array
      *
@@ -14,7 +15,8 @@ class ArrayLength {
      * @param int|string $length The expected exact length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $length) : bool {
+    public function __invoke($array, $length): bool
+    {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */
         $array = json_decode((string) json_encode($array));
@@ -22,7 +24,7 @@ class ArrayLength {
         if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(
                 'Only numerically indexed arrays are supported, got "%s".',
-                gettype($array)
+                gettype($array),
             ));
         }
 
@@ -33,7 +35,7 @@ class ArrayLength {
             throw new InvalidArgumentException(sprintf(
                 'Expected array to have exactly %d entries, actual length: %d.',
                 $length,
-                $actualLength
+                $actualLength,
             ));
         }
 

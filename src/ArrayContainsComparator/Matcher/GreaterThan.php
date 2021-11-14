@@ -6,7 +6,8 @@ use InvalidArgumentException;
 /**
  * Check if a numeric value is greater than another value
  */
-class GreaterThan {
+class GreaterThan
+{
     /**
      * Match a numeric value
      *
@@ -14,18 +15,19 @@ class GreaterThan {
      * @param mixed $min The minimum value of $number
      * @throws InvalidArgumentException
      */
-    public function __invoke($number, $min) : bool {
+    public function __invoke($number, $min): bool
+    {
         if (!is_numeric($number)) {
             throw new InvalidArgumentException(sprintf(
                 '"%s" is not numeric.',
-                (string) $number
+                (string) $number,
             ));
         }
 
         if (!is_numeric($min)) {
             throw new InvalidArgumentException(sprintf(
                 '"%s" is not numeric.',
-                (string) $min
+                (string) $min,
             ));
         }
 
@@ -33,7 +35,7 @@ class GreaterThan {
             throw new InvalidArgumentException(sprintf(
                 '"%s" is not greater than "%s".',
                 $number,
-                $min
+                $min,
             ));
         }
 

@@ -1,24 +1,27 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType
  */
-class VariableTypeTest extends TestCase {
+class VariableTypeTest extends TestCase
+{
     /** @var VariableType */
     private $matcher;
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         $this->matcher = new VariableType();
     }
 
     /**
      * @return array<string, array{value: mixed, type: string}>
      */
-    public function getValuesAndTypes() : array {
+    public function getValuesAndTypes(): array
+    {
         return [
             'int' => [
                 'value' => 1,
@@ -130,27 +133,28 @@ class VariableTypeTest extends TestCase {
     /**
      * @return array{value: mixed, type: string, message: string}[]
      */
-    public function getInvalidMatches() : array {
+    public function getInvalidMatches(): array
+    {
         return [
             [
                 'value' => 123,
                 'type' => 'string',
-                'message' => 'Expected variable type "string", got "integer".'
+                'message' => 'Expected variable type "string", got "integer".',
             ],
             [
                 'value' => '123',
                 'type' => 'integer',
-                'message' => 'Expected variable type "integer", got "string".'
+                'message' => 'Expected variable type "integer", got "string".',
             ],
             [
                 'value' => [1, 2, 3],
                 'type' => 'object',
-                'message' => 'Expected variable type "object", got "array".'
+                'message' => 'Expected variable type "object", got "array".',
             ],
             [
                 'value' => ['foo' => 'bar'],
                 'type' => 'array',
-                'message' => 'Expected variable type "array", got "object".'
+                'message' => 'Expected variable type "array", got "object".',
             ],
         ];
     }
@@ -161,18 +165,20 @@ class VariableTypeTest extends TestCase {
      * @covers ::normalizeTypes
      * @param mixed $value
      */
-    public function testCanMatchValuesOfType($value, string $type) : void {
+    public function testCanMatchValuesOfType($value, string $type): void
+    {
         $matcher = $this->matcher;
         $this->assertTrue(
             $matcher($value, $type),
-            'Matcher is supposed to return true.'
+            'Matcher is supposed to return true.',
         );
     }
 
     /**
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenGivenInvalidType() : void {
+    public function testThrowsExceptionWhenGivenInvalidType(): void
+    {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported variable type: "resource".');
@@ -184,7 +190,8 @@ class VariableTypeTest extends TestCase {
      * @covers ::__invoke
      * @param mixed $value
      */
-    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, string $type, string $message) : void {
+    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, string $type, string $message): void
+    {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);

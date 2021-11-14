@@ -1,24 +1,27 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
-use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 use GuzzleHttp\Client;
+use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
  */
-class ApiClientAwareInitializerTest extends TestCase {
+class ApiClientAwareInitializerTest extends TestCase
+{
     /**
      * @covers ::initializeContext
      * @covers ::__construct
      */
-    public function testInjectsClientWhenInitializingContext() : void {
+    public function testInjectsClientWhenInitializingContext(): void
+    {
         // Set up a socket for the test case, try all ports between 8000 and 8079. If no ports are
         // available the test case will be marked as skipped. This is to get past the base URI
         // validation
-        set_error_handler(function() { return true; });
+        set_error_handler(function () {
+            return true;
+        });
         $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
         if (false === $sock) {

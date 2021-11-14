@@ -6,7 +6,8 @@ use InvalidArgumentException;
 /**
  * Match a string against a regular expression pattern
  */
-class RegExp {
+class RegExp
+{
     /**
      * Match the value of a string against a regular expression
      *
@@ -14,11 +15,12 @@ class RegExp {
      * @param string $pattern A valid regular expression pattern
      * @throws InvalidArgumentException
      */
-    public function __invoke($subject, string $pattern) : bool {
+    public function __invoke($subject, string $pattern): bool
+    {
         if (!in_array(gettype($subject), ['string', 'integer', 'double'])) {
             throw new InvalidArgumentException(sprintf(
                 'Regular expression matching can only be applied to strings, integers or doubles, got "%s".',
-                gettype($subject)
+                gettype($subject),
             ));
         }
 
@@ -28,7 +30,7 @@ class RegExp {
             throw new InvalidArgumentException(sprintf(
                 'Subject "%s" did not match pattern "%s".',
                 $subject,
-                $pattern
+                $pattern,
             ));
         }
 

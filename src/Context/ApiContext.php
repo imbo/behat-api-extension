@@ -257,9 +257,9 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         if (empty($body->access_token)) {
             throw new RuntimeException(
                 sprintf(
-                'Missing access_token from response body: %s',
-                json_encode($body),
-            ),
+                    'Missing access_token from response body: %s',
+                    json_encode($body),
+                ),
             );
         }
 

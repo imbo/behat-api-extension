@@ -153,6 +153,23 @@ Feature: Test Then steps
             3 steps (3 passed)
             """
 
+    Scenario: Use Then step to verify responses with empty body
+        Given a file named "features/thens-empty-response-body.feature" with:
+            """
+            Feature: Test for empty response body
+                Scenario: Assert that the response body is empty
+                    When I request "/empty"
+                    Then the response body is empty
+            """
+        When I run "behat features/thens-empty-response-body.feature"
+        Then it should pass with:
+            """
+            ..
+
+            1 scenario (1 passed)
+            2 steps (2 passed)
+            """
+
     Scenario: Use Then steps to verify responses with numerical array as root
         Given a file named "features/response-with-numerical-array.feature" with:
             """

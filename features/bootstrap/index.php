@@ -248,6 +248,13 @@ $app->get('/emptyObject', function (Request $request, Response $response): Respo
 });
 
 /**
+ * Return a response with an empty body
+ */
+$app->get('/empty', function (Request $request, Response $response): Response {
+    return $response->withStatus(204);
+});
+
+/**
  * Return a response with 403 Forbidden
  */
 $app->get('/403', function (Request $request, Response $response): Response {

@@ -269,6 +269,25 @@ Feature: Assertion steps can fail
             ]". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
             """
 
+    Scenario: Assert response body is empty failure
+        Given a file named "features/assert-response-body-is-empty.feature" with:
+            """
+            Feature: Make request and assert response body is empty
+                Scenario: Make request
+                    Given the request body is:
+                        '''
+                        content
+                        '''
+                    When I request "/echo"
+                    Then the response body is empty
+            """
+        When I run "behat features/assert-response-body-is-empty.feature"
+        Then it should fail
+        And the output should contain:
+            """
+            Expected response body to be empty, got "content". (Imbo\BehatApiExtension\Exception\AssertionFailedException)
+            """
+
     Scenario: Assert response body JSON array length failure
         Given a file named "features/assert-response-body-json-array-length.feature" with:
             """

@@ -1148,6 +1148,38 @@ BAR;
     }
 
     /**
+     * @covers ::assertResponseBodyIsEmpty
+     */
+    public function testCanAssertThatTheResponseBodyIsEmpty(): void
+    {
+        $this->mockHandler->append(new Response(204));
+        $this->context->requestPath('/some/path');
+        $this->assertTrue($this->context->assertResponseBodyIsEmpty());
+    }
+
+    /**
+     * @covers ::assertResponseBodyIsEmpty
+     */
+    public function testCanAssertThatTheResponseBodyIsEmptyCanFail(): void
+    {
+        $this->mockHandler->append(new Response(200, [], 'some content'));
+        $this->context->requestPath('/some/path');
+        $this->expectException(AssertionFailedException::class);
+        $this->expectExceptionMessage('Expected response body to be empty, got "some content".');
+        $this->assertTrue($this->context->assertResponseBodyIsEmpty());
+    }
+
+    /**
+     * @covers ::assertResponseBodyIsEmpty
+     */
+    public function testAssertThatTheResponseBodyIsEmptyThrowsExceptionOnMissingResponse(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The request has not been made yet, so no response object exists.');
+        $this->context->assertResponseBodyIsEmpty();
+    }
+
+    /**
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray

@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         php: ['7.4', '8.0']
-    name: Validate, lint and test on PHP ${{ matrix.php }}
+    name: Validate and test on PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v2
 
@@ -23,9 +23,6 @@ jobs:
 
       - name: Validate composer files
         run: composer validate --strict
-
-      - name: Lint all PHP files
-        run: composer run lint
 
       - name: Get Composer cache directory
         id: composer-cache-dir
@@ -45,10 +42,16 @@ jobs:
         run: composer install
 
       - name: Start dev server
-        run: composer run dev --timeout=0 &
+        run: php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1
 
-      - name: Run tests
-        run: composer run test
+      - name: Run unit tests
+        run: vendor/bin/phpunit
+
+      - name: Run integration tests
+        run: vendor/bin/behat --strict
 
       - name: Run static code analysis
-        run: composer run sa
+        run: vendor/bin/psalm
+
+      - name: Check coding standard
+        run: php-cs-fixer fix --dry-run --diff

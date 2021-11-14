@@ -42,7 +42,7 @@ jobs:
         run: composer install
 
       - name: Start dev server
-        run: php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1
+        run: php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &
 
       - name: Run unit tests
         run: vendor/bin/phpunit

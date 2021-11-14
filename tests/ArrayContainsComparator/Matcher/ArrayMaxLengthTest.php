@@ -1,24 +1,27 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
-use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMaxLength
  */
-class ArrayMaxLengthTest extends TestCase {
+class ArrayMaxLengthTest extends TestCase
+{
     /** @var ArrayMaxLength */
     private $matcher;
 
-    public function setup() : void {
+    public function setup(): void
+    {
         $this->matcher = new ArrayMaxLength();
     }
 
     /**
      * @return array{list: int[], length: int}[]
      */
-    public function getArraysAndLengths() : array {
+    public function getArraysAndLengths(): array
+    {
         return [
             [
                 'list' => [],
@@ -38,7 +41,8 @@ class ArrayMaxLengthTest extends TestCase {
     /**
      * @return array{value: int|string|array<string, string>, message: string}[]
      */
-    public function getInvalidValues() : array {
+    public function getInvalidValues(): array
+    {
         return [
             [
                 'value' => 123,
@@ -58,7 +62,8 @@ class ArrayMaxLengthTest extends TestCase {
     /**
      * @return array{array: int[], maxLength: int, message: string}[]
      */
-    public function getValuesThatFail() : array {
+    public function getValuesThatFail(): array
+    {
         return [
             [
                 'array' => [1, 2],
@@ -78,11 +83,12 @@ class ArrayMaxLengthTest extends TestCase {
      * @covers ::__invoke
      * @param int[] $array
      */
-    public function testCanMatchMaxLengthOfArrays(array $array, int $length) : void {
+    public function testCanMatchMaxLengthOfArrays(array $array, int $length): void
+    {
         $matcher = $this->matcher;
         $this->assertTrue(
             $matcher($array, $length),
-            'Matcher is supposed to return true.'
+            'Matcher is supposed to return true.',
         );
     }
 
@@ -91,7 +97,8 @@ class ArrayMaxLengthTest extends TestCase {
      * @covers ::__invoke
      * @param int|string|array<string, string> $value
      */
-    public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray($value, string $message) : void {
+    public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray($value, string $message): void
+    {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
@@ -103,7 +110,8 @@ class ArrayMaxLengthTest extends TestCase {
      * @covers ::__invoke
      * @param int[] $array
      */
-    public function testThrowsExceptionWhenLengthIsTooShort(array $array, int $maxLength, string $message) : void {
+    public function testThrowsExceptionWhenLengthIsTooShort(array $array, int $maxLength, string $message): void
+    {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;

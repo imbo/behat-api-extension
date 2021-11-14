@@ -2,13 +2,14 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use Firebase;
-use InvalidArgumentException;
 use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
+use InvalidArgumentException;
 
 /**
  * Match a JWT token
  */
-class JWT {
+class JWT
+{
     /**
      * Comparator for the array
      *
@@ -34,14 +35,16 @@ class JWT {
         'HS512',
     ];
 
-    public function __construct(Comparator $comparator) {
+    public function __construct(Comparator $comparator)
+    {
         $this->comparator = $comparator;
     }
 
     /**
      * Add a JWT token that can be matched
      */
-    public function addToken(string $name, array $payload, string $secret) : self {
+    public function addToken(string $name, array $payload, string $secret): self
+    {
         $this->jwtTokens[$name] = [
             'payload' => $payload,
             'secret' => $secret,
@@ -55,7 +58,8 @@ class JWT {
      *
      * @throws InvalidArgumentException
      */
-    public function __invoke(string $jwt, string $name) : bool {
+    public function __invoke(string $jwt, string $name): bool
+    {
         if (!isset($this->jwtTokens[$name])) {
             throw new InvalidArgumentException(sprintf('No JWT registered for "%s".', $name));
         }

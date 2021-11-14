@@ -6,7 +6,8 @@ use Exception;
 /**
  * Array contains comparator exception
  */
-class ArrayContainsComparatorException extends AssertionFailedException {
+class ArrayContainsComparatorException extends AssertionFailedException
+{
     /**
      * Class constructor
      *
@@ -16,9 +17,11 @@ class ArrayContainsComparatorException extends AssertionFailedException {
      * @param mixed $needle
      * @param mixed $haystack
      */
-    public function __construct(string $message, int $code = 0, Exception $previous = null, $needle = null, $haystack = null) {
+    public function __construct(string $message, int $code = 0, Exception $previous = null, $needle = null, $haystack = null)
+    {
         // Format the error message
-        $message .= PHP_EOL . PHP_EOL . sprintf(<<<MESSAGE
+        $message .= PHP_EOL . PHP_EOL . sprintf(
+            <<<MESSAGE
 ================================================================================
 = Needle =======================================================================
 ================================================================================
@@ -31,8 +34,8 @@ class ArrayContainsComparatorException extends AssertionFailedException {
 
 MESSAGE
             ,
-                json_encode($needle, JSON_PRETTY_PRINT),
-                json_encode($haystack, JSON_PRETTY_PRINT)
+            json_encode($needle, JSON_PRETTY_PRINT),
+            json_encode($haystack, JSON_PRETTY_PRINT),
         );
 
         parent::__construct($message, $code, $previous);

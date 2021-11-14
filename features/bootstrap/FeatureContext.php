@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
+use Assert\Assertion;
 use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Testwork\Hook\Scope\SuiteScope;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
-use Assert\Assertion;
 
 /**
  * Behat feature context class
@@ -15,7 +15,8 @@ use Assert\Assertion;
  *
  * @author Christer Edvartsen <cogo@starzinger.net>
  */
-class FeatureContext implements Context {
+class FeatureContext implements Context
+{
     /**
      * PHP binary used to trigger Behat from the scenarios
      *
@@ -45,7 +46,8 @@ class FeatureContext implements Context {
      * @BeforeSuite
      * @AfterSuite
      */
-    public static function emptyTestDir(SuiteScope $scope) : void {
+    public static function emptyTestDir(SuiteScope $scope): void
+    {
         $testDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension';
 
         if (is_dir($testDir)) {
@@ -61,7 +63,8 @@ class FeatureContext implements Context {
      *
      * @BeforeScenario
      */
-    public function prepareScenario(BeforeScenarioScope $scope) : void {
+    public function prepareScenario(BeforeScenarioScope $scope): void
+    {
         $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension' . DIRECTORY_SEPARATOR . microtime(true);
         mkdir($dir . '/features/bootstrap', 0777, true);
 
@@ -83,7 +86,8 @@ class FeatureContext implements Context {
      *
      * @Given a file named :filename with:
      */
-    public function createFile($filename, PyStringNode $content, $readable = true) : void {
+    public function createFile($filename, PyStringNode $content, $readable = true): void
+    {
         $filename = rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
         $path = dirname($filename);
         $content = str_replace("'''", '"""', (string) $content);
@@ -107,7 +111,8 @@ class FeatureContext implements Context {
      *
      * @Given a non-readable file named :filename with:
      */
-    public function createNonReadableFile($filename, PyStringNode $content) : void {
+    public function createNonReadableFile($filename, PyStringNode $content): void
+    {
         $this->createFile($filename, $content, false);
     }
 
@@ -117,7 +122,8 @@ class FeatureContext implements Context {
      * @param string $args
      * @When /^I run "behat(?: ((?:\"|[^"])*))?"$/
      */
-    public function runBehat(string $args = '') : void {
+    public function runBehat(string $args = ''): void
+    {
         if (!defined('BEHAT_BIN_PATH')) {
             throw new RuntimeException('Missing BEHAT_BIN_PATH constant');
         }
@@ -130,9 +136,9 @@ class FeatureContext implements Context {
                 (string) $this->phpBin,
                 escapeshellarg((string) BEHAT_BIN_PATH),
                 $args,
-                '--format-settings="{\"timer\": false}" --no-colors'
+                '--format-settings="{\"timer\": false}" --no-colors',
             ),
-            $this->workingDir
+            $this->workingDir,
         );
 
 
@@ -148,7 +154,8 @@ class FeatureContext implements Context {
      *
      * @Then /^it should (fail|pass) with:$/
      */
-    public function assertCommandResultWithOutput($result, PyStringNode $output) : void {
+    public function assertCommandResultWithOutput($result, PyStringNode $output): void
+    {
         $this->assertCommandResult($result);
         $this->assertCommandOutputMatches($output);
     }
@@ -160,11 +167,12 @@ class FeatureContext implements Context {
      *
      * @Then the output should contain:
      */
-    public function assertCommandOutputMatches(PyStringNode $content) : void {
+    public function assertCommandOutputMatches(PyStringNode $content): void
+    {
         Assertion::contains(
             $this->getOutput(),
             str_replace("'''", '"""', (string) $content),
-            sprintf('Command output does not match. Actual output: %s', $this->getOutput())
+            sprintf('Command output does not match. Actual output: %s', $this->getOutput()),
         );
     }
 
@@ -174,7 +182,8 @@ class FeatureContext implements Context {
      * @param string $result
      * @Then /^it should (fail|pass)$/
      */
-    public function assertCommandResult(string $result) : void {
+    public function assertCommandResult(string $result): void
+    {
         $exitCode = $this->getExitCode();
 
         // Escape % as the callback will pass this value to sprintf() if the assertion fails, and
@@ -186,14 +195,14 @@ class FeatureContext implements Context {
             $callback = 'notEq';
             $errorMessage = sprintf(
                 'Invalid exit code, did not expect 0. Command output: %s',
-                $output
+                $output,
             );
         } else {
             $callback = 'eq';
             $errorMessage = sprintf(
                 'Expected exit code 0, got %d. Command output: %s',
                 $exitCode,
-                $output
+                $output,
             );
         }
 
@@ -205,7 +214,8 @@ class FeatureContext implements Context {
      *
      * @return int
      */
-    private function getExitCode() : int {
+    private function getExitCode(): int
+    {
         if (null === $this->process) {
             throw new RuntimeException('No process is running');
         }
@@ -224,7 +234,8 @@ class FeatureContext implements Context {
      *
      * @return string
      */
-    private function getOutput() {
+    private function getOutput()
+    {
         if (null === $this->process) {
             throw new RuntimeException('No process is running');
         }
@@ -239,7 +250,8 @@ class FeatureContext implements Context {
      *
      * @param string $path Path to a file or a directory
      */
-    private static function rmdir($path) : void {
+    private static function rmdir($path): void
+    {
         /** @var string[] */
         $files = glob(sprintf('%s/*', $path));
 

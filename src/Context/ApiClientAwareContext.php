@@ -7,7 +7,8 @@ use GuzzleHttp\ClientInterface;
 /**
  * Api client aware interface
  */
-interface ApiClientAwareContext extends Context {
+interface ApiClientAwareContext extends Context
+{
     /**
      * Set the Guzzle client and create a pristine request instance
      *
@@ -15,5 +16,5 @@ interface ApiClientAwareContext extends Context {
      * @param string $baseUri
      * @return self
      */
-    function setClient(ClientInterface $client, string $baseUri);
+    public function setClient(ClientInterface $client, string $baseUri);
 }

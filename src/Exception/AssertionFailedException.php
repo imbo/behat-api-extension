@@ -6,4 +6,6 @@ use Exception;
 /**
  * Assertion failure exception
  */
-class AssertionFailedException extends Exception {}
+class AssertionFailedException extends Exception
+{
+}

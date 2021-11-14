@@ -1,17 +1,18 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Exception;
 
-use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
  */
-class ArrayContainsComparatorExceptionTest extends TestCase {
+class ArrayContainsComparatorExceptionTest extends TestCase
+{
     /**
      * @return array<array-key, array{message: string, needle: array<string, string>, haystack: array<string, string>, formattedMessage: string}>
      */
-    public function getExceptionData() : array {
+    public function getExceptionData(): array
+    {
         return [
             'with no needle / haystack' => [
                 'message' => $someMessage = 'some message',
@@ -64,7 +65,8 @@ MESSAGE
      * @param array<string, string> $haystack
      * @param string $formattedMessage
      */
-    public function testCanProperlyFormatErrorMessages(string $message, array $needle, array $haystack, string $formattedMessage) : void {
+    public function testCanProperlyFormatErrorMessages(string $message, array $needle, array $haystack, string $formattedMessage): void
+    {
         $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage($formattedMessage);
         throw new ArrayContainsComparatorException($message, 0, null, $needle, $haystack);

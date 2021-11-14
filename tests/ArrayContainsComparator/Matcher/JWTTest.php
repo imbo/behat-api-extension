@@ -3,32 +3,35 @@ namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
-use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT
  */
-class JWTTest extends TestCase {
+class JWTTest extends TestCase
+{
     /** @var JWT */
     private $matcher;
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         $this->matcher = new JWT(new ArrayContainsComparator());
     }
 
     /**
      * @return array{jwt: string, name: string, payload: array<string, mixed>, secret: string}[]
      */
-    public function getJwt() : array {
+    public function getJwt(): array
+    {
         return [
             [
                 'jwt' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
                 'name' => 'my jwt',
                 'payload' => [
                     'sub' => '1234567890',
-					'name' => 'John Doe',
-					'admin' => true,
+                    'name' => 'John Doe',
+                    'admin' => true,
                 ],
                 'secret' => 'secret',
             ],
@@ -46,7 +49,8 @@ class JWTTest extends TestCase {
     /**
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenMatchingAgainstJwtThatDoesNotExist() : void {
+    public function testThrowsExceptionWhenMatchingAgainstJwtThatDoesNotExist(): void
+    {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('No JWT registered for "some name".');
@@ -57,13 +61,14 @@ class JWTTest extends TestCase {
      * @covers ::addToken
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenJwtDoesNotMatch() : void {
+    public function testThrowsExceptionWhenJwtDoesNotMatch(): void
+    {
         $matcher = $this->matcher->addToken('some name', ['some' => 'data'], 'secret');
         $this->expectException(ArrayContainsComparatorException::class);
         $this->expectExceptionMessage('Haystack object is missing the "some" key.');
         $matcher(
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
-            'some name'
+            'some name',
         );
     }
 
@@ -72,11 +77,12 @@ class JWTTest extends TestCase {
      * @dataProvider getJwt
      * @param array<string, mixed> $payload
      */
-    public function testCanMatchJwt(string $jwt, string $name, array $payload, string $secret) : void {
+    public function testCanMatchJwt(string $jwt, string $name, array $payload, string $secret): void
+    {
         $matcher = $this->matcher->addToken($name, $payload, $secret);
         $this->assertTrue($matcher(
             $jwt,
-            $name
+            $name,
         ));
     }
 
@@ -84,7 +90,8 @@ class JWTTest extends TestCase {
      * @covers ::__construct
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess() : void {
+    public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess(): void
+    {
         $comparator = $this->createConfiguredMock(ArrayContainsComparator::class, [
             'compare' => false,
         ]);
@@ -95,13 +102,13 @@ class JWTTest extends TestCase {
                 'name' => 'John Doe',
                 'admin' => true,
             ],
-            'secret'
+            'secret',
         );
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('JWT mismatch.');
         $matcher(
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ',
-            'token'
+            'token',
         );
     }
 }

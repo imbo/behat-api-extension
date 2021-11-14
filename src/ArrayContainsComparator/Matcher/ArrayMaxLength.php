@@ -6,7 +6,8 @@ use InvalidArgumentException;
 /**
  * Check if the length of an array is at most a given length
  */
-class ArrayMaxLength {
+class ArrayMaxLength
+{
     /**
      * Match the max length of an array
      *
@@ -14,7 +15,8 @@ class ArrayMaxLength {
      * @param int|string $maxLength The expected maximum length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $maxLength) : bool {
+    public function __invoke($array, $maxLength): bool
+    {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */
         $array = json_decode((string) json_encode($array));
@@ -22,7 +24,7 @@ class ArrayMaxLength {
         if (!is_array($array)) {
             throw new InvalidArgumentException(sprintf(
                 'Only numerically indexed arrays are supported, got "%s".',
-                gettype($array)
+                gettype($array),
             ));
         }
 
@@ -33,7 +35,7 @@ class ArrayMaxLength {
             throw new InvalidArgumentException(sprintf(
                 'Expected array to have less than or equal to %d entries, actual length: %d.',
                 $maxLength,
-                $actualLength
+                $actualLength,
             ));
         }
 

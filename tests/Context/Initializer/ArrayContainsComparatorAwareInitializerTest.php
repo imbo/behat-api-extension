@@ -1,19 +1,21 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
-use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
+use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer
  */
-class ArrayContainsComparatorAwareInitializerTest extends TestCase {
+class ArrayContainsComparatorAwareInitializerTest extends TestCase
+{
     /**
      * @covers ::__construct
      */
-    public function testInitializerInjectsDefaultMatcherFunctions() : void {
+    public function testInitializerInjectsDefaultMatcherFunctions(): void
+    {
         $comparator = $this->createMock(ArrayContainsComparator::class);
         $comparator
             ->expects($this->exactly(8))
@@ -26,7 +28,7 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase {
                 ['regExp', $this->isInstanceOf(Matcher\RegExp::class)],
                 ['gt', $this->isInstanceOf(Matcher\GreaterThan::class)],
                 ['lt', $this->isInstanceOf(Matcher\LessThan::class)],
-                ['jwt', $this->isInstanceOf(Matcher\JWT::class)]
+                ['jwt', $this->isInstanceOf(Matcher\JWT::class)],
             )
             ->willReturnSelf();
 
@@ -36,7 +38,8 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase {
     /**
      * @covers ::initializeContext
      */
-    public function testInjectsComparatorWhenInitializingContext() : void {
+    public function testInjectsComparatorWhenInitializingContext(): void
+    {
         $comparator = $this->createMock(ArrayContainsComparator::class);
         $comparator
             ->expects($this->exactly(8))

@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v3.0.1
+------
+__TBA__
+
+* [#106](https://github.com/imbo/behat-api-extension/issues/106): Adopt coding standard
+
 v3.0.0
 ------
 __2021-05-25__
@@ -47,7 +53,7 @@ Bug fixes:
 
 Other changes:
 
-- [#56](https://github.com/imbo/behat-api-extension/pull/56): Grammar fix ([@FabianPiconeDev](https://github.com/FabianPiconeDev))
+* [#56](https://github.com/imbo/behat-api-extension/pull/56): Grammar fix ([@FabianPiconeDev](https://github.com/FabianPiconeDev))
 
 v2.0.1
 ------

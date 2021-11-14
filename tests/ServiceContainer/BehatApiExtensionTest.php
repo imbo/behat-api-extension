@@ -1,19 +1,21 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
  */
-class BehatApiExtensionTest extends TestCase {
+class BehatApiExtensionTest extends TestCase
+{
     /** @var BehatApiExtension */
     private $extension;
 
-    public function setUp() : void {
+    public function setUp(): void
+    {
         $this->extension = new BehatApiExtension();
     }
 
@@ -21,7 +23,8 @@ class BehatApiExtensionTest extends TestCase {
      * @covers ::getConfigKey
      * @covers ::configure
      */
-    public function testCanBuildConfiguration() : void {
+    public function testCanBuildConfiguration(): void
+    {
         /** @var ArrayNodeDefinition */
         $rootNode = (new TreeBuilder($this->extension->getConfigKey()))->getRootNode();
 
@@ -41,7 +44,8 @@ class BehatApiExtensionTest extends TestCase {
     /**
      * @covers ::configure
      */
-    public function testCanOverrideDefaultValuesWhenBuildingConfiguration() : void {
+    public function testCanOverrideDefaultValuesWhenBuildingConfiguration(): void
+    {
         /** @var ArrayNodeDefinition */
         $rootNode = (new TreeBuilder($this->extension->getConfigKey()))->getRootNode();
 

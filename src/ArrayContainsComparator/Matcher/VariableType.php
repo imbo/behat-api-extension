@@ -6,7 +6,8 @@ use InvalidArgumentException;
 /**
  * Match the type of a value
  */
-class VariableType {
+class VariableType
+{
     /**
      * Valid types
      *
@@ -31,14 +32,15 @@ class VariableType {
      * @param string $expectedTypes The expected types of $variable, separated by |
      * @throws InvalidArgumentException
      */
-    public function __invoke($variable, string $expectedTypes) : bool {
+    public function __invoke($variable, string $expectedTypes): bool
+    {
         $expectedTypes = $this->normalizeTypes($expectedTypes);
 
         foreach ($expectedTypes as $expectedType) {
             if (!in_array($expectedType, $this->validTypes)) {
                 throw new InvalidArgumentException(sprintf(
                     'Unsupported variable type: "%s".',
-                    $expectedType
+                    $expectedType,
                 ));
             }
         }
@@ -66,7 +68,7 @@ class VariableType {
         throw new InvalidArgumentException(sprintf(
             'Expected variable type "%s", got "%s".',
             join('|', $expectedTypes),
-            $actualType
+            $actualType,
         ));
     }
 
@@ -76,8 +78,9 @@ class VariableType {
      * @param string $types The types from the scenario
      * @return string[] Returns an array of normalized types
      */
-    protected function normalizeTypes(string $types) : array {
-        $types = array_map(function(string $type) : string {
+    protected function normalizeTypes(string $types): array
+    {
+        $types = array_map(function (string $type): string {
             return trim(strtolower($type));
         }, explode('|', $types));
 
@@ -85,7 +88,7 @@ class VariableType {
         return preg_replace(
             ['/^bool$/i', '/^int$/i', '/^float$/i'],
             ['boolean', 'integer', 'double'],
-            $types
+            $types,
         );
     }
 }

@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension;
 
-use Slim\Factory\AppFactory;
-use Tuupola\Middleware\HttpBasicAuthentication;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Factory\AppFactory;
 use stdClass;
+use Tuupola\Middleware\HttpBasicAuthentication;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -15,13 +15,13 @@ $app->add(new HttpBasicAuthentication([
     'realm' => 'Protected',
     'users' => [
         'foo' => 'bar',
-    ]
+    ],
 ]));
 
 /**
  * Front page
  */
-$app->any('/', function(Request $request, Response $response) : Response {
+$app->any('/', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         'null' => null,
         'string' => 'value',
@@ -56,12 +56,12 @@ $app->any('/', function(Request $request, Response $response) : Response {
 /**
  * List with objects
  */
-$app->any('/list', function(Request $request, Response $response) : Response {
+$app->any('/list', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         [
             'integer' => 123,
             'string' => 'value',
-        ]
+        ],
     ]));
 
     return $response
@@ -71,7 +71,7 @@ $app->any('/list', function(Request $request, Response $response) : Response {
 /**
  * Echo the request body
  */
-$app->any('/echo', function(Request $request, Response $response) : Response {
+$app->any('/echo', function (Request $request, Response $response): Response {
     // Set the same Content-Type header in the response as found in the request
     if ($contentType = $request->getHeaderLine('Content-Type')) {
         $response = $response->withHeader('Content-Type', $contentType);
@@ -92,7 +92,7 @@ $app->any('/echo', function(Request $request, Response $response) : Response {
 /**
  * Return information about uploaded files
  */
-$app->post('/files', function(Request $request, Response $response) : Response {
+$app->post('/files', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode($_FILES));
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -100,7 +100,7 @@ $app->post('/files', function(Request $request, Response $response) : Response {
 /**
  * Return information about the request
  */
-$app->any('/requestInfo', function(Request $request, Response $response) : Response {
+$app->any('/requestInfo', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         '_GET' => $_GET,
         '_POST' => $_POST,
@@ -114,7 +114,7 @@ $app->any('/requestInfo', function(Request $request, Response $response) : Respo
 /**
  * Return the HTTP method
  */
-$app->any('/echoHttpMethod', function(Request $request, Response $response) : Response {
+$app->any('/echoHttpMethod', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         'method' => $request->getMethod(),
     ]));
@@ -124,7 +124,7 @@ $app->any('/echoHttpMethod', function(Request $request, Response $response) : Re
 /**
  * Return the authenticated user name
  */
-$app->any('/basicAuth', function(Request $request, Response $response) {
+$app->any('/basicAuth', function (Request $request, Response $response) {
     $response->getBody()->write((string) json_encode([
         'user' => explode(':', $request->getUri()->getUserInfo())[0],
     ]));
@@ -135,7 +135,7 @@ $app->any('/basicAuth', function(Request $request, Response $response) {
 /**
  * Return access token given the correct credentials
  */
-$app->any('/oauth/token', function(Request $request, Response $response) {
+$app->any('/oauth/token', function (Request $request, Response $response) {
     /** @var array{username: string, password: string} */
     $body = $request->getParsedBody();
 
@@ -158,12 +158,12 @@ $app->any('/oauth/token', function(Request $request, Response $response) {
 /**
  * Return secured resource if Authorization header is valid.
  */
-$app->any('/securedWithOAuth', function(Request $request, Response $response) {
+$app->any('/securedWithOAuth', function (Request $request, Response $response) {
     if ('Bearer some_access_token' === $request->getHeaderLine('Authorization')) {
         $responseBody = [
             'users' => [
                 'foo' => 'bar',
-            ]
+            ],
         ];
     } else {
         $response = $response->withStatus(401);
@@ -180,7 +180,7 @@ $app->any('/securedWithOAuth', function(Request $request, Response $response) {
 /**
  * Return a client error
  */
-$app->any('/clientError', function(Request $request, Response $response) : Response {
+$app->any('/clientError', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         'error' => 'client error',
     ]));
@@ -192,7 +192,7 @@ $app->any('/clientError', function(Request $request, Response $response) : Respo
 /**
  * @see https://github.com/imbo/behat-api-extension/issues/13
  */
-$app->any('/issue-13', function(Request $request, Response $response) : Response {
+$app->any('/issue-13', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         'customer' => [
             'id' => '12345',
@@ -204,14 +204,14 @@ $app->any('/issue-13', function(Request $request, Response $response) : Response
                     'filename_preview' => 'testimage-converted.png',
                     'filename_print' => 'testimage.ai',
                     'url' => '\/media\/testimage-converted.png',
-                    'created_time' => '2016-10-10 07 => 28 => 42'
+                    'created_time' => '2016-10-10 07 => 28 => 42',
                 ], [
                     'id' => '7890',
                     'filename_client' => 'demo.ai',
                     'filename_preview' => 'demoimage-converted.png',
                     'filename_print' => 'demoimage.ai',
                     'url' => '\/media\/demoimage-converted.png',
-                    'created_time' => '2016-10-10 07 => 38 => 22'
+                    'created_time' => '2016-10-10 07 => 38 => 22',
                 ],
             ],
         ],
@@ -222,19 +222,19 @@ $app->any('/issue-13', function(Request $request, Response $response) : Response
 /**
  * Return a response with a custom reason phrase
  */
-$app->get('/customReasonPhrase', function(Request $request, Response $response) : Response {
+$app->get('/customReasonPhrase', function (Request $request, Response $response): Response {
     $params = $request->getQueryParams();
 
     return $response->withStatus(
         !empty($params['code']) ? (int) $params['code'] : 200,
-        !empty($params['phrase']) ? (string) $params['phrase'] : ''
+        !empty($params['phrase']) ? (string) $params['phrase'] : '',
     );
 });
 
 /**
  * Return a response with an empty array
  */
-$app->get('/emptyArray', function(Request $request, Response $response) : Response {
+$app->get('/emptyArray', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -242,7 +242,7 @@ $app->get('/emptyArray', function(Request $request, Response $response) : Respon
 /**
  * Return a response with an empty object
  */
-$app->get('/emptyObject', function(Request $request, Response $response) : Response {
+$app->get('/emptyObject', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode(new stdClass()));
     return $response->withHeader('Content-Type', 'application/json');
 });
@@ -250,7 +250,7 @@ $app->get('/emptyObject', function(Request $request, Response $response) : Respo
 /**
  * Return a response with 403 Forbidden
  */
-$app->get('/403', function(Request $request, Response $response) : Response {
+$app->get('/403', function (Request $request, Response $response): Response {
     return $response->withStatus(403);
 });
 

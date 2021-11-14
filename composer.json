@@ -29,6 +29,7 @@
   },
   "require-dev": {
     "alexeyshockov/guzzle-psalm-plugin": "^0.3.1",
+    "imbo/imbo-coding-standard": "^2.0",
     "phpunit/phpunit": "^9.5",
     "psalm/plugin-phpunit": "^0.15.1",
     "slim/psr7": "^1.3",
@@ -48,23 +49,11 @@
     }
   },
   "scripts": {
-    "lint": "for file in `git ls-files '*php'`; do php -l $file; done",
     "phpunit": "vendor/bin/phpunit",
     "phpunit:coverage": "vendor/bin/phpunit --coverage-html build/coverage",
     "behat": "vendor/bin/behat --strict",
-    "psalm": "vendor/bin/psalm",
-    "test": [
-      "@phpunit",
-      "@behat"
-    ],
-    "sa": [
-      "@psalm"
-    ],
-    "ci": [
-      "@lint",
-      "@test",
-      "@sa"
-    ],
+    "sa": "vendor/bin/psalm",
+    "cs": "php-cs-fixer fix --dry-run --diff",
     "dev": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1",
     "docs": "cd docs; make html"
   },

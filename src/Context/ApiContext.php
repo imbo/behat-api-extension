@@ -1001,6 +1001,30 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
+     * Assert that the response body is empty
+     *
+     * @throws AssertionFailedException
+     *
+     * @Then the response body is empty
+     */
+    public function assertResponseBodyIsEmpty(): bool
+    {
+        if (!$this->response) {
+            throw new RuntimeException($this->missingResponseError);
+        }
+
+        $body = (string) $this->response->getBody();
+
+        try {
+            Assertion::noContent($body, sprintf('Expected response body to be empty, got "%s".', $body));
+        } catch (AssertionFailure $e) {
+            throw new AssertionFailedException($e->getMessage());
+        }
+
+        return true;
+    }
+
+    /**
      * Assert that the response body contains an array with a specific length
      *
      * @param int|string $length The length of the array

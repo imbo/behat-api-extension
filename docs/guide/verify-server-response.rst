@@ -188,6 +188,11 @@ Assert that the value of the ``:header`` response header matches the regular exp
 
 For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
 
+Then the response body is empty
+-------------------------------
+
+Assert that the response body is empty.
+
 Then the response body is an empty JSON object
 ----------------------------------------------
 

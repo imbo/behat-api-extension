@@ -2,6 +2,7 @@
 namespace Imbo\BehatApiExtension\Context;
 
 use Assert\Assertion;
+use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use Assert\AssertionFailedException as AssertionFailure;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -1240,6 +1241,38 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         }
 
         return true;
+    }
+
+    /**
+     * Assert that the response body does not contain all keys / values in the parameter
+     *
+     * @param PyStringNode $contains
+     * @throws AssertionFailedException
+     * @return void
+     *
+     * @Then the response body does not contain JSON:
+     */
+    public function assertResponseBodyNotContainsJson(PyStringNode $contains) {
+        $this->requireResponse();
+
+        // Decode the parameter to the step as an array and make sure it's valid JSON
+        $contains = $this->jsonDecode((string) $contains);
+
+        // Get the decoded response body and make sure it's decoded to an array
+        $body = json_decode(json_encode($this->getResponseBody()), true);
+
+        try {
+            // Compare the arrays, on error this will throw an exception
+            Assertion::false($this->arrayContainsComparator->compare($contains, $body));
+        }
+        catch (ArrayContainsComparatorException $e) {
+          // Continue if there is no match.
+        }
+        catch (AssertionFailure $e) {
+            throw new AssertionFailedException(
+                'Comparator did not return in a correct manner. Marking assertion as failed.'
+            );
+        }
     }
 
     /**

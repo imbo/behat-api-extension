@@ -12,6 +12,13 @@ After you have installed the extension you need to activate it in your Behat con
 
       extensions:
         Imbo\BehatApiExtension: ~
+      extensions:
+        Imbo\BehatApiExtension:
+          apiClient:
+            base_uri: http://localhost:8080
+     suites:
+       default:
+         contexts: ['Imbo\BehatApiExtension\Context\ApiContext']        
 
 The following configuration options are required for the extension to work as expected:
 

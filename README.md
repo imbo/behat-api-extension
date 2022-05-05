@@ -13,3 +13,13 @@ End-user docs can be found [here](https://behat-api-extension.readthedocs.io/).
 Copyright (c) 2016-2020, Christer Edvartsen <cogo@starzinger.net>
 
 Licensed under the MIT License
+
+## Contribuiting
+
+To run the tests first start the dev server with (you should have 8080 por available):
+
+`composer run dev --timeout=0`
+
+And finally run them with:
+
+`composer test`

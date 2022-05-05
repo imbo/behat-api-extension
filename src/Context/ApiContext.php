@@ -13,9 +13,12 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\Utils;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use stdClass;
 
@@ -247,7 +250,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             );
         }
 
-        $this->request = $this->request->withBody(Psr7\stream_for($string));
+        $this->request = $this->request->withBody(Utils::streamFor($string));
 
         return $this;
     }
@@ -1124,10 +1127,16 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected function setRequestPath($path) {
         // Resolve the path with the base_uri set in the client
-        $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
+        $uri = $this->resolveUri($path);
         $this->request = $this->request->withUri($uri);
 
         return $this;
+    }
+
+    private function resolveUri($path) {
+        $baseUri = $this->client->getConfig('base_uri');
+        $lastUriPart = Utils::uriFor($path);
+        return Psr7\UriResolver::resolve($baseUri, $lastUriPart);
     }
 
     /**

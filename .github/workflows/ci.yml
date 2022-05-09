@@ -1,0 +1,45 @@
+name: CI
+on:
+  push:
+    branches:
+      - v2.x
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['5.6', '7.0', '7.1', '7.2']
+    name: Test on PHP ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Get Composer cache directory
+        id: composer-cache-dir
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Start dev server
+        run: php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1 &
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit
+
+      - name: Run integration tests
+        run: vendor/bin/behat --strict

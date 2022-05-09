@@ -1,27 +1,24 @@
 <?php
 namespace Imbo\BehatApiExtension\Context;
 
-use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
-use Imbo\BehatApiExtension\ArrayContainsComparator;
-use Imbo\BehatApiExtension\Exception\AssertionFailedException;
-use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\UriResolver;
-use GuzzleHttp\Psr7\Utils;
+use stdClass;
 use Assert\Assertion;
-use Assert\AssertionFailedException as AssertionFailure;
-use GuzzleHttp\Psr7\Uri;
+use RuntimeException;
 use GuzzleHttp\Psr7\Utils;
+use GuzzleHttp\Psr7\Request;
+use InvalidArgumentException;
+use GuzzleHttp\ClientInterface;
+use Behat\Gherkin\Node\TableNode;
+use Behat\Gherkin\Node\PyStringNode;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use InvalidArgumentException;
-use Psr\Http\Message\UriInterface;
-use RuntimeException;
-use stdClass;
+use GuzzleHttp\Exception\RequestException;
+use Behat\Behat\Context\SnippetAcceptingContext;
+use Imbo\BehatApiExtension\ArrayContainsComparator;
+use Assert\AssertionFailedException as AssertionFailure;
+use GuzzleHttp\Psr7\UriResolver;
+use Imbo\BehatApiExtension\Exception\AssertionFailedException;
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\Jwt as JwtMatcher;
 
 /**
  * Behat feature context that can be used to simplify testing of JSON-based RESTful HTTP APIs
@@ -1137,7 +1134,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     private function resolveUri($path) {
         $baseUri = $this->client->getConfig('base_uri');
         $lastUriPart = Utils::uriFor($path);
-        return Psr7\UriResolver::resolve($baseUri, $lastUriPart);
+        return UriResolver::resolve($baseUri, $lastUriPart);
     }
 
     /**

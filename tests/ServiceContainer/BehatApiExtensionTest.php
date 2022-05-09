@@ -27,8 +27,8 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
      * @covers ::configure
      */
     public function testCanBuildConfiguration() {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root($this->extension->getConfigKey());
+        $treeBuilder = new TreeBuilder($this->extension->getConfigKey());
+        $rootNode = $treeBuilder->getRootNode();
 
         // Configure the root node builder
         $this->extension->configure($rootNode);
@@ -47,8 +47,8 @@ class BehatApiExtensionTest extends PHPUnit_Framework_TestCase {
      * @covers ::configure
      */
     public function testCanOverrideDefaultValuesWhenBuildingConfiguration() {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root($this->extension->getConfigKey());
+        $treeBuilder = new TreeBuilder($this->extension->getConfigKey());
+        $rootNode = $treeBuilder->getRootNode();
 
         // Configure the root node builder
         $this->extension->configure($rootNode);

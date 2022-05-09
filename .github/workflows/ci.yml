@@ -7,6 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         php: ['5.6', '7.0', '7.1', '7.2']
     name: Test on PHP ${{ matrix.php }}

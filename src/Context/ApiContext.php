@@ -10,7 +10,8 @@ use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\UriResolver;
+use GuzzleHttp\Psr7\Utils;
 use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Psr\Http\Message\RequestInterface;
@@ -247,7 +248,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             );
         }
 
-        $this->request = $this->request->withBody(Psr7\stream_for($string));
+        $this->request = $this->request->withBody(Utils::streamFor($string));
 
         return $this;
     }
@@ -1124,7 +1125,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected function setRequestPath($path) {
         // Resolve the path with the base_uri set in the client
-        $uri = Psr7\Uri::resolve($this->client->getConfig('base_uri'), Psr7\uri_for($path));
+        $uri = UriResolver::resolve($this->client->getConfig('base_uri'), Utils::uriFor($path));
         $this->request = $this->request->withUri($uri);
 
         return $this;

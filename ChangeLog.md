@@ -3,8 +3,7 @@ Changelog for Behat API Extension
 
 v3.0.1
 ------
-__TBA__
-
+__2022-06-27__
 
 * [#109](https://github.com/imbo/behat-api-extension/pull/109): Step for asserting an empty response body
 * [#106](https://github.com/imbo/behat-api-extension/issues/106): Adopt coding standard

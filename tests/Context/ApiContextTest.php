@@ -1249,6 +1249,17 @@ BAR;
     }
 
     /**
+     * @covers ::jsonDecode
+     */
+    public function testCanAssertThatTheResponseBodyContainsNonArrayJson(): void
+    {
+        $this->mockHandler->append(new Response(200, [], '"OK"'));
+        $this->context->requestPath('/some/path');
+
+        $this->context->assertResponseBodyContainsJson(new PyStringNode(['"OK"'], 1));
+    }
+
+    /**
      * @see https://github.com/imbo/behat-api-extension/issues/7
      * @covers ::setRequestBody
      */
@@ -1787,20 +1798,6 @@ BAR;
         $this->context->requestPath('/some/path');
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Expected response body to be an empty JSON array, got "[');
-        $this->context->assertResponseBodyIsAnEmptyJsonArray();
-    }
-
-    /**
-     * @covers ::assertResponseBodyIsAnEmptyJsonArray
-     * @covers ::getResponseBodyArray
-     * @covers ::getResponseBody
-     */
-    public function testThrowsExceptionWhenAssertingThatTheResponseBodyIsAnEmptyArrayWhenTheBodyDoesNotContainAnArray(): void
-    {
-        $this->mockHandler->append(new Response(200, [], '123'));
-        $this->context->requestPath('/some/path');
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The response body does not contain a valid JSON array / object.');
         $this->context->assertResponseBodyIsAnEmptyJsonArray();
     }
 

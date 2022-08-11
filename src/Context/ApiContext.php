@@ -1227,8 +1227,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
-        /** @var array<array-key, mixed> */
+        /** @var array<array-key, mixed>|scalar $body */
         $body = json_decode((string) json_encode($this->getResponseBody()), true);
+
+        if (is_scalar($body)) {
+            return true;
+        }
 
         try {
             // Compare the arrays, on error this will throw an exception
@@ -1438,8 +1442,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new InvalidArgumentException('The response body does not contain valid JSON data.');
-        } elseif (!is_array($body) && !($body instanceof stdClass)) {
-            throw new InvalidArgumentException('The response body does not contain a valid JSON array / object.');
         }
 
         /** @var array<mixed>|stdClass */

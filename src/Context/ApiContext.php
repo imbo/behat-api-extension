@@ -1464,16 +1464,15 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     }
 
     /**
-     * Convert some variable to a JSON-array
+     * Convert some variable to a JSON
      *
      * @param string $value The value to decode
-     * @param string $errorMessage Optional error message
+     * @param string|null $errorMessage Optional error message
      * @throws InvalidArgumentException
-     * @return array<mixed>
+     * @return mixed
      */
-    protected function jsonDecode(string $value, string $errorMessage = null): array
+    protected function jsonDecode(string $value, string $errorMessage = null)
     {
-        /** @var array<mixed> */
         $decoded = json_decode($value, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {

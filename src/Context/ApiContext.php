@@ -419,7 +419,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
             ));
         }
 
-        $jwtMatcher->addToken($name, $this->jsonDecode((string) $payload), $secret);
+        $jwtMatcher->addToken($name, (array) $this->jsonDecode((string) $payload), $secret);
 
         return $this;
     }
@@ -1224,13 +1224,14 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         $this->requireResponse();
 
         // Decode the parameter to the step as an array and make sure it's valid JSON
+        /** @var string|array|bool $contains */
         $contains = $this->jsonDecode((string) $contains);
 
         // Get the decoded response body and make sure it's decoded to an array
-        /** @var array<array-key, mixed>|scalar $body */
+        /** @var array<array-key, mixed>|scalar|null $body */
         $body = json_decode((string) json_encode($this->getResponseBody()), true);
 
-        if (is_scalar($body)) {
+        if (is_scalar($body) || null === $body) {
             return true;
         }
 
@@ -1471,10 +1472,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @param string $value The value to decode
      * @param string|null $errorMessage Optional error message
      * @throws InvalidArgumentException
-     * @return mixed
+     * @return array|scalar|null
      */
     protected function jsonDecode(string $value, string $errorMessage = null)
     {
+        /** @var array|scalar|null $decoded */
         $decoded = json_decode($value, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {

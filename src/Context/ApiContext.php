@@ -1231,7 +1231,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         /** @var array<array-key, mixed>|scalar|null $body */
         $body = json_decode((string) json_encode($this->getResponseBody()), true);
 
-        if (null === $body && JSON_ERROR_NONE === json_last_error()) {
+        if (null === $body && JSON_ERROR_NONE !== json_last_error()) {
             return false;
         }
 

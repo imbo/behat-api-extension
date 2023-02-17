@@ -24,7 +24,7 @@
     "ext-json": "*",
     "beberlei/assert": "^3.3",
     "behat/behat": "^3.8",
-    "firebase/php-jwt": "^5.2",
+    "firebase/php-jwt": "^5.2 || ^6.0",
     "guzzlehttp/guzzle": "^7.3"
   },
   "require-dev": {

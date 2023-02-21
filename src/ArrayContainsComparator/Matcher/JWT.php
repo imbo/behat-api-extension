@@ -65,12 +65,18 @@ class JWT
         }
 
         $token  = $this->jwtTokens[$name];
-        $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], $this->allowedAlgorithms);
 
-        if (!$this->comparator->compare($token['payload'], $result)) {
-            throw new InvalidArgumentException('JWT mismatch.');
+        foreach ($this->allowedAlgorithms as $algorithm) {
+            try {
+                $result = (array) Firebase\JWT\JWT::decode($jwt, new Firebase\JWT\Key($token['secret'], $algorithm));
+
+                if ($this->comparator->compare($token['payload'], $result)) {
+                    return true;
+                }
+            } catch (\UnexpectedValueException $e) {
+            }
         }
 
-        return true;
+        throw new InvalidArgumentException('JWT mismatch.');
     }
 }

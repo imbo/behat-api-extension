@@ -4,6 +4,7 @@ namespace Imbo\BehatApiExtension\Context\Initializer;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -16,21 +17,25 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase
      */
     public function testInitializerInjectsDefaultMatcherFunctions(): void
     {
+        /** @var ArrayContainsComparator&MockObject */
         $comparator = $this->createMock(ArrayContainsComparator::class);
         $comparator
             ->expects($this->exactly(8))
             ->method('addFunction')
-            ->withConsecutive(
-                ['arrayLength', $this->isInstanceOf(Matcher\ArrayLength::class)],
-                ['arrayMinLength', $this->isInstanceOf(Matcher\ArrayMinLength::class)],
-                ['arrayMaxLength', $this->isInstanceOf(Matcher\ArrayMaxLength::class)],
-                ['variableType', $this->isInstanceOf(Matcher\VariableType::class)],
-                ['regExp', $this->isInstanceOf(Matcher\RegExp::class)],
-                ['gt', $this->isInstanceOf(Matcher\GreaterThan::class)],
-                ['lt', $this->isInstanceOf(Matcher\LessThan::class)],
-                ['jwt', $this->isInstanceOf(Matcher\JWT::class)],
-            )
-            ->willReturnSelf();
+            ->willReturnCallback(
+                fn (string $matcher, object $impl) =>
+                    match ([$matcher, get_class($impl)]) {
+                        ['arrayLength', Matcher\ArrayLength::class]       => $comparator,
+                        ['arrayMinLength', Matcher\ArrayMinLength::class] => $comparator,
+                        ['arrayMaxLength', Matcher\ArrayMaxLength::class] => $comparator,
+                        ['variableType', Matcher\VariableType::class]     => $comparator,
+                        ['regExp', Matcher\RegExp::class]                 => $comparator,
+                        ['gt', Matcher\GreaterThan::class]                => $comparator,
+                        ['lt', Matcher\LessThan::class]                   => $comparator,
+                        ['jwt', Matcher\JWT::class]                       => $comparator,
+                        default                                           => $this->fail("Unexpected matcher: " . $matcher)
+                    },
+            );
 
         new ArrayContainsComparatorAwareInitializer($comparator);
     }

@@ -20,7 +20,7 @@
     "irc": "irc://irc.freenode.net/imbo"
   },
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": ">=7.4",
     "ext-json": "*",
     "beberlei/assert": "^3.3",
     "behat/behat": "^3.8",

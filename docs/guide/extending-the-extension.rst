@@ -12,15 +12,17 @@ If you want to add a ``@Given``, ``@When`` and/or ``@Then`` step, simply add a m
 
     <?php
     use Imbo\BehatApiExtension\Context\ApiContext;
-    use Imbo\BehatApiExtension\Exception\AssertionFailedException as Failure;
+    use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 
-    class FeatureContext extends ApiContext {
+    class FeatureContext extends ApiContext
+    {
         /**
          * @Then I want to check something
          */
-        public function assertSomething() {
-            // do some assertions on $this->response, and throw a Failure exception is the
-            // assertion fails.
+        public function assertSomething()
+        {
+            // do some assertions on $this->response, and throw a AssertionFailedException
+            // exception if the assertion fails.
         }
     }
 
@@ -39,14 +41,13 @@ If you wish to manipulate the API client (``GuzzleHttp\Client``) this can be don
     use GuzzleHttp\Middleware;
     use Psr\Http\Message\RequestInterface;
 
-    class FeatureContext extends ApiContext {
+    class FeatureContext extends ApiContext
+    {
         /**
          * Manipulate the API client
-         *
-         * @param ClientInterface $client
-         * @return self
          */
-        public function setClient(ClientInterface $client) {
+        public function setClient(ClientInterface $client): self
+        {
             $stack = $client->getConfig('handler');
             $stack->push(Middleware::mapRequest(function(RequestInterface $request) {
                 // Add something to the request and return the new instance
@@ -68,14 +69,13 @@ The extension comes with some built in matcher functions used to verify JSON-con
     use Imbo\BehatApiExtension\Context\ApiContext;
     use Imbo\BehatApiExtension\ArrayContainsComparator;
 
-    class FeatureContext extends ApiContext {
+    class FeatureContext extends ApiContext
+    {
         /**
          * Add a custom function called @gt to the comparator
-         *
-         * @param ArrayContainsComparator $comparator
-         * @return self
          */
-        public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
+        public function setArrayContainsComparator(ArrayContainsComparator $comparator): self
+        {
             $comparator->addFunction('gt', function($num, $gt) {
                 $num = (int) $num;
                 $gt = (int) $gt;

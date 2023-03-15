@@ -11,7 +11,7 @@ class RegExp
     /**
      * Match the value of a string against a regular expression
      *
-     * @param string|int|float $subject A string, integer or floating point value
+     * @param mixed $subject A string, integer or floating point value
      * @param string $pattern A valid regular expression pattern
      * @throws InvalidArgumentException
      */

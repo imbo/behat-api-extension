@@ -92,7 +92,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{method: string}[]
+     * @return array<array{method:string}>
      */
     public function getHttpMethods(): array
     {
@@ -108,7 +108,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{filePath: string, method: string, expectedMimeType: string}[]
+     * @return array<array{filePath:string,method:string,expectedMimeType:string,mimeType?:string}>
      */
     public function getFilesAndMimeTypes(): array
     {

@@ -20,7 +20,7 @@ class ArrayLengthTest extends TestCase
     /**
      * @return array{list: int[], length: int}[]
      */
-    public function getArraysAndLengths(): array
+    public static function getArraysAndLengths(): array
     {
         return [
             [
@@ -41,7 +41,7 @@ class ArrayLengthTest extends TestCase
     /**
      * @return array{value: int|string|array<string, string>, message: string}[]
      */
-    public function getInvalidValues(): array
+    public static function getInvalidValues(): array
     {
         return [
             [
@@ -62,7 +62,7 @@ class ArrayLengthTest extends TestCase
     /**
      * @return array{array: int[], maxLength: int, message: string}[]
      */
-    public function getValuesThatFail(): array
+    public static function getValuesThatFail(): array
     {
         return [
             [

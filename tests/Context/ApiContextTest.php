@@ -92,9 +92,9 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{method: string}[]
+     * @return array<array{method:string}>
      */
-    public function getHttpMethods(): array
+    public static function getHttpMethods(): array
     {
         return [
             ['method' => 'GET'],
@@ -108,9 +108,9 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{filePath: string, method: string, expectedMimeType: string}[]
+     * @return array<array{filePath:string,method:string,expectedMimeType:string,mimeType?:string}>
      */
-    public function getFilesAndMimeTypes(): array
+    public static function getFilesAndMimeTypes(): array
     {
         return [
             [
@@ -130,7 +130,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{code: int, others: int[]}[]
      */
-    public function getResponseCodes(): array
+    public static function getResponseCodes(): array
     {
         return [
             [
@@ -155,7 +155,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{group: string, codes: int[]}[]
      */
-    public function getGroupAndResponseCodes(): array
+    public static function getGroupAndResponseCodes(): array
     {
         return [
             [
@@ -184,7 +184,7 @@ class ApiContextTest extends TestCase
     /**
      * @return int[][]
      */
-    public function getInvalidHttpResponseCodes(): array
+    public static function getInvalidHttpResponseCodes(): array
     {
         return [
             [99],
@@ -195,7 +195,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{body: int[], lengthToUse: int, willFail: bool}[]
      */
-    public function getResponseBodyArrays(): array
+    public static function getResponseBodyArrays(): array
     {
         return [
             [
@@ -224,7 +224,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{body: int[], min: int}[]
      */
-    public function getResponseBodyArraysForAtLeast(): array
+    public static function getResponseBodyArraysForAtLeast(): array
     {
         return [
             [
@@ -249,7 +249,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{body: int[], max: int}[]
      */
-    public function getResponseBodyArraysForAtMost(): array
+    public static function getResponseBodyArraysForAtMost(): array
     {
         return [
             [
@@ -274,7 +274,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{code: int, phrase: string}[]
      */
-    public function getResponseCodesAndReasonPhrases(): array
+    public static function getResponseCodesAndReasonPhrases(): array
     {
         return [
             200 => [
@@ -299,7 +299,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{baseUri: string, path: string, fullUri: string}[]
      */
-    public function getUris(): array
+    public static function getUris(): array
     {
         return [
             // The first six sets are from http://docs.guzzlephp.org/en/latest/quickstart.html (2016-12-12)
@@ -362,7 +362,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{responseCode: int, actualGroup: string, expectedGroup: string}[]
      */
-    public function getDataForResponseGroupFailures(): array
+    public static function getDataForResponseGroupFailures(): array
     {
         return [
             [
@@ -396,7 +396,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array<array-key, array{data: string|PyStringNode, expected: string}>
      */
-    public function getRequestBodyValues(): array
+    public static function getRequestBodyValues(): array
     {
         return [
             [
@@ -633,7 +633,7 @@ class ApiContextTest extends TestCase
     /**
      * @return array{httpMethod: string}[]
      */
-    public function getHttpMethodsForFormParametersTest(): array
+    public static function getHttpMethodsForFormParametersTest(): array
     {
         return [
             ['httpMethod' => 'PUT'],

@@ -11,7 +11,7 @@ class ArrayContainsComparatorExceptionTest extends TestCase
     /**
      * @return array<array-key, array{message: string, needle: array<string, string>, haystack: array<string, string>, formattedMessage: string}>
      */
-    public function getExceptionData(): array
+    public static function getExceptionData(): array
     {
         return [
             'with no needle / haystack' => [

@@ -20,7 +20,7 @@ class LessThanTest extends TestCase
     /**
      * @return array{number: int|string, max: int|string|float}[]
      */
-    public function getValuesForMatching(): array
+    public static function getValuesForMatching(): array
     {
         return [
             'integer' => [
@@ -41,7 +41,7 @@ class LessThanTest extends TestCase
     /**
      * @return array{number: int|float|string, max: int|float|string, errorMessage: string}[]
      */
-    public function getFailingValues(): array
+    public static function getFailingValues(): array
     {
         return [
             [

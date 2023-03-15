@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v4.0.0
+------
+__N/A__
+
+* [#125](https://github.com/imbo/behat-api-extension/pull/125): Require PHP >= 8.1
+
 v3.0.1
 ------
 __2022-06-27__

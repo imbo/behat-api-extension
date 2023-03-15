@@ -20,7 +20,7 @@ class VariableTypeTest extends TestCase
     /**
      * @return array<string, array{value: mixed, type: string}>
      */
-    public function getValuesAndTypes(): array
+    public static function getValuesAndTypes(): array
     {
         return [
             'int' => [
@@ -133,7 +133,7 @@ class VariableTypeTest extends TestCase
     /**
      * @return array{value: mixed, type: string, message: string}[]
      */
-    public function getInvalidMatches(): array
+    public static function getInvalidMatches(): array
     {
         return [
             [

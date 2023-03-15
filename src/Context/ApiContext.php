@@ -51,9 +51,9 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Options to send with the request.
      *
      * @var array{
-     *   auth: string[],
-     *   form_params: array<string, string|string[]>,
-     *   multipart: array<int, array{name: string, contents: string|resource}>,
+     *   auth: array<string>,
+     *   form_params: array<string, string|array<string>>,
+     *   multipart: array<array{name: string, contents: string|resource, filename?: string}>,
      *   query: array<string, mixed>
      * }
      */

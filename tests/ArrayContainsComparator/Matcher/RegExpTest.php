@@ -20,7 +20,7 @@ class RegExpTest extends TestCase
     /**
      * @return array<string, array{subject: float|int|string, pattern: string}>
      */
-    public function getSubjectsAndPatterns(): array
+    public static function getSubjectsAndPatterns(): array
     {
         return [
             'a regular string' => [

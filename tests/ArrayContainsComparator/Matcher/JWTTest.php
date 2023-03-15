@@ -22,7 +22,7 @@ class JWTTest extends TestCase
     /**
      * @return array{jwt: string, name: string, payload: array<string, mixed>, secret: string}[]
      */
-    public function getJwt(): array
+    public static function getJwt(): array
     {
         return [
             [

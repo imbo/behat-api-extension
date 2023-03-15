@@ -26,8 +26,6 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 {
     /**
      * Guzzle client
-     *
-     * @var ClientInterface
      */
     protected ClientInterface $client;
 
@@ -40,10 +38,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Request instance
      *
      * The request instance will be created once the client is ready to send it.
-     *
-     * @var RequestInterface
      */
-    protected $request;
+    protected RequestInterface $request;
 
     /**
      * Request options
@@ -57,7 +53,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *   query: array<string, mixed>
      * }
      */
-    protected $requestOptions = [
+    protected array $requestOptions = [
         'auth'        => [],
         'form_params' => [],
         'multipart'   => [],
@@ -68,45 +64,35 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Response instance
      *
      * The response object will be set once the request has been made.
-     *
-     * @var ?ResponseInterface
      */
-    protected $response;
+    protected ?ResponseInterface $response = null;
 
     /**
      * Instance of the comparator that handles matching of JSON
-     *
-     * @var ArrayContainsComparator
      */
-    protected $arrayContainsComparator;
+    protected ArrayContainsComparator $arrayContainsComparator;
 
     /**
      * Does HTTP method has been manually set
-     *
-     * @var bool
      */
-    protected $forceHttpMethod = false;
+    protected bool $forceHttpMethod = false;
 
     /**
      * Request / response history for the Guzzle Client
      *
-     * @var array{request: RequestInterface, response: ResponseInterface}[]
+     * @var array<array{request:RequestInterface,response:ResponseInterface}>
      */
-    protected $clientHistory = [];
+    protected array $clientHistory = [];
 
     /**
      * Error message used when a required response instance if missing
-     *
-     * @var string
      */
-    protected $missingResponseError = 'The request has not been made yet, so no response object exists.';
+    protected string $missingResponseError = 'The request has not been made yet, so no response object exists.';
 
     /**
      * Set the client instance
-     *
-     * @return self
      */
-    public function setClient(ClientInterface $client, string $baseUri)
+    public function setClient(ClientInterface $client, string $baseUri): self
     {
         $this->client = $client;
         $this->baseUri = $baseUri;
@@ -118,10 +104,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
     /**
      * Set the array contains comparator instance
-     *
-     * @return self
      */
-    public function setArrayContainsComparator(ArrayContainsComparator $comparator)
+    public function setArrayContainsComparator(ArrayContainsComparator $comparator): self
     {
         $this->arrayContainsComparator = $comparator;
 

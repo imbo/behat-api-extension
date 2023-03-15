@@ -20,7 +20,7 @@ Feature: Custom function addition
             }
 
             class FeatureContext extends ApiContext {
-                public function setArrayContainsComparator(ArrayContainsComparator $comparator) {
+                public function setArrayContainsComparator(ArrayContainsComparator $comparator): self {
                     $comparator->addFunction('myMatcher', new MyMatcher());
                     $comparator->addFunction('valueIs', function($actual, $expected) {
                         if ($actual !== $expected) {

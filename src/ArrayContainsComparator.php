@@ -16,9 +16,9 @@ class ArrayContainsComparator
      * Keys are the names of the functions, and the values represent an invokable piece of code, be
      * it a function name or the name of an invokable class.
      *
-     * @var array<string, callable>
+     * @var array<string,callable>
      */
-    protected $functions = [];
+    protected array $functions = [];
 
     /**
      * Add a custom matcher function
@@ -53,8 +53,8 @@ class ArrayContainsComparator
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
      * "list" is a numerically indexed array, and an "object" is an associative array.
      *
-     * @param array<array-key, scalar|array> $needle
-     * @param array<array-key, mixed> $haystack
+     * @param array<array-key,scalar|array> $needle
+     * @param array<array-key,mixed> $haystack
      */
     public function compare(array $needle, array $haystack): bool
     {
@@ -192,11 +192,8 @@ class ArrayContainsComparator
      *
      * Based on the value of the needle, this method will perform a regular value comparison, or a
      * custom function match.
-     *
-     * @param mixed $needleValue
-     * @param mixed $haystackValue
      */
-    protected function compareValues($needleValue, $haystackValue): bool
+    protected function compareValues(mixed $needleValue, mixed $haystackValue): bool
     {
         $match = [];
 
@@ -241,7 +238,7 @@ class ArrayContainsComparator
     /**
      * Make sure all values in the $needle array is present in the $haystack array
      *
-     * @param array<array-key, array|scalar> $needle
+     * @param array<array-key,array|scalar> $needle
      * @param array $haystack
      */
     protected function inArray(array $needle, array $haystack): bool

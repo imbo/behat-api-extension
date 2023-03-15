@@ -15,7 +15,7 @@ class LessThan
      * @param mixed $max The max value of $number
      * @throws InvalidArgumentException
      */
-    public function __invoke($number, $max): bool
+    public function __invoke(mixed $number, mixed $max): bool
     {
         if (!is_numeric($number)) {
             throw new InvalidArgumentException(sprintf(

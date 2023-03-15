@@ -15,7 +15,7 @@ class GreaterThan
      * @param mixed $min The minimum value of $number
      * @throws InvalidArgumentException
      */
-    public function __invoke($number, $min): bool
+    public function __invoke(mixed $number, mixed $min): bool
     {
         if (!is_numeric($number)) {
             throw new InvalidArgumentException(sprintf(

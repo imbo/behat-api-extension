@@ -15,7 +15,7 @@ class ArrayMinLength
      * @param int|string $minLength The expected minimum length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $minLength): bool
+    public function __invoke(array $array, int|string $minLength): bool
     {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */

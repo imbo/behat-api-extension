@@ -13,24 +13,22 @@ class JWT
 {
     /**
      * Comparator for the array
-     *
-     * @var Comparator
      */
-    private $comparator;
+    private Comparator $comparator;
 
     /**
      * JWT tokens present in the response body
      *
-     * @var array<string, array{payload: array, secret: string}>
+     * @var array<string,array{payload:array,secret:string}>
      */
-    private $jwtTokens = [];
+    private array $jwtTokens = [];
 
     /**
      * Allowed algorithms for the JWT decoder
      *
-     * @var string[]
+     * @var array<string>
      */
-    protected $allowedAlgorithms = [
+    protected array $allowedAlgorithms = [
         'HS256',
         'HS384',
         'HS512',

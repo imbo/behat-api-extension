@@ -39,17 +39,6 @@ class RegExpTest extends TestCase
     }
 
     /**
-     * @covers ::__invoke
-     */
-    public function testThrowsExceptionIfSubjectIsNotASupportedVariableType(): void
-    {
-        $matcher = $this->matcher;
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Regular expression matching can only be applied to strings, integers or doubles, got "boolean".');
-        $matcher(true, '/true/');
-    }
-
-    /**
      * @dataProvider getSubjectsAndPatterns
      * @covers ::__invoke
      * @param float|int|string $subject

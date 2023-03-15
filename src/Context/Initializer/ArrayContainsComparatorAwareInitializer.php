@@ -12,10 +12,7 @@ use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
  */
 class ArrayContainsComparatorAwareInitializer implements ContextInitializer
 {
-    /**
-     * @var Comparator
-     */
-    private $comparator;
+    private Comparator $comparator;
 
     public function __construct(Comparator $comparator)
     {

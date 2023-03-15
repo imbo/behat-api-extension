@@ -22,7 +22,7 @@ class ArrayContainsComparatorTest extends TestCase
     /**
      * @return array<string, array{needle: array, haystack: array}>
      */
-    public function getDataForInArrayCheck(): array
+    public static function getDataForInArrayCheck(): array
     {
         $scalarHaystack = [1, 2, 1.1, 2.2, 'foo', 'bar', true, false];
         $haystackWithArrayElements = [
@@ -168,7 +168,7 @@ class ArrayContainsComparatorTest extends TestCase
     /**
      * @return array<string, array{needle: array, haystack: array}>
      */
-    public function getDataForCompareCheck(): array
+    public static function getDataForCompareCheck(): array
     {
         return [
             'simple key value objects' => [
@@ -213,7 +213,7 @@ class ArrayContainsComparatorTest extends TestCase
     /**
      * @return array{needle: array, haystack: array}[]
      */
-    public function getDataForSpecificKeyInListChecks(): array
+    public static function getDataForSpecificKeyInListChecks(): array
     {
         return [
             'simple list in haystack key' => [
@@ -287,7 +287,7 @@ class ArrayContainsComparatorTest extends TestCase
      *  exceptionMessage: string
      * }[]
      */
-    public function getDataForSpecificKeyInListChecksWithInvalidData(): array
+    public static function getDataForSpecificKeyInListChecksWithInvalidData(): array
     {
         return [
             'a string' => [
@@ -355,7 +355,7 @@ EXCEPTION
      *  haystack: array{key: string|int[]}
      * }[]
      */
-    public function getCustomFunctionsAndData(): array
+    public static function getCustomFunctionsAndData(): array
     {
         return [
             '@arrayLength' => [
@@ -436,7 +436,7 @@ EXCEPTION
     /**
      * @return array{function: string, callback: callable, needle: array<string, string>, haystack: array<string, mixed>, errorMessage: string}[]
      */
-    public function getCustomFunctionsAndDataThatWillFail(): array
+    public static function getCustomFunctionsAndDataThatWillFail(): array
     {
         return [
             // @arrayLength

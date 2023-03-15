@@ -30,7 +30,7 @@
   "require-dev": {
     "alexeyshockov/guzzle-psalm-plugin": "^1.0",
     "imbo/imbo-coding-standard": "^2.0",
-    "phpunit/phpunit": "^9.5",
+    "phpunit/phpunit": "^10.0",
     "psalm/plugin-phpunit": "^0.18.4",
     "slim/psr7": "^1.3",
     "slim/slim": "^4.7",

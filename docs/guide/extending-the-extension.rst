@@ -49,7 +49,7 @@ If you wish to manipulate the API client (``GuzzleHttp\Client``) this can be don
         public function setClient(ClientInterface $client): self
         {
             $stack = $client->getConfig('handler');
-            $stack->push(Middleware::mapRequest(function(RequestInterface $request) {
+            $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
                 // Add something to the request and return the new instance
                 return $request->withAddedHeader('Some-Custom-Header', 'some value');
             }));
@@ -76,7 +76,7 @@ The extension comes with some built in matcher functions used to verify JSON-con
          */
         public function setArrayContainsComparator(ArrayContainsComparator $comparator): self
         {
-            $comparator->addFunction('gt', function($num, $gt) {
+            $comparator->addFunction('gt', function ($num, $gt) {
                 $num = (int) $num;
                 $gt = (int) $gt;
 

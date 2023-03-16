@@ -198,9 +198,10 @@ class ArrayContainsComparator
         $match = [];
 
         // List of available function names
-        $functions = array_map(function ($value) {
-            return preg_quote($value, '/');
-        }, array_keys($this->functions));
+        $functions = array_map(
+            fn (string $value): string => preg_quote($value, '/'),
+            array_keys($this->functions),
+        );
 
         // Dynamic pattern, based on the keys in the functions list
         $pattern = sprintf(
@@ -251,9 +252,10 @@ class ArrayContainsComparator
                 if ($this->arrayIsList($needleValue)) {
                     // The needle value is a list, so we only want to compare it to lists in the
                     // haystack
-                    $listElementsInHaystack = array_filter($haystack, function ($element) {
-                        return is_array($element) && $this->arrayIsList($element);
-                    });
+                    $listElementsInHaystack = array_filter(
+                        $haystack,
+                        fn (mixed $element): bool => is_array($element) && $this->arrayIsList($element),
+                    );
 
                     if (empty($listElementsInHaystack)) {
                         throw new ArrayContainsComparatorException(
@@ -288,9 +290,10 @@ class ArrayContainsComparator
                 } else {
                     // The needle value is an object, so we only want to compare it to objects in
                     // the haystack
-                    $objectElementsInHaystack = array_filter($haystack, function ($element): bool {
-                        return is_array($element) && $this->arrayIsObject($element);
-                    });
+                    $objectElementsInHaystack = array_filter(
+                        $haystack,
+                        fn (mixed $element): bool => is_array($element) && $this->arrayIsObject($element),
+                    );
 
                     if (empty($objectElementsInHaystack)) {
                         throw new ArrayContainsComparatorException(
@@ -324,9 +327,10 @@ class ArrayContainsComparator
                     }
                 }
             } else {
-                $result = array_map(function ($haystackElement) use ($needleValue) {
-                    return $this->compareValues($needleValue, $haystackElement);
-                }, $haystack);
+                $result = array_map(
+                    fn (mixed $haystackElement): bool => $this->compareValues($needleValue, $haystackElement),
+                    $haystack,
+                );
 
                 if (empty(array_filter($result))) {
                     throw new ArrayContainsComparatorException(

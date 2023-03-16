@@ -410,9 +410,7 @@ EXCEPTION
             ],
             '@customFunction' => [
                 'function' => 'customFunction',
-                'callback' => function (string $subject, string $param): bool {
-                    return strtoupper($subject) === $param;
-                },
+                'callback' => fn (string $subject, string $param): bool => strtoupper($subject) === $param,
                 'needle' => [
                     'key' => '@customFunction(BAR)',
                 ],
@@ -1147,10 +1145,10 @@ EXCEPTION
      */
     public function testCanReturnRegisteredMatcherFunction(): void
     {
-        $this->comparator->addFunction('function', $function = function () {
-        });
+        $f = fn (): bool => true;
+        $this->comparator->addFunction('function', $f);
         $this->assertSame(
-            $function,
+            $f,
             $this->comparator->getMatcherFunction('function'),
             'Incorrect matcher function returned',
         );

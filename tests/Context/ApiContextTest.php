@@ -943,9 +943,7 @@ BAR;
             $this->mockHandler->append(new Response($code));
             $this->context->requestPath('/some/path');
 
-            foreach (array_filter($groups, function (string $g) use ($group): bool {
-                return $g !== $group;
-            }) as $g) {
+            foreach (array_filter($groups, fn (string $g): bool => $g !== $group) as $g) {
                 // Assert that the response is not in any of the other groups
                 $this->assertTrue($this->context->assertResponseIsNot($g));
             }

@@ -80,9 +80,10 @@ class VariableType
      */
     protected function normalizeTypes(string $types): array
     {
-        $types = array_map(function (string $type): string {
-            return trim(strtolower($type));
-        }, explode('|', $types));
+        $types = array_map(
+            fn (string $type): string => trim(strtolower($type)),
+            explode('|', $types),
+        );
 
         /** @var array<string> */
         return preg_replace(

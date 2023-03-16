@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class VariableTypeTest extends TestCase
 {
-    /** @var VariableType */
-    private $matcher;
+    private VariableType $matcher;
 
     public function setUp(): void
     {
@@ -18,7 +17,7 @@ class VariableTypeTest extends TestCase
     }
 
     /**
-     * @return array<string, array{value: mixed, type: string}>
+     * @return array<string,array{value:mixed,type:string}>
      */
     public static function getValuesAndTypes(): array
     {
@@ -131,7 +130,7 @@ class VariableTypeTest extends TestCase
     }
 
     /**
-     * @return array{value: mixed, type: string, message: string}[]
+     * @return array<array{value:mixed,type:string,message:string}>
      */
     public static function getInvalidMatches(): array
     {
@@ -163,9 +162,8 @@ class VariableTypeTest extends TestCase
      * @dataProvider getValuesAndTypes
      * @covers ::__invoke
      * @covers ::normalizeTypes
-     * @param mixed $value
      */
-    public function testCanMatchValuesOfType($value, string $type): void
+    public function testCanMatchValuesOfType(mixed $value, string $type): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
@@ -188,9 +186,8 @@ class VariableTypeTest extends TestCase
     /**
      * @dataProvider getInvalidMatches
      * @covers ::__invoke
-     * @param mixed $value
      */
-    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, string $type, string $message): void
+    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType(mixed $value, string $type, string $message): void
     {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);

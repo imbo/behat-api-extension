@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ArrayMinLengthTest extends TestCase
 {
-    /** @var ArrayMinLength */
-    private $matcher;
+    private ArrayMinLength $matcher;
 
     public function setup(): void
     {
@@ -18,7 +17,7 @@ class ArrayMinLengthTest extends TestCase
     }
 
     /**
-     * @return array{list: int[], min: int}[]
+     * @return array<array{list:array<int>,min:int}>
      */
     public static function getArraysAndMinLengths(): array
     {
@@ -39,7 +38,7 @@ class ArrayMinLengthTest extends TestCase
     }
 
     /**
-     * @return array{array: int[], minLength: int, message: string}[]
+     * @return array<array{array:array<int>,minLength:int,message:string}>
      */
     public static function getValuesThatFail(): array
     {
@@ -60,7 +59,6 @@ class ArrayMinLengthTest extends TestCase
     /**
      * @dataProvider getArraysAndMinLengths
      * @covers ::__invoke
-     * @param int[] $array
      */
     public function testCanMatchMinLengthOfArrays(array $array, int $min): void
     {
@@ -85,7 +83,6 @@ class ArrayMinLengthTest extends TestCase
     /**
      * @dataProvider getValuesThatFail
      * @covers ::__invoke
-     * @param int[] $array
      */
     public function testThrowsExceptionWhenLengthIsTooLong(array $array, int $minLength, string $message): void
     {

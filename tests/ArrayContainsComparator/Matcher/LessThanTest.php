@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class LessThanTest extends TestCase
 {
-    /** @var LessThan */
-    private $matcher;
+    private LessThan $matcher;
 
     public function setUp(): void
     {
@@ -18,7 +17,7 @@ class LessThanTest extends TestCase
     }
 
     /**
-     * @return array{number: int|string, max: int|string|float}[]
+     * @return array<array{number:int|string,max:int|string|float}>
      */
     public static function getValuesForMatching(): array
     {
@@ -39,7 +38,7 @@ class LessThanTest extends TestCase
     }
 
     /**
-     * @return array{number: int|float|string, max: int|float|string, errorMessage: string}[]
+     * @return array<array{number:int|float|string,max:int|float|string,errorMessage:string}>
      */
     public static function getFailingValues(): array
     {
@@ -70,10 +69,8 @@ class LessThanTest extends TestCase
     /**
      * @dataProvider getValuesForMatching
      * @covers ::__invoke
-     * @param int|string $number
-     * @param int|string|float $max
      */
-    public function testCanCompareValuesOfType($number, $max): void
+    public function testCanCompareValuesOfType(int|string $number, int|string|float $max): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
@@ -107,11 +104,8 @@ class LessThanTest extends TestCase
     /**
      * @dataProvider getFailingValues
      * @covers ::__invoke
-     * @param int|float|string $number
-     * @param int|float|string $max
-     *
      */
-    public function testThrowsExceptionWhenComparisonFails($number, $max, string $errorMessage): void
+    public function testThrowsExceptionWhenComparisonFails(int|float|string $number, int|float|string $max, string $errorMessage): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($errorMessage);

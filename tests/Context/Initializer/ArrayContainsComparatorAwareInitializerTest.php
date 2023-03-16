@@ -45,12 +45,14 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase
      */
     public function testInjectsComparatorWhenInitializingContext(): void
     {
+        /** @var ArrayContainsComparator&MockObject */
         $comparator = $this->createMock(ArrayContainsComparator::class);
         $comparator
             ->expects($this->exactly(8))
             ->method('addFunction')
             ->willReturnSelf();
 
+        /** @var ArrayContainsComparatorAwareContext&MockObject */
         $context = $this->createMock(ArrayContainsComparatorAwareContext::class);
         $context->expects($this->once())->method('setArrayContainsComparator')->with($comparator);
 

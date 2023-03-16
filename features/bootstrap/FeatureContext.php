@@ -1,9 +1,7 @@
 <?php declare(strict_types=1);
 use Assert\Assertion;
 use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Testwork\Hook\Scope\SuiteScope;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -41,12 +39,10 @@ class FeatureContext implements Context
     /**
      * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists
      *
-     * @param SuiteScope $scope
-     *
      * @BeforeSuite
      * @AfterSuite
      */
-    public static function emptyTestDir(SuiteScope $scope): void
+    public static function emptyTestDir(): void
     {
         $testDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension';
 
@@ -58,12 +54,11 @@ class FeatureContext implements Context
     /**
      * Prepare a scenario
      *
-     * @param BeforeScenarioScope $scope
      * @throws RuntimeException
      *
      * @BeforeScenario
      */
-    public function prepareScenario(BeforeScenarioScope $scope): void
+    public function prepareScenario(): void
     {
         $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension' . DIRECTORY_SEPARATOR . microtime(true);
         mkdir($dir . '/features/bootstrap', 0777, true);
@@ -252,7 +247,7 @@ class FeatureContext implements Context
      */
     private static function rmdir($path): void
     {
-        /** @var string[] */
+        /** @var array<string> */
         $files = glob(sprintf('%s/*', $path));
 
         foreach ($files as $file) {

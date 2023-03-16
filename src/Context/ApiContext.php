@@ -1318,17 +1318,13 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected function getResponseGroup(int $code): string
     {
-        if ($code >= 500) {
-            return 'server error';
-        } elseif ($code >= 400) {
-            return 'client error';
-        } elseif ($code >= 300) {
-            return 'redirection';
-        } elseif ($code >= 200) {
-            return 'success';
-        }
-
-        return 'informational';
+        return match (true) {
+            $code >= 500 => 'server error',
+            $code >= 400 => 'client error',
+            $code >= 300 => 'redirection',
+            $code >= 200 => 'success',
+            default => 'informational',
+        };
     }
 
     /**

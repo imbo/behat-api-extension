@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
  */
 class JWTTest extends TestCase
 {
-    /** @var JWT */
-    private $matcher;
+    private JWT $matcher;
 
     public function setUp(): void
     {
@@ -20,7 +19,7 @@ class JWTTest extends TestCase
     }
 
     /**
-     * @return array{jwt: string, name: string, payload: array<string, mixed>, secret: string}[]
+     * @return array<array{jwt:string,name:string,payload:array<string,mixed>,secret:string}>
      */
     public static function getJwt(): array
     {
@@ -75,7 +74,6 @@ class JWTTest extends TestCase
     /**
      * @covers ::__invoke
      * @dataProvider getJwt
-     * @param array<string, mixed> $payload
      */
     public function testCanMatchJwt(string $jwt, string $name, array $payload, string $secret): void
     {

@@ -11,8 +11,6 @@ interface ArrayContainsComparatorAwareContext extends Context
 {
     /**
      * Set the instance of the array contains comparator
-     *
-     * @return self
      */
-    public function setArrayContainsComparator(ArrayContainsComparator $comparator);
+    public function setArrayContainsComparator(ArrayContainsComparator $comparator): self;
 }

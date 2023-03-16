@@ -11,19 +11,12 @@ class RegExp
     /**
      * Match the value of a string against a regular expression
      *
-     * @param mixed $subject A string, integer or floating point value
+     * @param string|int|float $subject A string, integer or floating point value
      * @param string $pattern A valid regular expression pattern
      * @throws InvalidArgumentException
      */
-    public function __invoke($subject, string $pattern): bool
+    public function __invoke(string|int|float $subject, string $pattern): bool
     {
-        if (!in_array(gettype($subject), ['string', 'integer', 'double'])) {
-            throw new InvalidArgumentException(sprintf(
-                'Regular expression matching can only be applied to strings, integers or doubles, got "%s".',
-                gettype($subject),
-            ));
-        }
-
         $subject = (string) $subject;
 
         if (!preg_match($pattern, $subject)) {

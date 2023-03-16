@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ArrayContainsComparatorTest extends TestCase
 {
-    /** @var ArrayContainsComparator */
-    private $comparator;
+    private ArrayContainsComparator $comparator;
 
     public function setUp(): void
     {
@@ -20,7 +19,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{needle: array, haystack: array}>
+     * @return array<string,array{needle:array,haystack:array}>
      */
     public static function getDataForInArrayCheck(): array
     {
@@ -166,7 +165,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{needle: array, haystack: array}>
+     * @return array<string,array{needle:array,haystack:array}>
      */
     public static function getDataForCompareCheck(): array
     {
@@ -211,7 +210,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array{needle: array, haystack: array}[]
+     * @return array<array{needle:array,haystack:array}>
      */
     public static function getDataForSpecificKeyInListChecks(): array
     {
@@ -281,11 +280,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array{
-     *  needle: array<string, string>,
-     *  haystack: array<array-key, mixed>,
-     *  exceptionMessage: string
-     * }[]
+     * @return array<array{needle:array<string,string>,haystack:array<mixed>,exceptionMessage:string}>
      */
     public static function getDataForSpecificKeyInListChecksWithInvalidData(): array
     {
@@ -348,12 +343,7 @@ EXCEPTION
     }
 
     /**
-     * @return array{
-     *  function: string,
-     *  callback: callable,
-     *  needle: array{key: string},
-     *  haystack: array{key: string|int[]}
-     * }[]
+     * @return array<array{function:string,callback:callable,needle:array{key:string},haystack:array{key:string|array<int>}}>
      */
     public static function getCustomFunctionsAndData(): array
     {
@@ -420,9 +410,7 @@ EXCEPTION
             ],
             '@customFunction' => [
                 'function' => 'customFunction',
-                'callback' => function (string $subject, string $param): bool {
-                    return strtoupper($subject) === $param;
-                },
+                'callback' => fn (string $subject, string $param): bool => strtoupper($subject) === $param,
                 'needle' => [
                     'key' => '@customFunction(BAR)',
                 ],
@@ -434,7 +422,7 @@ EXCEPTION
     }
 
     /**
-     * @return array{function: string, callback: callable, needle: array<string, string>, haystack: array<string, mixed>, errorMessage: string}[]
+     * @return array<array{function:string,callback:callable,needle:array<string,string>,haystack:array<string,mixed>,errorMessage:string}>
      */
     public static function getCustomFunctionsAndDataThatWillFail(): array
     {
@@ -953,8 +941,6 @@ EXCEPTION
     /**
      * @dataProvider getDataForSpecificKeyInListChecksWithInvalidData
      * @covers ::compare
-     * @param array<string, string> $needle
-     * @param array<array-key, mixed> $haystack
      */
     public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack, string $exceptionMessage): void
     {
@@ -1034,8 +1020,6 @@ EXCEPTION
      * @covers ::addFunction
      * @covers ::compare
      * @covers ::compareValues
-     * @param array<string, string> $needle
-     * @param array<string, mixed> $haystack
      */
     public function testCanUseCustomFunctionMatcher(string $function, callable $callback, array $needle, array $haystack): void
     {
@@ -1084,8 +1068,6 @@ EXCEPTION
      * @covers ::addFunction
      * @covers ::compare
      * @covers ::compareValues
-     * @param array<string, string> $needle
-     * @param array<string, mixed> $haystack
      */
     public function testThrowsExceptionWhenCustomFunctionMatcherFails(string $function, callable $callback, array $needle, array $haystack, string $errorMessage): void
     {
@@ -1163,10 +1145,10 @@ EXCEPTION
      */
     public function testCanReturnRegisteredMatcherFunction(): void
     {
-        $this->comparator->addFunction('function', $function = function () {
-        });
+        $f = fn (): bool => true;
+        $this->comparator->addFunction('function', $f);
         $this->assertSame(
-            $function,
+            $f,
             $this->comparator->getMatcherFunction('function'),
             'Incorrect matcher function returned',
         );

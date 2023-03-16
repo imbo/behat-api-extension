@@ -3,6 +3,23 @@ Upgrading
 
 This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
+Migration from v3.x to v4.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+PHP version requirement
+^^^^^^^^^^^^^^^^^^^^^^^
+
+``v4.x`` requires ``PHP >= 8.1``.
+
+Type hints
+^^^^^^^^^^
+
+Type hints have been added to a plethora of the code base, so child classes will most likely break as a consequence. You will have to add missing type hints if you have extended any classes that have type hints added to them.
+
 Migration from v2.x to v3.x
 ---------------------------
 

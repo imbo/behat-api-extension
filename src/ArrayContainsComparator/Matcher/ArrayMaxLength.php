@@ -15,7 +15,7 @@ class ArrayMaxLength
      * @param int|string $maxLength The expected maximum length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $maxLength): bool
+    public function __invoke(array $array, int|string $maxLength): bool
     {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */

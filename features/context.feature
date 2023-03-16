@@ -15,16 +15,17 @@ Feature: Client aware context
                 private $client;
                 private $baseUri;
 
-                public function setClient(ClientInterface $client, string $baseUri) {
+                public function setClient(ClientInterface $client, string $baseUri): self {
                     $this->client = $client;
                     $this->baseUri = $baseUri;
+                    return $this;
                 }
 
                 /**
                  * @Then the client should be set
                  */
                 public function theClientShouldBeSet() {
-                    Assertion::isInstanceOf($this->client, 'GuzzleHttp\Client');
+                    Assertion::isInstanceOf($this->client, GuzzleHttp\Client::class);
                 }
             }
             """

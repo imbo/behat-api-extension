@@ -52,26 +52,15 @@ function is_readable(string $path): bool
  */
 class ApiContextTest extends TestCase
 {
-    /** @var MockHandler */
-    private $mockHandler;
+    private ApiContext $context;
+    private Client $client;
+    private MockHandler $mockHandler;
+    private HandlerStack $handlerStack;
+    private MockObject&ArrayContainsComparator $comparator;
+    private string $baseUri = 'http://localhost:9876';
 
-    /** @var HandlerStack */
-    private $handlerStack;
-
-    /** @var array{request: Request, response: Response}[] */
-    private $historyContainer = [];
-
-    /** @var ApiContext */
-    private $context;
-
-    /** @var Client */
-    private $client;
-
-    /** @var MockObject&ArrayContainsComparator */
-    private $comparator;
-
-    /** @var string */
-    private $baseUri = 'http://localhost:9876';
+    /** @var array<array{request:Request,response:Response}> */
+    private array $historyContainer = [];
 
     public function setUp(): void
     {
@@ -88,7 +77,7 @@ class ApiContextTest extends TestCase
 
         $this->context = new ApiContext();
         $this->context->setClient($this->client, 'http://base');
-        $this->context->setArrayContainsComparator($this->comparator);
+        $this->assertSame($this->context, $this->context->setArrayContainsComparator($this->comparator));
     }
 
     /**
@@ -108,27 +97,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array<array{filePath:string,method:string,expectedMimeType:string,mimeType?:string}>
-     */
-    public static function getFilesAndMimeTypes(): array
-    {
-        return [
-            [
-                'filePath'         => __FILE__,
-                'method'           => 'POST',
-                'expectedMimeType' => 'text/x-php',
-            ],
-            [
-                'filePath'         => __FILE__,
-                'method'           => 'POST',
-                'expectedMimeType' => 'foo/bar',
-                'mimeType'         => 'foo/bar',
-            ],
-        ];
-    }
-
-    /**
-     * @return array{code: int, others: int[]}[]
+     * @return array<array{code:int,others:array<int>}>
      */
     public static function getResponseCodes(): array
     {
@@ -153,7 +122,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{group: string, codes: int[]}[]
+     * @return array<array{group:string,codes:array<int>}>
      */
     public static function getGroupAndResponseCodes(): array
     {
@@ -182,7 +151,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return int[][]
+     * @return array<array<int>>
      */
     public static function getInvalidHttpResponseCodes(): array
     {
@@ -193,7 +162,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{body: int[], lengthToUse: int, willFail: bool}[]
+     * @return array<array{body:array<int>,lengthToUse:int,willFail:bool}>
      */
     public static function getResponseBodyArrays(): array
     {
@@ -222,7 +191,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{body: int[], min: int}[]
+     * @return array<array{body:array<int>,min:int}>
      */
     public static function getResponseBodyArraysForAtLeast(): array
     {
@@ -247,7 +216,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{body: int[], max: int}[]
+     * @return array<array{body:array<int>,max:int}>
      */
     public static function getResponseBodyArraysForAtMost(): array
     {
@@ -272,7 +241,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{code: int, phrase: string}[]
+     * @return array<array{code:int,phrase:string}>
      */
     public static function getResponseCodesAndReasonPhrases(): array
     {
@@ -297,7 +266,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{baseUri: string, path: string, fullUri: string}[]
+     * @return array<array{baseUri:string,path:string,fullUri:string}>
      */
     public static function getUris(): array
     {
@@ -360,7 +329,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{responseCode: int, actualGroup: string, expectedGroup: string}[]
+     * @return array<array{responseCode:int,actualGroup:string,expectedGroup:string}>
      */
     public static function getDataForResponseGroupFailures(): array
     {
@@ -394,7 +363,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array<array-key, array{data: string|PyStringNode, expected: string}>
+     * @return array<array{data:string|PyStringNode,expected:string}>
      */
     public static function getRequestBodyValues(): array
     {
@@ -407,6 +376,19 @@ class ApiContextTest extends TestCase
                 'data' => new PyStringNode(['some string'], 1),
                 'expected' => 'some string',
             ],
+        ];
+    }
+
+    /**
+     * @return array<array{httpMethod:string}>
+     */
+    public static function getHttpMethodsForFormParametersTest(): array
+    {
+        return [
+            ['httpMethod' => 'PUT'],
+            ['httpMethod' => 'POST'],
+            ['httpMethod' => 'PATCH'],
+            ['httpMethod' => 'DELETE'],
         ];
     }
 
@@ -631,19 +613,6 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array{httpMethod: string}[]
-     */
-    public static function getHttpMethodsForFormParametersTest(): array
-    {
-        return [
-            ['httpMethod' => 'PUT'],
-            ['httpMethod' => 'POST'],
-            ['httpMethod' => 'PATCH'],
-            ['httpMethod' => 'DELETE'],
-        ];
-    }
-
-    /**
      * @dataProvider getHttpMethodsForFormParametersTest
      * @covers ::setRequestFormParams
      * @covers ::sendRequest
@@ -754,9 +723,8 @@ BAR;
     /**
      * @dataProvider getRequestBodyValues
      * @covers ::setRequestBody
-     * @param string|PyStringNode $data
      */
-    public function testCanSetRequestBodyToAString($data, string $expected): void
+    public function testCanSetRequestBodyToAString(string|PyStringNode $data, string $expected): void
     {
         $this->mockHandler->append(new Response());
         $this->context->setRequestBody($data);
@@ -799,6 +767,7 @@ BAR;
         $payload = ['some' => 'data'];
         $secret = 'secret';
 
+        /** @var MockObject&JWT */
         $matcher = $this->createMock(JWT::class);
         $matcher
             ->expects($this->once())
@@ -943,7 +912,7 @@ BAR;
      * @covers ::assertResponseIs
      * @covers ::requireResponse
      * @covers ::getResponseCodeGroupRange
-     * @param int[] $codes
+     * @param array<int> $codes
      */
     public function testCanAssertWhichGroupTheResponseIsIn(string $group, array $codes): void
     {
@@ -958,7 +927,7 @@ BAR;
      * @dataProvider getGroupAndResponseCodes
      * @covers ::assertResponseIsNot
      * @covers ::assertResponseIs
-     * @param int[] $codes
+     * @param array<int> $codes
      */
     public function testCanAssertWhichGroupTheResponseIsNotIn(string $group, array $codes): void
     {
@@ -974,9 +943,7 @@ BAR;
             $this->mockHandler->append(new Response($code));
             $this->context->requestPath('/some/path');
 
-            foreach (array_filter($groups, function (string $g) use ($group): bool {
-                return $g !== $group;
-            }) as $g) {
+            foreach (array_filter($groups, fn (string $g): bool => $g !== $group) as $g) {
                 // Assert that the response is not in any of the other groups
                 $this->assertTrue($this->context->assertResponseIsNot($g));
             }
@@ -1183,7 +1150,7 @@ BAR;
      * @dataProvider getResponseBodyArrays
      * @covers ::assertResponseBodyJsonArrayLength
      * @covers ::getResponseBodyArray
-     * @param int[] $body
+     * @param array<int> $body
      */
     public function testCanAssertThatTheArrayInTheResponseBodyHasACertainLength(array $body, int $lengthToUse, bool $willFail): void
     {
@@ -1207,7 +1174,7 @@ BAR;
      * @dataProvider getResponseBodyArraysForAtLeast
      * @covers ::assertResponseBodyJsonArrayMinLength
      * @covers ::getResponseBody
-     * @param int[] $body
+     * @param array<int> $body
      */
     public function testCanAssertTheMinLengthOfAnArrayInTheResponseBody(array $body, int $min): void
     {
@@ -1220,7 +1187,7 @@ BAR;
      * @dataProvider getResponseBodyArraysForAtMost
      * @covers ::assertResponseBodyJsonArrayMaxLength
      * @covers ::getResponseBody
-     * @param int[] $body
+     * @param array<int> $body
      */
     public function testCanAssertTheMaxLengthOfAnArrayInTheResponseBody(array $body, int $max): void
     {
@@ -1245,7 +1212,7 @@ BAR;
             ->with(['bar' => 'foo', 'foo' => 'bar'], ['foo' => 'bar', 'bar' => 'foo'])
             ->willReturn(true);
 
-        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1));
+        $this->assertTrue($this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1)));
     }
 
     /**

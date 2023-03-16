@@ -49,6 +49,16 @@
     }
   },
   "scripts": {
+    "ci": [
+      "@phpunit",
+      "@behat",
+      "@sa",
+      "@cs"
+    ],
+    "test": [
+      "@phpunit",
+      "@behat"
+    ],
     "phpunit": "vendor/bin/phpunit",
     "phpunit:coverage": "vendor/bin/phpunit --coverage-html build/coverage",
     "behat": "vendor/bin/behat --strict",

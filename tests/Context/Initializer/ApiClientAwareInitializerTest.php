@@ -3,6 +3,7 @@ namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use GuzzleHttp\Client;
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,9 +20,7 @@ class ApiClientAwareInitializerTest extends TestCase
         // Set up a socket for the test case, try all ports between 8000 and 8079. If no ports are
         // available the test case will be marked as skipped. This is to get past the base URI
         // validation
-        set_error_handler(function () {
-            return true;
-        });
+        set_error_handler(fn () => true);
         $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
         if (false === $sock) {
@@ -48,6 +47,7 @@ class ApiClientAwareInitializerTest extends TestCase
             $this->markTestSkipped('Unable to listen for a connection, skipping test for now.');
         }
 
+        /** @var MockObject&ApiClientAwareContext */
         $context = $this->createMock(ApiClientAwareContext::class);
         $context
             ->expects($this->once())

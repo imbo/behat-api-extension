@@ -15,7 +15,7 @@ class ArrayLength
      * @param int|string $length The expected exact length of $array
      * @throws InvalidArgumentException
      */
-    public function __invoke($array, $length): bool
+    public function __invoke(array $array, int|string $length): bool
     {
         // Encode / decode to make sure we have a "list"
         /** @var mixed */

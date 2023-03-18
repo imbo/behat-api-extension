@@ -74,11 +74,11 @@ class VariableTypeTest extends TestCase
                 'value' => '123',
                 'type' => 'scalar',
             ],
-            'scalar (boolean true)' => [
+            'scalar (bool true)' => [
                 'value' => true,
                 'type' => 'scalar',
             ],
-            'scalar (boolean false)' => [
+            'scalar (bool false)' => [
                 'value' => true,
                 'type' => 'scalar',
             ],
@@ -90,7 +90,7 @@ class VariableTypeTest extends TestCase
                 'value' => ['foo' => 'bar'],
                 'type' => 'object',
             ],
-            'boolean (any)' => [
+            'bool (any)' => [
                 'value' => true,
                 'type' => 'any',
             ],

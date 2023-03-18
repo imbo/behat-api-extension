@@ -16,7 +16,7 @@ class VariableType
     protected array $validTypes = [
         'int', 'integer',
         'bool', 'boolean',
-        'float', 'double',
+        'double', 'float',
         'string',
         'array',
         'object',

@@ -3,7 +3,7 @@ Changelog for Behat API Extension
 
 v4.0.0
 ------
-__N/A__
+__2023-03-18__
 
 * [#126](https://github.com/imbo/behat-api-extension/pull/126): Add type hints to most of the code base
 * [#125](https://github.com/imbo/behat-api-extension/pull/125): Require PHP >= 8.1

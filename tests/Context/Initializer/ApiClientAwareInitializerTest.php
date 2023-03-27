@@ -1,7 +1,6 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
-use GuzzleHttp\Client;
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -47,15 +46,17 @@ class ApiClientAwareInitializerTest extends TestCase
             $this->markTestSkipped('Unable to listen for a connection, skipping test for now.');
         }
 
+        $baseUri = sprintf('http://localhost:%d', $port);
+
         /** @var MockObject&ApiClientAwareContext */
         $context = $this->createMock(ApiClientAwareContext::class);
         $context
             ->expects($this->once())
-            ->method('setClient')
-            ->with($this->isInstanceOf(Client::class));
+            ->method('initializeClient')
+            ->with(['base_uri' => $baseUri]);
 
         $initializer = new ApiClientAwareInitializer([
-            'base_uri' => sprintf('http://localhost:%d', $port),
+            'base_uri' => $baseUri,
         ]);
         $initializer->initializeContext($context);
 

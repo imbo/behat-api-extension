@@ -3,6 +3,18 @@ Upgrading
 
 This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
+Migration from v4.x to v5.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+Internal HTTP client configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Previous versions of the extension suggested using the ``GuzzleHttp\Client::getConfig()`` method to customize the internal HTTP client. This method has been deprecated, and the initialization of the internal HTTP client in the extension had to be changed as a consequence. Refer to the :ref:`configure-the-api-client` section for more information.
+
 Migration from v3.x to v4.x
 ---------------------------
 

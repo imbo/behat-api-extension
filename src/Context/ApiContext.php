@@ -5,6 +5,7 @@ use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
@@ -84,21 +85,25 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
     /**
      * Set the client instance
+     *
+     * @throws InvalidArgumentException
      */
-    public function setClient(ClientInterface $client, string $baseUri): self
+    public function initializeClient(array $config): static
     {
-        $this->client = $client;
-        $this->baseUri = $baseUri;
+        if (!array_key_exists('base_uri', $config) || !is_string($config['base_uri']) || '' === trim($config['base_uri'])) {
+            throw new InvalidArgumentException('base_uri is missing');
+        }
 
+        $this->baseUri = $config['base_uri'];
+        $this->client = new Client($config);
         $this->request = new Request('GET', $this->baseUri);
-
         return $this;
     }
 
     /**
      * Set the array contains comparator instance
      */
-    public function setArrayContainsComparator(ArrayContainsComparator $comparator): self
+    public function setArrayContainsComparator(ArrayContainsComparator $comparator): static
     {
         $this->arrayContainsComparator = $comparator;
 
@@ -114,7 +119,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *                                  thrown
      * @Given I attach :path to the request as :partName
      */
-    public function addMultipartFileToRequest(string $path, string $partName): self
+    public function addMultipartFileToRequest(string $path, string $partName): static
     {
         if (!file_exists($path)) {
             throw new InvalidArgumentException(sprintf('File does not exist: "%s"', $path));
@@ -138,7 +143,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @param array{name:string,contents:resource|string,filename?:string} $part The part to add
      */
-    private function addMultipartPart(array $part): self
+    private function addMultipartPart(array $part): static
     {
         $this->requestOptions['multipart'][] = $part;
 
@@ -152,7 +157,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the following multipart form parameters are set:
      */
-    public function setRequestMultipartFormParams(TableNode $table): self
+    public function setRequestMultipartFormParams(TableNode $table): static
     {
         foreach ($this->getTableNodeHash($table) as $name => $value) {
             $this->addMultipartPart([
@@ -172,7 +177,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given I am authenticating as :username with password :password
      */
-    public function setBasicAuth(string $username, string $password): self
+    public function setBasicAuth(string $username, string $password): static
     {
         $this->requestOptions['auth'] = [$username, $password];
 
@@ -192,7 +197,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given I get an OAuth token using password grant from :path with :username and :password in scope :scope using client ID :clientId
      * @Given I get an OAuth token using password grant from :path with :username and :password in scope :scope using client ID :clientId and client secret :clientSecret
      */
-    public function oauthWithPasswordGrantInScope(string $path, string $username, string $password, string $scope, string $clientId, string $clientSecret = null): self
+    public function oauthWithPasswordGrantInScope(string $path, string $username, string $password, string $scope, string $clientId, string $clientSecret = null): static
     {
         $this->requestOptions['form_params'] = array_filter([
             'grant_type'    => 'password',
@@ -252,7 +257,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the :header request header is :value
      */
-    public function setRequestHeader(string $header, string $value): self
+    public function setRequestHeader(string $header, string $value): static
     {
         $this->request = $this->request->withHeader($header, $value);
 
@@ -269,7 +274,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the :header request header contains :value
      */
-    public function addRequestHeader(string $header, string $value): self
+    public function addRequestHeader(string $header, string $value): static
     {
         $this->request = $this->request->withAddedHeader($header, $value);
 
@@ -283,7 +288,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the following form parameters are set:
      */
-    public function setRequestFormParams(TableNode $table): self
+    public function setRequestFormParams(TableNode $table): static
     {
         /** @var array<string,array{name:string,value:string}> */
         $rows = $table->getColumnsHash();
@@ -314,7 +319,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the request body is:
      */
-    public function setRequestBody($string): self
+    public function setRequestBody($string): static
     {
         if (!empty($this->requestOptions['multipart']) || !empty($this->requestOptions['form_params'])) {
             throw new InvalidArgumentException(
@@ -344,7 +349,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the request body contains :path
      */
-    public function setRequestBodyToFileResource(string $path): self
+    public function setRequestBodyToFileResource(string $path): static
     {
         if (!file_exists($path)) {
             throw new InvalidArgumentException(sprintf('File does not exist: "%s"', $path));
@@ -373,7 +378,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the response body contains a JWT identified by :name, signed with :secret:
      */
-    public function addJwtToken(string $name, string $secret, PyStringNode $payload): self
+    public function addJwtToken(string $name, string $secret, PyStringNode $payload): static
     {
         $jwtMatcher = $this->arrayContainsComparator->getMatcherFunction('jwt');
 
@@ -398,7 +403,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @Given the query parameter :name is :value
      * @Given the query parameter :name is:
      */
-    public function setQueryStringParameter(string $name, string|TableNode $value): self
+    public function setQueryStringParameter(string $name, string|TableNode $value): static
     {
         if ($value instanceof TableNode) {
             /** @var array<string> */
@@ -417,7 +422,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @Given the following query parameters are set:
      */
-    public function setQueryStringParameters(TableNode $params): self
+    public function setQueryStringParameters(TableNode $params): static
     {
         foreach ($this->getTableNodeHash($params) as $name => $value) {
             $this->requestOptions['query'][$name] = $value;
@@ -435,7 +440,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * @When I request :path
      * @When I request :path using HTTP :method
      */
-    public function requestPath(string $path, string $method = null): self
+    public function requestPath(string $path, string $method = null): static
     {
         $this->setRequestPath($path);
 
@@ -1209,7 +1214,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @throws RequestException
      */
-    protected function sendRequest(): self
+    protected function sendRequest(): static
     {
         if (!empty($this->requestOptions['form_params']) && !$this->forceHttpMethod) {
             $this->setRequestMethod('POST');
@@ -1350,7 +1355,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @param string $path The path to request
      */
-    protected function setRequestPath(string $path): self
+    protected function setRequestPath(string $path): static
     {
         $base = Utils::uriFor($this->baseUri);
         $uri = UriResolver::resolve($base, Utils::uriFor($path));
@@ -1367,7 +1372,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *                       overridden (this occurs for instance when adding form parameters to the
      *                       request, and not specifying HTTP POST for the request)
      */
-    protected function setRequestMethod(string $method, bool $force = true): self
+    protected function setRequestMethod(string $method, bool $force = true): static
     {
         $this->request = $this->request->withMethod($method);
         $this->forceHttpMethod = $force;

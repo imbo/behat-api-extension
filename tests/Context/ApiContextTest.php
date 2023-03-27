@@ -53,12 +53,9 @@ function is_readable(string $path): bool
 class ApiContextTest extends TestCase
 {
     private ApiContext $context;
-    private Client $client;
     private MockHandler $mockHandler;
     private HandlerStack $handlerStack;
     private MockObject&ArrayContainsComparator $comparator;
-    private string $baseUri = 'http://localhost:9876';
-
     /** @var array<array{request:Request,response:Response}> */
     private array $historyContainer = [];
 
@@ -69,14 +66,13 @@ class ApiContextTest extends TestCase
         $this->mockHandler = new MockHandler();
         $this->handlerStack = HandlerStack::create($this->mockHandler);
         $this->handlerStack->push(Middleware::history($this->historyContainer));
-        $this->client = new Client([
-            'handler' => $this->handlerStack,
-            'base_uri' => $this->baseUri,
-        ]);
         $this->comparator = $this->createMock(ArrayContainsComparator::class);
 
         $this->context = new ApiContext();
-        $this->context->setClient($this->client, 'http://base');
+        $this->context->initializeClient([
+            'handler' => $this->handlerStack,
+            'base_uri' => 'http://localhost:9876',
+        ]);
         $this->assertSame($this->context, $this->context->setArrayContainsComparator($this->comparator));
     }
 
@@ -737,16 +733,16 @@ BAR;
 
     /**
      * @dataProvider getUris
-     * @covers ::setClient
+     * @covers ::initializeClient
      * @covers ::setRequestPath
      */
     public function testResolvesFilePathsCorrectlyWhenAttachingFilesToTheRequestBody(string $baseUri, string $path, string $fullUri): void
     {
         // Set a new client with the given base_uri (and not the one used in setUp())
-        $this->assertSame($this->context, $this->context->setClient(new Client([
+        $this->assertSame($this->context, $this->context->initializeClient([
             'handler' => $this->handlerStack,
             'base_uri' => $baseUri,
-        ]), $baseUri));
+        ]));
 
         $this->mockHandler->append(new Response());
         $this->assertSame($this->context, $this->context->setRequestBodyToFileResource(__FILE__));

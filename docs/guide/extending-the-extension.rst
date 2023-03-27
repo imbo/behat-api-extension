@@ -28,33 +28,30 @@ If you want to add a ``@Given``, ``@When`` and/or ``@Then`` step, simply add a m
 
 With the above example you can now use ``Then I want to check something`` can be used in your feature files along with the steps defined by the extension.
 
-Manipulate the API client
--------------------------
+.. _configure-the-api-client:
 
-If you wish to manipulate the API client (``GuzzleHttp\Client``) this can be done in the initialization-phase:
+Configure the API client
+------------------------
+
+If you wish to configure the internal API client (``GuzzleHttp\Client``) this can be done in the initialization-phase:
 
 .. code-block:: php
 
     <?php
-    use Imbo\BehatApiExtension\Context\ApiContext;
-    use GuzzleHttp\ClientInterface;
+    use GuzzleHttp\HandlerStack;
     use GuzzleHttp\Middleware;
-    use Psr\Http\Message\RequestInterface;
+    use Imbo\BehatApiExtension\Context\ApiContext;
 
     class FeatureContext extends ApiContext
     {
-        /**
-         * Manipulate the API client
-         */
-        public function setClient(ClientInterface $client): self
+        public function initializeClient(array $config): static
         {
-            $stack = $client->getConfig('handler');
-            $stack->push(Middleware::mapRequest(function (RequestInterface $request) {
-                // Add something to the request and return the new instance
-                return $request->withAddedHeader('Some-Custom-Header', 'some value');
-            }));
-
-            return parent::setClient($client);
+            $stack = $config['handler'] ?? HandlerStack::create();
+            $stack->push(Middleware::mapRequest(
+                fn ($req) => $req->withAddedHeader('Some-Custom-Header', 'some value')
+            ));
+            $config['handler'] = $stack;
+            return parent::initializeClient($config);
         }
     }
 

@@ -12,12 +12,10 @@ Feature: Client aware context
             use Assert\Assertion;
 
             class FeatureContext implements ApiClientAwareContext {
-                private $client;
-                private $baseUri;
+                private bool $set = false;
 
-                public function setClient(ClientInterface $client, string $baseUri): self {
-                    $this->client = $client;
-                    $this->baseUri = $baseUri;
+                public function initializeClient(array $config): static {
+                    $this->set = true;
                     return $this;
                 }
 
@@ -25,7 +23,7 @@ Feature: Client aware context
                  * @Then the client should be set
                  */
                 public function theClientShouldBeSet() {
-                    Assertion::isInstanceOf($this->client, GuzzleHttp\Client::class);
+                    Assertion::true($this->set);
                 }
             }
             """

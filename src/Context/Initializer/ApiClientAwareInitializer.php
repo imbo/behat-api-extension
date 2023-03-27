@@ -14,19 +14,19 @@ use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 class ApiClientAwareInitializer implements ContextInitializer
 {
     /**
-     * @var array{base_uri?:string} Guzzle client configuration array
+     * @var array Guzzle client configuration array
      * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
-    private array $guzzleConfig = [];
+    private array $config = [];
 
     /**
      * Class constructor
      *
-     * @param array{base_uri?:string} $guzzleConfig Guzzle client configuration array
+     * @param array $config Guzzle client configuration array
      */
-    public function __construct(array $guzzleConfig)
+    public function __construct(array $config)
     {
-        $this->guzzleConfig = $guzzleConfig;
+        $this->config = $config;
     }
 
     /**
@@ -37,7 +37,7 @@ class ApiClientAwareInitializer implements ContextInitializer
     public function initializeContext(Context $context): void
     {
         if ($context instanceof ApiClientAwareContext) {
-            $context->initializeClient($this->guzzleConfig);
+            $context->initializeClient($this->config);
         }
     }
 }

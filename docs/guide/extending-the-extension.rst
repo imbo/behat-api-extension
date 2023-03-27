@@ -28,6 +28,8 @@ If you want to add a ``@Given``, ``@When`` and/or ``@Then`` step, simply add a m
 
 With the above example you can now use ``Then I want to check something`` can be used in your feature files along with the steps defined by the extension.
 
+.. _configure-the-api-client:
+
 Configure the API client
 ------------------------
 

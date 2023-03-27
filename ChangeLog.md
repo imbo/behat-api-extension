@@ -3,7 +3,7 @@ Changelog for Behat API Extension
 
 v5.0.0
 ------
-__N/A__
+__2023-03-27__
 
 * [#127](https://github.com/imbo/behat-api-extension/issue/127): Allow configuration of the internal Guzzle client without using the deprecated getConfig method
 

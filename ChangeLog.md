@@ -1,6 +1,12 @@
 Changelog for Behat API Extension
 =================================
 
+v3.0.2
+------
+__2023-04-12__
+
+* [#129](https://github.com/imbo/behat-api-extension/pull/129): Bump firebase/php-jwt dependency ([@Aurelieluciani](https://github.com/Aurelieluciani))
+
 v3.0.1
 ------
 __2022-06-27__

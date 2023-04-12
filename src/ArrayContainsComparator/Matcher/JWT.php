@@ -4,6 +4,7 @@ namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Firebase;
 use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
 use InvalidArgumentException;
+use UnexpectedValueException;
 
 /**
  * Match a JWT token
@@ -65,12 +66,20 @@ class JWT
         }
 
         $token  = $this->jwtTokens[$name];
-        $result = (array) Firebase\JWT\JWT::decode($jwt, $token['secret'], $this->allowedAlgorithms);
 
-        if (!$this->comparator->compare($token['payload'], $result)) {
-            throw new InvalidArgumentException('JWT mismatch.');
+        foreach ($this->allowedAlgorithms as $algorithm) {
+            try {
+                $result = (array) Firebase\JWT\JWT::decode($jwt, new Firebase\JWT\Key($token['secret'], $algorithm));
+            } catch (UnexpectedValueException $e) {
+                // try next algorithm
+                continue;
+            }
+
+            if ($this->comparator->compare($token['payload'], $result)) {
+                return true;
+            }
         }
 
-        return true;
+        throw new InvalidArgumentException('JWT mismatch.');
     }
 }

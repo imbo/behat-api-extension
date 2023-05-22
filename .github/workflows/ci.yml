@@ -12,7 +12,7 @@ jobs:
         php: ['5.6', '7.0', '7.1', '7.2']
     name: Test on PHP ${{ matrix.php }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Remove lock file
         run: rm composer.lock

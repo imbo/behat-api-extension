@@ -3156,20 +3156,20 @@
         },
         {
             "name": "imbo/imbo-coding-standard",
-            "version": "v2.0.5",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imbo/imbo-coding-standard.git",
-                "reference": "03c905451f4b1c33abb6dd9476173ed43b816ce7"
+                "reference": "99ef0adbd6a3b75c7247a1841a7704fe78f82ccd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imbo/imbo-coding-standard/zipball/03c905451f4b1c33abb6dd9476173ed43b816ce7",
-                "reference": "03c905451f4b1c33abb6dd9476173ed43b816ce7",
+                "url": "https://api.github.com/repos/imbo/imbo-coding-standard/zipball/99ef0adbd6a3b75c7247a1841a7704fe78f82ccd",
+                "reference": "99ef0adbd6a3b75c7247a1841a7704fe78f82ccd",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.4"
+                "php": ">=8.1"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0"
@@ -3202,9 +3202,9 @@
             ],
             "support": {
                 "issues": "https://github.com/imbo/imbo-coding-standard/issues",
-                "source": "https://github.com/imbo/imbo-coding-standard/tree/v2.0.5"
+                "source": "https://github.com/imbo/imbo-coding-standard/tree/v2.1.0"
             },
-            "time": "2022-05-07T07:24:53+00:00"
+            "time": "2023-07-03T18:31:21+00:00"
         },
         {
             "name": "myclabs/deep-copy",

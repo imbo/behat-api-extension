@@ -16,8 +16,7 @@
   "support": {
     "source": "https://github.com/imbo/behat-api-extension",
     "docs": "http://behat-api-extension.readthedocs.io/",
-    "issues": "https://github.com/imbo/behat-api-extension/issues",
-    "irc": "irc://irc.freenode.net/imbo"
+    "issues": "https://github.com/imbo/behat-api-extension/issues"
   },
   "require": {
     "php": ">=8.1",

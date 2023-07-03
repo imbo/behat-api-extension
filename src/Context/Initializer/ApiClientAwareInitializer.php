@@ -3,7 +3,6 @@ namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Initializer\ContextInitializer;
-use GuzzleHttp\Client;
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 
 /**

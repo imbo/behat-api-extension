@@ -3156,16 +3156,16 @@
         },
         {
             "name": "imbo/imbo-coding-standard",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imbo/imbo-coding-standard.git",
-                "reference": "99ef0adbd6a3b75c7247a1841a7704fe78f82ccd"
+                "reference": "bd277b3c7cfbd3295d98a9849616ebd8d796d7ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imbo/imbo-coding-standard/zipball/99ef0adbd6a3b75c7247a1841a7704fe78f82ccd",
-                "reference": "99ef0adbd6a3b75c7247a1841a7704fe78f82ccd",
+                "url": "https://api.github.com/repos/imbo/imbo-coding-standard/zipball/bd277b3c7cfbd3295d98a9849616ebd8d796d7ad",
+                "reference": "bd277b3c7cfbd3295d98a9849616ebd8d796d7ad",
                 "shasum": ""
             },
             "require": {
@@ -3202,9 +3202,9 @@
             ],
             "support": {
                 "issues": "https://github.com/imbo/imbo-coding-standard/issues",
-                "source": "https://github.com/imbo/imbo-coding-standard/tree/v2.1.0"
+                "source": "https://github.com/imbo/imbo-coding-standard/tree/v2.1.1"
             },
-            "time": "2023-07-03T18:31:21+00:00"
+            "time": "2023-07-03T18:44:31+00:00"
         },
         {
             "name": "myclabs/deep-copy",

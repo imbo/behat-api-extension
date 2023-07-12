@@ -1,52 +1,34 @@
 <?php declare(strict_types=1);
 use Assert\Assertion;
 use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
-use Behat\Testwork\Hook\Scope\SuiteScope;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
-/**
- * Behat feature context class
- *
- * The feature context used to test the ApiContext steps. The way the tests are executed are
- * heavily inspired by https://github.com/Behat/WebApiExtension.
- *
- * @author Christer Edvartsen <cogo@starzinger.net>
- */
 class FeatureContext implements Context
 {
     /**
      * PHP binary used to trigger Behat from the scenarios
-     *
-     * @var ?string
      */
-    private $phpBin;
+    private ?string $phpBin = null;
 
     /**
      * Process instance for executing processes
-     *
-     * @var ?Process
      */
-    private $process;
+    private ?Process $process = null;
 
     /**
      * The working directory where files can be created
-     *
-     * @var ?string
      */
-    private $workingDir;
+    private ?string $workingDir = null;
 
     /**
      * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists
      *
-     * @param SuiteScope $scope
-     *
      * @BeforeSuite
      * @AfterSuite
      */
-    public static function emptyTestDir(SuiteScope $scope): void
+    public static function emptyTestDir(): void
     {
         $testDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension';
 
@@ -58,12 +40,11 @@ class FeatureContext implements Context
     /**
      * Prepare a scenario
      *
-     * @param BeforeScenarioScope $scope
      * @throws RuntimeException
      *
      * @BeforeScenario
      */
-    public function prepareScenario(BeforeScenarioScope $scope): void
+    public function prepareScenario(): void
     {
         $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension' . DIRECTORY_SEPARATOR . microtime(true);
         mkdir($dir . '/features/bootstrap', 0777, true);
@@ -82,11 +63,11 @@ class FeatureContext implements Context
      *
      * @param string $filename Name of the file relative to the working dir
      * @param PyStringNode $content Content of the file
-     * @param boolean $readable Whether or not the created file is readable
+     * @param bool $readable Whether or not the created file is readable
      *
      * @Given a file named :filename with:
      */
-    public function createFile($filename, PyStringNode $content, $readable = true): void
+    public function createFile(string $filename, PyStringNode $content, bool $readable = true): void
     {
         $filename = rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
         $path = dirname($filename);
@@ -111,7 +92,7 @@ class FeatureContext implements Context
      *
      * @Given a non-readable file named :filename with:
      */
-    public function createNonReadableFile($filename, PyStringNode $content): void
+    public function createNonReadableFile(string $filename, PyStringNode $content): void
     {
         $this->createFile($filename, $content, false);
     }
@@ -119,7 +100,8 @@ class FeatureContext implements Context
     /**
      * Runs Behat
      *
-     * @param string $args
+     * @throws RuntimeException
+     *
      * @When /^I run "behat(?: ((?:\"|[^"])*))?"$/
      */
     public function runBehat(string $args = ''): void
@@ -149,12 +131,9 @@ class FeatureContext implements Context
     /**
      * Checks whether the command failed or passed, with output
      *
-     * @param string $result
-     * @param PyStringNode $output
-     *
      * @Then /^it should (fail|pass) with:$/
      */
-    public function assertCommandResultWithOutput($result, PyStringNode $output): void
+    public function assertCommandResultWithOutput(string $result, PyStringNode $output): void
     {
         $this->assertCommandResult($result);
         $this->assertCommandOutputMatches($output);
@@ -162,8 +141,6 @@ class FeatureContext implements Context
 
     /**
      * Assert command output contains a string
-     *
-     * @param PyStringNode $content
      *
      * @Then the output should contain:
      */
@@ -179,7 +156,6 @@ class FeatureContext implements Context
     /**
      * Checks whether the command failed or passed
      *
-     * @param string $result
      * @Then /^it should (fail|pass)$/
      */
     public function assertCommandResult(string $result): void
@@ -212,7 +188,7 @@ class FeatureContext implements Context
     /**
      * Get the exit code of the process
      *
-     * @return int
+     * @throws RuntimeException
      */
     private function getExitCode(): int
     {
@@ -232,9 +208,9 @@ class FeatureContext implements Context
     /**
      * Get output from the process
      *
-     * @return string
+     * @throws RuntimeException
      */
-    private function getOutput()
+    private function getOutput(): string
     {
         if (null === $this->process) {
             throw new RuntimeException('No process is running');
@@ -250,9 +226,9 @@ class FeatureContext implements Context
      *
      * @param string $path Path to a file or a directory
      */
-    private static function rmdir($path): void
+    private static function rmdir(string $path): void
     {
-        /** @var string[] */
+        /** @var array<string> */
         $files = glob(sprintf('%s/*', $path));
 
         foreach ($files as $file) {

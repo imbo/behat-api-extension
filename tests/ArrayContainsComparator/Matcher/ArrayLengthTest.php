@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ArrayLengthTest extends TestCase
 {
-    /** @var ArrayLength */
-    private $matcher;
+    private ArrayLength $matcher;
 
     public function setup(): void
     {
@@ -18,9 +17,9 @@ class ArrayLengthTest extends TestCase
     }
 
     /**
-     * @return array{list: int[], length: int}[]
+     * @return array<array{list:array<int>,length:int}>
      */
-    public function getArraysAndLengths(): array
+    public static function getArraysAndLengths(): array
     {
         return [
             [
@@ -39,30 +38,9 @@ class ArrayLengthTest extends TestCase
     }
 
     /**
-     * @return array{value: int|string|array<string, string>, message: string}[]
+     * @return array<array{array:array<int>,maxLength:int,message:string}>
      */
-    public function getInvalidValues(): array
-    {
-        return [
-            [
-                'value' => 123,
-                'message' => 'Only numerically indexed arrays are supported, got "integer".',
-            ],
-            [
-                'value' => '123',
-                'message' => 'Only numerically indexed arrays are supported, got "string".',
-            ],
-            [
-                'value' => ['foo' => 'bar'],
-                'message' => 'Only numerically indexed arrays are supported, got "object".',
-            ],
-        ];
-    }
-
-    /**
-     * @return array{array: int[], maxLength: int, message: string}[]
-     */
-    public function getValuesThatFail(): array
+    public static function getValuesThatFail(): array
     {
         return [
             [
@@ -81,7 +59,6 @@ class ArrayLengthTest extends TestCase
     /**
      * @dataProvider getArraysAndLengths
      * @covers ::__invoke
-     * @param int[] $array
      */
     public function testCanMatchLengthOfArrays(array $array, int $length): void
     {
@@ -94,22 +71,19 @@ class ArrayLengthTest extends TestCase
     }
 
     /**
-     * @dataProvider getInvalidValues
      * @covers ::__invoke
-     * @param int|string|array<string, string> $value
      */
-    public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray($value, string $message): void
+    public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage($message);
+        $this->expectExceptionMessage('Only numerically indexed arrays are supported, got "object".');
         $matcher = $this->matcher;
-        $matcher($value, 123);
+        $matcher(['foo' => 'bar'], 123);
     }
 
     /**
      * @dataProvider getValuesThatFail
      * @covers ::__invoke
-     * @param int[] $array
      */
     public function testThrowsExceptionWhenLengthIsNotCorrect(array $array, int $length, string $message): void
     {

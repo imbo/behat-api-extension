@@ -1,10 +1,22 @@
 Changelog for Behat API Extension
 =================================
 
+v5.0.0
+------
+__2023-03-27__
+
+* [#127](https://github.com/imbo/behat-api-extension/issue/127): Allow configuration of the internal Guzzle client without using the deprecated getConfig method
+
+v4.0.0
+------
+__2023-03-18__
+
+* [#126](https://github.com/imbo/behat-api-extension/pull/126): Add type hints to most of the code base
+* [#125](https://github.com/imbo/behat-api-extension/pull/125): Require PHP >= 8.1
+
 v3.0.1
 ------
-__TBA__
-
+__2022-06-27__
 
 * [#109](https://github.com/imbo/behat-api-extension/pull/109): Step for asserting an empty response body
 * [#106](https://github.com/imbo/behat-api-extension/issues/106): Adopt coding standard

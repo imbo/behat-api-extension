@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class VariableTypeTest extends TestCase
 {
-    /** @var VariableType */
-    private $matcher;
+    private VariableType $matcher;
 
     public function setUp(): void
     {
@@ -18,9 +17,9 @@ class VariableTypeTest extends TestCase
     }
 
     /**
-     * @return array<string, array{value: mixed, type: string}>
+     * @return array<string,array{value:mixed,type:string}>
      */
-    public function getValuesAndTypes(): array
+    public static function getValuesAndTypes(): array
     {
         return [
             'int' => [
@@ -75,11 +74,11 @@ class VariableTypeTest extends TestCase
                 'value' => '123',
                 'type' => 'scalar',
             ],
-            'scalar (boolean true)' => [
+            'scalar (bool true)' => [
                 'value' => true,
                 'type' => 'scalar',
             ],
-            'scalar (boolean false)' => [
+            'scalar (bool false)' => [
                 'value' => true,
                 'type' => 'scalar',
             ],
@@ -91,7 +90,7 @@ class VariableTypeTest extends TestCase
                 'value' => ['foo' => 'bar'],
                 'type' => 'object',
             ],
-            'boolean (any)' => [
+            'bool (any)' => [
                 'value' => true,
                 'type' => 'any',
             ],
@@ -131,9 +130,9 @@ class VariableTypeTest extends TestCase
     }
 
     /**
-     * @return array{value: mixed, type: string, message: string}[]
+     * @return array<array{value:mixed,type:string,message:string}>
      */
-    public function getInvalidMatches(): array
+    public static function getInvalidMatches(): array
     {
         return [
             [
@@ -163,9 +162,8 @@ class VariableTypeTest extends TestCase
      * @dataProvider getValuesAndTypes
      * @covers ::__invoke
      * @covers ::normalizeTypes
-     * @param mixed $value
      */
-    public function testCanMatchValuesOfType($value, string $type): void
+    public function testCanMatchValuesOfType(mixed $value, string $type): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
@@ -188,9 +186,8 @@ class VariableTypeTest extends TestCase
     /**
      * @dataProvider getInvalidMatches
      * @covers ::__invoke
-     * @param mixed $value
      */
-    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType($value, string $type, string $message): void
+    public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType(mixed $value, string $type, string $message): void
     {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);

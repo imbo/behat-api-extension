@@ -46,7 +46,7 @@ Feature: Test built in matcher functions
                                 "integer": 123,
                                 "double": 1.23,
                                 "array": [1, 2, 3],
-                                "boolean": true,
+                                "bool": true,
                                 "null": null,
                                 "scalar": "some string"
                             },
@@ -87,7 +87,7 @@ Feature: Test built in matcher functions
                                 "integer": "@variableType(integer)",
                                 "double": "@variableType(double)",
                                 "array": "@variableType(array)",
-                                "boolean": "@variableType(boolean)",
+                                "bool": "@variableType(bool)",
                                 "null": "@variableType(null)",
                                 "scalar": "@variableType(scalar)"
                             }
@@ -101,7 +101,7 @@ Feature: Test built in matcher functions
                                 "integer": "@variableType(any)",
                                 "double": "@variableType(any)",
                                 "array": "@variableType(any)",
-                                "boolean": "@variableType(any)",
+                                "bool": "@variableType(any)",
                                 "null": "@variableType(any)",
                                 "scalar": "@variableType(any)"
                             }
@@ -115,7 +115,7 @@ Feature: Test built in matcher functions
                                 "integer": "@variableType(double|array|object|integer)",
                                 "double": "@variableType(bool|double)",
                                 "array": "@variableType(int|string|any)",
-                                "boolean": "@variableType(double | int | bool)",
+                                "bool": "@variableType(double | int | bool)",
                                 "null": "@variableType(string|int|null)",
                                 "scalar": "@variableType(string|bool|scalar|array)"
                             }

@@ -150,21 +150,21 @@ Feature: Test examples from the docs
                           "string": "string value",
                           "integer": 123,
                           "double": 1.23,
-                          "boolean": true,
+                          "bool": true,
                           "null": null,
                           "object":
                           {
                             "string": "string value",
                             "integer": 123,
                             "double": 1.23,
-                            "boolean": true,
+                            "bool": true,
                             "null": null,
                             "object":
                             {
                               "string": "string value",
                               "integer": 123,
                               "double": 1.23,
-                              "boolean": true,
+                              "bool": true,
                               "null": null
                             }
                           },
@@ -179,7 +179,7 @@ Feature: Test examples from the docs
                               "string": "string value",
                               "integer": 123,
                               "double": 1.23,
-                              "boolean": true,
+                              "bool": true,
                               "null": null
                             }
                           ]
@@ -190,7 +190,7 @@ Feature: Test examples from the docs
                         '''
                         {
                           "string": "string value",
-                          "boolean": true
+                          "bool": true
                         }
                         '''
                     Then the response body contains JSON:
@@ -279,7 +279,7 @@ Feature: Test examples from the docs
                     Given the request body is:
                         '''
                         {
-                          "boolean value": true,
+                          "bool value": true,
                           "int value": 123,
                           "double value": 1.23,
                           "string value": "some string",
@@ -293,7 +293,7 @@ Feature: Test examples from the docs
                     Then the response body contains JSON:
                         '''
                         {
-                          "boolean value": "@variableType(boolean)",
+                          "bool value": "@variableType(bool)",
                           "int value": "@variableType(integer)",
                           "double value": "@variableType(double)",
                           "string value": "@variableType(string)",

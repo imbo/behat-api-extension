@@ -37,7 +37,7 @@ Feature: Test built in jwt matcher functions
                         {
                             "sub": "@variableType(string)",
                             "name": "@variableType(string)",
-                            "admin": "@variableType(boolean)"
+                            "admin": "@variableType(bool)"
                         }
                         '''
                     And the response body contains a JWT identified by "jwt3", signed with "secret":

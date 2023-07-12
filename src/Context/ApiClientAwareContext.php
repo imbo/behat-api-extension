@@ -2,7 +2,6 @@
 namespace Imbo\BehatApiExtension\Context;
 
 use Behat\Behat\Context\Context;
-use GuzzleHttp\ClientInterface;
 
 /**
  * Api client aware interface
@@ -10,11 +9,7 @@ use GuzzleHttp\ClientInterface;
 interface ApiClientAwareContext extends Context
 {
     /**
-     * Set the Guzzle client and create a pristine request instance
-     *
-     * @param ClientInterface $client
-     * @param string $baseUri
-     * @return self
+     * Initialize the Guzzle client
      */
-    public function setClient(ClientInterface $client, string $baseUri);
+    public function initializeClient(array $config): self;
 }

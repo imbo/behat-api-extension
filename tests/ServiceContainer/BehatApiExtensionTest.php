@@ -11,8 +11,7 @@ use Symfony\Component\Config\Definition\Processor;
  */
 class BehatApiExtensionTest extends TestCase
 {
-    /** @var BehatApiExtension */
-    private $extension;
+    private BehatApiExtension $extension;
 
     public function setUp(): void
     {

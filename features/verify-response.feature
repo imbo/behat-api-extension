@@ -42,7 +42,7 @@ Feature: Test Then steps
                     And the "x-foo" response header matches "/FOO/i"
                     And the response body is:
                         '''
-                        {"null":null,"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"boolean true":true,"boolean false":false,"list":[1,2,3,[1],{"foo":"bar"}]},"types":{"string":"string","integer":123,"double":1.23,"array":[1,"2",3],"boolean":true,"null":null,"scalar":"123"}}
+                        {"null":null,"string":"value","integer":42,"float":4.2,"bool true":true,"bool false":false,"list":[1,2,3,[1],{"foo":"bar"}],"sub":{"string":"value","integer":42,"float":4.2,"bool true":true,"bool false":false,"list":[1,2,3,[1],{"foo":"bar"}]},"types":{"string":"string","integer":123,"double":1.23,"array":[1,"2",3],"bool":true,"null":null,"scalar":"123"}}
                         '''
                     And the response body is not:
                         '''
@@ -59,8 +59,8 @@ Feature: Test Then steps
                             "string": "value",
                             "integer": 42,
                             "float": 4.2,
-                            "boolean true": true,
-                            "boolean false": false,
+                            "bool true": true,
+                            "bool false": false,
                             "list": [1, 2, 3, [1], {"foo": "bar"}],
                             "list[0]": 1,
                             "list[1]": 2,
@@ -71,8 +71,8 @@ Feature: Test Then steps
                                 "string": "value",
                                 "integer": 42,
                                 "float": 4.2,
-                                "boolean true": true,
-                                "boolean false": false,
+                                "bool true": true,
+                                "bool false": false,
                                 "list": [1, 2, 3, [1], {"foo": "bar"}],
                                 "list[0]": 1,
                                 "list[1]": 2,

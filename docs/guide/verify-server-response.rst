@@ -317,21 +317,21 @@ Assume the following JSON response for the examples in this section:
       "string": "string value",
       "integer": 123,
       "double": 1.23,
-      "boolean": true,
+      "bool": true,
       "null": null,
       "object":
       {
         "string": "string value",
         "integer": 123,
         "double": 1.23,
-        "boolean": true,
+        "bool": true,
         "null": null,
         "object":
         {
           "string": "string value",
           "integer": 123,
           "double": 1.23,
-          "boolean": true,
+          "bool": true,
           "null": null
         }
       },
@@ -346,7 +346,7 @@ Assume the following JSON response for the examples in this section:
           "string": "string value",
           "integer": 123,
           "double": 1.23,
-          "boolean": true,
+          "bool": true,
           "null": null
         }
       ]
@@ -360,7 +360,7 @@ Assume the following JSON response for the examples in this section:
         """
         {
           "string": "string value",
-          "boolean": true
+          "bool": true
         }
         """
 
@@ -458,8 +458,8 @@ Variable type - ``@variableType``
 
 To be able to assert the variable type of specific values, the ``@variableType`` function can be used. The following types can be asserted:
 
-* ``boolean`` / ``bool``
-* ``integer`` / ``int``
+* ``bool`` / ``boolean``
+* ``int`` / ``integer``
 * ``double`` / ``float``
 * ``string``
 * ``array``
@@ -473,7 +473,7 @@ Given the following response:
 .. code-block:: json
 
     {
-      "boolean value": true,
+      "bool value": true,
       "int value": 123,
       "double value": 1.23,
       "string value": "some string",
@@ -490,8 +490,8 @@ the type of the values can be asserted like this:
     Then the response body contains JSON:
         """
         {
-          "boolean value": "@variableType(boolean)",
-          "int value": "@variableType(integer)",
+          "bool value": "@variableType(bool)",
+          "int value": "@variableType(int)",
           "double value": "@variableType(double)",
           "string value": "@variableType(string)",
           "array value": "@variableType(array)",
@@ -501,7 +501,7 @@ the type of the values can be asserted like this:
         }
         """
 
-The ``boolean``, ``integer`` and ``double`` types can also be expressed using ``bool``, ``int`` and ``float`` respectively. There is no difference in the actual validation being executed.
+The ``bool``, ``int`` and ``double`` types can also be expressed using ``boolean``, ``integer`` and ``float`` respectively. There is no difference in the actual validation being executed.
 
 For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
 

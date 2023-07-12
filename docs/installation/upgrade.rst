@@ -3,6 +3,35 @@ Upgrading
 
 This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
+Migration from v4.x to v5.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+Internal HTTP client configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Previous versions of the extension suggested using the ``GuzzleHttp\Client::getConfig()`` method to customize the internal HTTP client. This method has been deprecated, and the initialization of the internal HTTP client in the extension had to be changed as a consequence. Refer to the :ref:`configure-the-api-client` section for more information.
+
+Migration from v3.x to v4.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+PHP version requirement
+^^^^^^^^^^^^^^^^^^^^^^^
+
+``v4.x`` requires ``PHP >= 8.1``.
+
+Type hints
+^^^^^^^^^^
+
+Type hints have been added to a plethora of the code base, so child classes will most likely break as a consequence. You will have to add missing type hints if you have extended any classes that have type hints added to them.
+
 Migration from v2.x to v3.x
 ---------------------------
 

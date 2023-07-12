@@ -23,29 +23,21 @@ class BehatApiExtension implements ExtensionInterface
 {
     /**
      * Service ID for the comparator
-     *
-     * @var string
      */
     public const COMPARATOR_SERVICE_ID = 'api_extension.comparator';
 
     /**
      * Service ID for the client initializer
-     *
-     * @var string
      */
     public const APICLIENT_INITIALIZER_SERVICE_ID = 'api_extension.api_client.context_initializer';
 
     /**
      * Service ID for the initializer
-     *
-     * @var string
      */
     public const COMPARATOR_INITIALIZER_SERVICE_ID = 'api_extension.comparator.context_initializer';
 
     /**
      * Config key for the extension
-     *
-     * @var string
      */
     public const CONFIG_KEY = 'api_extension';
 
@@ -54,9 +46,6 @@ class BehatApiExtension implements ExtensionInterface
         return self::CONFIG_KEY;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function initialize(ExtensionManager $extensionManager): void
     {
     }
@@ -76,7 +65,6 @@ class BehatApiExtension implements ExtensionInterface
     }
 
     /**
-     * @codeCoverageIgnore
      * @param array $config Guzzle client configuration array
      * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
@@ -103,9 +91,6 @@ class BehatApiExtension implements ExtensionInterface
         $container->setDefinition(self::COMPARATOR_INITIALIZER_SERVICE_ID, $comparatorInitializerDefinition);
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function process(ContainerBuilder $container): void
     {
     }

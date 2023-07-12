@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class GreaterThanTest extends TestCase
 {
-    /** @var GreaterThan */
-    private $matcher;
+    private GreaterThan $matcher;
 
     public function setUp(): void
     {
@@ -18,9 +17,9 @@ class GreaterThanTest extends TestCase
     }
 
     /**
-     * @return array{number: int|float|string, min: int|float|string}[]
+     * @return array<array{number:int|float|string,min:int|float|string}>
      */
-    public function getValuesForMatching(): array
+    public static function getValuesForMatching(): array
     {
         return [
             'integer' => [
@@ -39,9 +38,9 @@ class GreaterThanTest extends TestCase
     }
 
     /**
-     * @return array{number: int|string|float, min: int|string|float, errorMessage: string}[]
+     * @return array<array{number:int|string|float,min:int|string|float,errorMessage:string}>
      */
-    public function getFailingValues(): array
+    public static function getFailingValues(): array
     {
         return [
             [
@@ -70,10 +69,8 @@ class GreaterThanTest extends TestCase
     /**
      * @dataProvider getValuesForMatching
      * @covers ::__invoke
-     * @param int|float|string $number
-     * @param int|float|string $min
      */
-    public function testCanCompareValuesOfType($number, $min): void
+    public function testCanCompareValuesOfType(int|float|string $number, int|float|string $min): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
@@ -107,10 +104,8 @@ class GreaterThanTest extends TestCase
     /**
      * @dataProvider getFailingValues
      * @covers ::__invoke
-     * @param int|string|float $number
-     * @param int|string|float $min
      */
-    public function testThrowsExceptionWhenComparisonFails($number, $min, string $errorMessage): void
+    public function testThrowsExceptionWhenComparisonFails(int|string|float $number, int|string|float $min, string $errorMessage): void
     {
         $matcher = $this->matcher;
         $this->expectException(InvalidArgumentException::class);

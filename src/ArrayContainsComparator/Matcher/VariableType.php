@@ -11,12 +11,12 @@ class VariableType
     /**
      * Valid types
      *
-     * @var string[]
+     * @var array<string>
      */
-    protected $validTypes = [
+    protected array $validTypes = [
         'int', 'integer',
         'bool', 'boolean',
-        'float', 'double',
+        'double', 'float',
         'string',
         'array',
         'object',
@@ -32,7 +32,7 @@ class VariableType
      * @param string $expectedTypes The expected types of $variable, separated by |
      * @throws InvalidArgumentException
      */
-    public function __invoke($variable, string $expectedTypes): bool
+    public function __invoke(mixed $variable, string $expectedTypes): bool
     {
         $expectedTypes = $this->normalizeTypes($expectedTypes);
 
@@ -76,15 +76,16 @@ class VariableType
      * Normalize the type
      *
      * @param string $types The types from the scenario
-     * @return string[] Returns an array of normalized types
+     * @return array<string> Returns an array of normalized types
      */
     protected function normalizeTypes(string $types): array
     {
-        $types = array_map(function (string $type): string {
-            return trim(strtolower($type));
-        }, explode('|', $types));
+        $types = array_map(
+            fn (string $type): string => trim(strtolower($type)),
+            explode('|', $types),
+        );
 
-        /** @var string[] */
+        /** @var array<string> */
         return preg_replace(
             ['/^bool$/i', '/^int$/i', '/^float$/i'],
             ['boolean', 'integer', 'double'],

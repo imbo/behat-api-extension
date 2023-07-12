@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RegExpTest extends TestCase
 {
-    /** @var RegExp */
-    private $matcher;
+    private RegExp $matcher;
 
     public function setUp(): void
     {
@@ -18,9 +17,9 @@ class RegExpTest extends TestCase
     }
 
     /**
-     * @return array<string, array{subject: float|int|string, pattern: string}>
+     * @return array<string,array{subject:float|int|string,pattern:string}>
      */
-    public function getSubjectsAndPatterns(): array
+    public static function getSubjectsAndPatterns(): array
     {
         return [
             'a regular string' => [
@@ -39,22 +38,10 @@ class RegExpTest extends TestCase
     }
 
     /**
-     * @covers ::__invoke
-     */
-    public function testThrowsExceptionIfSubjectIsNotASupportedVariableType(): void
-    {
-        $matcher = $this->matcher;
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Regular expression matching can only be applied to strings, integers or doubles, got "boolean".');
-        $matcher(true, '/true/');
-    }
-
-    /**
      * @dataProvider getSubjectsAndPatterns
      * @covers ::__invoke
-     * @param float|int|string $subject
      */
-    public function testCanMatchRegularExpressionPatternsAgainst($subject, string $pattern): void
+    public function testCanMatchRegularExpressionPatternsAgainst(float|int|string $subject, string $pattern): void
     {
         $matcher = $this->matcher;
         $this->assertTrue($matcher($subject, $pattern));

@@ -54,7 +54,7 @@ jobs:
         run: vendor/bin/psalm
 
       - name: Check coding standard
-        run: php-cs-fixer fix --dry-run --diff
+        run: PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff
 
       - uses: actions/upload-artifact@v3
         if: always()

@@ -19,6 +19,10 @@ class RegExp
     {
         $subject = (string) $subject;
 
+        if ('' === $pattern) {
+            throw new InvalidArgumentException('Pattern can not be empty.');
+        }
+
         if (!preg_match($pattern, $subject)) {
             throw new InvalidArgumentException(sprintf(
                 'Subject "%s" did not match pattern "%s".',

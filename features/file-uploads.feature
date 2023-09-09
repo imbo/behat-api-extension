@@ -39,7 +39,7 @@ Feature: Test file uploading
                         },
                         "file2": {
                             "name": "attach-files.feature",
-                            "type": "",
+                            "type": "application/octet-stream",
                             "tmp_name": "@regExp(/.*/)",
                             "error": 0,
                             "size": "@regExp(/[0-9]+/)"

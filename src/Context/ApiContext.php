@@ -187,17 +187,17 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Send OAuth request using password grant and set Authorization header.
      *
-     * @param string $path         The path to get the token from
-     * @param string $username     The username to authenticate with
-     * @param string $password     The password to authenticate with
-     * @param string $scope        The scope to authenticate in
-     * @param string $clientId     The client_id to send
-     * @param string $clientSecret Optional client_secret to send
+     * @param string $path The path to get the token from
+     * @param string $username The username to authenticate with
+     * @param string $password The password to authenticate with
+     * @param string $scope The scope to authenticate in
+     * @param string $clientId The client_id to send
+     * @param string|null $clientSecret Optional client_secret to send
      *
      * @Given I get an OAuth token using password grant from :path with :username and :password in scope :scope using client ID :clientId
      * @Given I get an OAuth token using password grant from :path with :username and :password in scope :scope using client ID :clientId and client secret :clientSecret
      */
-    public function oauthWithPasswordGrantInScope(string $path, string $username, string $password, string $scope, string $clientId, string $clientSecret = null): static
+    public function oauthWithPasswordGrantInScope(string $path, string $username, string $password, string $scope, string $clientId, ?string $clientSecret = null): static
     {
         $this->requestOptions['form_params'] = array_filter([
             'grant_type'    => 'password',
@@ -435,12 +435,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Request a path
      *
      * @param string $path The path to request
-     * @param string $method The HTTP method to use
+     * @param string|null $method The HTTP method to use
      *
      * @When I request :path
      * @When I request :path using HTTP :method
      */
-    public function requestPath(string $path, string $method = null): static
+    public function requestPath(string $path, ?string $method = null): static
     {
         $this->setRequestPath($path);
 
@@ -1426,11 +1426,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Convert some variable to a JSON-array
      *
      * @param string $value The value to decode
-     * @param string $errorMessage Optional error message
+     * @param string|null $errorMessage Optional error message
      * @throws InvalidArgumentException
      * @return array<mixed>
      */
-    protected function jsonDecode(string $value, string $errorMessage = null): array
+    protected function jsonDecode(string $value, ?string $errorMessage = null): array
     {
         /** @var array<mixed> */
         $decoded = json_decode($value, true);

@@ -60,11 +60,11 @@ class ArrayMinLengthTest extends TestCase
      * @dataProvider getArraysAndMinLengths
      * @covers ::__invoke
      */
-    public function testCanMatchMinLengthOfArrays(array $array, int $min): void
+    public function testCanMatchMinLengthOfArrays(array $list, int $min): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
-            $matcher($array, $min),
+            $matcher($list, $min),
             'Matcher is supposed to return true.',
         );
     }

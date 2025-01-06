@@ -44,12 +44,12 @@ class ArrayLengthTest extends TestCase
     {
         return [
             [
-                'array' => [1, 2],
+                'list' => [1, 2],
                 'maxLength' => 1,
                 'message' => 'Expected array to have exactly 1 entries, actual length: 2.',
             ],
             [
-                'array' => [],
+                'list' => [],
                 'maxLength' => 2,
                 'message' => 'Expected array to have exactly 2 entries, actual length: 0.',
             ],
@@ -60,12 +60,12 @@ class ArrayLengthTest extends TestCase
      * @dataProvider getArraysAndLengths
      * @covers ::__invoke
      */
-    public function testCanMatchLengthOfArrays(array $array, int $length): void
+    public function testCanMatchLengthOfArrays(array $list, int $length): void
     {
         $matcher = $this->matcher;
 
         $this->assertTrue(
-            $matcher($array, $length),
+            $matcher($list, $length),
             'Matcher is supposed to return true.',
         );
     }
@@ -85,11 +85,11 @@ class ArrayLengthTest extends TestCase
      * @dataProvider getValuesThatFail
      * @covers ::__invoke
      */
-    public function testThrowsExceptionWhenLengthIsNotCorrect(array $array, int $length, string $message): void
+    public function testThrowsExceptionWhenLengthIsNotCorrect(array $list, int $maxLength, string $message): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
-        $matcher($array, $length);
+        $matcher($list, $maxLength);
     }
 }

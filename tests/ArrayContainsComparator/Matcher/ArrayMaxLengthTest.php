@@ -60,11 +60,11 @@ class ArrayMaxLengthTest extends TestCase
      * @dataProvider getArraysAndLengths
      * @covers ::__invoke
      */
-    public function testCanMatchMaxLengthOfArrays(array $array, int $length): void
+    public function testCanMatchMaxLengthOfArrays(array $list, int $length): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
-            $matcher($array, $length),
+            $matcher($list, $length),
             'Matcher is supposed to return true.',
         );
     }

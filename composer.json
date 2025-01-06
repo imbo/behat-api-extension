@@ -28,7 +28,7 @@
   },
   "require-dev": {
     "imbo/imbo-coding-standard": "^2.0",
-    "phpunit/phpunit": "^10.0",
+    "phpunit/phpunit": "^11.5",
     "slim/psr7": "^1.3",
     "slim/slim": "^4.7",
     "symfony/process": "^7.2",

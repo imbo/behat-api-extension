@@ -99,19 +99,15 @@ class ApiContextTest extends TestCase
         return [
             [
                 'code' => 200,
-                'others' => [300, 400, 500],
             ],
             [
                 'code' => 300,
-                'others' => [200, 400, 500],
             ],
             [
                 'code' => 400,
-                'others' => [200, 300, 500],
             ],
             [
                 'code' => 500,
-                'others' => [200, 300, 400],
             ],
         ];
     }

@@ -52,6 +52,8 @@ jobs:
 
       - name: Check coding standard
         run: php-cs-fixer fix --dry-run --diff
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
 
       - uses: actions/upload-artifact@v4
         if: always()

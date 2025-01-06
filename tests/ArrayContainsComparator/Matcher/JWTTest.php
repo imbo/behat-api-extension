@@ -4,11 +4,11 @@ namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT
- */
+#[CoversClass(JWT::class)]
 class JWTTest extends TestCase
 {
     private JWT $matcher;
@@ -45,9 +45,6 @@ class JWTTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenMatchingAgainstJwtThatDoesNotExist(): void
     {
         $matcher = $this->matcher;
@@ -56,10 +53,6 @@ class JWTTest extends TestCase
         $matcher('some jwt', 'some name');
     }
 
-    /**
-     * @covers ::addToken
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenJwtDoesNotMatch(): void
     {
         $matcher = $this->matcher->addToken('some name', ['some' => 'data'], 'secret');
@@ -71,10 +64,7 @@ class JWTTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::__invoke
-     * @dataProvider getJwt
-     */
+    #[DataProvider('getJwt')]
     public function testCanMatchJwt(string $jwt, string $name, array $payload, string $secret): void
     {
         $matcher = $this->matcher->addToken($name, $payload, $secret);
@@ -84,10 +74,6 @@ class JWTTest extends TestCase
         ));
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess(): void
     {
         $comparator = $this->createConfiguredMock(ArrayContainsComparator::class, [

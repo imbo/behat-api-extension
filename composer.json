@@ -48,7 +48,6 @@
     "ci": [
       "@phpunit",
       "@behat",
-      "@sa",
       "@cs"
     ],
     "test": [

@@ -2,11 +2,11 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\RegExp
- */
+#[CoversClass(RegExp::class)]
 class RegExpTest extends TestCase
 {
     private RegExp $matcher;
@@ -37,19 +37,13 @@ class RegExpTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getSubjectsAndPatterns
-     * @covers ::__invoke
-     */
+    #[DataProvider('getSubjectsAndPatterns')]
     public function testCanMatchRegularExpressionPatternsAgainst(float|int|string $subject, string $pattern): void
     {
         $matcher = $this->matcher;
         $this->assertTrue($matcher($subject, $pattern));
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionIfPatternDoesNotMatchSubject(): void
     {
         $matcher = $this->matcher;

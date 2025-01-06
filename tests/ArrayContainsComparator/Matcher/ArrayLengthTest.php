@@ -2,11 +2,11 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength
- */
+#[CoversClass(ArrayLength::class)]
 class ArrayLengthTest extends TestCase
 {
     private ArrayLength $matcher;
@@ -56,10 +56,7 @@ class ArrayLengthTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getArraysAndLengths
-     * @covers ::__invoke
-     */
+    #[DataProvider('getArraysAndLengths')]
     public function testCanMatchLengthOfArrays(array $list, int $length): void
     {
         $matcher = $this->matcher;
@@ -70,9 +67,6 @@ class ArrayLengthTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -81,10 +75,7 @@ class ArrayLengthTest extends TestCase
         $matcher(['foo' => 'bar'], 123);
     }
 
-    /**
-     * @dataProvider getValuesThatFail
-     * @covers ::__invoke
-     */
+    #[DataProvider('getValuesThatFail')]
     public function testThrowsExceptionWhenLengthIsNotCorrect(array $list, int $maxLength, string $message): void
     {
         $this->expectException(InvalidArgumentException::class);

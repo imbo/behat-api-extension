@@ -92,7 +92,7 @@ class ApiContextTest extends TestCase
     }
 
     /**
-     * @return array<array{code:int,others:array<int>}>
+     * @return array<array{code:int}>
      */
     public static function getResponseCodes(): array
     {

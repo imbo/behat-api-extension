@@ -15,6 +15,10 @@ After this has been started you can execute the test suites by running:
     ./vendor/bin/behat --strict
     ./vendor/bin/phpunit
 
+[PHPStan](https://phpstan.org/) is used for static code analysis:
+
+    vendor/bin/phpstan
+
 ## Documentation
 
 The extension uses [Sphinx](http://www.sphinx-doc.org/en/stable/) for documentation, and all end-user documentation resides in the `docs` directory. To generate the current documentation after checking out your fork simply run the `docs` composer script:

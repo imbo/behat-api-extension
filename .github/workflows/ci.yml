@@ -50,6 +50,9 @@ jobs:
       - name: Run integration tests
         run: vendor/bin/behat --strict
 
+      - name: Run static code analysis
+        run: vendor/bin/phpstan
+
       - name: Check coding standard
         run: php-cs-fixer fix --dry-run --diff
         env:

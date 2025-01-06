@@ -38,7 +38,7 @@ class ArrayLengthTest extends TestCase
     }
 
     /**
-     * @return array<array{array:array<int>,maxLength:int,message:string}>
+     * @return array<array{list:array<int>,maxLength:int,message:string}>
      */
     public static function getValuesThatFail(): array
     {

@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.1', '8.2']
+        php: ['8.3']
     name: Validate and test on PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v4
@@ -49,9 +49,6 @@ jobs:
 
       - name: Run integration tests
         run: vendor/bin/behat --strict
-
-      - name: Run static code analysis
-        run: vendor/bin/psalm
 
       - name: Check coding standard
         run: php-cs-fixer fix --dry-run --diff

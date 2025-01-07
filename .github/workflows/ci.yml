@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.1', '8.2']
+        php: ['8.3', '8.4']
     name: Validate and test on PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v4
@@ -51,10 +51,12 @@ jobs:
         run: vendor/bin/behat --strict
 
       - name: Run static code analysis
-        run: vendor/bin/psalm
+        run: vendor/bin/phpstan
 
       - name: Check coding standard
         run: php-cs-fixer fix --dry-run --diff
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
 
       - uses: actions/upload-artifact@v4
         if: always()

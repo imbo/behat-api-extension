@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException
- */
+#[CoversClass(ArrayContainsComparatorException::class)]
 class ArrayContainsComparatorExceptionTest extends TestCase
 {
     /**
@@ -57,10 +57,7 @@ MESSAGE
         ];
     }
 
-    /**
-     * @dataProvider getExceptionData
-     * @covers ::__construct
-     */
+    #[DataProvider('getExceptionData')]
     public function testCanProperlyFormatErrorMessages(string $message, array $needle, array $haystack, string $formattedMessage): void
     {
         $this->expectException(ArrayContainsComparatorException::class);

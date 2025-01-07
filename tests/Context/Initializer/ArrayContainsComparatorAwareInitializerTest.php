@@ -4,17 +4,13 @@ namespace Imbo\BehatApiExtension\Context\Initializer;
 use Imbo\BehatApiExtension\ArrayContainsComparator;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ArrayContainsComparatorAwareInitializer
- */
+#[CoversClass(ArrayContainsComparatorAwareInitializer::class)]
 class ArrayContainsComparatorAwareInitializerTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     */
     public function testInitializerInjectsDefaultMatcherFunctions(): void
     {
         /** @var ArrayContainsComparator&MockObject */
@@ -40,9 +36,6 @@ class ArrayContainsComparatorAwareInitializerTest extends TestCase
         new ArrayContainsComparatorAwareInitializer($comparator);
     }
 
-    /**
-     * @covers ::initializeContext
-     */
     public function testInjectsComparatorWhenInitializingContext(): void
     {
         /** @var ArrayContainsComparator&MockObject */

@@ -15,9 +15,9 @@ After this has been started you can execute the test suites by running:
     ./vendor/bin/behat --strict
     ./vendor/bin/phpunit
 
-Psalm is used for static code analysis:
+[PHPStan](https://phpstan.org/) is used for static code analysis:
 
-    vendor/bin/psalm
+    vendor/bin/phpstan
 
 ## Documentation
 

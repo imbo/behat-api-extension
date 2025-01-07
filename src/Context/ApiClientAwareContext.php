@@ -10,6 +10,8 @@ interface ApiClientAwareContext extends Context
 {
     /**
      * Initialize the Guzzle client
+     *
+     * @param array<mixed> $config
      */
     public function initializeClient(array $config): self;
 }

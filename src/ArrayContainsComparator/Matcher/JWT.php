@@ -19,7 +19,7 @@ class JWT
     /**
      * JWT tokens present in the response body
      *
-     * @var array<string,array{payload:array,secret:string}>
+     * @var array<string,array{payload:array<mixed>,secret:string}>
      */
     private array $jwtTokens = [];
 
@@ -41,6 +41,8 @@ class JWT
 
     /**
      * Add a JWT token that can be matched
+     *
+     * @param array<mixed> $payload
      */
     public function addToken(string $name, array $payload, string $secret): self
     {

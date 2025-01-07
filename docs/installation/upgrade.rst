@@ -3,6 +3,18 @@ Upgrading
 
 This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
+Migration from v5.x to v6.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+PHP version requirement
+^^^^^^^^^^^^^^^^^^^^^^^
+
+``v6.x`` requires ``PHP >= 8.3``.
+
 Migration from v4.x to v5.x
 ---------------------------
 

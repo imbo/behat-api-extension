@@ -86,6 +86,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     /**
      * Set the client instance
      *
+     * @param array<mixed> $config
      * @throws InvalidArgumentException
      */
     public function initializeClient(array $config): static
@@ -1409,7 +1410,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Get the response body as an array
      *
      * @throws InvalidArgumentException
-     * @return array
+     * @return array<mixed>
      */
     protected function getResponseBodyArray(): array
     {

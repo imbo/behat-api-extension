@@ -2,11 +2,11 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayLength
- */
+#[CoversClass(ArrayLength::class)]
 class ArrayLengthTest extends TestCase
 {
     private ArrayLength $matcher;
@@ -38,41 +38,35 @@ class ArrayLengthTest extends TestCase
     }
 
     /**
-     * @return array<array{array:array<int>,maxLength:int,message:string}>
+     * @return array<array{list:array<int>,maxLength:int,message:string}>
      */
     public static function getValuesThatFail(): array
     {
         return [
             [
-                'array' => [1, 2],
+                'list' => [1, 2],
                 'maxLength' => 1,
                 'message' => 'Expected array to have exactly 1 entries, actual length: 2.',
             ],
             [
-                'array' => [],
+                'list' => [],
                 'maxLength' => 2,
                 'message' => 'Expected array to have exactly 2 entries, actual length: 0.',
             ],
         ];
     }
 
-    /**
-     * @dataProvider getArraysAndLengths
-     * @covers ::__invoke
-     */
-    public function testCanMatchLengthOfArrays(array $array, int $length): void
+    #[DataProvider('getArraysAndLengths')]
+    public function testCanMatchLengthOfArrays(array $list, int $length): void
     {
         $matcher = $this->matcher;
 
         $this->assertTrue(
-            $matcher($array, $length),
+            $matcher($list, $length),
             'Matcher is supposed to return true.',
         );
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenMatchingLengthAgainstAnythingOtherThanAnArray(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -81,15 +75,12 @@ class ArrayLengthTest extends TestCase
         $matcher(['foo' => 'bar'], 123);
     }
 
-    /**
-     * @dataProvider getValuesThatFail
-     * @covers ::__invoke
-     */
-    public function testThrowsExceptionWhenLengthIsNotCorrect(array $array, int $length, string $message): void
+    #[DataProvider('getValuesThatFail')]
+    public function testThrowsExceptionWhenLengthIsNotCorrect(array $list, int $maxLength, string $message): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($message);
         $matcher = $this->matcher;
-        $matcher($array, $length);
+        $matcher($list, $maxLength);
     }
 }

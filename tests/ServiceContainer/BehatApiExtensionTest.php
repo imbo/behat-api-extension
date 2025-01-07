@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension
- */
+#[CoversClass(BehatApiExtension::class)]
 class BehatApiExtensionTest extends TestCase
 {
     private BehatApiExtension $extension;
@@ -18,10 +17,6 @@ class BehatApiExtensionTest extends TestCase
         $this->extension = new BehatApiExtension();
     }
 
-    /**
-     * @covers ::getConfigKey
-     * @covers ::configure
-     */
     public function testCanBuildConfiguration(): void
     {
         /** @var ArrayNodeDefinition */
@@ -40,9 +35,6 @@ class BehatApiExtensionTest extends TestCase
         ], $config);
     }
 
-    /**
-     * @covers ::configure
-     */
     public function testCanOverrideDefaultValuesWhenBuildingConfiguration(): void
     {
         /** @var ArrayNodeDefinition */

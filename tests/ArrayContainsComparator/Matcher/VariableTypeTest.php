@@ -2,11 +2,11 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\VariableType
- */
+#[CoversClass(VariableType::class)]
 class VariableTypeTest extends TestCase
 {
     private VariableType $matcher;
@@ -158,11 +158,7 @@ class VariableTypeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getValuesAndTypes
-     * @covers ::__invoke
-     * @covers ::normalizeTypes
-     */
+    #[DataProvider('getValuesAndTypes')]
     public function testCanMatchValuesOfType(mixed $value, string $type): void
     {
         $matcher = $this->matcher;
@@ -172,9 +168,6 @@ class VariableTypeTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenGivenInvalidType(): void
     {
         $matcher = $this->matcher;
@@ -183,10 +176,7 @@ class VariableTypeTest extends TestCase
         $matcher('foo', 'resource');
     }
 
-    /**
-     * @dataProvider getInvalidMatches
-     * @covers ::__invoke
-     */
+    #[DataProvider('getInvalidMatches')]
     public function testThrowsExceptionWhenTypeOfValueDoesNotMatchExpectedType(mixed $value, string $type, string $message): void
     {
         $matcher = $this->matcher;

@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 namespace Imbo\BehatApiExtension\Exception;
 
-use Exception;
+use Throwable;
 
 /**
  * Array contains comparator exception
  */
 class ArrayContainsComparatorException extends AssertionFailedException
 {
-    public function __construct(string $message, int $code = 0, ?Exception $previous = null, mixed $needle = null, mixed $haystack = null)
+    public function __construct(string $message, int $code = 0, ?Throwable $previous = null, mixed $needle = null, mixed $haystack = null)
     {
         $message .= PHP_EOL . PHP_EOL . sprintf(
             <<<MESSAGE

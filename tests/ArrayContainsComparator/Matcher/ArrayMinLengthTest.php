@@ -2,11 +2,11 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\ArrayMinLength
- */
+#[CoversClass(ArrayMinLength::class)]
 class ArrayMinLengthTest extends TestCase
 {
     private ArrayMinLength $matcher;
@@ -56,22 +56,16 @@ class ArrayMinLengthTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getArraysAndMinLengths
-     * @covers ::__invoke
-     */
-    public function testCanMatchMinLengthOfArrays(array $array, int $min): void
+    #[DataProvider('getArraysAndMinLengths')]
+    public function testCanMatchMinLengthOfArrays(array $list, int $min): void
     {
         $matcher = $this->matcher;
         $this->assertTrue(
-            $matcher($array, $min),
+            $matcher($list, $min),
             'Matcher is supposed to return true.',
         );
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionWhenMatchingAgainstAnythingOtherThanAnArray(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -80,10 +74,7 @@ class ArrayMinLengthTest extends TestCase
         $matcher(['foo' => 'bar'], 123);
     }
 
-    /**
-     * @dataProvider getValuesThatFail
-     * @covers ::__invoke
-     */
+    #[DataProvider('getValuesThatFail')]
     public function testThrowsExceptionWhenLengthIsTooLong(array $array, int $minLength, string $message): void
     {
         $this->expectException(InvalidArgumentException::class);

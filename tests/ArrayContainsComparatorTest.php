@@ -4,11 +4,11 @@ namespace Imbo\BehatApiExtension;
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator
- */
+#[CoversClass(ArrayContainsComparator::class)]
 class ArrayContainsComparatorTest extends TestCase
 {
     private ArrayContainsComparator $comparator;
@@ -19,7 +19,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<string,array{needle:array,haystack:array}>
+     * @return array<string,array{needle:array<mixed>,haystack:array<mixed>}>
      */
     public static function getDataForInArrayCheck(): array
     {
@@ -165,7 +165,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<string,array{needle:array,haystack:array}>
+     * @return array<string,array{needle:array<mixed>,haystack:array<mixed>}>
      */
     public static function getDataForCompareCheck(): array
     {
@@ -210,7 +210,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{needle:array,haystack:array}>
+     * @return array<array{needle:array<mixed>,haystack:array<mixed>}>
      */
     public static function getDataForSpecificKeyInListChecks(): array
     {
@@ -509,9 +509,6 @@ EXCEPTION
         ];
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionWhenMatchingANumericallyIndexedArrayAgainstAnAssociativeArray(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -539,14 +536,7 @@ EXCEPTION
         $this->comparator->compare([1, 2, 3], ['foo' => 'bar']);
     }
 
-    /**
-     * @dataProvider getDataForInArrayCheck
-     * @covers ::compare
-     * @covers ::inArray
-     * @covers ::compareValues
-     * @covers ::arrayIsList
-     * @covers ::arrayIsObject
-     */
+    #[DataProvider('getDataForInArrayCheck')]
     public function testCanRecursivelyDoInArrayChecksWith(array $needle, array $haystack): void
     {
         $this->assertTrue(
@@ -555,10 +545,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::inArray
-     */
     public function testThrowsExceptionWhenNeedleValueIsAListAndHaystackDoesNotContainAnyLists(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -584,10 +570,6 @@ EXCEPTION
         $this->comparator->compare([[1]], [1]);
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::inArray
-     */
     public function testThrowsExceptionWhenNeedleValueIsAnObjectAndHaystackDoesNotContainAnyObjects(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -621,10 +603,6 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::inArray
-     */
     public function testThrowsExceptionWhenHaystackListIsMissingValuesFromNeedleList(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -668,10 +646,6 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::inArray
-     */
     public function testThrowsExceptionWhenHaystackObjectIsMissingValuesFromNeedleObject(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -735,13 +709,7 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @dataProvider getDataForCompareCheck
-     * @covers ::compare
-     * @covers ::compareValues
-     * @covers ::arrayIsList
-     * @covers ::arrayIsObject
-     */
+    #[DataProvider('getDataForCompareCheck')]
     public function testCanRecursivelyCompareAssociativeArraysWith(array $needle, array $haystack): void
     {
         $this->assertTrue(
@@ -750,9 +718,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionWhenComparingObjectsAndKeyIsMissingFromHaystack(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -785,9 +750,6 @@ EXCEPTION
             ], ]);
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionWhenRegularStringKeyValueDoesNotMatch(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -817,10 +779,6 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::compareValues
-     */
     public function testCanRecursivelyMatchKeysInObjects(): void
     {
         $this->assertTrue(
@@ -849,9 +807,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionWhenRegularStringKeyValueInDeepObjectDoesNotMatch(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -893,11 +848,7 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @dataProvider getDataForSpecificKeyInListChecks
-     * @covers ::compare
-     * @covers ::compareValues
-     */
+    #[DataProvider('getDataForSpecificKeyInListChecks')]
     public function testCanCompareSpecificIndexesInAListWith(array $needle, array $haystack): void
     {
         $this->assertTrue(
@@ -906,9 +857,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatDoesNotExist(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -938,10 +886,7 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @dataProvider getDataForSpecificKeyInListChecksWithInvalidData
-     * @covers ::compare
-     */
+    #[DataProvider('getDataForSpecificKeyInListChecksWithInvalidData')]
     public function testThrowsExceptionWhenTargetingAListIndexWithAKeyThatContains(array $needle, array $haystack, string $exceptionMessage): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -949,9 +894,6 @@ EXCEPTION
         $this->comparator->compare($needle, $haystack);
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionWhenTargetingAListIndexThatDoesNotExist(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -987,9 +929,6 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @covers ::compare
-     */
     public function testThrowsExceptionOnValueMismatchWhenTargetingSpecificIndexInList(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -1015,12 +954,7 @@ EXCEPTION
         ]);
     }
 
-    /**
-     * @dataProvider getCustomFunctionsAndData
-     * @covers ::addFunction
-     * @covers ::compare
-     * @covers ::compareValues
-     */
+    #[DataProvider('getCustomFunctionsAndData')]
     public function testCanUseCustomFunctionMatcher(string $function, callable $callback, array $needle, array $haystack): void
     {
         $this->assertTrue(
@@ -1031,10 +965,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::compareValues
-     */
     public function testPerformsARegularStringComparisonWhenSpecifiedCustomFunctionMatcherDoesNotExist(): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -1063,12 +993,7 @@ EXCEPTION
         );
     }
 
-    /**
-     * @dataProvider getCustomFunctionsAndDataThatWillFail
-     * @covers ::addFunction
-     * @covers ::compare
-     * @covers ::compareValues
-     */
+    #[DataProvider('getCustomFunctionsAndDataThatWillFail')]
     public function testThrowsExceptionWhenCustomFunctionMatcherFails(string $function, callable $callback, array $needle, array $haystack, string $errorMessage): void
     {
         $this->expectException(ArrayContainsComparatorException::class);
@@ -1081,10 +1006,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::compare
-     * @covers ::inArray
-     */
     public function testSupportsInArrayCheckWhenListsAreInADeepStructure(): void
     {
         $needle = [
@@ -1140,9 +1061,6 @@ EXCEPTION
         $this->assertTrue($this->comparator->compare($needle, $haystack));
     }
 
-    /**
-     * @covers ::getMatcherFunction
-     */
     public function testCanReturnRegisteredMatcherFunction(): void
     {
         $f = fn (): bool => true;
@@ -1154,9 +1072,6 @@ EXCEPTION
         );
     }
 
-    /**
-     * @covers ::getMatcherFunction
-     */
     public function testThrowsExceptionWhenGettingFunctionThatDoesNotExist(): void
     {
         $this->expectException(InvalidArgumentException::class);

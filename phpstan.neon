@@ -1,0 +1,14 @@
+parameters:
+	level: 8
+	paths:
+		- src
+		- tests
+	ignoreErrors:
+		-
+			message: '#Method [a-zA-Z0-9\\_]+::test#'
+			identifier: missingType.iterableValue
+			path: tests
+		-
+			message: '#Property [a-zA-Z0-9\\_]+::\$historyContainer#'
+			identifier: assign.propertyType
+			path: tests/Context/ApiContextTest.php

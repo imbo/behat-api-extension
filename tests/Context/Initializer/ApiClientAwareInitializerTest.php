@@ -2,18 +2,13 @@
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\Context\Initializer\ApiClientAwareInitializer
- */
+#[CoversClass(ApiClientAwareInitializer::class)]
 class ApiClientAwareInitializerTest extends TestCase
 {
-    /**
-     * @covers ::initializeContext
-     * @covers ::__construct
-     */
     public function testInjectsClientWhenInitializingContext(): void
     {
         // Set up a socket for the test case, try all ports between 8000 and 8079. If no ports are

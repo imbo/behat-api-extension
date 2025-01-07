@@ -2,11 +2,11 @@
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @coversDefaultClass Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\LessThan
- */
+#[CoversClass(LessThan::class)]
 class LessThanTest extends TestCase
 {
     private LessThan $matcher;
@@ -66,10 +66,7 @@ class LessThanTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getValuesForMatching
-     * @covers ::__invoke
-     */
+    #[DataProvider('getValuesForMatching')]
     public function testCanCompareValuesOfType(int|string $number, int|string|float $max): void
     {
         $matcher = $this->matcher;
@@ -79,9 +76,6 @@ class LessThanTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionIfNumberIsNotNumeric(): void
     {
         $matcher = $this->matcher;
@@ -90,9 +84,6 @@ class LessThanTest extends TestCase
         $matcher('foo', 123);
     }
 
-    /**
-     * @covers ::__invoke
-     */
     public function testThrowsExceptionIfMaximumNumberIsNotNumeric(): void
     {
         $matcher = $this->matcher;
@@ -101,10 +92,7 @@ class LessThanTest extends TestCase
         $matcher(123, 'foo');
     }
 
-    /**
-     * @dataProvider getFailingValues
-     * @covers ::__invoke
-     */
+    #[DataProvider('getFailingValues')]
     public function testThrowsExceptionWhenComparisonFails(int|float|string $number, int|float|string $max, string $errorMessage): void
     {
         $this->expectException(InvalidArgumentException::class);

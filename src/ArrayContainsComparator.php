@@ -53,7 +53,7 @@ class ArrayContainsComparator
      * To clarify, the method (and other methods in the class) refers to "lists" and "objects". A
      * "list" is a numerically indexed array, and an "object" is an associative array.
      *
-     * @param array<scalar|array> $needle
+     * @param array<scalar|array<mixed>> $needle
      * @param array<mixed> $haystack
      */
     public function compare(array $needle, array $haystack): bool
@@ -239,8 +239,8 @@ class ArrayContainsComparator
     /**
      * Make sure all values in the $needle array is present in the $haystack array
      *
-     * @param array<array|scalar> $needle
-     * @param array $haystack
+     * @param array<array<mixed>|scalar> $needle
+     * @param array<mixed> $haystack
      */
     protected function inArray(array $needle, array $haystack): bool
     {
@@ -350,6 +350,8 @@ class ArrayContainsComparator
 
     /**
      * See if a PHP array is a JSON array
+     *
+     * @param array<mixed> $array
      */
     protected function arrayIsList(array $array): bool
     {
@@ -360,6 +362,8 @@ class ArrayContainsComparator
 
     /**
      * See if a PHP array is a JSON object
+     *
+     * @param array<mixed> $array
      */
     protected function arrayIsObject(array $array): bool
     {

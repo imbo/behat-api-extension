@@ -11,7 +11,7 @@ class ArrayLength
     /**
      * Match the exact length of an array
      *
-     * @param array $array An array
+     * @param array<mixed> $array An array
      * @param int|string $length The expected exact length of $array
      * @throws InvalidArgumentException
      */

@@ -1,5 +1,10 @@
 parameters:
-	level: 5
+	level: 6
 	paths:
 		- src
 		- tests
+	ignoreErrors:
+		-
+			message: '#Method [a-zA-Z0-9\\_]+::test#'
+			identifier: missingType.iterableValue
+			path: tests

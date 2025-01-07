@@ -11,7 +11,7 @@ class ArrayMinLength
     /**
      * Match the min length of an array
      *
-     * @param array $array An array
+     * @param array<mixed> $array An array
      * @param int|string $minLength The expected minimum length of $array
      * @throws InvalidArgumentException
      */

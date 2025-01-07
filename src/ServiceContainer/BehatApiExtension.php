@@ -65,7 +65,7 @@ class BehatApiExtension implements ExtensionInterface
     }
 
     /**
-     * @param array $config Guzzle client configuration array
+     * @param array{apiClient:array<mixed>} $config Guzzle client configuration array
      * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
     public function load(ContainerBuilder $container, array $config): void

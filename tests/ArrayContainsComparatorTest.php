@@ -19,7 +19,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<string,array{needle:array,haystack:array}>
+     * @return array<string,array{needle:array<mixed>,haystack:array<mixed>}>
      */
     public static function getDataForInArrayCheck(): array
     {
@@ -165,7 +165,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<string,array{needle:array,haystack:array}>
+     * @return array<string,array{needle:array<mixed>,haystack:array<mixed>}>
      */
     public static function getDataForCompareCheck(): array
     {
@@ -210,7 +210,7 @@ class ArrayContainsComparatorTest extends TestCase
     }
 
     /**
-     * @return array<array{needle:array,haystack:array}>
+     * @return array<array{needle:array<mixed>,haystack:array<mixed>}>
      */
     public static function getDataForSpecificKeyInListChecks(): array
     {

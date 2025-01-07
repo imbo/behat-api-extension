@@ -8,7 +8,7 @@ use Exception;
  */
 class ArrayContainsComparatorException extends AssertionFailedException
 {
-    public function __construct(string $message, int $code = 0, Exception $previous = null, mixed $needle = null, mixed $haystack = null)
+    public function __construct(string $message, int $code = 0, ?Exception $previous = null, mixed $needle = null, mixed $haystack = null)
     {
         $message .= PHP_EOL . PHP_EOL . sprintf(
             <<<MESSAGE

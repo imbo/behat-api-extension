@@ -3,7 +3,7 @@ Changelog for Behat API Extension
 
 v6.0.0
 ------
-__N/A__
+__2025-01-08__
 
 * [#139](https://github.com/imbo/behat-api-extension/pull/139): Require PHP >= 8.3
 - [#138](https://github.com/imbo/behat-api-extension/pull/138): Support for PHP 8.4 ([@LenaDooms](https://github.com/LenaDooms))

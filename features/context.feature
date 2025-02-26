@@ -19,6 +19,10 @@ Feature: Client aware context
                     return $this;
                 }
 
+                public function setJwt($jwtAlg, $jwtKey) {
+                    return $this;
+                }
+
                 /**
                  * @Then the client should be set
                  */

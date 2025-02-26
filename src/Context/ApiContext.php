@@ -5,6 +5,7 @@ use Assert\Assertion;
 use Assert\AssertionFailedException as AssertionFailure;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
+use Firebase\JWT\JWT;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -34,6 +35,26 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Base URI used by the Guzzle client
      */
     protected string $baseUri;
+
+    /**
+     * Should JWT auth be added to the request.
+     */
+    protected bool $useJwtAuth = false;
+
+    /**
+     * JWT algorithm.
+     */
+    protected string $jwtAlg;
+
+    /**
+     * JWT secret key.
+     */
+    protected string $jwtKey;
+
+    /**
+     * JWT payload.
+     */
+    protected array $jwtPayload = [];
 
     /**
      * Request instance
@@ -110,6 +131,20 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         return $this;
     }
+
+    /**
+     * Set the JWT algorithm and key
+     *
+     * @param string $jwtAlg
+     * @param string $jwtKey
+     * @return static
+     */
+      public function setJwt(string $jwtAlg, string $jwtKey): static {
+        $this->jwtAlg = $jwtAlg;
+        $this->jwtKey = $jwtKey;
+
+        return $this;
+      }
 
     /**
      * Attach a file to the request
@@ -246,6 +281,68 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         );
 
         return $this;
+    }
+
+    /**
+     * Enable JWT authentication for the next request
+     *
+     * @return static
+     *
+     * @Given I am authenticating with JWT
+     */
+    public function useJwtAuth(): static {
+      $this->useJwtAuth = true;
+
+      return $this;
+    }
+
+    /**
+     * Set the JWT secret and algorithm to be used in the next request.
+     *
+     * @param string $secret The secret key
+     * @param ?string $algorithm The JWT algorithm (optional)
+     * @return static
+     *
+     * @Given I use JWT authentication with the key :secret
+     * @Given I use JWT authentication with the key :secret and algorithm :algorithm
+     * @Given the JWT will use the key :secret
+     * @Given the JWT will use the key :secret and algorithm :algorithm
+     */
+    public function setJwtSecret(string $secret, ?string $algorithm = null): static {
+      $this->useJwtAuth = true;
+      $this->setJwt($algorithm ?? $this->jwtAlg, $secret);
+      return $this;
+    }
+
+    /**
+     * Add a JWT claim to be used in the next request
+     *
+     * @param string $claim The claim name
+     * @param string $value The claim value
+     * @return static
+     *
+     * @Given the JWT will have claim :claim with value :value
+     * @Given I use JWT authentication with claim :claim and value :value
+     */
+    public function addJwtClaim(string $claim, string $value): static {
+      $this->useJwtAuth = true;
+      if (in_array($claim, ['exp', 'nbf', 'iat']) && !is_numeric($value)) {
+        $value = strtotime($value);
+      }
+      // Support for a simple nested (namespaced) claim.
+      if (preg_match('/(.+)\[(.+)\]/', $claim, $matches)) {
+        $claim = $matches[1];
+        $value = [
+          $matches[2] => $value,
+        ];
+      }
+      if (isset($this->jwtPayload[$claim]) && is_array($this->jwtPayload[$claim])) {
+        $this->jwtPayload[$claim] = array_merge($this->jwtPayload[$claim], (array) $value);
+      } else {
+        $this->jwtPayload[$claim] = $value;
+      }
+
+      return $this;
     }
 
     /**
@@ -1219,6 +1316,12 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     {
         if (!empty($this->requestOptions['form_params']) && !$this->forceHttpMethod) {
             $this->setRequestMethod('POST');
+        }
+
+        if ($this->useJwtAuth) {
+          unset($this->requestOptions['auth']);
+          $token = JWT::encode($this->jwtPayload, $this->jwtKey, $this->jwtAlg);
+          $this->setRequestHeader('Authorization', 'Bearer ' . $token);
         }
 
         if (!empty($this->requestOptions['multipart']) && !empty($this->requestOptions['form_params'])) {

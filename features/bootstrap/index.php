@@ -133,18 +133,6 @@ $app->any('/basicAuth', function (Request $request, Response $response) {
 });
 
 /**
- * Return a success message given the correct JWT credentials
- */
-$app->any('/jwtAuth', function(Request $request, Response $response) {
-  // todo - JWT auth here.
-  $response->getBody()->write(json_encode([
-    'success' => 'yes',
-  ]));
-
-  return $response->withHeader('Content-Type', 'application/json');
-});
-
-/**
  * Return access token given the correct credentials
  */
 $app->any('/oauth/token', function (Request $request, Response $response) {

@@ -1320,9 +1320,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
         if ($this->useJwtAuth) {
           unset($this->requestOptions['auth']);
+          if (!isset($this->jwtKey)) {
+            throw new RuntimeException('JWT key not set');
+          }
           $token = JWT::encode($this->jwtPayload, $this->jwtKey, $this->jwtAlg);
           $this->setRequestHeader('Authorization', 'Bearer ' . $token);
-          $this->useJwtAuth = false;
         }
 
         if (!empty($this->requestOptions['multipart']) && !empty($this->requestOptions['form_params'])) {

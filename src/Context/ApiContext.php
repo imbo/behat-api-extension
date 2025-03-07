@@ -53,6 +53,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
 
     /**
      * JWT payload.
+     *
+     * @var array<int|string, mixed>
      */
     protected array $jwtPayload = [];
 
@@ -1319,7 +1321,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         }
 
         if ($this->useJwtAuth) {
-          unset($this->requestOptions['auth']);
+          $this->requestOptions['auth'] = [];
           if (!isset($this->jwtKey)) {
             throw new RuntimeException('JWT key not set');
           }

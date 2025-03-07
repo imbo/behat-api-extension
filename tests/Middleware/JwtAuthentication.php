@@ -3,6 +3,7 @@
 namespace Imbo\BehatApiExtension\Middleware;
 
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -11,6 +12,11 @@ use Slim\Psr7\Response;
 
 class JwtAuthentication implements MiddlewareInterface {
 
+    /**
+     * Paths to authenticate against.
+     *
+     * @var array<int, string>
+     */
     protected array $paths;
 
     /**
@@ -21,18 +27,26 @@ class JwtAuthentication implements MiddlewareInterface {
     /**
      * JWT secret key.
      */
-    protected string $jwtKey;
+    protected Key $jwtKey;
 
     /**
      * Required claims for authentication.
+     *
+     * @var array<int, mixed>
      */
     protected array $requiredClaims;
 
+    /**
+     * @param array<int, string> $paths
+     * @param string $jwtKey
+     * @param array<int, mixed> $requiredClaims
+     * @param string $jwtAlg
+     */
     public function __construct(array $paths, string $jwtKey, array $requiredClaims = [], string $jwtAlg = 'HS256') {
         $this->paths = $paths;
-        $this->jwtKey = $jwtKey;
-        $this->jwtAlg = $jwtAlg;
-        $this->requiredClaims = $requiredClaims;
+      $this->jwtAlg = $jwtAlg;
+      $this->jwtKey = new Key($jwtKey, $this->jwtAlg);
+      $this->requiredClaims = $requiredClaims;
       }
 
     /**
@@ -51,7 +65,7 @@ class JwtAuthentication implements MiddlewareInterface {
 
         if (preg_match("/Bearer\s+(.*)$/i", $request->getHeaderLine("Authorization"), $matches)) {
             try {
-                $claims = JWT::decode($matches[1], $this->jwtKey, [$this->jwtAlg]);
+                $claims = JWT::decode($matches[1], $this->jwtKey);
 
                 if ($this->requiredClaims) {
                     // todo

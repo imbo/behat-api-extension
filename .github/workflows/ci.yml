@@ -5,22 +5,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.3', '8.4']
+        php: ["8.3", "8.4"]
     name: Validate and test on PHP ${{ matrix.php }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          tools: php-cs-fixer
 
-      - name: Debug PHP installation
-        run: |
-            php -v
-            php -i
-            php -m
+      - name: PHP version
+        run: php -v
+
+      - name: PHP info
+        run: php -i
+
+      - name: PHP modules
+        run: php -m
 
       - name: Validate composer files
         run: composer validate --strict
@@ -34,9 +37,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-composer-
+            ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
       - name: Install dependencies
         run: composer install
@@ -54,7 +57,7 @@ jobs:
         run: vendor/bin/phpstan
 
       - name: Check coding standard
-        run: php-cs-fixer fix --dry-run --diff
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
 

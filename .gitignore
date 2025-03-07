@@ -1,6 +1,5 @@
 vendor
 build
-server.log
 phpunit.xml
 docs/_build
 .idea

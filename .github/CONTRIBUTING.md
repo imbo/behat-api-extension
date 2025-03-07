@@ -8,7 +8,7 @@ Behat API Extension has both [Behat](http://docs.behat.org/) and [PHPUnit](https
 
 The Behat tests requires a web server hosting the `features/bootstrap/index.php` script. A quick and easy alternative is to use PHPs built in web server:
 
-    php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1
+    php -S localhost:8080 -t ./features/bootstrap > build/httpd.log 2>&1
 
 After this has been started you can execute the test suites by running:
 
@@ -51,4 +51,4 @@ Please also specify which commit that resolves the bug by adding `Resolves #<iss
 
 ## Coding standards
 
-This library follows the [imbo/imbo-coding-standard](https://github.com/imbo/imbo-coding-standard) coding standard, and runs [php-cs-fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer) as a step in the CI workflow.
+This library follows the [imbo/imbo-coding-standard](https://github.com/imbo/imbo-coding-standard) coding standard, and runs [php-cs-fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer) as a step in the CI workflow.

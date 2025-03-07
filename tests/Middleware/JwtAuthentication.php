@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
-
 namespace Imbo\BehatApiExtension\Middleware;
 
+use Exception;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Slim\Psr7\Response;
 
-class JwtAuthentication implements MiddlewareInterface {
-
+class JwtAuthentication implements MiddlewareInterface
+{
     /**
      * Paths to authenticate against.
      *
@@ -42,17 +42,19 @@ class JwtAuthentication implements MiddlewareInterface {
      * @param array<int, mixed> $requiredClaims
      * @param string $jwtAlg
      */
-    public function __construct(array $paths, string $jwtKey, array $requiredClaims = [], string $jwtAlg = 'HS256') {
+    public function __construct(array $paths, string $jwtKey, array $requiredClaims = [], string $jwtAlg = 'HS256')
+    {
         $this->paths = $paths;
-      $this->jwtAlg = $jwtAlg;
-      $this->jwtKey = new Key($jwtKey, $this->jwtAlg);
-      $this->requiredClaims = $requiredClaims;
-      }
+        $this->jwtAlg = $jwtAlg;
+        $this->jwtKey = new Key($jwtKey, $this->jwtAlg);
+        $this->requiredClaims = $requiredClaims;
+    }
 
     /**
      * Process a request in PSR-15 style and return a response.
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         $requestPath = '/' . $request->getUri()->getPath();
         $requestPath = preg_replace('#/+#', '/', $requestPath);
 
@@ -70,13 +72,12 @@ class JwtAuthentication implements MiddlewareInterface {
                 if ($this->requiredClaims) {
                     // todo
                 }
-            }
-            catch (\Exception $e) {
+            } catch (Exception $e) {
                 $message = $e->getMessage();
             }
         }
 
-      return new Response()->withStatus(403, $message);
+        return (new Response())->withStatus(403, $message);
     }
 
 }

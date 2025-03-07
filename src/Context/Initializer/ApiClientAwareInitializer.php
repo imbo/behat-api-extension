@@ -37,7 +37,7 @@ class ApiClientAwareInitializer implements ContextInitializer
     {
         $this->config = $config;
         $this->jwtAlg = $this->config['jwt_alg'] ?? 'HS256';
-        $this->jwtKey = $this->config['jwt_key'] ?? NULL;
+        $this->jwtKey = $this->config['jwt_key'] ?? null;
     }
 
     /**
@@ -50,7 +50,7 @@ class ApiClientAwareInitializer implements ContextInitializer
         if ($context instanceof ApiClientAwareContext) {
             $context->initializeClient($this->config);
             if ($this->jwtKey) {
-              $context->setJwt($this->jwtAlg, $this->jwtKey);
+                $context->setJwt($this->jwtAlg, $this->jwtKey);
             }
         }
     }

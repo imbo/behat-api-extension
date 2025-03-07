@@ -14,4 +14,13 @@ interface ApiClientAwareContext extends Context
      * @param array<mixed> $config
      */
     public function initializeClient(array $config): self;
+
+    /**
+     * Set the JWT algorithm and key
+     *
+     * @param string $jwtAlg
+     * @param string $jwtKey
+     * @return self
+     */
+    public function setJwt(string $jwtAlg, string $jwtKey): self;
 }

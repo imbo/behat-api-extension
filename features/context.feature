@@ -19,7 +19,7 @@ Feature: Client aware context
                     return $this;
                 }
 
-                public function setJwt($jwtAlg, $jwtKey) {
+                public function setJwt(string $jwtAlg, string $jwtKey): static {
                     return $this;
                 }
 

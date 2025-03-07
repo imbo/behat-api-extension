@@ -2,17 +2,26 @@
   "name": "imbo/behat-api-extension",
   "type": "library",
   "description": "API extension for Behat",
-  "keywords": ["behat", "testing", "api", "REST", "http"],
+  "keywords": [
+    "behat",
+    "testing",
+    "api",
+    "REST",
+    "http"
+  ],
   "homepage": "https://github.com/imbo/behat-api-extension",
   "license": "MIT",
-  "authors": [{
-    "name": "Christer Edvartsen",
-    "email": "cogo@starzinger.net",
-    "homepage": "https://github.com/christeredvartsen"
-  }, {
-    "name": "Contributors",
-    "homepage": "https://github.com/imbo/behat-api-extension/graphs/contributors"
-  }],
+  "authors": [
+    {
+      "name": "Christer Edvartsen",
+      "email": "cogo@starzinger.net",
+      "homepage": "https://github.com/christeredvartsen"
+    },
+    {
+      "name": "Contributors",
+      "homepage": "https://github.com/imbo/behat-api-extension/graphs/contributors"
+    }
+  ],
   "support": {
     "source": "https://github.com/imbo/behat-api-extension",
     "docs": "http://behat-api-extension.readthedocs.io/",
@@ -27,12 +36,13 @@
     "guzzlehttp/guzzle": "^7.3"
   },
   "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.70",
     "imbo/imbo-coding-standard": "^2.0",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-deprecation-rules": "^2.0",
     "phpstan/phpstan-phpunit": "^2.0",
-    "phpunit/phpunit": "^11.5",
+    "phpunit/phpunit": "^12.0",
     "slim/psr7": "^1.3",
     "slim/slim": "^4.7",
     "symfony/process": "^7.2",
@@ -63,8 +73,8 @@
     "phpunit:coverage": "vendor/bin/phpunit --coverage-html build/coverage",
     "behat": "vendor/bin/behat --strict",
     "sa": "vendor/bin/phpstan",
-    "cs": "php-cs-fixer fix --dry-run --diff",
-    "dev": "php -S localhost:8080 -t ./features/bootstrap > server.log 2>&1",
+    "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+    "dev": "php -S localhost:8080 -t ./features/bootstrap > build/httpd.log 2>&1",
     "docs": "cd docs; make html"
   },
   "config": {

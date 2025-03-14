@@ -12,7 +12,3 @@ parameters:
 			message: '#Property [a-zA-Z0-9\\_]+::\$historyContainer#'
 			identifier: assign.propertyType
 			path: tests/Context/ApiContextTest.php
-		-
-			message: '#^Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\:\:scalarNode\(\)\.$#'
-			identifier: method.notFound
-			path: src/ServiceContainer/BehatApiExtension.php

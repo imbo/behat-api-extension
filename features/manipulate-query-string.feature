@@ -30,18 +30,35 @@ Feature: Manipulate query string
                         | value |
                         | foo   |
                         | bar   |
+                    Given the query parameter "baz" is:
+                        | value |
+                        | foo   |
+                        | bar   |
                     Given the following query parameters are set:
-                        | name | value |
-                        | foo  | bar   |
-                        | bar  | foo   |
+                        | name | value           |
+                        | name | some name       |
+                        | name | some other name |
+                        | bar  | foobar          |
+                    When I request "/requestInfo"
+                    Then the response body contains JSON:
+                    '''
+                    {
+                        "_GET": {
+                            "name": "some other name",
+                            "foo": "bar",
+                            "bar": "foobar",
+                            "baz": ["foo", "bar"]
+                        }
+                    }
+                    '''
             """
         When I run "behat features/query-params.feature"
         Then it should pass with:
             """
-            ....
+            .......
 
             1 scenario (1 passed)
-            4 steps (4 passed)
+            7 steps (7 passed)
             """
 
     Scenario: Make a request with query parameters set

@@ -160,10 +160,13 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     public function setRequestMultipartFormParams(TableNode $table): static
     {
-        foreach ($this->getTableNodeHash($table) as $name => $value) {
+        /** @var array<string,array{name:string,value:string}> */
+        $rows = $table->getColumnsHash();
+
+        foreach ($rows as $row) {
             $this->addMultipartPart([
-                'name'     => $name,
-                'contents' => $value,
+                'name'     => $row['name'],
+                'contents' => $row['value'],
             ]);
         }
 
@@ -425,8 +428,11 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     public function setQueryStringParameters(TableNode $params): static
     {
-        foreach ($this->getTableNodeHash($params) as $name => $value) {
-            $this->requestOptions['query'][$name] = $value;
+        /** @var array<string,array{name:string,value:string}> */
+        $rows = $params->getColumnsHash();
+
+        foreach ($rows as $row) {
+            $this->requestOptions['query'][$row['name']] = $row['value'];
         }
 
         return $this;
@@ -1443,19 +1449,5 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
         }
 
         return $decoded;
-    }
-
-    /**
-     * Get an associative array from the TableNode
-     *
-     * This method will effectively remove duplicates from TableNode
-     *
-     * @param TableNode $table
-     * @return array<string,string>
-     */
-    protected function getTableNodeHash(TableNode $table): array
-    {
-        /** @var array<string,string> */
-        return array_slice($table->getRowsHash(), 1);
     }
 }

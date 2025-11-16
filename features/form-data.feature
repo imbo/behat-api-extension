@@ -25,15 +25,17 @@ Feature: Test form-data handling
             Feature: Set up the request
                 Scenario: Use the Given step to attach form-data
                     Given the following form parameters are set:
-                        | name | value |
-                        | foo  | bar   |
-                        | bar  | foo   |
-                        | bar  | bar   |
+                        | name | value     |
+                        | name | some name |
+                        | foo  | bar       |
+                        | bar  | foo       |
+                        | bar  | bar       |
                     When I request "/requestInfo"
                     Then the response body contains JSON:
                     '''
                     {
                         "_POST": {
+                            "name": "some name",
                             "foo": "bar",
                             "bar": ["foo", "bar"]
                         },
@@ -136,14 +138,16 @@ Feature: Test form-data handling
             Feature: Set up the request
                 Scenario: Verify form data
                     Given the following multipart form parameters are set:
-                    | name     | value    |
-                    | username | admin    |
-                    | password | password |
+                    | name     | value     |
+                    | name     | some name |
+                    | username | admin     |
+                    | password | password  |
                     When I request "/requestInfo" using HTTP "POST"
                     Then the response body contains JSON:
                     '''
                     {
                         "_POST": {
+                            "name": "some name",
                             "username": "admin",
                             "password": "password"
                         },

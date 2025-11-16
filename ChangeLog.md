@@ -1,6 +1,6 @@
 # Changelog for Behat API Extension
 
-## v6.0.1 - **N/A**
+## v6.0.1 - 2025-11-16
 
 - [#142](https://github.com/imbo/behat-api-extension/pull/142): Allow 'name' as parameter name
 

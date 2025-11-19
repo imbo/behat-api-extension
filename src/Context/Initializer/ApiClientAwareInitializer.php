@@ -19,13 +19,25 @@ class ApiClientAwareInitializer implements ContextInitializer
     private array $config = [];
 
     /**
+     * @var string JWT algorithm
+     */
+    private string $jwtAlg;
+
+    /**
+     * @var string|null JWT key
+     */
+    private ?string $jwtKey;
+
+    /**
      * Class constructor
      *
-     * @param array<mixed> $config Guzzle client configuration array
+     * @param array<mixed> $config Client configuration array
      */
     public function __construct(array $config)
     {
         $this->config = $config;
+        $this->jwtAlg = $this->config['jwt_alg'] ?? 'HS256';
+        $this->jwtKey = $this->config['jwt_key'] ?? null;
     }
 
     /**
@@ -37,6 +49,9 @@ class ApiClientAwareInitializer implements ContextInitializer
     {
         if ($context instanceof ApiClientAwareContext) {
             $context->initializeClient($this->config);
+            if ($this->jwtKey) {
+                $context->setJwt($this->jwtAlg, $this->jwtKey);
+            }
         }
     }
 }

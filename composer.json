@@ -24,7 +24,7 @@
   ],
   "support": {
     "source": "https://github.com/imbo/behat-api-extension",
-    "docs": "http://behat-api-extension.readthedocs.io/",
+    "docs": "https://behat-api-extension.readthedocs.io/",
     "issues": "https://github.com/imbo/behat-api-extension/issues"
   },
   "require": {
@@ -69,18 +69,19 @@
       "@phpunit",
       "@behat"
     ],
-    "phpunit": "vendor/bin/phpunit",
-    "phpunit:coverage": "vendor/bin/phpunit --coverage-html build/coverage",
-    "behat": "vendor/bin/behat --strict",
+    "phpunit": "vendor/bin/phpunit --colors=always",
+    "phpunit:coverage": "@phpunit -- --coverage-html build/coverage",
+    "behat": "vendor/bin/behat --strict --colors",
     "sa": "vendor/bin/phpstan",
     "cs": "vendor/bin/php-cs-fixer fix --dry-run --diff",
-    "dev": "php -S localhost:8080 -t ./features/bootstrap > build/httpd.log 2>&1",
+    "dev": "php -S localhost:8080 -t ./features/bootstrap",
     "docs": "cd docs; make html"
   },
   "config": {
     "sort-packages": true,
     "allow-plugins": {
       "phpstan/extension-installer": true
-    }
+    },
+    "process-timeout": 0
   }
 }

@@ -80,7 +80,11 @@ class FeatureContext implements Context
         file_put_contents($filename, $content);
 
         if (!$readable) {
-            chmod($filename, 0000);
+            if (PHP_OS_FAMILY === 'Windows') {
+                exec('icacls ' . escapeshellarg($filename) . ' /deny Everyone:(F)');
+            } else {
+                chmod($filename, 0000);
+            }
         }
     }
 
@@ -218,7 +222,7 @@ class FeatureContext implements Context
 
         $output = $this->process->getErrorOutput() . $this->process->getOutput();
 
-        return trim((string) preg_replace('/ +$/m', '', $output));
+        return trim((string) preg_replace(['/ +$/m', '/\r\n/'], ['', "\n"], $output));
     }
 
     /**
@@ -235,11 +239,11 @@ class FeatureContext implements Context
             if (is_dir($file)) {
                 self::rmdir($file);
             } else {
-                unlink($file);
+                @unlink($file);
             }
         }
 
         // Remove the remaining directory
-        rmdir($path);
+        @rmdir($path);
     }
 }

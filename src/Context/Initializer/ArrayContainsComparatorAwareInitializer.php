@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Behat\Behat\Context\Context;
@@ -8,7 +9,7 @@ use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 use Imbo\BehatApiExtension\Context\ArrayContainsComparatorAwareContext;
 
 /**
- * Array contains comparator context aware initializer
+ * Array contains comparator context aware initializer.
  */
 class ArrayContainsComparatorAwareInitializer implements ContextInitializer
 {

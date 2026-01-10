@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension;
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -7,7 +8,9 @@ use Slim\Factory\AppFactory;
 use stdClass;
 use Tuupola\Middleware\HttpBasicAuthentication;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+use function array_key_exists;
+
+require_once __DIR__.'/../../vendor/autoload.php';
 
 $app = AppFactory::create();
 $app->add(new HttpBasicAuthentication([
@@ -19,7 +22,7 @@ $app->add(new HttpBasicAuthentication([
 ]));
 
 /**
- * Front page
+ * Front page.
  */
 $app->any('/', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
@@ -48,13 +51,14 @@ $app->any('/', function (Request $request, Response $response): Response {
             'scalar' => '123',
         ],
     ]));
+
     return $response
         ->withHeader('Content-Type', 'application/json')
         ->withHeader('X-Foo', 'foo');
 });
 
 /**
- * List with objects
+ * List with objects.
  */
 $app->any('/list', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
@@ -69,7 +73,7 @@ $app->any('/list', function (Request $request, Response $response): Response {
 });
 
 /**
- * Echo the request body
+ * Echo the request body.
  */
 $app->any('/echo', function (Request $request, Response $response): Response {
     // Set the same Content-Type header in the response as found in the request
@@ -90,15 +94,16 @@ $app->any('/echo', function (Request $request, Response $response): Response {
 });
 
 /**
- * Return information about uploaded files
+ * Return information about uploaded files.
  */
 $app->post('/files', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode($_FILES));
+
     return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**
- * Return information about the request
+ * Return information about the request.
  */
 $app->any('/requestInfo', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
@@ -108,21 +113,23 @@ $app->any('/requestInfo', function (Request $request, Response $response): Respo
         '_SERVER' => $_SERVER,
         'requestBody' => (string) $request->getBody(),
     ]));
+
     return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**
- * Return the HTTP method
+ * Return the HTTP method.
  */
 $app->any('/echoHttpMethod', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         'method' => $request->getMethod(),
     ]));
+
     return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**
- * Return the authenticated user name
+ * Return the authenticated user name.
  */
 $app->any('/basicAuth', function (Request $request, Response $response) {
     $response->getBody()->write((string) json_encode([
@@ -133,7 +140,7 @@ $app->any('/basicAuth', function (Request $request, Response $response) {
 });
 
 /**
- * Return access token given the correct credentials
+ * Return access token given the correct credentials.
  */
 $app->any('/oauth/token', function (Request $request, Response $response) {
     /** @var array{username: string, password: string} */
@@ -178,12 +185,13 @@ $app->any('/securedWithOAuth', function (Request $request, Response $response) {
 });
 
 /**
- * Return a client error
+ * Return a client error.
  */
 $app->any('/clientError', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([
         'error' => 'client error',
     ]));
+
     return $response
         ->withHeader('Content-Type', 'appliation/json')
         ->withStatus(400);
@@ -216,11 +224,12 @@ $app->any('/issue-13', function (Request $request, Response $response): Response
             ],
         ],
     ]));
+
     return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**
- * Return a response with a custom reason phrase
+ * Return a response with a custom reason phrase.
  */
 $app->get('/customReasonPhrase', function (Request $request, Response $response): Response {
     $params = $request->getQueryParams();
@@ -232,30 +241,32 @@ $app->get('/customReasonPhrase', function (Request $request, Response $response)
 });
 
 /**
- * Return a response with an empty array
+ * Return a response with an empty array.
  */
 $app->get('/emptyArray', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode([]));
+
     return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**
- * Return a response with an empty object
+ * Return a response with an empty object.
  */
 $app->get('/emptyObject', function (Request $request, Response $response): Response {
     $response->getBody()->write((string) json_encode(new stdClass()));
+
     return $response->withHeader('Content-Type', 'application/json');
 });
 
 /**
- * Return a response with an empty body
+ * Return a response with an empty body.
  */
 $app->get('/empty', function (Request $request, Response $response): Response {
     return $response->withStatus(204);
 });
 
 /**
- * Return a response with 403 Forbidden
+ * Return a response with 403 Forbidden.
  */
 $app->get('/403', function (Request $request, Response $response): Response {
     return $response->withStatus(403);

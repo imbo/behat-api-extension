@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
@@ -11,7 +12,7 @@ class VariableTypeTest extends TestCase
 {
     private VariableType $matcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->matcher = new VariableType();
     }

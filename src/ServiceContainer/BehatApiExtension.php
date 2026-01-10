@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use Behat\Behat\Context\ServiceContainer\ContextExtension;
@@ -13,7 +14,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Behat API extension
+ * Behat API extension.
  *
  * This extension provides a series of steps that can be used to easily test API's. The ApiContext
  * class also exposes the client, request and response objects so custom steps using the underlying
@@ -22,22 +23,22 @@ use Symfony\Component\DependencyInjection\Reference;
 class BehatApiExtension implements ExtensionInterface
 {
     /**
-     * Service ID for the comparator
+     * Service ID for the comparator.
      */
     public const COMPARATOR_SERVICE_ID = 'api_extension.comparator';
 
     /**
-     * Service ID for the client initializer
+     * Service ID for the client initializer.
      */
     public const APICLIENT_INITIALIZER_SERVICE_ID = 'api_extension.api_client.context_initializer';
 
     /**
-     * Service ID for the initializer
+     * Service ID for the initializer.
      */
     public const COMPARATOR_INITIALIZER_SERVICE_ID = 'api_extension.comparator.context_initializer';
 
     /**
-     * Config key for the extension
+     * Config key for the extension.
      */
     public const CONFIG_KEY = 'api_extension';
 
@@ -66,6 +67,7 @@ class BehatApiExtension implements ExtensionInterface
 
     /**
      * @param array{apiClient:array<mixed>} $config Guzzle client configuration array
+     *
      * @see http://docs.guzzlephp.org/ Check out the Guzzle docs for a complete overview of available configuration parameters
      */
     public function load(ContainerBuilder $container, array $config): void

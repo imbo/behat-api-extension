@@ -5,40 +5,52 @@ on:
     branches:
       - main
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        php: ["8.3", "8.4"]
-    name: Validate and test on PHP ${{ matrix.php }}
+        composer-script:
+          - behat
+          - cs
+          - phpunit
+          - sa
+        php:
+          - "8.3"
+          - "8.4"
+          - "8.5"
+    name: composer run ${{ matrix.composer-script }} / PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-      - run: |
-          php -v
-          php -i
-          php -m
-      - run: composer validate --strict
-      - id: composer-cache
+      - id: composer-cache-dir
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v5
+      - id: composer-cache
+        uses: actions/cache@v5
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: ${{ steps.composer-cache-dir.outputs.dir }}
           key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php }}-composer-
+      - run: composer validate --strict
       - run: composer install
-      - run: php -S localhost:8080 -t ./features/bootstrap > httpd.log 2>&1 &
-      - run: vendor/bin/phpunit
-      - run: vendor/bin/behat --strict
-      - run: vendor/bin/phpstan
-      - run: vendor/bin/php-cs-fixer fix --dry-run --diff
+      - if: ${{ matrix.composer-script == 'behat' }}
+        run: php -S localhost:8080 -t ./features/bootstrap > httpd.log 2>&1 &
+      - run: composer run ${{ matrix.composer-script }}
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
-      - uses: actions/upload-artifact@v6
-        if: always()
+      - if: ${{ matrix.composer-script == 'behat' }}
+        uses: actions/upload-artifact@v6
         with:
-          name: httpd-php-${{ matrix.php }}
+          name: httpd-logs-php-${{ matrix.php }}
           path: httpd.log
+  branch-protection:
+    needs:
+      - ci
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Branch protection
+    steps:
+      - if: ${{ needs.ci.result != 'success' }}
+        run: exit 1
+      - run: echo "All checks passed."

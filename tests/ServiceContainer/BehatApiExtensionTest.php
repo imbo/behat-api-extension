@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ServiceContainer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -12,7 +13,7 @@ class BehatApiExtensionTest extends TestCase
 {
     private BehatApiExtension $extension;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extension = new BehatApiExtension();
     }

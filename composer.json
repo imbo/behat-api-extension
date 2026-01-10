@@ -37,7 +37,7 @@
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.92",
-    "imbo/imbo-coding-standard": "^2.1",
+    "imbo/imbo-coding-standard": "dev-main",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-deprecation-rules": "^2.0",
@@ -46,6 +46,7 @@
     "slim/psr7": "^1.8",
     "slim/slim": "^4.15",
     "symfony/process": "^7.4",
+    "symfony/var-dumper": "^7.4",
     "tuupola/slim-basic-auth": "^3.4"
   },
   "autoload": {
@@ -84,5 +85,7 @@
       "phpstan/extension-installer": true
     },
     "process-timeout": 0
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

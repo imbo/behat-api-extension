@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
@@ -11,7 +12,7 @@ class LessThanTest extends TestCase
 {
     private LessThan $matcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->matcher = new LessThan();
     }
@@ -59,8 +60,8 @@ class LessThanTest extends TestCase
                 'errorMessage' => '"4.56" is not less than "1.23".',
             ],
             [
-                'number' => "4.56",
-                'max' => "1.23",
+                'number' => '4.56',
+                'max' => '1.23',
                 'errorMessage' => '"4.56" is not less than "1.23".',
             ],
         ];

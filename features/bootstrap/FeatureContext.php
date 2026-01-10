@@ -8,29 +8,30 @@ use Symfony\Component\Process\Process;
 class FeatureContext implements Context
 {
     /**
-     * PHP binary used to trigger Behat from the scenarios
+     * PHP binary used to trigger Behat from the scenarios.
      */
     private ?string $phpBin = null;
 
     /**
-     * Process instance for executing processes
+     * Process instance for executing processes.
      */
     private ?Process $process = null;
 
     /**
-     * The working directory where files can be created
+     * The working directory where files can be created.
      */
     private ?string $workingDir = null;
 
     /**
-     * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists
+     * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists.
      *
      * @BeforeSuite
+     *
      * @AfterSuite
      */
     public static function emptyTestDir(): void
     {
-        $testDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension';
+        $testDir = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'behat-api-extension';
 
         if (is_dir($testDir)) {
             self::rmDir($testDir);
@@ -38,7 +39,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * Prepare a scenario
+     * Prepare a scenario.
      *
      * @throws RuntimeException
      *
@@ -46,8 +47,8 @@ class FeatureContext implements Context
      */
     public function prepareScenario(): void
     {
-        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'behat-api-extension' . DIRECTORY_SEPARATOR . microtime(true);
-        mkdir($dir . '/features/bootstrap', 0777, true);
+        $dir = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'behat-api-extension'.\DIRECTORY_SEPARATOR.microtime(true);
+        mkdir($dir.'/features/bootstrap', 0777, true);
 
         // Locate the php binary
         if (($bin = (new PhpExecutableFinder())->find()) === false) {
@@ -59,17 +60,17 @@ class FeatureContext implements Context
     }
 
     /**
-     * Creates a file with specified name and content in the current working dir
+     * Creates a file with specified name and content in the current working dir.
      *
-     * @param string $filename Name of the file relative to the working dir
-     * @param PyStringNode $content Content of the file
-     * @param bool $readable Whether or not the created file is readable
+     * @param string       $filename Name of the file relative to the working dir
+     * @param PyStringNode $content  Content of the file
+     * @param bool         $readable Whether or not the created file is readable
      *
      * @Given a file named :filename with:
      */
     public function createFile(string $filename, PyStringNode $content, bool $readable = true): void
     {
-        $filename = rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($filename, DIRECTORY_SEPARATOR);
+        $filename = rtrim((string) $this->workingDir, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR.ltrim($filename, \DIRECTORY_SEPARATOR);
         $path = dirname($filename);
         $content = str_replace("'''", '"""', (string) $content);
 
@@ -85,10 +86,10 @@ class FeatureContext implements Context
     }
 
     /**
-     * Creates a non-readable file with specified name and content in the current working dir
+     * Creates a non-readable file with specified name and content in the current working dir.
      *
-     * @param string $filename Name of the file relative to the working dir
-     * @param PyStringNode $content Content of the file
+     * @param string       $filename Name of the file relative to the working dir
+     * @param PyStringNode $content  Content of the file
      *
      * @Given a non-readable file named :filename with:
      */
@@ -98,7 +99,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * Runs Behat
+     * Runs Behat.
      *
      * @throws RuntimeException
      *
@@ -123,13 +124,12 @@ class FeatureContext implements Context
             $this->workingDir,
         );
 
-
         $this->process->start();
         $this->process->wait();
     }
 
     /**
-     * Checks whether the command failed or passed, with output
+     * Checks whether the command failed or passed, with output.
      *
      * @Then /^it should (fail|pass) with:$/
      */
@@ -140,7 +140,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * Assert command output contains a string
+     * Assert command output contains a string.
      *
      * @Then the output should contain:
      */
@@ -154,7 +154,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * Checks whether the command failed or passed
+     * Checks whether the command failed or passed.
      *
      * @Then /^it should (fail|pass)$/
      */
@@ -167,7 +167,7 @@ class FeatureContext implements Context
         // or %d.
         $output = str_replace('%', '%%', $this->getOutput());
 
-        if ($result === 'fail') {
+        if ('fail' === $result) {
             $callback = 'notEq';
             $errorMessage = sprintf(
                 'Invalid exit code, did not expect 0. Command output: %s',
@@ -186,7 +186,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * Get the exit code of the process
+     * Get the exit code of the process.
      *
      * @throws RuntimeException
      */
@@ -206,7 +206,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * Get output from the process
+     * Get output from the process.
      *
      * @throws RuntimeException
      */
@@ -216,13 +216,13 @@ class FeatureContext implements Context
             throw new RuntimeException('No process is running');
         }
 
-        $output = $this->process->getErrorOutput() . $this->process->getOutput();
+        $output = $this->process->getErrorOutput().$this->process->getOutput();
 
         return trim((string) preg_replace('/ +$/m', '', $output));
     }
 
     /**
-     * Recursively delete a directory
+     * Recursively delete a directory.
      *
      * @param string $path Path to a file or a directory
      */

@@ -1,10 +1,17 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\Context\Initializer;
 
 use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
+use function sprintf;
+
+use const AF_INET;
+use const SOCK_STREAM;
+use const SOL_TCP;
 
 #[CoversClass(ApiClientAwareInitializer::class)]
 class ApiClientAwareInitializerTest extends TestCase
@@ -23,7 +30,7 @@ class ApiClientAwareInitializerTest extends TestCase
 
         $result = false;
 
-        for ($port = 8000; $port < 8079; $port++) {
+        for ($port = 8000; $port < 8079; ++$port) {
             if ($result = socket_bind($sock, 'localhost', $port)) {
                 break;
             }

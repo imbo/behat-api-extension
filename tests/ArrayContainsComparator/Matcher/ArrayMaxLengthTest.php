@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
@@ -11,7 +12,7 @@ class ArrayMaxLengthTest extends TestCase
 {
     private ArrayMaxLength $matcher;
 
-    public function setup(): void
+    protected function setup(): void
     {
         $this->matcher = new ArrayMaxLength();
     }

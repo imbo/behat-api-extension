@@ -76,7 +76,7 @@ class JWTTest extends TestCase
 
     public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess(): void
     {
-        $comparator = $this->createConfiguredMock(ArrayContainsComparator::class, [
+        $comparator = $this->createConfiguredStub(ArrayContainsComparator::class, [
             'compare' => false,
         ]);
         $matcher = (new JWT($comparator))->addToken(

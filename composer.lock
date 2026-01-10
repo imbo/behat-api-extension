@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3cb7ce3bba65e48a04b33b7ff3bb070",
+    "content-hash": "520016966f487283492e4a7db30a510f",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -3032,16 +3032,16 @@
         },
         {
             "name": "imbo/imbo-coding-standard",
-            "version": "dev-main",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imbo/imbo-coding-standard.git",
-                "reference": "3562dd661d5ad3b4f7a9e09e4078f11f2ec17b21"
+                "reference": "2964710bef2781ee1ce1d4519c7ecfda62f5494a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imbo/imbo-coding-standard/zipball/3562dd661d5ad3b4f7a9e09e4078f11f2ec17b21",
-                "reference": "3562dd661d5ad3b4f7a9e09e4078f11f2ec17b21",
+                "url": "https://api.github.com/repos/imbo/imbo-coding-standard/zipball/2964710bef2781ee1ce1d4519c7ecfda62f5494a",
+                "reference": "2964710bef2781ee1ce1d4519c7ecfda62f5494a",
                 "shasum": ""
             },
             "require": {
@@ -3051,7 +3051,6 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.92"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -3079,9 +3078,9 @@
             ],
             "support": {
                 "issues": "https://github.com/imbo/imbo-coding-standard/issues",
-                "source": "https://github.com/imbo/imbo-coding-standard/tree/main"
+                "source": "https://github.com/imbo/imbo-coding-standard/tree/v3.0.2"
             },
-            "time": "2026-01-10T16:05:59+00:00"
+            "time": "2026-01-10T21:08:25+00:00"
         },
         {
             "name": "kubawerlos/php-cs-fixer-custom-fixers",
@@ -6629,11 +6628,9 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "dev",
-    "stability-flags": {
-        "imbo/imbo-coding-standard": 20
-    },
-    "prefer-stable": true,
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=8.3",

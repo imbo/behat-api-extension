@@ -1,29 +1,34 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\Exception;
 
 use Throwable;
 
+use function sprintf;
+
+use const JSON_PRETTY_PRINT;
+use const PHP_EOL;
+
 /**
- * Array contains comparator exception
+ * Array contains comparator exception.
  */
 class ArrayContainsComparatorException extends AssertionFailedException
 {
     public function __construct(string $message, int $code = 0, ?Throwable $previous = null, mixed $needle = null, mixed $haystack = null)
     {
-        $message .= "\n\n" . sprintf(
+        $message .= "\n\n".sprintf(
             <<<MESSAGE
-================================================================================
-= Needle =======================================================================
-================================================================================
-%s
+            ================================================================================
+            = Needle =======================================================================
+            ================================================================================
+            %s
 
-================================================================================
-= Haystack =====================================================================
-================================================================================
-%s
+            ================================================================================
+            = Haystack =====================================================================
+            ================================================================================
+            %s
 
-MESSAGE
-            ,
+            MESSAGE,
             json_encode($needle, JSON_PRETTY_PRINT),
             json_encode($haystack, JSON_PRETTY_PRINT),
         );

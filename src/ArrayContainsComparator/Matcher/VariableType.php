@@ -1,15 +1,21 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
+use function gettype;
+use function in_array;
+use function is_scalar;
+use function sprintf;
+
 /**
- * Match the type of a value
+ * Match the type of a value.
  */
 class VariableType
 {
     /**
-     * Valid types
+     * Valid types.
      *
      * @var array<string>
      */
@@ -26,10 +32,11 @@ class VariableType
     ];
 
     /**
-     * Match a variable type
+     * Match a variable type.
      *
-     * @param mixed $variable A variable
+     * @param mixed  $variable      A variable
      * @param string $expectedTypes The expected types of $variable, separated by |
+     *
      * @throws InvalidArgumentException
      */
     public function __invoke(mixed $variable, string $expectedTypes): bool
@@ -38,10 +45,7 @@ class VariableType
 
         foreach ($expectedTypes as $expectedType) {
             if (!in_array($expectedType, $this->validTypes)) {
-                throw new InvalidArgumentException(sprintf(
-                    'Unsupported variable type: "%s".',
-                    $expectedType,
-                ));
+                throw new InvalidArgumentException(sprintf('Unsupported variable type: "%s".', $expectedType));
             }
         }
 
@@ -50,7 +54,6 @@ class VariableType
         }
 
         // Encode / decode the value to easier check for objects
-        /** @var mixed */
         $variable = json_decode((string) json_encode($variable));
 
         // Get the actual type of the value
@@ -58,24 +61,21 @@ class VariableType
 
         foreach ($expectedTypes as $expectedType) {
             if (
-                ($expectedType === 'scalar' && is_scalar($variable)) ||
-                $expectedType === $actualType
+                ('scalar' === $expectedType && is_scalar($variable))
+                || $expectedType === $actualType
             ) {
                 return true;
             }
         }
 
-        throw new InvalidArgumentException(sprintf(
-            'Expected variable type "%s", got "%s".',
-            join('|', $expectedTypes),
-            $actualType,
-        ));
+        throw new InvalidArgumentException(sprintf('Expected variable type "%s", got "%s".', implode('|', $expectedTypes), $actualType));
     }
 
     /**
-     * Normalize the type
+     * Normalize the type.
      *
      * @param string $types The types from the scenario
+     *
      * @return array<string> Returns an array of normalized types
      */
     protected function normalizeTypes(string $types): array

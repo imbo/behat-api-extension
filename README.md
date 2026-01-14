@@ -1,8 +1,6 @@
 # Behat API Extension
 
-[![CI](https://github.com/imbo/behat-api-extension/actions/workflows/ci.yml/badge.svg)](https://github.com/imbo/behat-api-extension/actions/workflows/ci.yml)
-
-This Behat extension provides an easy way to test JSON-based API's in [Behat 3](http://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](http://imbo.io).
+This Behat extension provides an easy way to test JSON-based API's in [Behat 3](https://behat.org). Inspired by [behat/web-api-extension](https://github.com/Behat/WebApiExtension/) and originally written to test the [Imbo API](https://imbo.io).
 
 ## Installation / Configuration / Documentation
 

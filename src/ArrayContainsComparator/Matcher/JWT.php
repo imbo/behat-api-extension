@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use Firebase;
@@ -6,25 +7,27 @@ use Imbo\BehatApiExtension\ArrayContainsComparator as Comparator;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
+use function sprintf;
+
 /**
- * Match a JWT token
+ * Match a JWT token.
  */
 class JWT
 {
     /**
-     * Comparator for the array
+     * Comparator for the array.
      */
     private Comparator $comparator;
 
     /**
-     * JWT tokens present in the response body
+     * JWT tokens present in the response body.
      *
      * @var array<string,array{payload:array<mixed>,secret:string}>
      */
     private array $jwtTokens = [];
 
     /**
-     * Allowed algorithms for the JWT decoder
+     * Allowed algorithms for the JWT decoder.
      *
      * @var array<string>
      */
@@ -40,7 +43,7 @@ class JWT
     }
 
     /**
-     * Add a JWT token that can be matched
+     * Add a JWT token that can be matched.
      *
      * @param array<mixed> $payload
      */
@@ -55,7 +58,7 @@ class JWT
     }
 
     /**
-     * Match an array against a JWT
+     * Match an array against a JWT.
      *
      * @throws InvalidArgumentException
      */
@@ -65,7 +68,7 @@ class JWT
             throw new InvalidArgumentException(sprintf('No JWT registered for "%s".', $name));
         }
 
-        $token  = $this->jwtTokens[$name];
+        $token = $this->jwtTokens[$name];
 
         foreach ($this->allowedAlgorithms as $algorithm) {
             try {

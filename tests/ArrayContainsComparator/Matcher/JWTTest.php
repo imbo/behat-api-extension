@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator;
@@ -13,7 +14,7 @@ class JWTTest extends TestCase
 {
     private JWT $matcher;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->matcher = new JWT(new ArrayContainsComparator());
     }
@@ -76,7 +77,7 @@ class JWTTest extends TestCase
 
     public function testThrowsExceptionWhenComparatorDoesNotReturnSuccess(): void
     {
-        $comparator = $this->createConfiguredMock(ArrayContainsComparator::class, [
+        $comparator = $this->createConfiguredStub(ArrayContainsComparator::class, [
             'compare' => false,
         ]);
         $matcher = (new JWT($comparator))->addToken(

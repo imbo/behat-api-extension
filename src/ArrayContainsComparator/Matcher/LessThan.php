@@ -1,42 +1,36 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
 
 use InvalidArgumentException;
 
+use function sprintf;
+
 /**
- * Check if a numeric value is less than another value
+ * Check if a numeric value is less than another value.
  */
 class LessThan
 {
     /**
-     * Match a numeric value
+     * Match a numeric value.
      *
      * @param mixed $number A variable
-     * @param mixed $max The max value of $number
+     * @param mixed $max    The max value of $number
+     *
      * @throws InvalidArgumentException
      */
     public function __invoke(mixed $number, mixed $max): bool
     {
         if (!is_numeric($number)) {
-            throw new InvalidArgumentException(sprintf(
-                '"%s" is not numeric.',
-                (string) $number,
-            ));
+            throw new InvalidArgumentException(sprintf('"%s" is not numeric.', (string) $number));
         }
 
         if (!is_numeric($max)) {
-            throw new InvalidArgumentException(sprintf(
-                '"%s" is not numeric.',
-                (string) $max,
-            ));
+            throw new InvalidArgumentException(sprintf('"%s" is not numeric.', (string) $max));
         }
 
         if ($number >= $max) {
-            throw new InvalidArgumentException(sprintf(
-                '"%s" is not less than "%s".',
-                $number,
-                $max,
-            ));
+            throw new InvalidArgumentException(sprintf('"%s" is not less than "%s".', $number, $max));
         }
 
         return true;

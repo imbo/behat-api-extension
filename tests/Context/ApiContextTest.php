@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace Imbo\BehatApiExtension\Context;
 
 use Behat\Gherkin\Node\PyStringNode;
@@ -18,9 +19,17 @@ use OutOfRangeException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
+
+use function count;
+use function file_exists as php_file_exists;
+use function is_readable as php_is_readable;
+use function sprintf;
+
+use const PHP_EOL;
 
 /**
  * Namespaced version of file_exists that returns true for a fixed filename. All other paths are
@@ -28,11 +37,11 @@ use stdClass;
  */
 function file_exists(string $path): bool
 {
-    if ($path === '/non/readable/file') {
+    if ('/non/readable/file' === $path) {
         return true;
     }
 
-    return \file_exists($path);
+    return php_file_exists($path);
 }
 
 /**
@@ -41,11 +50,11 @@ function file_exists(string $path): bool
  */
 function is_readable(string $path): bool
 {
-    if ($path === '/none/readable/file') {
+    if ('/none/readable/file' === $path) {
         return false;
     }
 
-    return \is_readable($path);
+    return php_is_readable($path);
 }
 
 #[CoversClass(ApiContext::class)]
@@ -54,18 +63,18 @@ class ApiContextTest extends TestCase
     private ApiContext $context;
     private MockHandler $mockHandler;
     private HandlerStack $handlerStack;
-    private MockObject&ArrayContainsComparator $comparator;
+    private Stub&ArrayContainsComparator $comparator;
     /** @var array<array{request:Request,response:Response}> */
     private array $historyContainer = [];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->historyContainer = [];
 
         $this->mockHandler = new MockHandler();
         $this->handlerStack = HandlerStack::create($this->mockHandler);
         $this->handlerStack->push(Middleware::history($this->historyContainer));
-        $this->comparator = $this->createMock(ArrayContainsComparator::class);
+        $this->comparator = $this->createStub(ArrayContainsComparator::class);
 
         $this->context = new ApiContext();
         $this->context->initializeClient([
@@ -442,11 +451,11 @@ class ApiContextTest extends TestCase
         $this->mockHandler->append(new Response(200, [], '{"access_token": "some_access_token"}'));
         $this->mockHandler->append(new Response(200));
 
-        $path         = '/some/path';
-        $username     = 'user';
-        $password     = 'pass';
-        $scope        = 'scope';
-        $clientId     = 'client id';
+        $path = '/some/path';
+        $username = 'user';
+        $password = 'pass';
+        $scope = 'scope';
+        $clientId = 'client id';
         $clientSecret = 'client secret';
 
         $this->assertSame(
@@ -501,7 +510,7 @@ class ApiContextTest extends TestCase
         $this->mockHandler->append(new Response(200));
         $files = [
             'file1' => __FILE__,
-            'file2' => __DIR__ . '/../../README.md',
+            'file2' => __DIR__.'/../../README.md',
         ];
 
         foreach ($files as $name => $path) {
@@ -625,27 +634,29 @@ class ApiContextTest extends TestCase
         $this->assertStringContainsString((string) file_get_contents(__FILE__), $contents);
 
         $foo = <<<FOO
-Content-Disposition: form-data; name="foo"
-Content-Length: 3
+        Content-Disposition: form-data; name="foo"
+        Content-Length: 3
 
-bar
-FOO;
+        bar
+        FOO;
 
         $bar0 = <<<BAR
-Content-Disposition: form-data; name="bar[]"
-Content-Length: 3
+        Content-Disposition: form-data; name="bar[]"
+        Content-Length: 3
 
-foo
-BAR;
+        foo
+        BAR;
+
         $bar1 = <<<BAR
-Content-Disposition: form-data; name="bar[]"
-Content-Length: 3
+        Content-Disposition: form-data; name="bar[]"
+        Content-Length: 3
 
-bar
-BAR;
-        $this->assertStringContainsString($foo, $contents);
-        $this->assertStringContainsString($bar0, $contents);
-        $this->assertStringContainsString($bar1, $contents);
+        bar
+        BAR;
+
+        $this->assertStringContainsString(str_replace($foo, PHP_EOL, "\r\n"), $contents);
+        $this->assertStringContainsString(str_replace($bar0, PHP_EOL, "\r\n"), $contents);
+        $this->assertStringContainsString(str_replace($bar1, PHP_EOL, "\r\n"), $contents);
     }
 
     public function testThrowsExceptionWhenAddingNonExistingFileAsMultipartPartToTheRequest(): void
@@ -710,7 +721,8 @@ BAR;
             ->method('addToken')
             ->with($name, $payload, $secret);
 
-        $this->comparator
+        $comparator = $this->createMock(ArrayContainsComparator::class);
+        $comparator
             ->expects($this->once())
             ->method('getMatcherFunction')
             ->with('jwt')
@@ -718,14 +730,17 @@ BAR;
 
         $this->assertSame(
             $this->context,
-            $this->context->addJwtToken($name, $secret, new PyStringNode(['{"some":"data"}'], 1)),
+            $this->context
+                ->setArrayContainsComparator($comparator)
+                ->addJwtToken($name, $secret, new PyStringNode(['{"some":"data"}'], 1)),
             'Expected method to return own instance',
         );
     }
 
     public function testThrowsExceptionWhenTryingToAddJwtTokenWhenThereIsNoMatcherFunctionRegistered(): void
     {
-        $this->comparator
+        $comparator = $this->createMock(ArrayContainsComparator::class);
+        $comparator
             ->expects($this->once())
             ->method('getMatcherFunction')
             ->with('jwt')
@@ -734,7 +749,9 @@ BAR;
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Matcher registered for the @jwt() matcher function must be an instance of Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWT');
 
-        $this->context->addJwtToken('name', 'secret', new PyStringNode(['{"some":"data"}'], 1));
+        $this->context
+            ->setArrayContainsComparator($comparator)
+            ->addJwtToken('name', 'secret', new PyStringNode(['{"some":"data"}'], 1));
     }
 
     #[DataProvider('getHttpMethods')]
@@ -1004,7 +1021,7 @@ BAR;
             $this->expectExceptionMessage(sprintf(
                 'Expected response body to be a JSON array with %d entr%s, got %d: "[',
                 $lengthToUse,
-                $lengthToUse === 1 ? 'y' : 'ies',
+                1 === $lengthToUse ? 'y' : 'ies',
                 count($body),
             ));
         }
@@ -1038,13 +1055,19 @@ BAR;
     {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar","bar":"foo"}'));
         $this->context->requestPath('/some/path');
-        $this->comparator
+
+        $comparator = $this->createMock(ArrayContainsComparator::class);
+        $comparator
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo', 'foo' => 'bar'], ['foo' => 'bar', 'bar' => 'foo'])
             ->willReturn(true);
 
-        $this->assertTrue($this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1)));
+        $this->assertTrue(
+            $this->context
+                ->setArrayContainsComparator($comparator)
+                ->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo","foo":"bar"}'], 1)),
+        );
     }
 
     /**
@@ -1537,7 +1560,9 @@ BAR;
     {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->comparator
+
+        $comparator = $this->createMock(ArrayContainsComparator::class);
+        $comparator
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
@@ -1545,14 +1570,17 @@ BAR;
 
         $this->expectException(OutOfRangeException::class);
         $this->expectExceptionMessage('error message');
-        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
+        $this->context
+            ->setArrayContainsComparator($comparator)
+            ->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 
     public function testWillThrowExceptionWhenArrayContainsComparatorDoesNotReturnInACorrectMannerWhenCheckingTheResponseBodyForJson(): void
     {
         $this->mockHandler->append(new Response(200, [], '{"foo":"bar"}'));
         $this->context->requestPath('/some/path');
-        $this->comparator
+        $comparator = $this->createMock(ArrayContainsComparator::class);
+        $comparator
             ->expects($this->once())
             ->method('compare')
             ->with(['bar' => 'foo'], ['foo' => 'bar'])
@@ -1560,7 +1588,10 @@ BAR;
 
         $this->expectException(AssertionFailedException::class);
         $this->expectExceptionMessage('Comparator did not return in a correct manner. Marking assertion as failed.');
-        $this->context->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
+
+        $this->context
+            ->setArrayContainsComparator($comparator)
+            ->assertResponseBodyContainsJson(new PyStringNode(['{"bar":"foo"}'], 1));
     }
 
     public function testThrowsExceptionWhenAssertingThatTheResponseContainsJsonAndNoResponseExist(): void

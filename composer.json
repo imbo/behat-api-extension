@@ -24,7 +24,7 @@
   ],
   "support": {
     "source": "https://github.com/imbo/behat-api-extension",
-    "docs": "http://behat-api-extension.readthedocs.io/",
+    "docs": "https://behat-api-extension.readthedocs.io/",
     "issues": "https://github.com/imbo/behat-api-extension/issues"
   },
   "require": {
@@ -60,7 +60,7 @@
     }
   },
   "scripts": {
-    "behat": "vendor/bin/behat --strict",
+    "behat": "vendor/bin/behat --strict --colors",
     "ci": [
       "@behat",
       "@cs",
@@ -71,8 +71,8 @@
     "cs:fix": "vendor/bin/php-cs-fixer fix --diff",
     "dev": "php -S localhost:8080 -t ./features/bootstrap",
     "docs": "cd docs; make html",
-    "phpunit": "vendor/bin/phpunit",
-    "phpunit:coverage": "vendor/bin/phpunit --coverage-html build/coverage",
+    "phpunit": "vendor/bin/phpunit --colors=always",
+    "phpunit:coverage": "@phpunit -- --coverage-html build/coverage",
     "sa": "vendor/bin/phpstan",
     "test": [
       "@behat",

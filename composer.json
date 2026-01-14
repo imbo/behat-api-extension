@@ -60,7 +60,7 @@
     }
   },
   "scripts": {
-    "behat": "vendor/bin/behat --strict",
+    "behat": "vendor/bin/behat --strict --colors",
     "ci": [
       "@behat",
       "@cs",

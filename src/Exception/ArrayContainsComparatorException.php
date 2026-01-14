@@ -7,7 +7,6 @@ use Throwable;
 use function sprintf;
 
 use const JSON_PRETTY_PRINT;
-use const PHP_EOL;
 
 /**
  * Array contains comparator exception.

@@ -82,7 +82,7 @@ class FeatureContext implements Context
 
         if (!$readable) {
             if (PHP_OS_FAMILY === 'Windows') {
-                exec('icacls ' . escapeshellarg($filename) . ' /deny Everyone:(F)');
+                exec('icacls ' . escapeshellarg($filename) . ' /deny Everyone:(R)');
             } else {
                 chmod($filename, 0000);
             }

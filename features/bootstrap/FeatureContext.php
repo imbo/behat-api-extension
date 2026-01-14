@@ -81,8 +81,8 @@ class FeatureContext implements Context
         file_put_contents($filename, $content);
 
         if (!$readable) {
-            if (PHP_OS_FAMILY === 'Windows') {
-                exec('icacls ' . escapeshellarg($filename) . ' /deny Everyone:(R)');
+            if (\PHP_OS_FAMILY === 'Windows') {
+                exec('icacls '.escapeshellarg($filename).' /deny Everyone:(R)');
             } else {
                 chmod($filename, 0000);
             }

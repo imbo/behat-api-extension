@@ -24,16 +24,16 @@
   ],
   "support": {
     "source": "https://github.com/imbo/behat-api-extension",
-    "docs": "http://behat-api-extension.readthedocs.io/",
+    "docs": "https://behat-api-extension.readthedocs.io/",
     "issues": "https://github.com/imbo/behat-api-extension/issues"
   },
   "require": {
     "php": ">=8.3",
     "ext-json": "*",
-    "beberlei/assert": "^3.3",
-    "behat/behat": "^3.29",
-    "firebase/php-jwt": "^6.11",
-    "guzzlehttp/guzzle": "^7.10"
+    "beberlei/assert": "^3",
+    "behat/behat": "^3",
+    "firebase/php-jwt": "^6",
+    "guzzlehttp/guzzle": "^7.7"
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^3.92",

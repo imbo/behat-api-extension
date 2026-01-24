@@ -8,4 +8,5 @@ docs/_build
 .vscode
 .php-cs-fixer.cache
 .php-cs-fixer.php
+composer.lock
 phpstan.neon

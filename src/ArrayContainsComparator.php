@@ -148,7 +148,7 @@ class ArrayContainsComparator
 
         // List of available function names
         $functions = array_map(
-            fn (string $value): string => preg_quote($value, '/'),
+            static fn (string $value): string => preg_quote($value, '/'),
             array_keys($this->functions),
         );
 

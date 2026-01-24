@@ -15,7 +15,7 @@ class ArrayContainsComparatorException extends AssertionFailedException
 {
     public function __construct(string $message, int $code = 0, ?Throwable $previous = null, mixed $needle = null, mixed $haystack = null)
     {
-        $message .= "\n\n" . sprintf(
+        $message .= "\n\n".sprintf(
             <<<MESSAGE
             ================================================================================
             = Needle =======================================================================

@@ -386,7 +386,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
     {
         $jwtMatcher = $this->arrayContainsComparator->getMatcherFunction('jwt');
 
-        if (!($jwtMatcher instanceof JwtMatcher)) {
+        if (!$jwtMatcher instanceof JwtMatcher) {
             throw new RuntimeException(sprintf('Matcher registered for the @jwt() matcher function must be an instance of %s', JwtMatcher::class));
         }
 

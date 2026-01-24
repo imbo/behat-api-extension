@@ -81,7 +81,7 @@ class VariableType
     protected function normalizeTypes(string $types): array
     {
         $types = array_map(
-            fn (string $type): string => trim(strtolower($type)),
+            static fn (string $type): string => trim(strtolower($type)),
             explode('|', $types),
         );
 

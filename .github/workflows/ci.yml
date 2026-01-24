@@ -6,10 +6,11 @@ on:
       - main
 jobs:
   ci:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        os:
+          - ubuntu-latest
         composer-script:
           - behat
           - cs
@@ -19,6 +20,11 @@ jobs:
           - "8.3"
           - "8.4"
           - "8.5"
+        include:
+          - os: windows-latest
+            php: "8.5"
+            composer-script: phpunit
+    runs-on: ${{ matrix.php }}
     name: composer run ${{ matrix.composer-script }} / PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v6

@@ -409,7 +409,7 @@ class ArrayContainsComparatorTest extends TestCase
             ],
             '@customFunction' => [
                 'function' => 'customFunction',
-                'callback' => fn (string $subject, string $param): bool => strtoupper($subject) === $param,
+                'callback' => static fn (string $subject, string $param): bool => strtoupper($subject) === $param,
                 'needle' => [
                     'key' => '@customFunction(BAR)',
                 ],
@@ -494,7 +494,7 @@ class ArrayContainsComparatorTest extends TestCase
             // @customFunction
             [
                 'function' => 'customFunction',
-                'callback' => function (): void {
+                'callback' => static function (): void {
                     throw new InvalidArgumentException('Some custom error message');
                 },
                 'needle' => [
@@ -1062,7 +1062,7 @@ class ArrayContainsComparatorTest extends TestCase
 
     public function testCanReturnRegisteredMatcherFunction(): void
     {
-        $f = fn (): bool => true;
+        $f = static fn (): bool => true;
         $this->comparator->addFunction('function', $f);
         $this->assertSame(
             $f,

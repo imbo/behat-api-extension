@@ -24,7 +24,7 @@ jobs:
           - os: windows-latest
             php: "8.5"
             composer-script: phpunit
-    runs-on: ${{ matrix.php }}
+    runs-on: ${{ matrix.os }}
     name: composer run ${{ matrix.composer-script }} / PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v6

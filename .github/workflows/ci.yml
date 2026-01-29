@@ -24,15 +24,17 @@ jobs:
           - os: windows-latest
             php: "8.5"
             composer-script: phpunit
-    runs-on: ${{ matrix.php }}
+    runs-on: ${{ matrix.os }}
     name: composer run ${{ matrix.composer-script }} / PHP ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: json, fileinfo
       - id: composer-cache-dir
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+        shell: bash
       - id: composer-cache
         uses: actions/cache@v5
         with:
@@ -42,6 +44,7 @@ jobs:
       - run: composer install
       - if: ${{ matrix.composer-script == 'behat' }}
         run: php -S localhost:8080 -t ./features/bootstrap > httpd.log 2>&1 &
+        shell: bash
       - run: composer run ${{ matrix.composer-script }}
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1

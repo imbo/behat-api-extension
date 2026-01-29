@@ -30,6 +30,7 @@
   "require": {
     "php": ">=8.3",
     "ext-json": "*",
+    "ext-fileinfo": "*",
     "beberlei/assert": "^3",
     "behat/behat": "^3",
     "firebase/php-jwt": "^6",

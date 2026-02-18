@@ -32,7 +32,7 @@
     "ext-json": "*",
     "beberlei/assert": "^3",
     "behat/behat": "^3",
-    "firebase/php-jwt": "^6",
+    "firebase/php-jwt": "^6 || ^7",
     "guzzlehttp/guzzle": "^7.7"
   },
   "require-dev": {

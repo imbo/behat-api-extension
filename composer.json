@@ -29,12 +29,13 @@
   },
   "require": {
     "php": ">=8.3",
-    "ext-json": "*",
     "ext-fileinfo": "*",
+    "ext-json": "*",
     "beberlei/assert": "^3",
     "behat/behat": "^3",
     "firebase/php-jwt": "^7",
-    "guzzlehttp/guzzle": "^7.7"
+    "guzzlehttp/guzzle": "^7.7",
+    "jimtools/basic-auth": "^1.0"
   },
   "require-dev": {
     "ext-sockets": "*",
@@ -48,8 +49,7 @@
     "slim/psr7": "^1.8",
     "slim/slim": "^4.15",
     "symfony/process": "^7.4",
-    "symfony/var-dumper": "^7.4",
-    "tuupola/slim-basic-auth": "^3.4"
+    "symfony/var-dumper": "^7.4"
   },
   "autoload": {
     "psr-4": {

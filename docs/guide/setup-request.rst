@@ -171,7 +171,7 @@ This step can be used to prepare the `JWT <https://jwt.io/>`_ custom matcher fun
 
 .. code-block:: gherkin
 
-    Given the response body contains a JWT identified by "my JWT", signed with "some secret":
+    Given the response body contains a JWT identified by "my JWT", signed with "some secret that must be sufficiently long":
         """
         {
             "some": "data",

@@ -484,7 +484,7 @@ Feature: Test examples from the docs
             """
             Feature:
                 Scenario:
-                    Given the response body contains a JWT identified by "my JWT", signed with "secret":
+                    Given the response body contains a JWT identified by "my JWT", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                           "user": "Some user"
@@ -493,7 +493,7 @@ Feature: Test examples from the docs
                     And the request body is:
                         '''
                         {
-                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiU29tZSB1c2VyIn0.DsGGNmDD-PBnwMLiQxeSHDGmKBSdP0lSmWuaiwSxfQE"
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiU29tZSB1c2VyIn0.kmKOtBr00t3bJL3C1tLoZ001W0SCT_cJ2wuT5o3nWHA"
                         }
                         '''
                     When I request "/echo" using HTTP POST

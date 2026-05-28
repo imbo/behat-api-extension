@@ -24,7 +24,7 @@ Feature: Test built in jwt matcher functions
             """
             Feature:
                 Scenario:
-                    Given the response body contains a JWT identified by "jwt1", signed with "secret":
+                    Given the response body contains a JWT identified by "jwt1", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                             "sub": "1234567890",
@@ -32,7 +32,7 @@ Feature: Test built in jwt matcher functions
                             "admin": true
                         }
                         '''
-                    And the response body contains a JWT identified by "jwt2", signed with "secret":
+                    And the response body contains a JWT identified by "jwt2", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                             "sub": "@variableType(string)",
@@ -40,7 +40,7 @@ Feature: Test built in jwt matcher functions
                             "admin": "@variableType(bool)"
                         }
                         '''
-                    And the response body contains a JWT identified by "jwt3", signed with "secret":
+                    And the response body contains a JWT identified by "jwt3", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                             "sub": "@regExp(/^[0-9]+$/)"
@@ -49,7 +49,7 @@ Feature: Test built in jwt matcher functions
                     And the request body is:
                         '''
                         {
-                            "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+                            "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.s2V0YUgz2wbsyE21np_B-gCrgLB6HOe3MXOCsH4PXXM"
                         }
                         '''
                     When I request "/echo?json" using HTTP POST
@@ -86,7 +86,7 @@ Feature: Test built in jwt matcher functions
             """
             Feature:
                 Scenario:
-                    Given the response body contains a JWT identified by "jwt1", signed with "secret":
+                    Given the response body contains a JWT identified by "jwt1", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                             "sub1": "1234567890"
@@ -95,7 +95,7 @@ Feature: Test built in jwt matcher functions
                     And the request body is:
                         '''
                         {
-                            "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+                            "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.s2V0YUgz2wbsyE21np_B-gCrgLB6HOe3MXOCsH4PXXM"
                         }
                         '''
                     When I request "/echo?json" using HTTP POST

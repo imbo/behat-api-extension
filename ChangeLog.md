@@ -1,5 +1,12 @@
 # Changelog for Behat API Extension
 
+## v6.1.0 - 2026-05-28
+
+- [#157](https://github.com/imbo/behat-api-extension/pull/157): Bump all dependencies
+- [#151](https://github.com/imbo/behat-api-extension/pull/151): Remove/ignore lock file and downgrade minimum requirements ([@uuf6429])
+- [#146](https://github.com/imbo/behat-api-extension/pull/146): Various fixes and minor improvements ([@uuf6429])
+- [#144](https://github.com/imbo/behat-api-extension/pull/144): Replace annotations with attributes ([@uuf6429])
+
 ## v6.0.1 - 2025-11-16
 
 - [#142](https://github.com/imbo/behat-api-extension/pull/142): Allow 'name' as parameter name

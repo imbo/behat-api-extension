@@ -24,13 +24,13 @@ Feature: Test built in matcher functions
             """
             Feature: Verify response with matcher functions
                 Scenario: Use custom matcher functions
-                    Given the response body contains a JWT identified by "my first jwt", signed with "secret":
+                    Given the response body contains a JWT identified by "my first jwt", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                             "foo": "bar"
                         }
                         '''
-                    And the response body contains a JWT identified by "my second jwt", signed with "secret":
+                    And the response body contains a JWT identified by "my second jwt", signed with "b5ffc083b648ba8b7387640c968c23dd1ebaad1c6fa88ce294dde241f81b546e64a5b907dca5b1ceff58d844fc69be5f5d2cfe3ebe6b0855e7bbe341e52c3012":
                         '''
                         {
                             "bar": "foo"
@@ -52,8 +52,8 @@ Feature: Test built in matcher functions
                             },
                             "number": 123,
                             "jwts": [
-                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA",
-                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJiYXIiOiJmb28ifQ.iGIMsZebMkO_0_xs1SpQVf7lRB6da72b6xu3RyqOIc8"
+                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIifQ.ZkI5KsVQ3KMHxOovdQBoTUGVX-ccuPgufCHfSuXWZM0",
+                                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJiYXIiOiJmb28ifQ.EXJ9NpZ9zP-9tGypnzzsw89XkCljyjDcubE9n66LK1g"
                             ]
                         }
                         '''

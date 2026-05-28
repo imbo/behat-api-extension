@@ -3,6 +3,7 @@
 namespace Imbo\BehatApiExtension;
 
 use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher;
+use Imbo\BehatApiExtension\ArrayContainsComparator\Matcher\JWTTest;
 use Imbo\BehatApiExtension\Exception\ArrayContainsComparatorException;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -399,12 +400,12 @@ class ArrayContainsComparatorTest extends TestCase
             ],
             '@jwt' => [
                 'function' => 'jwt',
-                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], 'secret'),
+                'callback' => (new Matcher\JWT(new ArrayContainsComparator()))->addToken('my jwt', ['some' => 'data'], JWTTest::SECRET),
                 'needle' => [
                     'key' => '@jwt(my jwt)',
                 ],
                 'haystack' => [
-                    'key' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoiZGF0YSJ9.g1aG08iQyPPwCTJHCxRrkKoYmLiHbBNdarcBQkCPMG4',
+                    'key' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzb21lIjoiZGF0YSJ9.psVfg_4hjG5Gjj_C_TANU9sgREYVdYazg3NTj9fQIO8',
                 ],
             ],
             '@customFunction' => [

@@ -648,7 +648,7 @@ Given the following response body:
 .. code-block:: json
 
     {
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiU29tZSB1c2VyIn0.DsGGNmDD-PBnwMLiQxeSHDGmKBSdP0lSmWuaiwSxfQE"
+      "value": "<some JWT token>"
     }
 
 one can validate the JWT using a combination of two steps:
@@ -656,7 +656,7 @@ one can validate the JWT using a combination of two steps:
 .. code-block:: gherkin
 
     # Register the JWT
-    Given the response body contains a JWT identified by "my JWT", signed with "secret":
+    Given the response body contains a JWT identified by "my JWT", signed with "some secret that must be sufficiently long":
         """
         {
             "user": "Some user"

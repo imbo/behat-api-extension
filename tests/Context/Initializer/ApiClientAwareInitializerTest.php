@@ -30,7 +30,7 @@ class ApiClientAwareInitializerTest extends TestCase
 
         $result = false;
 
-        for ($port = 8000; $port < 8079; ++$port) {
+        for ($port = 8_000; $port < 8_079; ++$port) {
             if ($result = socket_bind($sock, 'localhost', $port)) {
                 break;
             }

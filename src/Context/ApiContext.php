@@ -12,6 +12,7 @@ use Behat\Step\When;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ResponseException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\UriResolver;
 use GuzzleHttp\Psr7\Utils;
@@ -61,7 +62,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Options to send with the request.
      *
      * @var array{
-     *   auth:array<string>,
+     *   auth:array{0:string,1:string,2?:string|null}|array{},
      *   form_params:array<string,string|array<string>>,
      *   multipart:array<array{name:string,contents:string|resource,filename?:string}>,
      *   query:array<string,mixed>
@@ -1236,12 +1237,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
                 $this->request,
                 array_filter($this->requestOptions),
             );
-        } catch (RequestException $e) {
+        } catch (ResponseException $e) {
             $this->response = $e->getResponse();
-
-            if (!$this->response) {
-                throw $e;
-            }
         }
 
         return $this;

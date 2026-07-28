@@ -34,7 +34,7 @@
     "beberlei/assert": "^3",
     "behat/behat": "^3",
     "firebase/php-jwt": "^7",
-    "guzzlehttp/guzzle": "^7.7",
+    "guzzlehttp/guzzle": "^8.0",
     "jimtools/basic-auth": "^1.0"
   },
   "require-dev": {

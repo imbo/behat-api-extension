@@ -1,5 +1,9 @@
 # Changelog for Behat API Extension
 
+## v6.1.2 - 2026-08-07
+
+- [#163](https://github.com/imbo/behat-api-extension/pull/163): Fix incorrect tagging of previous release
+
 ## v6.1.1 - 2026-08-07
 
 - [#161](https://github.com/imbo/behat-api-extension/pull/161): Handle ignored error

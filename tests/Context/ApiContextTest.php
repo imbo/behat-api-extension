@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\MultipartStream;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -21,6 +22,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use stdClass;
 
@@ -62,18 +65,19 @@ class ApiContextTest extends TestCase
 {
     private ApiContext $context;
     private MockHandler $mockHandler;
+    /** @var HandlerStack<callable(RequestInterface,array<mixed>):PromiseInterface<ResponseInterface,mixed>> */
     private HandlerStack $handlerStack;
     private Stub&ArrayContainsComparator $comparator;
-    /** @var array<array{request:Request,response:Response}> */
+    /** @var array<array{request:RequestInterface,response:?ResponseInterface}> */
     private array $historyContainer = [];
 
     protected function setUp(): void
     {
-        $this->historyContainer = [];
-
         $this->mockHandler = new MockHandler();
         $this->handlerStack = HandlerStack::create($this->mockHandler);
-        $this->handlerStack->push(Middleware::history($this->historyContainer));
+        $this->historyContainer = [];
+        $container = &$this->historyContainer;
+        $this->handlerStack->push(Middleware::history($container));
         $this->comparator = $this->createStub(ArrayContainsComparator::class);
 
         $this->context = new ApiContext();

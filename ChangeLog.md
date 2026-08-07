@@ -1,5 +1,9 @@
 # Changelog for Behat API Extension
 
+## v6.1.1 - 2026-08-07
+
+- [#161](https://github.com/imbo/behat-api-extension/pull/161): Handle ignored error
+
 ## v6.1.0 - 2026-05-28
 
 - [#157](https://github.com/imbo/behat-api-extension/pull/157): Bump all dependencies

@@ -4,20 +4,7 @@ Feature: Test built in matcher functions failures
     I want to be able to test all available steps
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario: Assert that @arrayLength can fail
         Given a file named "features/array-length-failure.feature" with:

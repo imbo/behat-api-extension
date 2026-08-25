@@ -4,20 +4,7 @@ Feature: Test examples from the docs
     I want to be able to test all examples
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario:
         Given a file named "features/example.feature" with:

@@ -4,19 +4,7 @@ Feature: Test auth steps
     I want to be able to test all available steps
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario: Successfully authenticate
         Given a file named "features/auth-success.feature" with:

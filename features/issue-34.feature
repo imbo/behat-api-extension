@@ -4,20 +4,7 @@ Feature: Fix issue #34
     I need to recursively compare arrays / lists
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario: Recursively compare objects in a list
         Given a file named "features/issue-34.feature" with:

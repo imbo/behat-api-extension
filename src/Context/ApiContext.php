@@ -194,9 +194,8 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      *
      * @param string $username The username to authenticate with
      * @param string $password The password to authenticate with
-     *
-     * @Given I am authenticating as :username with password :password
      */
+    #[Given('I am authenticating as :username with password :password')]
     public function setBasicAuth(string $username, string $password): static
     {
         $this->requestOptions['auth'] = [$username, $password];

@@ -4,20 +4,7 @@ Feature: Test form-data handling
     I want to be able to test all related steps
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario: Attach form data to the request with no HTTP method specified
         Given a file named "features/attach-form-data.feature" with:
@@ -98,7 +85,7 @@ Feature: Test form-data handling
                         | foo  | bar   |
                         | bar  | foo   |
                         | bar  | bar   |
-                    And I attach "behat.yml" to the request as file
+                    And I attach "behat.php" to the request as file
                     When I request "/requestInfo"
                     Then the response body contains JSON:
                     '''
@@ -109,8 +96,8 @@ Feature: Test form-data handling
                         },
                         "_FILES": {
                             "file": {
-                                "name": "behat.yml",
-                                "type": "text/yaml",
+                                "name": "behat.php",
+                                "type": "application/x-httpd-php",
                                 "tmp_name": "@regExp(/.*/)",
                                 "error": 0,
                                 "size": "@regExp(/[0-9]+/)"

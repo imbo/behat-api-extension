@@ -1,7 +1,7 @@
 Behat API Extension
 ###################
 
-An open source (`MIT licensed <http://opensource.org/licenses/MIT>`_) Behat extension that provides an easy way to test JSON-based APIs in Behat 3.
+An open source (`MIT licensed <https://opensource.org/licenses/MIT>`_) `Behat <https://behat.org/>`_ extension that provides an easy way to test JSON-based HTTP APIs.
 
 Installation guide
 ******************

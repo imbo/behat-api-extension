@@ -114,7 +114,7 @@ The following public methods in the ``Imbo\BehatApiExtension\Context\ApiContext`
 ``thenTheResponseIs``                                 ``assertResponseIs``
 ``thenTheResponseIsNot``                              ``assertResponseIsNot``
 ``thenTheResponseHeaderExists``                       ``assertResponseHeaderExists``
-``thenTheResponseHeaderDoesNotExist``                 ``assertResponseHeaderDoesNotExists``
+``thenTheResponseHeaderDoesNotExist``                 ``assertResponseHeaderDoesNotExist``
 ``thenTheResponseHeaderIs``                           ``assertResponseHeaderIs``
 ``thenTheResponseHeaderMatches``                      ``assertResponseHeaderMatches``
 ``thenTheResponseBodyIsAnEmptyObject``                ``assertResponseBodyIsAnEmptyJsonObject``
@@ -136,7 +136,7 @@ Some methods have also been removed (as the result of removed steps):
 Updated steps
 ^^^^^^^^^^^^^
 
-``v1`` contained several ``When`` steps that could configure the request as well as sending it, in the same step. These steps has been removed in ``v2.0.0``, and the extension now requires you to configure all aspects of the request using the ``Given`` steps prior to issuing one of the few ``When`` steps.
+``v1`` contained several ``When`` steps that could configure the request as well as sending it, in the same step. These steps have been removed in ``v2.0.0``, and the extension now requires you to configure all aspects of the request using the ``Given`` steps prior to issuing one of the few ``When`` steps.
 
 .. contents:: Removed / updated steps
     :local:
@@ -351,7 +351,7 @@ Slight change that adds "JSON" in the step text for clarification:
 Functions names for the JSON matcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When recursively checking a JSON response body, some custom functions exist that is represented as the value in a key / value pair. Below is a table of all available functions in ``v1`` along with the updated names used in ``v2``:
+When recursively checking a JSON response body, some custom functions exist that are represented as the value in a key / value pair. Below is a table of all available functions in ``v1`` along with the updated names used in ``v2``:
 
 ======================  ========================
 ``v1`` function         ``v2`` function
@@ -362,11 +362,11 @@ When recursively checking a JSON response body, some custom functions exist that
 ``<re>/pattern/</re>``  ``@regExp(/pattern/)``
 ======================  ========================
 
-``v2`` have also added more such functions, refer to the :ref:`custom-matcher-functions-and-targeting` section for a complete list.
+``v2`` has also added more such functions, refer to the :ref:`custom-matcher-functions-and-targeting` section for a complete list.
 
 Exceptions
 ^^^^^^^^^^
 
-The extension will from ``v2`` on throw native PHP exceptions or namespaced exceptions (like for instance ``Imbo\BehatApiExtension\Exception\AssertionException``). In ``v1`` exceptions could come directly from ``beberlei/assert``, which is the assertion library used in the extension. The fact that the extension uses this library is an implementation detail, and it should be possible to switch out this library without making any changes to the public API of the extension.
+The extension will from ``v2`` on throw native PHP exceptions or namespaced exceptions (for instance ``Imbo\BehatApiExtension\Exception\AssertionException``). In ``v1`` exceptions could come directly from ``beberlei/assert``, which is the assertion library used in the extension. The fact that the extension uses this library is an implementation detail, and it should be possible to switch out this library without making any changes to the public API of the extension.
 
-If versions after ``v2`` throws other exceptions it should be classified as a bug and fixed accordingly.
+If versions after ``v2`` throw other exceptions it should be classified as a bug and fixed accordingly.

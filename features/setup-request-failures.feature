@@ -4,20 +4,7 @@ Feature: Setup steps can fail
     I want to be able to test all available steps and outcomes
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario: Attach multipart file that does not exist
         Given a file named "features/attach-multipart-file-that-does-not-exist.feature" with:

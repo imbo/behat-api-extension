@@ -4,60 +4,10 @@ Feature: Custom function addition
     I need to be able to add the matcher in the feature context
 
     Background:
-        Given a file named "features/bootstrap/FeatureContext.php" with:
-            """
-            <?php
-            use Imbo\BehatApiExtension\Context\ApiContext;
-            use Imbo\BehatApiExtension\ArrayContainsComparator;
-            use Assert\Assertion;
-
-            class MyMatcher {
-                public function __invoke($value) {
-                    if (!is_string($value)) {
-                        throw new InvalidArgumentException('Want string yo');
-                    }
-                }
-            }
-
-            class FeatureContext extends ApiContext {
-                public function setArrayContainsComparator(ArrayContainsComparator $comparator): static {
-                    $comparator->addFunction('myMatcher', new MyMatcher());
-                    $comparator->addFunction('valueIs', function ($actual, $expected) {
-                        if ($actual !== $expected) {
-                            throw new InvalidArgumentException(sprintf(
-                                'Expected "%s", got "%s".',
-                                $expected,
-                                $actual
-                            ));
-                        }
-                    });
-
-                    return parent::setArrayContainsComparator($comparator);
-                }
-
-                /**
-                 * @Then :actual is :expected
-                 */
-                public function assertValueIsBar($actual, $expected) {
-                    $needle = ['value' => sprintf('@valueIs(%s)', $expected)];
-                    $haystack = ['value' => $actual];
-
-                    Assertion::true(
-                        $this->arrayContainsComparator->compare($needle, $haystack)
-                    );
-                }
-            }
-            """
+        Given a custom FeatureContext file named "FeatureContext-custom-matchers.php"
 
     Scenario: Custom function passes
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/test-custom-function.feature" with:
             """
             Feature: Custom matcher function
@@ -78,14 +28,7 @@ Feature: Custom function addition
             """
 
     Scenario: Custom function fails
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/test-custom-function-failure.feature" with:
             """
             Feature: Custom matcher function
@@ -103,14 +46,7 @@ Feature: Custom function addition
             """
 
     Scenario: Custom myMatcher class passes
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/test-custom-matcher-class.feature" with:
             """
             Feature: Custom matcher function
@@ -137,14 +73,7 @@ Feature: Custom function addition
             """
 
     Scenario: Custom myMatcher class passes when used in list
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/test-custom-matcher-class-in-list.feature" with:
             """
             Feature: Custom matcher function
@@ -173,14 +102,7 @@ Feature: Custom function addition
             """
 
     Scenario: Custom myMatcher class fails
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/test-custom-matcher-class-fails.feature" with:
             """
             Feature: Custom matcher function
@@ -204,14 +126,7 @@ Feature: Custom function addition
             """
 
     Scenario: Custom myMatcher class fails when used with list
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/test-custom-matcher-class-fails-in-list.feature" with:
             """
             Feature: Custom matcher function

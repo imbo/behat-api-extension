@@ -4,20 +4,7 @@ Feature: Assertion steps can fail
     I want to be able to test all available steps and outcomes
 
     Background:
-        Given a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension:
-                        apiClient:
-                            base_uri: http://localhost:8080
-
-                suites:
-                    default:
-                        contexts: ['Imbo\BehatApiExtension\Context\ApiContext']
-            """
+        Given a default Behat configuration file
 
     Scenario: Assert that the response is not failure
         Given a file named "features/assert-response-code-is-not.feature" with:

@@ -20,12 +20,12 @@ When I request ``:path`` using HTTP ``:method``
 
 **Examples:**
 
-*Assume that the ``base_uri`` configuration option has been set to ``http://example.com/dir`` in the following examples.*
+*Assume that the ``base_uri`` configuration option has been set to ``https://example.com/dir`` in the following examples.*
 
 =====================================================  =====================  ===========  =======================================
 Step                                                   ``:path``              ``:method``  Resulting URI
 =====================================================  =====================  ===========  =======================================
-When I request "``/?foo=bar&bar=foo``"                 ``/?foo=bar&bar=foo``  ``GET``      ``http://example.com/?foo=bar&bar=foo``
-When I request "``/some/path``" using HTTP ``DELETE``  ``/some/path``         ``DELETE``   ``http://example.com/some/path``
-When I request "``foobar``" using HTTP ``POST``        ``foobar``             ``POST``     ``http://example.com/dir/foobar``
+When I request "``/?foo=bar&bar=foo``"                 ``/?foo=bar&bar=foo``  ``GET``      ``https://example.com/?foo=bar&bar=foo``
+When I request "``/some/path``" using HTTP ``DELETE``  ``/some/path``         ``DELETE``   ``https://example.com/some/path``
+When I request "``foobar``" using HTTP ``POST``        ``foobar``             ``POST``     ``https://example.com/dir/foobar``
 =====================================================  =====================  ===========  =======================================

@@ -4,34 +4,8 @@ Feature: Configure internal client
     I need to configure the internal Guzzle client in the feature context
 
     Scenario: Context parameters
-        Given a file named "features/bootstrap/FeatureContext.php" with:
-            """
-            <?php
-            use GuzzleHttp\HandlerStack;
-            use GuzzleHttp\Middleware;
-            use Imbo\BehatApiExtension\Context\ApiContext;
-
-            class FeatureContext extends ApiContext
-            {
-                public function initializeClient(array $config): static
-                {
-                    $stack = $config['handler'] ?? HandlerStack::create();
-                    $stack->push(Middleware::mapRequest(
-                        fn ($req) => $req->withAddedHeader('Some-Custom-Header', 'some value')
-                    ));
-                    $config['handler'] = $stack;
-                    return parent::initializeClient($config);
-                }
-            }
-            """
-        And a file named "behat.yml" with:
-            """
-            default:
-                formatters:
-                    progress: ~
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a custom FeatureContext file named "FeatureContext-configure-client.php"
+        And a minimal Behat configuration file
         And a file named "features/check-request-headers.feature" with:
             """
             Feature: Request data from endpoint

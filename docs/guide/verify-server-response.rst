@@ -57,7 +57,7 @@ Assert that the response reason phrase matches the regular expression ``:pattern
 * Then the response reason phrase matches "``/ok/i``"
 * Then the response reason phrase matches "``/OK/``"
 
-For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <https://php.net/pcre>`_.
 
 Then the response status line is ``:line``
 ------------------------------------------
@@ -89,7 +89,7 @@ Assert that the response status line matches the regular expression ``:pattern``
 * Then the response status line matches "``/200 ok/i``"
 * Then the response status line matches "``/200 OK/``"
 
-For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <https://php.net/pcre>`_.
 
 Then the response is ``:group``
 -------------------------------
@@ -186,7 +186,7 @@ Assert that the value of the ``:header`` response header matches the regular exp
 * Then the "``x-foo``" response header matches "``/(FOO|BAR)/i``"
 * Then the "``X-FOO``" response header matches "``/^(foo|bar)$/``"
 
-For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <http://php.net/pcre>`_.
+For more information regarding regular expressions and the usage of modifiers, `refer to the PHP manual <https://php.net/pcre>`_.
 
 Then the response body is empty
 -------------------------------
@@ -220,7 +220,7 @@ If the response body does not contain a JSON array, the test will fail.
 Then the response body is a JSON array with a length of at least ``:length``
 ----------------------------------------------------------------------------
 
-Assert that the length of the JSON array in the response body has a length of at least ``:length``.
+Assert that the length of the JSON array in the response body is at least ``:length``.
 
 **Examples:**
 
@@ -232,7 +232,7 @@ If the response body does not contain a JSON array, the test will fail.
 Then the response body is a JSON array with a length of at most ``:length``
 ---------------------------------------------------------------------------
 
-Assert that the length of the JSON array in the response body has a length of at most ``:length``.
+Assert that the length of the JSON array in the response body is at most ``:length``.
 
 **Examples:**
 
@@ -503,7 +503,7 @@ the type of the values can be asserted like this:
 
 The ``bool``, ``int`` and ``double`` types can also be expressed using ``boolean``, ``integer`` and ``float`` respectively. There is no difference in the actual validation being executed.
 
-For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <http://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
+For the ``@variableType(scalar)`` assertion refer to the `is_scalar function <https://php.net/is_scalar>`_ in the PHP manual as to what is considered to be a scalar.
 
 When using ``any`` as a type, the validation will basically allow any types, including ``null``. One can also match against multiple types using ``|`` (for instance ``@variableType(int|double|string)``). When using multiple types the validation will succeed (and stop) as soon as the value being tested matches one of the supplied types. Validation is done in the order specified.
 
@@ -525,7 +525,7 @@ To use regular expressions to match values, the ``@regExp`` function exists, tha
         }
         """
 
-This can be used to match variables of type ``string``, ``integer`` and ``float``/``double`` only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <http://php.net/pcre>`_ regarding how regular expressions work in PHP.
+This can be used to match variables of type ``string``, ``integer`` and ``float``/``double`` only, and the value that is matched will be cast to a string before doing the match. Refer to the `PHP manual <https://php.net/pcre>`_ regarding how regular expressions work in PHP.
 
 Match specific keys in a numerically indexed array - ``<key>[<index>]``
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -4,37 +4,10 @@ Feature: Client aware context
     I need the Guzzle client in the feature context
 
     Background:
-        Given a file named "features/bootstrap/FeatureContext.php" with:
-            """
-            <?php
-            use Imbo\BehatApiExtension\Context\ApiClientAwareContext;
-            use GuzzleHttp\ClientInterface;
-            use Assert\Assertion;
-
-            class FeatureContext implements ApiClientAwareContext {
-                private bool $set = false;
-
-                public function initializeClient(array $config): static {
-                    $this->set = true;
-                    return $this;
-                }
-
-                /**
-                 * @Then the client should be set
-                 */
-                public function theClientShouldBeSet() {
-                    Assertion::true($this->set);
-                }
-            }
-            """
+        Given a custom FeatureContext file named "FeatureContext-api-client-aware.php"
 
     Scenario: Context parameters
-        Given a file named "behat.yml" with:
-            """
-            default:
-                extensions:
-                    Imbo\BehatApiExtension: ~
-            """
+        Given a minimal Behat configuration file
         And a file named "features/client.feature" with:
             """
             Feature: API client

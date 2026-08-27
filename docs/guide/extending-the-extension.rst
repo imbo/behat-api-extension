@@ -1,24 +1,23 @@
 Extending the extension
 =======================
 
-If you want to implement your own assertions, or for instance add custom authentication for all requests made against your APIs you can extend the context class provided by the extension to access the client, request, request options, response and the array contains comparator properties. These properties are accessed via the protected ``$this->client``, ``$this->request``, ``$this->requestOptions``, ``$this->response`` and ``$this->arrayContainsComparator`` properties respectively. Keep in mind that ``$this->response`` is not populated until the client has made a request, i.e. after any of the aforementioned ``@When`` steps have finished.
+If you want to implement your own assertions, or for instance add custom authentication for all requests made against your APIs you can extend the context class provided by the extension to access the client, request, request options, response and the array contains comparator properties. These properties are accessed via the protected ``$this->client``, ``$this->request``, ``$this->requestOptions``, ``$this->response`` and ``$this->arrayContainsComparator`` properties respectively. Keep in mind that ``$this->response`` is not populated until the client has made a request, i.e. after any of the aforementioned ``When`` steps have finished.
 
-Add ``@Given``'s, ``@When``'s and/or ``@Then``'s
+Add ``Given``'s, ``When``'s and/or ``Then``'s
 ------------------------------------------------
 
-If you want to add a ``@Given``, ``@When`` and/or ``@Then`` step, simply add a method in your ``FeatureContext`` class along with the step using annotations in the ``phpdoc`` block:
+If you want to add a ``Given``, ``When`` and/or ``Then`` step, simply add a method in your ``FeatureContext`` class along with the step using PHP attributes for the method:
 
 .. code-block:: php
 
     <?php
+    use Behat\Step\Then;
     use Imbo\BehatApiExtension\Context\ApiContext;
     use Imbo\BehatApiExtension\Exception\AssertionFailedException;
 
     class FeatureContext extends ApiContext
     {
-        /**
-         * @Then I want to check something
-         */
+        #[Then('I want to check something')]
         public function assertSomething()
         {
             // do some assertions on $this->response, and throw a AssertionFailedException
@@ -26,7 +25,7 @@ If you want to add a ``@Given``, ``@When`` and/or ``@Then`` step, simply add a m
         }
     }
 
-With the above example you can now use ``Then I want to check something`` can be used in your feature files along with the steps defined by the extension.
+With the above example you can now use ``Then I want to check something`` in your feature files along with the steps defined by the extension.
 
 .. _configure-the-api-client:
 

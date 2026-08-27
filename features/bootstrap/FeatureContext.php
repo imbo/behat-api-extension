@@ -2,8 +2,16 @@
 use Assert\Assertion;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Hook\AfterSuite;
+use Behat\Hook\BeforeScenario;
+use Behat\Hook\BeforeSuite;
+use Behat\Step\Given;
+use Behat\Step\Then;
+use Behat\Step\When;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+
+use const DIRECTORY_SEPARATOR;
 
 class FeatureContext implements Context
 {
@@ -24,14 +32,12 @@ class FeatureContext implements Context
 
     /**
      * Remove test dir (/tmp/behat-api-extension) before and after tests if it exists.
-     *
-     * @BeforeSuite
-     *
-     * @AfterSuite
      */
+    #[BeforeSuite]
+    #[AfterSuite]
     public static function emptyTestDir(): void
     {
-        $testDir = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'behat-api-extension';
+        $testDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'behat-api-extension';
 
         if (is_dir($testDir)) {
             self::rmDir($testDir);
@@ -42,15 +48,13 @@ class FeatureContext implements Context
      * Prepare a scenario.
      *
      * @throws RuntimeException
-     *
-     * @BeforeScenario
      */
+    #[BeforeScenario]
     public function prepareScenario(): void
     {
-        $dir = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'behat-api-extension'.\DIRECTORY_SEPARATOR.microtime(true);
+        $dir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'behat-api-extension'.DIRECTORY_SEPARATOR.microtime(true);
         mkdir($dir.'/features/bootstrap', 0777, true);
 
-        // Locate the php binary
         if (($bin = (new PhpExecutableFinder())->find()) === false) {
             throw new RuntimeException('Unable to find the PHP executable.');
         }
@@ -65,12 +69,11 @@ class FeatureContext implements Context
      * @param string       $filename Name of the file relative to the working dir
      * @param PyStringNode $content  Content of the file
      * @param bool         $readable Whether or not the created file is readable
-     *
-     * @Given a file named :filename with:
      */
+    #[Given('a file named :filename with:')]
     public function createFile(string $filename, PyStringNode $content, bool $readable = true): void
     {
-        $filename = rtrim((string) $this->workingDir, \DIRECTORY_SEPARATOR).\DIRECTORY_SEPARATOR.ltrim($filename, \DIRECTORY_SEPARATOR);
+        $filename = rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.ltrim($filename, DIRECTORY_SEPARATOR);
         $path = dirname($filename);
         $content = str_replace("'''", '"""', (string) $content);
 
@@ -90,13 +93,50 @@ class FeatureContext implements Context
     }
 
     /**
+     * Creates a default Behat configuration file (with apiClient pointing to localhost:8080 and ApiContext suite).
+     */
+    #[Given('a default Behat configuration file')]
+    public function createDefaultBehatConfig(): void
+    {
+        $this->copyBehatConfig(__DIR__.'/behat-default.php');
+    }
+
+    /**
+     * Creates a minimal Behat configuration file (extension only, no apiClient or suite).
+     */
+    #[Given('a minimal Behat configuration file')]
+    public function createMinimalBehatConfig(): void
+    {
+        $this->copyBehatConfig(__DIR__.'/behat-minimal.php');
+    }
+
+    /**
+     * Copies a pre-defined FeatureContext fixture into the working directory.
+     */
+    #[Given('a custom FeatureContext file named :filename')]
+    public function copyFeatureContextFixture(string $filename): void
+    {
+        copy(
+            __DIR__.'/'.$filename,
+            rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR).'/features/bootstrap/FeatureContext.php',
+        );
+    }
+
+    /**
+     * Copy a config file to behat.php in the working directory.
+     */
+    private function copyBehatConfig(string $source): void
+    {
+        copy($source, rtrim((string) $this->workingDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'behat.php');
+    }
+
+    /**
      * Creates a non-readable file with specified name and content in the current working dir.
      *
      * @param string       $filename Name of the file relative to the working dir
      * @param PyStringNode $content  Content of the file
-     *
-     * @Given a non-readable file named :filename with:
      */
+    #[Given('a non-readable file named :filename with:')]
     public function createNonReadableFile(string $filename, PyStringNode $content): void
     {
         $this->createFile($filename, $content, false);
@@ -106,9 +146,8 @@ class FeatureContext implements Context
      * Runs Behat.
      *
      * @throws RuntimeException
-     *
-     * @When /^I run "behat(?: ((?:\"|[^"])*))?"$/
      */
+    #[When('/^I run "behat(?: ((?:\"|[^"])*))?"$/')]
     public function runBehat(string $args = ''): void
     {
         if (!defined('BEHAT_BIN_PATH')) {
@@ -134,9 +173,8 @@ class FeatureContext implements Context
 
     /**
      * Checks whether the command failed or passed, with output.
-     *
-     * @Then /^it should (fail|pass) with:$/
      */
+    #[Then('/^it should (fail|pass) with:$/')]
     public function assertCommandResultWithOutput(string $result, PyStringNode $output): void
     {
         $this->assertCommandResult($result);
@@ -145,9 +183,8 @@ class FeatureContext implements Context
 
     /**
      * Assert command output contains a string.
-     *
-     * @Then the output should contain:
      */
+    #[Then('the output should contain:')]
     public function assertCommandOutputMatches(PyStringNode $content): void
     {
         Assertion::contains(
@@ -159,9 +196,8 @@ class FeatureContext implements Context
 
     /**
      * Checks whether the command failed or passed.
-     *
-     * @Then /^it should (fail|pass)$/
      */
+    #[Then('/^it should (fail|pass)$/')]
     public function assertCommandResult(string $result): void
     {
         $exitCode = $this->getExitCode();

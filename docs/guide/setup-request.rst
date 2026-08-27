@@ -158,7 +158,7 @@ Step                                                 ``:path``
 Given the request body contains "``/path/to/file``"  ``/path/to/file``
 ===================================================  =================
 
-The step will figure out the mime type of the file (using `mime_content_type <http://php.net/mime_content_type>`_) and set the ``Content-Type`` request header as well. If you wish to override the mime type you can use the :ref:`given-the-header-request-header-is-value` step **after** setting the request body.
+The step will figure out the mime type of the file (using `mime_content_type <https://php.net/mime_content_type>`_) and set the ``Content-Type`` request header as well. If you wish to override the mime type you can use the :ref:`given-the-header-request-header-is-value` step **after** setting the request body.
 
 .. _given-the-response-body-contains-a-jwt:
 

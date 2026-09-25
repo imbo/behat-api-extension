@@ -10,5 +10,7 @@ return (new Config())
     ->withProfile(
         (new Profile('default'))
             ->withFormatter(new ProgressFormatter(false))
-            ->withExtension(new Extension(BehatApiExtension::class)),
+            ->withExtension(new Extension(BehatApiExtension::class, [
+                'apiClient' => ['base_uri' => 'http://localhost:8080'],
+            ])),
     );

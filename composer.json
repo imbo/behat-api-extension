@@ -32,7 +32,7 @@
     "ext-fileinfo": "*",
     "ext-json": "*",
     "beberlei/assert": "^3",
-    "behat/behat": "^3",
+    "behat/behat": "^3 || ^4",
     "firebase/php-jwt": "^7",
     "guzzlehttp/guzzle": "^8.0",
     "jimtools/basic-auth": "^1.0"

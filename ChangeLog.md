@@ -1,5 +1,9 @@
 # Changelog for Behat API Extension
 
+## v6.1.3 - N/A
+
+- [#170](https://github.com/imbo/behat-api-extension/pull/170): Revert bump of Guzzle
+
 ## v6.1.2 - 2026-08-07
 
 - [#163](https://github.com/imbo/behat-api-extension/pull/163): Fix incorrect tagging of previous release

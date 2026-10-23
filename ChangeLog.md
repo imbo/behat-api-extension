@@ -1,6 +1,6 @@
 # Changelog for Behat API Extension
 
-## v6.1.3 - N/A
+## v6.1.3 - 2026-10-23
 
 - [#170](https://github.com/imbo/behat-api-extension/pull/170): Revert bump of Guzzle
 

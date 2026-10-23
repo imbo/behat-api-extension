@@ -30,9 +30,7 @@ class BehatApiExtensionTest extends TestCase
         $config = (new Processor())->process($rootNode->getNode(true), []);
 
         $this->assertSame([
-            'apiClient' => [
-                'base_uri' => 'http://localhost:8080',
-            ],
+            'apiClient' => [],
         ], $config);
     }
 

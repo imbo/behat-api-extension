@@ -20,8 +20,8 @@ If you want to add a ``Given``, ``When`` and/or ``Then`` step, simply add a meth
         #[Then('I want to check something')]
         public function assertSomething()
         {
-            // do some assertions on $this->response, and throw a AssertionFailedException
-            // exception if the assertion fails.
+            // do some assertions on $this->response, and throw an AssertionFailedException
+            // if the assertion fails.
         }
     }
 
@@ -68,19 +68,15 @@ The extension comes with some built in matcher functions used to verify JSON-con
     class FeatureContext extends ApiContext
     {
         /**
-         * Add a custom function called @gt to the comparator
+         * Add a custom function called @startsWith to the comparator
          */
-        public function setArrayContainsComparator(ArrayContainsComparator $comparator): self
+        public function setArrayContainsComparator(ArrayContainsComparator $comparator): static
         {
-            $comparator->addFunction('gt', function ($num, $gt) {
-                $num = (int) $num;
-                $gt = (int) $gt;
-
-                if ($num <= $gt) {
+            $comparator->addFunction('startsWith', static function (mixed $value, string $prefix): void {
+                if (!is_string($value) || !str_starts_with($value, $prefix)) {
                     throw new InvalidArgumentException(sprintf(
-                        'Expected number to be greater than %d, got: %d.',
-                        $gt,
-                        $num
+                        'Expected a string starting with "%s".',
+                        $prefix
                     ));
                 }
             });
@@ -89,21 +85,21 @@ The extension comes with some built in matcher functions used to verify JSON-con
         }
     }
 
-The above snippet adds a custom matcher function called ``@gt`` that can be used to check if a number is greater than another number. Given the following response body:
+The above snippet adds a custom matcher function called ``@startsWith`` that checks whether a string starts with the given prefix. A matcher must throw an exception if the value does not match; returning ``false`` does not indicate a mismatch. Given the following response body:
 
 .. code-block:: json
 
     {
-      "number": 42
+      "id": "API-42"
     }
 
-the number in the ``number`` key could be verified with:
+the prefix of the string in the ``id`` key could be verified with:
 
 .. code-block:: gherkin
 
     Then the response body contains JSON:
         """
         {
-          "number": "@gt(40)"
+          "id": "@startsWith(API-)"
         }
         """

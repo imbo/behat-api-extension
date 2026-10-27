@@ -23,11 +23,13 @@ After you have installed the extension you need to activate it in your Behat con
 
 The following configuration options are required for the extension to work as expected:
 
-======================  ======  =====================  =======================================
-Key                     Type    Default value          Description
-======================  ======  =====================  =======================================
-``apiClient.base_uri``  string  http://localhost:8080  Base URI of the application under test.
-======================  ======  =====================  =======================================
+======================  ======  =============  =======================================
+Key                     Type    Default value  Description
+======================  ======  =============  =======================================
+``apiClient.base_uri``  string  None           Base URI of the application under test.
+======================  ======  =============  =======================================
+
+There is no default base URI. Configure ``apiClient.base_uri`` explicitly for the application under test.
 
 It should be noted that everything in the ``apiClient`` configuration array is passed directly to the Guzzle Client instance used internally by the extension.
 

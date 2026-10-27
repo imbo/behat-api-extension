@@ -119,7 +119,7 @@ Feature: Test form-data handling
             4 steps (4 passed)
             """
 
-    Scenario: Attach multipart form data
+    Scenario: Attach multipart form data with no HTTP method specified
         Given a file named "features/multipart-form-data.feature" with:
             """
             Feature: Set up the request
@@ -129,7 +129,7 @@ Feature: Test form-data handling
                     | name     | some name |
                     | username | admin     |
                     | password | password  |
-                    When I request "/requestInfo" using HTTP "POST"
+                    When I request "/requestInfo"
                     Then the response body contains JSON:
                     '''
                     {
@@ -139,7 +139,8 @@ Feature: Test form-data handling
                             "password": "password"
                         },
                         "_SERVER": {
-                            "CONTENT_TYPE": "@regExp(/^multipart\\/form-data;/)"
+                            "CONTENT_TYPE": "@regExp(/^multipart\\/form-data;/)",
+                            "REQUEST_METHOD": "POST"
                         }
                     }
                     '''

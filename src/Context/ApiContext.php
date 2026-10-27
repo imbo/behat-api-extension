@@ -1200,7 +1200,7 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      */
     protected function sendRequest(): static
     {
-        if (!empty($this->requestOptions['form_params']) && !$this->forceHttpMethod) {
+        if ((!empty($this->requestOptions['form_params']) || !empty($this->requestOptions['multipart'])) && !$this->forceHttpMethod) {
             $this->setRequestMethod('POST');
         }
 
@@ -1348,9 +1348,10 @@ class ApiContext implements ApiClientAwareContext, ArrayContainsComparatorAwareC
      * Update the HTTP method of the request.
      *
      * @param string $method The HTTP method
-     * @param bool   $force  Force the HTTP method. If set to false the method set CAN be
-     *                       overridden (this occurs for instance when adding form parameters to the
-     *                       request, and not specifying HTTP POST for the request)
+     * @param bool   $force  Force the HTTP method. If set to false, the method set can be
+     *                       overridden (this occurs for instance when adding form parameters or
+     *                       multipart parts to the request, and not specifying HTTP POST for the
+     *                       request)
      */
     protected function setRequestMethod(string $method, bool $force = true): static
     {

@@ -1,7 +1,7 @@
 Configuration
 =============
 
-After you have installed the extension you need to activate it in your Behat configuration file (for instance ``behat.dist.php``):
+After you have installed the extension you need to activate it and register its context in your Behat configuration file (for instance ``behat.dist.php``):
 
 .. code-block:: php
 
@@ -10,6 +10,8 @@ After you have installed the extension you need to activate it in your Behat con
     use Behat\Config\Config;
     use Behat\Config\Extension;
     use Behat\Config\Profile;
+    use Behat\Config\Suite;
+    use Imbo\BehatApiExtension\Context\ApiContext;
     use Imbo\BehatApiExtension\ServiceContainer\BehatApiExtension;
 
     $config = new Config();
@@ -18,8 +20,13 @@ After you have installed the extension you need to activate it in your Behat con
         'apiClient' => ['base_uri' => '...'],
     ]);
 
-    return $config->withProfile($profile->withExtension($extension));
+    $suite = (new Suite('default'))->withContexts(ApiContext::class);
 
+    return $config->withProfile(
+        $profile->withExtension($extension)->withSuite($suite)
+    );
+
+This registers the steps provided by ``ApiContext``. If you have a custom context that extends ``ApiContext``, register that class instead. Refer to :doc:`../guide/extending-the-extension` for examples.
 
 The following configuration options are required for the extension to work as expected:
 

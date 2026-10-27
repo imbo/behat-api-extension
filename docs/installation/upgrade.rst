@@ -3,6 +3,23 @@ Upgrading
 
 This section will cover breaking changes between major versions and other related information to ease upgrading to the latest version.
 
+Migration from v6.x to v7.x
+---------------------------
+
+.. contents:: Changes
+    :local:
+    :depth: 1
+
+Explicit base URI configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default value of ``http://localhost:8080`` for ``apiClient.base_uri`` has been removed. Configure ``apiClient.base_uri`` explicitly with the base URI of the application under test. To retain the previous behavior, set it to ``http://localhost:8080``.
+
+Behat 4 support
+^^^^^^^^^^^^^^^
+
+``v7.x`` supports both Behat 3 and Behat 4, so upgrading Behat is optional. If you upgrade to Behat 4, migrate YAML configuration files to PHP configuration and replace step annotations in custom contexts with PHP attributes. Refer to the :doc:`configuration` section for a PHP configuration example and the `Behat documentation <https://docs.behat.org/>`_ for more information on upgrading Behat.
+
 Migration from v5.x to v6.x
 ---------------------------
 

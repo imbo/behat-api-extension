@@ -408,7 +408,7 @@ Notice that the order of the values in the arrays does not matter. To be able to
 Custom matcher functions and targeting
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In some cases the need for more advanced matching arises. All custom functions is used in place of the string value they are validating, and because of the way JSON works, they need to be specified as strings to keep the JSON valid.
+In some cases the need for more advanced matching arises. All custom functions are used in place of the string value they are validating, and because of the way JSON works, they need to be specified as strings to keep the JSON valid.
 
 .. contents::
     :local:

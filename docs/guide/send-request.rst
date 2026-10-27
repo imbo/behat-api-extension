@@ -20,7 +20,7 @@ When I request ``:path`` using HTTP ``:method``
 
 **Examples:**
 
-*Assume that the ``base_uri`` configuration option has been set to ``https://example.com/dir`` in the following examples.*
+*Assume that the ``base_uri`` configuration option has been set to ``https://example.com/dir/`` in the following examples.*
 
 =====================================================  =====================  ===========  =======================================
 Step                                                   ``:path``              ``:method``  Resulting URI

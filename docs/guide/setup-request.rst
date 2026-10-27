@@ -38,7 +38,7 @@ This step can be used to set form parameters (as if the request is a ``<form>`` 
         | bar  | foo   |
         | bar  | bar   |
 
-The first row in the table must contain two values: ``name`` and ``value``. The rows that follows are the fields / values you want to send. This step sets the HTTP method to ``POST`` by default and the ``Content-Type`` request header to ``multipart/form-data``.
+The first row in the table must contain two values: ``name`` and ``value``. The rows that follow are the fields / values you want to send. This step sets the HTTP method to ``POST`` by default and the ``Content-Type`` request header to ``multipart/form-data``.
 
 This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
 
@@ -60,7 +60,7 @@ Given I am authenticating as "``foo``" with password "``bar``"  ``foo``        `
 Given I get an OAuth token using password grant from ``:path`` with ``:username`` and ``:password`` in scope ``:scope`` using client ID ``:clientId`` (and client secret ``:clientSecret``)
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Send a request using password grant to the given ``:path`` for an access token that will be added as a ``Authorization`` header for the next request. The endpoint is required to respond with a JSON object that contains the ``access_token`` key, for instance:
+Send a request using password grant to the given ``:path`` for an access token that will be added as an ``Authorization`` header for the next request. The endpoint is required to respond with a JSON object that contains the ``access_token`` key, for instance:
 
 .. code-block:: json
 
@@ -123,7 +123,7 @@ This step can be used to set form parameters (as if the request is a ``<form>`` 
         | bar  | foo   |
         | bar  | bar   |
 
-The first row in the table must contain two values: ``name`` and ``value``. The rows that follows are the fields / values you want to send. This step sets the HTTP method to ``POST`` by default and the ``Content-Type`` request header to ``application/x-www-form-urlencoded``, unless the step is combined with :ref:`given-i-attach-path-to-the-request-as-partname`, in which case the ``Content-Type`` request header will be set to ``multipart/form-data`` and all the specified fields will be sent as parts in the multipart request.
+The first row in the table must contain two values: ``name`` and ``value``. The rows that follow are the fields / values you want to send. This step sets the HTTP method to ``POST`` by default and the ``Content-Type`` request header to ``application/x-www-form-urlencoded``, unless the step is combined with :ref:`given-i-attach-path-to-the-request-as-partname`, in which case the ``Content-Type`` request header will be set to ``multipart/form-data`` and all the specified fields will be sent as parts in the multipart request.
 
 This step can not be used when sending requests with a request body. Doing so results in an ``InvalidArgumentException`` exception.
 

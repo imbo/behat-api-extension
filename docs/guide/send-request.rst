@@ -9,7 +9,7 @@ After setting up the request it can be sent to the server in a few different way
 When I request ``:path``
 ------------------------
 
-Request ``:path`` using HTTP GET. Shorthand for :ref:`When I request :path using HTTP GET <when-i-request-path-using-http-method>`.
+Request ``:path`` using HTTP GET by default. If form parameters, multipart form parameters or file attachments have been added, the request uses HTTP POST instead. To explicitly select a method, use :ref:`When I request :path using HTTP :method <when-i-request-path-using-http-method>`.
 
 .. _when-i-request-path-using-http-method:
 

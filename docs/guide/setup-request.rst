@@ -13,6 +13,8 @@ Given I attach ``:path`` to the request as ``:partName``
 
 Attach a file to the request (causing a ``multipart/form-data`` request, populating the ``$_FILES`` array on the server). Can be repeated to attach several files. If a specified file does not exist an ``InvalidArgumentException`` exception will be thrown. ``:path`` is relative to the working directory unless it's absolute.
 
+The request uses HTTP ``POST`` by default. To use a different HTTP method, specify it in the :ref:`when-i-request-path-using-http-method` step.
+
 **Examples:**
 
 ==========================================================================  =========================  ==================================================

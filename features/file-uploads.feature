@@ -6,14 +6,14 @@ Feature: Test file uploading
     Background:
         Given a default Behat configuration file
 
-    Scenario: Attach files to the request
+    Scenario: Attach files to the request with no HTTP method specified
         Given a file named "features/attach-files.feature" with:
             """
             Feature: Set up the request
                 Scenario: Use the Given step to attach files
                     Given I attach "behat.php" to the request as file1
                     And I attach "features/attach-files.feature" to the request as file2
-                    When I request "/files" using HTTP POST
+                    When I request "/files"
                     Then the response body contains JSON:
                     '''
                     {

@@ -105,6 +105,17 @@ class ApiContextTest extends TestCase
     }
 
     /**
+     * @return array<array{method:?string}>
+     */
+    public static function getHttpMethodsForMultipartRequests(): array
+    {
+        return [
+            ['method' => null],
+            ...self::getHttpMethods(),
+        ];
+    }
+
+    /**
      * @return array<array{code:int}>
      */
     public static function getResponseCodes(): array
@@ -509,7 +520,8 @@ class ApiContextTest extends TestCase
         $this->context->oauthWithPasswordGrantInScope('/path', 'username', 'password', 'scope', 'client_id', 'client_secret');
     }
 
-    public function testCanAddMultipleMultipartFilesToTheRequest(): void
+    #[DataProvider('getHttpMethodsForMultipartRequests')]
+    public function testCanAddMultipleMultipartFilesToTheRequest(?string $method): void
     {
         $this->mockHandler->append(new Response(200));
         $files = [
@@ -521,11 +533,13 @@ class ApiContextTest extends TestCase
             $this->assertSame($this->context, $this->context->addMultipartFileToRequest($path, $name));
         }
 
-        $this->context->requestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', $method);
 
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
+
+        $this->assertSame($method ?? 'POST', $request->getMethod());
 
         /** @var MultipartStream */
         $requestBody = $request->getBody();
@@ -542,7 +556,8 @@ class ApiContextTest extends TestCase
         }
     }
 
-    public function testCanAddMultipartFormDataParametersToTheRequest(): void
+    #[DataProvider('getHttpMethodsForMultipartRequests')]
+    public function testCanAddMultipartFormDataParametersToTheRequest(?string $method): void
     {
         $this->mockHandler->append(new Response(200));
         $this->assertSame($this->context, $this->context->setRequestMultipartFormParams(new TableNode([
@@ -552,11 +567,13 @@ class ApiContextTest extends TestCase
             ['bar', 'bar'],
         ])));
 
-        $this->context->requestPath('/some/path', 'POST');
+        $this->context->requestPath('/some/path', $method);
 
         $this->assertCount(1, $this->historyContainer);
 
         $request = $this->historyContainer[0]['request'];
+
+        $this->assertSame($method ?? 'POST', $request->getMethod());
 
         /** @var MultipartStream */
         $requestBody = $request->getBody();

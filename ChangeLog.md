@@ -1,5 +1,13 @@
 # Changelog for Behat API Extension
 
+## v7.0.0 - 2026-10-29
+
+- [#173](https://github.com/imbo/behat-api-extension/pull/173): Default multipart requests and file uploads to POST unless an HTTP method is explicitly specified
+- [#172](https://github.com/imbo/behat-api-extension/pull/172): Fix documentation examples and add v7 upgrade guidance
+- [#168](https://github.com/imbo/behat-api-extension/pull/168): Allow installation with Behat 4 while retaining Behat 3 support ([@thomas-hiron](https://github.com/thomas-hiron))
+- [#167](https://github.com/imbo/behat-api-extension/pull/167): Remove the default `apiClient.base_uri` value; configure it explicitly (breaking change) ([@thomas-hiron](https://github.com/thomas-hiron))
+- [#165](https://github.com/imbo/behat-api-extension/pull/165): Add Behat 4 compatibility
+
 ## v6.1.2 - 2026-08-07
 
 - [#163](https://github.com/imbo/behat-api-extension/pull/163): Fix incorrect tagging of previous release
@@ -11,9 +19,9 @@
 ## v6.1.0 - 2026-05-28
 
 - [#157](https://github.com/imbo/behat-api-extension/pull/157): Bump all dependencies
-- [#151](https://github.com/imbo/behat-api-extension/pull/151): Remove/ignore lock file and downgrade minimum requirements ([@uuf6429])
-- [#146](https://github.com/imbo/behat-api-extension/pull/146): Various fixes and minor improvements ([@uuf6429])
-- [#144](https://github.com/imbo/behat-api-extension/pull/144): Replace annotations with attributes ([@uuf6429])
+- [#151](https://github.com/imbo/behat-api-extension/pull/151): Remove/ignore lock file and downgrade minimum requirements ([@uuf6429](https://github.com/uuf6429))
+- [#146](https://github.com/imbo/behat-api-extension/pull/146): Various fixes and minor improvements ([@uuf6429](https://github.com/uuf6429))
+- [#144](https://github.com/imbo/behat-api-extension/pull/144): Replace annotations with attributes ([@uuf6429](https://github.com/uuf6429))
 
 ## v6.0.1 - 2025-11-16
 
